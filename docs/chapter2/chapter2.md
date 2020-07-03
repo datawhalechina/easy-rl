@@ -1,4 +1,3 @@
-[toc]
 # PPO
 ## On-policy and Off-policy
 在讲 PPO 之前，我们先讲一下 on-policy and off-policy 这两种 training 方法的区别。
@@ -84,7 +83,7 @@ $$
 
 我们用 $\theta$ 这个actor 去sample 出$s_t$ 跟$a_t$，sample 出state 跟action 的pair，我们会计算这个state 跟action pair 它的advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在state $s_t$ 采取action $a_t$ 是好的，还是不好的。那接下来后面会乘上$\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果$A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
 
-那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在$s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为$\theta'$  跟 $\theta$ 是不同的model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把$s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t、$$a_t$  用 $\theta'$  sample 出来的概率。
+那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在$s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为$\theta'$  跟 $\theta$ 是不同的model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把$s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
 
 $$
 =E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{P_{\theta}\left(s_{t}, a_{t}\right)}{P_{\theta^{\prime}}\left(s_{t}, a_{t}\right)} A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]

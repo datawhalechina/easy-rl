@@ -1,4 +1,3 @@
-[toc]
 # Policy Gradient
 ##  Policy Gradient
 

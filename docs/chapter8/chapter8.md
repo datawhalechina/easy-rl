@@ -1,4 +1,3 @@
-[toc]
 # Imitation Learning 
 ![](img/8.1.png)
 Imitation learning 讨论的问题是，假设我们连 reward 都没有，那要怎么办呢？Imitation learning 又叫做 `learning by demonstration` 或者叫做 `apprenticeship learning`。在 Imitation learning 里面，你有一些 expert 的 demonstration，那 machine 也可以跟环境互动，但它没有办法从环境里面得到任何的 reward，它只能看着 expert 的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的reward。举例来说，如果是棋类游戏或者是电玩，你有非常明确的 reward。但是其实多数的任务，都是没有 reward 的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的 reward。所以很多 task 是根本就没有办法给出 reward 的。

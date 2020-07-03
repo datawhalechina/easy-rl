@@ -1,5 +1,3 @@
-[toc]
-
 # Q-learning
 
 ## Q-learning

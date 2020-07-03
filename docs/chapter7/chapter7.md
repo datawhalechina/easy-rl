@@ -1,4 +1,3 @@
-[toc]
 # Sparse Reward 
 实际上我们用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到reward 的情况下，对agent 来说它的训练是非常困难的。举例来说，假设你今天要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的action 的原因是 exploration。举例来说，你在做Q learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到reward 1，这件事情是永远不可能发生的。所以，不管你的actor 做了什么事情，它得到reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样得好。所以，它最后什么都不会学到。如果环境中的 reward 非常的 sparse，reinforcement learning 的问题就会变得非常的困难。但是人类可以在非常 sparse 的reward 上面去学习，我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么reward 或者是penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
 

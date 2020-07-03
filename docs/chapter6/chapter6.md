@@ -1,5 +1,3 @@
-[toc]
-
 # Actor-Critic
 
 ## Actor-Critic

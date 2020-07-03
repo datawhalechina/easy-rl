@@ -1,5 +1,3 @@
-
-[toc]
 # Q-learning for Continuous Actions
 
 ![](img/5.1.png)

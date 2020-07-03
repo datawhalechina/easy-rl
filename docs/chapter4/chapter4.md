@@ -1,4 +1,3 @@
-[toc]
 # Tips of Q-learning
 ## Double DQN
 ![](img/4.1.png)
