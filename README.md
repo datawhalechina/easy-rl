@@ -1,9 +1,21 @@
 # 李宏毅深度强化学习笔记(LeeDeepRL-Notes)
 
 
+## 笔记在线阅读地址
+在线阅读地址：https://datawhalechina.github.io/LeeDeepRL-Notes
+
 ## 课程在线观看地址
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
 
+## 目录
+- [P1 Policy Gradient](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter1/chapter1)
+- [P2 Proximal Policy Optimization (PPO)](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter2/chapter2)
+- [P3 Q-learning (Basic Idea)](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter3/chapter3)
+- [P4 Q-learning (Advanced Tips)](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter4/chapter4)
+- [P5 Q-learning (Continuous Action)](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter5/chapter5)
+- [P6 Actor-Critic](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter6/chapter6)
+- [P7 Sparse Reward](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter7/chapter7)
+- [P8 Imitation Learning](https://datawhalechina.github.io/LeeDeepRL-Notes/#/chapter8/chapter8)
 ## 主要贡献者
 
 - [@qiwang067](https://github.com/qiwang067)
