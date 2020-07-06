@@ -64,9 +64,9 @@ $$
 ## Prioritized Replay
 
 ![](img/4.7.png)
-有一个技巧叫做`Prioritized Replay`。Prioritized Replay 是什么意思呢？
+有一个技巧叫做 `Prioritized Replay`。Prioritized Replay 是什么意思呢？
 
-我们原来在sample data 去train 你的Q-network 的时候，你是 uniformly 地从experience buffer，从buffer 里面去sample data。你就是uniform 地去sample 每一笔data，那这样不见得是最好的， 因为也许有一些data 比较重要。假设有一些data，你之前有sample 过。你发现说那一笔data 的 TD error 特别大（TD error 就是你的network 的output 跟target 之间的差距），那这些data 代表说你在train network 的时候， 你是比较train 不好的。那既然比较train 不好， 那你就应该给它比较大的概率被sample 到，这样在training 的时候，才会考虑那些train 不好的training data 多次一点。实际上在做 prioritized replay 的时候，你不只会更改 sampling 的process，你还会因为更改了sampling 的process，你会更改update 参数的方法。所以 prioritized replay 并不只是改变了sample data 的distribution 这么简单，你也会改training process。
+我们原来在 sample data 去 train 你的 Q-network 的时候，你是 uniformly 从 experience buffer 里面去 sample data。你就是 uniformly 去 sample 每一笔 data，那这样不见得是最好的， 因为也许有一些 data 比较重要。假设有一些 data，你之前有sample 过。你发现说那一笔 data 的 TD error 特别大（TD error 就是你的 network 的 output 跟 target 之间的差距），那这些 data 代表说你在train network 的时候， 你是比较 train 不好的。那既然比较 train 不好， 那你就应该给它比较大的概率被 sample 到，这样在 training 的时候，才会多考虑那些 train 不好的 training data。实际上在做 prioritized replay 的时候，你不仅会更改 sampling 的 process，你还会因为更改了sampling 的process，你会更改 update 参数的方法。所以 prioritized replay 并不只是改变了 sample data 的distribution，你也会改 training process。
 ## Balance between MC and TD
 
 ![](img/4.8.png)
