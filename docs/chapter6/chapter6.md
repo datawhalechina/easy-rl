@@ -87,6 +87,7 @@ A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就�
 
 这个 A3C 是怎么运作的呢？A3C 是这样子，一开始有一个 global network。那我们刚才有讲过说，其实 policy network 跟 value network 是 tie 在一起的，他们的前几个 layer 会被 tie 一起。我们有一个 global network，它们有包含 policy 的部分和 value 的部分。假设它的参数就是 $\theta_1$，你会开很多个 worker。每一个 worker 就用一张 CPU 去跑，比如你就开 8 个 worker ，那你至少 8 张 CPU。第一个 worker 就把 global network 的参数 copy 过来，每一个 worker 工作前都会global network 的参数 copy 过来。接下来你就去跟环境做互动，每一个 actor 去跟环境做互动的时候，为了要 collect 到比较 diverse 的 data，所以举例来说如果是走迷宫的话，可能每一个 actor 起始的位置都会不一样，这样它们才能够收集到比较多样性的 data。每一个 actor 就自己跟环境做互动，互动完之后，你就会计算出 gradient。那计算出 gradient 以后，你要拿 gradient 去 update 你的参数。你就计算一下你的 gradient，然后用你的 gradient 去 update global network 的参数。就是这个 worker 算出 gradient 以后，就把 gradient 传回给中央的控制中心。然后中央的控制中心，就会拿这个 gradient 去 update 原来的参数。但是要注意一下，所有的 actor 都是平行跑的，就每一个 actor 就是各做各的，互相之间就不要管彼此。所以每个人都是去要了一个参数以后，做完就把参数传回去。所以当第一个 worker 做完想要把参数传回去的时候，本来它要的参数是 $\theta_1$，等它要把 gradient 传回去的时候。可能别人已经把原来的参数覆盖掉，变成 $\theta_2$了。但是没有关系，它一样会把这个 gradient 就覆盖过去就是了。Asynchronous actor-critic 就是这么做的，这个就是 A3C。
 
+ ## Pathwise Derivative Policy Gradient
 ![](img/6.9.png)
 
 讲完 A3C 之后，我们要讲另外一个方法叫做 `Pathwise Derivative Policy Gradient`，这个方法很神奇，它可以想成是 Q-learning 解 continuous action 的一种特别的方法。那它也可以想成是一种特别的 Actor-Critic 的方法。
@@ -110,11 +111,12 @@ A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就�
 
  接下来我们把它改成 Pathwise Derivative Policy Gradient，这边就是只要做四个改变就好。
 
-* 第一个改变是，你要把 Q 换成 $\pi$，本来是用 Q 来决定在 state $s_t$ 产生那一个 action, $a_{t}$ 现在是直接用 $\pi$ 。我们不用再解 a​​rg max 的 problem 了，我们直接 learn 了一个 actor。这个 actor input $s_t$ 就会告诉我们应该采取哪一个 $a_{t}$。所以本来 input $s_t$，采取哪一个 $a_t$，是 Q 决定的。在 Pathwise Derivative Policy Gradient 里面，我们会直接用 $\pi$ 来决定，这是第一个改变。
+* 第一个改变是，你要把 Q 换成 $\pi$，本来是用 Q 来决定在 state $s_t$ 产生那一个 action, $a_{t}$ 现在是直接用 $\pi$ 。我们不用再解 arg max 的 problem 了，我们直接 learn 了一个 actor。这个 actor input $s_t$ 就会告诉我们应该采取哪一个 $a_{t}$。所以本来 input $s_t$，采取哪一个 $a_t$，是 Q 决定的。在 Pathwise Derivative Policy Gradient 里面，我们会直接用 $\pi$ 来决定，这是第一个改变。
 * 第二个改变是，本来这个地方是要计算在 $s_{i+1}$，根据你的 policy 采取某一个 action a 会得到多少的 Q value。那你会采取让 $\hat{Q}$ 最大的那个 action a。那现在因为我们其实不好解这个 arg max 的 problem，所以 arg max problem，其实现在就是由 policy $\pi$ 来解了，所以我们就直接把 $s_{i+1}$ 代到 policy $\pi$ 里面，你就会知道说  given $s_{i+1}$ ，哪一个 action 会给我们最大的 Q value，那你在这边就会 take 那一个 action。在 Q-function 里面，有两个 Q network，一个是真正的 Q network，另外一个是 target Q network。那实际上你在 implement 这个 algorithm 的时候，你也会有两个 actor，你会有一个真正要 learn 的 actor $\pi$，你会有一个 target actor $\hat{\pi}$ 。这个原理就跟为什么要有 target Q network 一样，我们在算 target value 的时候，我们并不希望它一直的变动，所以我们会有一个 target 的 actor 和一个 target 的 Q-function，它们平常的参数就是固定住的，这样可以让你的这个 target 的 value 不会一直地变化。所以本来到底是要用哪一个 action a，你会看说哪一个 action a 可以让 $\hat{Q}$  最大。但现在因为哪一个 action a 可以让 $\hat{Q}$ 最大这件事情已经被用那个 policy 取代掉了，所以我们要知道哪一个 action a 可以让 $\hat{Q}$ 最大，就直接把那个 state 带到 $\hat{\pi}$ 里面，看它得到哪一个 a，就用那一个 a，那一个 a 就是会让 $\hat{Q}(s,a)$ 的值最大的那个 a 。其实跟原来的这个 Q-learning 也是没什么不同，只是原来你要解 arg max 的地方，通通都用 policy 取代掉了，那这个是第二个不同。
 * 第三个不同就是之前只要 learn Q，现在你多 learn 一个 $\pi$，那 learn $\pi$ 的时候的方向是什么呢？learn $\pi$ 的目的，就是为了 maximize Q-function，希望你得到的这个 actor，它可以让你的 Q-function output 越大越好，这个跟 learn GAN 里面的 generator 的概念。其实是一样的。
 * 第四个 step，就跟原来的 Q-function 一样。你要把 target 的 Q network 取代掉，你现在也要把 target policy 取代掉。
 
+## Connection with GAN
 ![](img/6.14.png)
 
 其实 GAN 跟 Actor-Critic 的方法是非常类似的。这边就不细讲，你可以去找到一篇 paper 叫做 Connecting Generative Adversarial Network and Actor-Critic Methods。知道 GAN 跟 Actor-Critic 非常像有什么帮助呢？一个很大的帮助就是 GAN 跟 Actor-Critic 都是以难 train 而闻名的。所以在文献上就会收集各式各样的方法，告诉你说怎么样可以把 GAN train 起来。怎么样可以把 Actor-Critic train 起来。但是因为做 GAN 跟 Actor-Critic 的人是两群人，所以这篇 paper 里面就列出说在 GAN 上面有哪些技术是有人做过的，在 Actor-Critic 上面，有哪些技术是有人做过的。也许在 GAN 上面有试过的技术，你可以试着 apply 在 Actor-Critic 上，在 Actor-Critic 上面做过的技术，你可以试着 apply 在 GAN 上面，看看是否work。
