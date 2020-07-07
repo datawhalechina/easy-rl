@@ -244,11 +244,11 @@ $$
 
 还有一个方法叫做 `Boltzmann Exploration`，这个方法就比较像是policy gradient。在policy gradient 里面我们说network 的output 是一个 expected action space 上面的一个的 probability distribution。再根据 probability distribution 去做sample。那其实你也可以根据 Q value 去定一个probability distribution，你可以说，假设某一个action 的Q value 越大，代表它越好，那我们采取这个action 的机率就越高。但是某一个action 的Q value 小，不代表我们不能try，try 看它好不好用。所以我们有时候也要try，try 那些 Q value 比较差的 action，怎么做呢？因为Q value 是有正有负的。所以你要把它弄成一个概率，你可能就先取exponential，然后再做normalize。然后把 $exp(Q(s,a))$ 做normalize 的这个概率当作是你在决定action 的时候sample 的概率。在实现上，Q 是一个network，所以你有点难知道， 在一开始的时候network 的output 到底会长怎么样子。但是你可以猜测说， 假设你一开始没有任何的training data，你的参数是随机的，那given 某一个state s，不同的a output 的值，可能就是差不多的。所以一开始$Q(s,a)$ 应该会倾向于是uniform。也就是在一开始的时候，你这个probability distribution 算出来，它可能是比较uniform 的。
 
-## Replay Buffer
+## Experience Replay
 
 ![](img/3.14.png)
 
-第三个tip是`replay buffer`。replay buffer 是说现在会有某一个policy $\pi$ 去跟环境做互动，然后它会去收集data。我们会把所有的data 放到一个buffer 里面，buffer 里面就存了很多data。Buffer 比如说 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。这边要注意的事情是replay buffer 里面的 experience可能是来自于不同的policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动10000 次，然后接下来你就更新你的$\pi$ 了。但是这个buffer 里面可以放5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个buffer 里面它其实装了很多不同的 policy 的experiences。
+第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，replay buffer 是说现在会有某一个policy $\pi$ 去跟环境做互动，然后它会去收集data。我们会把所有的data 放到一个buffer 里面，buffer 里面就存了很多data。Buffer 比如说 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。这边要注意的事情是replay buffer 里面的 experience可能是来自于不同的policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动10000 次，然后接下来你就更新你的$\pi$ 了。但是这个buffer 里面可以放5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个buffer 里面它其实装了很多不同的 policy 的experiences。
 
 ![](img/3.15.png)
 
