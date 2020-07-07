@@ -4,57 +4,77 @@
 
 ![](img/3.1.png)
 
-Q-learning 是value-based 的方法。在value based 的方法里面，我们 learn 的并不是 policy。我们要 learn 的是一个 critic，critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或者是有多不好。Critic 并不直接采取行为是说，假设有一个 actor $\pi$ ，那 critic 的工作就是来评价这个 actor $\pi$ 做得有多好或者有多不好。举例来说，有一种 actor 叫做 state value 的 function。state value function 的意思就是说，假设 actor 叫做 $\pi$，拿 $\pi$  跟环境去做互动。假设 $\pi$ 看到了某一个state s。如果在玩Atari 游戏的话，state s 是某一个画面，看到某一个画面，某一个state s 的时候，接下来一直玩到游戏结束，累积的reward 的期望值有多大。所以 $V^{\pi}$ 是一个function，这个 function 吃一个state，当作input，然后它会 output 一个 scalar， 这个 scalar 代表说，$\pi$ 这个actor 看到state s 的时候，接下来预期到游戏结束的时候，它可以得到多大的value。
+Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我们 learn 的不是 policy，我们要 learn 的是一个 `critic`。Critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或者是有多不好。假设有一个 actor $\pi$ ，那 critic 的工作就是来评价这个 actor $\pi$  做得有多好或者有多不好。举例来说，有一种 actor 叫做 `state value function`。state value function 的意思就是说，假设 actor 叫做 $\pi$，拿 $\pi$  跟环境去做互动。假设 $\pi$  看到了某一个state s，如果在玩 Atari 游戏的话，state s 是某一个画面，看到某一个画面的时候，接下来一直玩到游戏结束，累积的 reward 的期望值有多大。所以 $V^{\pi}$ 是一个function，这个 function input 一个 state，然后它会 output 一个 scalar。这个 scalar 代表说，$\pi$ 这个 actor 看到 state s 的时候，接下来预期到游戏结束的时候，它可以得到多大的 value。
 
+举个例子，假设你是玩 space invader 的话，
 
+* 左边这个 state s，这一个游戏画面，你的 $V^{\pi}(s)$  也许会很大，因为还有很多的怪可以杀， 所以你会得到很大的分数。一直到游戏结束的时候，你仍然有很多的分数可以吃。
+* 右边那个case，也许你得到的 $V^{\pi}(s)$ 就很小，因为剩下的怪也不多了，并且红色的防护罩已经消失了，所以可能很快就会死掉。所以接下来得到预期的 reward，就不会太大。
 
-举个例子，假设你是玩space invader 的话，也许这个 state s，这一个游戏画面，你的 $V^{\pi}(s)$ 会很大，因为接下来还有很多的怪可以杀， 所以你会得到很大的分数。一直到游戏结束的时候，你仍然有很多的分数可以吃。右边那个case，也许你得到的$V^{\pi}(s)$就很小，因为剩下的怪也不多了，并且红色的防护罩已经消失了，所以可能很快就会死掉。所以接下来得到预期的 reward，就不会太大。这边需要强调的一个点是说，当你在讲这一个critic 的时候，critic 都是绑一个 actor 的，就 critic 并没有办法去凭空去 evaluate 一个 state 的好坏，它所 evaluate 的东西是在 given 某一个 state 的时候， 假设我接下来互动的actor 是$\pi$，那我会得到多少reward，因为就算是给同样的 state，你接下来的 $\pi$ 不一样，你得到的 reward 也是不一样的。举例来说，在左边那个case，虽然假设是一个正常的$\pi$，它可以杀很多怪，那假设他是一个很弱的$\pi$，它就站在原地不动，然后马上就被射死了，那你得到的 V 还是很小。所以 critic output 值有多大，其实是取决于两件事：state 和 actor。所以你的 critic 其实都要绑一个 actor，它是在衡量某一个actor 的好坏，而不是 generally 衡量一个 state 的好坏。这边要强调一下，critic output 是跟 actor 有关的，state value 其实是 depend on 你的 actor。当你的actor 变的时候，state value function 的output 其实也是会跟着改变的。
-再来问题就是，怎么衡量这一个state value function 呢？怎么衡量这一个$V^{\pi}(s)$ 呢？有两种不同的做法。
+这边需要强调的一个点是说，当你在讲这一个 critic 的时候，critic 都是绑一个 actor 的，critic 没有办法去凭空去 evaluate 一个 state 的好坏，它所 evaluate 的东西是在 given 某一个 state 的时候， 假设接下来互动的 actor 是 $\pi$，那我会得到多少 reward。因为就算是给同样的 state，你接下来的 $\pi$ 不一样，你得到的 reward 也是不一样的。举例来说，在左边那个case，虽然假设是一个正常的 $\pi$，它可以杀很多怪，那假设他是一个很弱的 $\pi$，它就站在原地不动，然后马上就被射死了，那你得到的 V 还是很小。所以 critic output 值有多大，其实是取决于两件事：state 和 actor。所以你的 critic 其实都要绑一个 actor，它是在衡量某一个 actor 的好坏，而不是 generally 衡量一个 state 的好坏。这边要强调一下，critic output 是跟 actor 有关的，state value 其实是 depend on 你的 actor。当你的 actor 变的时候，state value function 的output 其实也是会跟着改变的。
+
+再来问题就是，怎么衡量这一个 state value function 呢？怎么衡量这一个$V^{\pi}(s)$ 呢？有两种不同的做法。
 
 ![](img/3.2.png)
 
-怎么estimate 这些critic，那怎么estimate $V^{\pi}(s)$  呢。有两个方向，一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让actor 去跟环境做互动，给critic 看。然后，critic 就统计说， 这个actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward会有多大。但是实际上，你当然不可能把所有的state 通通都扫过。如果你是玩Atari 游戏的话，你的state 是image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个network。对一个network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个value 的值。怎么训练这个network 呢？因为如果在state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果input 是state $s_a$，正确的output 应该是$G_a$。如果input state $s_b$，正确的output 应该是value $G_b$。所以在training 的时候， 它就是一个regression 的 problem。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟$G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把network train 下去，就结束了。这是第一个方法，这是MC based 的方法。
+怎么 estimate 这些critic，那怎么 estimate $V^{\pi}(s)$  呢。有两个方向，一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让 actor 去跟环境做互动，给critic 看。然后，critic 就统计说，actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward 会有多大。但是实际上，你当然不可能把所有的state 通通都扫过。如果你是玩 Atari 游戏的话，你的 state 是 image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个network。对一个network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个 value 的值。
+
+怎么训练这个 network 呢？因为如果在state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果 input 是 state $s_a$，正确的 output 应该是$G_a$。如果 input state $s_b$，正确的output 应该是value $G_b$。所以在 training 的时候， 它就是一个 `regression problem`。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟 $G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把 network train 下去，就结束了。这是第一个方法，MC based 的方法。
 
 ![](img/3.3.png)
 
-第二个方法是`Temporal-difference` 的方法， `即TD based `的方法。在 MC based 的方法中，每次我们都要算accumulated reward，也就是从某一个 state $s_a$ 一直玩游戏玩到游戏结束的时候，你会得到的所有reward 的总和。所以今天你要 apply MC based 的approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以怎么办？有另外一种 TD based 的方法。TD based 的方法不需要把游戏玩到底。只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ ，得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以apply TD 的方法。
+第二个方法是`Temporal-difference` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以怎么办？有另外一种 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以apply TD 的方法。
 
 怎么 apply TD 的方法呢？这边是基于以下这个式子：
 $$
 V^{\pi}\left(s_{t}\right)=V^{\pi}\left(s_{t+1}\right)+r_{t}
 $$
 
-假设我们现在用的是某一个 policy $\pi$，在 state $s_t$，它会采取 action $a_t$，给我们 reward $r_t$ ，接下来进入$s_{t+1}$ 。state $s_{t+1}$ 的 value 跟 state $s_t$ 的 value，它们的中间差了一项 $r_t$。因为你把 $s_{t+1}$ 得到的 value 加上得到的 reward $r_t$ 就会等于$s_t$ 得到的value。有了这个式子以后，你在training 的时候，你要做的事情并不是直接去估测 V，而是希望你得到的结果 V 可以满足这个式子，也就是说你 training 的时候会是这样 train 的，你把 $s_t$ 丢到network 里面，因为 $s_t$ 丢到network 里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的 value network 里面会得到$V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减$V^{\pi}(s_{t+1})$，它应该值是$r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，train 下去，update V 的参数，你就可以把 V function learn 出来。
+假设我们现在用的是某一个 policy $\pi$，在 state $s_t$，它会采取 action $a_t$，给我们 reward $r_t$ ，接下来进入$s_{t+1}$ 。state $s_{t+1}$ 的 value 跟 state $s_t$ 的 value，它们的中间差了一项 $r_t$。因为你把 $s_{t+1}$ 得到的 value 加上得到的 reward $r_t$ 就会等于 $s_t$ 得到的 value。有了这个式子以后，你在 training 的时候，你并不是直接去估测 V，而是希望你得到的结果 V 可以满足这个式子。也就是说你会是这样 train 的，你把 $s_t$ 丢到 network 里面，因为 $s_t$ 丢到 network 里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的 value network 里面会得到$V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减 $V^{\pi}(s_{t+1})$ 的值应该是 $r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，train 下去，update V 的参数，你就可以把 V function learn 出来。
 
 ![](img/3.4.png)
 
-MC 跟TD 有什么样的差别呢？MC 最大的问题就是 variance 很大。因为我们在玩游戏的时候，它本身是有随机性的。所以你可以把 $G_a$ 看成一个 random 的 variable。因为你每次同样走到 $s_a$ 的时候，最后你得到的 $G_a$ 其实是不一样的。你看到同样的state $s_a$，最后玩到游戏结束的时候，因为游戏本身是有随机性的，你的玩游戏的model 本身搞不好也有随机性，所以你每次得到的 $G_a$ 是不一样的，每一次得到$G_a$ 的差别其实会很大。为什么它会很大呢？因为 $G_a$ 其实是很多个不同的 step 的reward 的和。假设你每一个step 都会得到一个reward，$G_a$ 是从 state $s_a$  开始，一直玩到游戏结束，每一个timestamp reward 的和。
+MC 跟 TD 有什么样的差别呢？**MC 最大的问题就是 variance 很大**。因为我们在玩游戏的时候，它本身是有随机性的。所以你可以把 $G_a$ 看成一个 random 的 variable。因为你每次同样走到 $s_a$ 的时候，最后你得到的 $G_a$ 其实是不一样的。你看到同样的state $s_a$，最后玩到游戏结束的时候，因为游戏本身是有随机性的，玩游戏的 model 搞不好也有随机性，所以你每次得到的 $G_a$ 是不一样的，每一次得到$G_a$ 的差别其实会很大。为什么它会很大呢？因为 $G_a$ 其实是很多个不同的 step 的 reward 的和。假设你每一个step 都会得到一个reward，$G_a$ 是从 state $s_a$  开始，一直玩到游戏结束，每一个timestamp reward 的和。
 
-那举例来说，我在右上角就列一个式子是说，
+举例来说，我在右上角就列一个式子是说，
 
 $$
 \operatorname{Var}[k X]=k^{2} \operatorname{Var}[X]
 $$
-Var就是指variance。 
-通过这个式子，我们可以知道 $G_a$ 的 variance  相较于某一个 state 的 reward，它会是比较大的，$G_a$ 的variance 是比较大的。
+Var 就是指 variance。 
+通过这个式子，我们知道 $G_a$ 的 variance  相较于某一个 state 的 reward，它会是比较大的，$G_a$ 的variance 是比较大的。
 
-现在，如果说用TD 的话呢？用TD 的话，你是要去minimize 这样的一个式子：
+现在，如果说用TD 的话呢？用 TD 的话，你是要去 minimize 这样的一个式子：
 
 ![](img/3.5.png)
 
-在这中间会有随机性的是 r。因为计算你在 $s_t$ 采取同一个 action，你得到的 reward 也不见得是一样的，所以 r 其实也是一个 random variable。但这个 random variable 的 variance 会比 $G_a$ 还要小，因为 $G_a$ 是很多 r 合起来。这边只是某一个 r  而已。$G_a$ 的variance 会比较大，r  的variance 会比较小。但是这边你会遇到的一个问题是你这个 V 不见得估的准，假设你的这个 V 估的是不准的，那你 apply 这个式子 learn 出来的结果，其实也会是不准的。所以MC 跟TD各有优劣。今天其实TD 的方法是比较常见的，MC 的方法其实是比较少用的。
+在这中间会有随机性的是 r。因为计算你在 $s_t$ 采取同一个 action，你得到的 reward 也不一定是一样的，所以 r 是一个 random variable。但这个 random variable 的 variance 会比 $G_a$ 还要小，因为 $G_a$ 是很多 r 合起来，这边只是某一个 r  而已。$G_a$ 的 variance 会比较大，r  的 variance 会比较小。但是这边你会遇到的**一个问题是你这个 V 不一定估得准**。假设你的这个 V 估得是不准的，那你 apply 这个式子 learn 出来的结果，其实也会是不准的。所以 MC 跟 TD各有优劣。**今天其实 TD 的方法是比较常见的，MC 的方法其实是比较少用的。**
 
 ![](img/3.6.png)
-上图是讲 TD 跟 MC 的差异。假设有某一个critic，它去观察某一个 policy $\pi$ 跟环境互动的8个 episode 的结果。有一个actor $\pi$ 跟环境互动了8 次，得到了8 次玩游戏的结果。接下来这个 critic 去估测 state 的 value。如果我们看 $s_b$ 的value 是多少，$s_b$ 这个state 在8场游戏里面都有经历过，然后在这8 场游戏里面，其中有6 场得到 reward 1，有两场得到reward 0，所以如果你是要算期望值的话，就看到 state $s_b$ 以后得到的 reward，一直到游戏结束的时候得到的accumulated reward 期望值是3/4。但 $s_a$ 期望的reward 到底应该是多少呢？这边其实有两个可能的答案：一个是0，一个是3/4。为什么有两个可能的答案呢？这取决于你用MC 还是TD。用MC 跟用TD 算出来的结果是不一样的。
+上图是讲 TD 跟 MC 的差异。假设有某一个 critic，它去观察某一个 policy $\pi$  跟环境互动的 8 个 episode 的结果。有一个actor $\pi$ 跟环境互动了8 次，得到了8 次玩游戏的结果。接下来这个 critic 去估测 state 的 value。
 
-假如你用MC 的话，你会发现这个$s_a$ 就出现一次，看到$s_a$ 这个state，接下来 accumulated reward 就是 0。所以今天 $s_a$ expected reward 就是 0。但 TD 在计算的时候，它是要update 下面这个式子。
+* 我们看看 $s_b$ 的 value 是多少。$s_b$ 这个state 在 8 场游戏里面都有经历过，其中有6 场得到 reward 1，有两场得到 reward 0，所以如果你是要算期望值的话，就看到 state $s_b$ 以后得到的 reward，一直到游戏结束的时候得到的 accumulated reward 期望值是 3/4。
+* 但 $s_a$ 期望的 reward 到底应该是多少呢？这边其实有两个可能的答案：一个是0，一个是3/4。为什么有两个可能的答案呢？这取决于你用MC 还是TD。用MC 跟用TD 算出来的结果是不一样的。
+
+假如你用 MC 的话，你会发现这个$s_a$ 就出现一次，看到$s_a$ 这个state，接下来 accumulated reward 就是 0。所以今天 $s_a$ expected reward 就是 0。
+
+但 TD 在计算的时候，它要update 下面这个式子。
 $$
 V^{\pi}\left(s_{a}\right)=V^{\pi}\left(s_{b}\right)+r
 $$
 
-因为我们在 state $s_a$ 得到 reward r=0 以后，跳到 state $s_b$。所以 state $s_b$ 的 reward 会等于 state $s_b$ 的 reward 加上在state $s_a$ 跳到 state $s_b$ 的时候可能得到的 reward r。而这个可能得到的reward r 的值是 0。$s_b$ expected reward 是3/4。那$s_a$ 的reward 应该是3/4。有趣的地方是用 MC 跟 TD 你估出来的结果，其实很有可能是不一样的。就算 critic observed 到一样的 training data，它最后估出来的结果，也不见得会是一样。那为什么会这样呢？你可能问说，那一个比较对呢？其实就都对。
+因为我们在 state $s_a$ 得到 reward r=0 以后，跳到 state $s_b$。所以 state $s_b$ 的 reward 会等于 state $s_b$ 的 reward 加上在state $s_a$ 跳到 state $s_b$ 的时候可能得到的 reward r。而这个得到的 reward r 的值是 0，$s_b$ expected reward 是3/4，那$s_a$ 的reward 应该是3/4。
 
-因为在第一个 trajectory， $s_a$ 得到 reward 0 以后，再跳到 $s_b$ 也得到reward 0。这边有两个可能，一个可能是$s_a$，它就是一个带 sign 的state，所以只要看到 $s_a$ 以后，$s_b$ 就会拿不到reward，有可能$s_a$ 其实影响了$s_b$。如果是用MC 的算法的话，它就会考虑这件事， 它会把 $s_a$ 影响 $s_b$ 这件事考虑进去。所以看到 $s_a$ 以后，接下来 $s_b$ 就得不到 reward，所以看到$s_a$ 以后，期望的reward 是 0。但是今天看到$s_a$ 以后， $s_b$ 的 reward 是0 这件事有可能只是一个巧合，就并不是 $s_a$ 所造成，而是因为说 $s_b$ 有时候就是会得到reward 0，这只是单纯运气的问题。其实平常 $s_b$ 会得到reward 期望值是3/4。跟$s_a$ 是完全没有关系的。所以 $s_a$ 假设之后会跳到 $s_b$，那其实得到的reward 按照TD 来算应该是3/4。所以不同的方法，它考虑了不同的假设，运算结果不同。
+用 MC 跟 TD 估出来的结果，其实很有可能是不一样的。就算 critic observed 到一样的 training data，它最后估出来的结果。也不见得会是一样。那为什么会这样呢？你可能问说，那一个比较对呢？其实就都对。
+
+因为在第一个 trajectory， $s_a$ 得到 reward 0 以后，再跳到 $s_b$ 也得到 reward 0。这边有两个可能。
+
+* 一个可能是$s_a$，它就是一个带 sign 的 state，所以只要看到 $s_a$ 以后，$s_b$ 就会拿不到reward，有可能$s_a$ 其实影响了$s_b$。如果是用 MC 的算法的话，它会把 $s_a$ 影响 $s_b$ 这件事考虑进去。所以看到 $s_a$ 以后，接下来 $s_b$ 就得不到 reward，所以看到$s_a$ 以后，期望的reward 是 0。
+
+* 另一个可能是，看到$s_a$ 以后， $s_b$ 的 reward 是0 这件事只是一个巧合，就并不是 $s_a$ 所造成，而是因为说 $s_b$ 有时候就是会得到 reward 0，这只是单纯运气的问题。其实平常 $s_b$ 会得到 reward 期望值是3/4，跟 $s_a$ 是完全没有关系的。所以假设 $s_a$ 之后会跳到 $s_b$，那其实得到的 reward 按照 TD 来算应该是3/4。
+
+所以不同的方法考虑了不同的假设，运算结果不同。
+
 ![](img/3.7.png)
 
 还有另外一种critic，这种critic 叫做 `Q-function`。它又叫做`state-action value function`。
@@ -64,8 +84,8 @@ Q-function 有一个需要注意的问题是，这个 actor $\pi$，在看到 st
 
 Q-function 有两种写法：
 
-* input 是 state 跟action，output 就是一个scalar；
-* input  是一个 state s，会output 好几个value。
+* input 是 state 跟action，output 就是一个 scalar；
+* input  是一个 state s，output 就是好几个 value。
 
 假设 action 是 discrete 的，action 就只有3 个可能，往左往右或是开火。那这个 Q-function output 的3 个 values 就分别代表 a 是向左的时候的 Q value，a 是向右的时候的Q value，还有 a 是开火的时候的 Q value。
 
