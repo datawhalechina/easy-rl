@@ -26,7 +26,7 @@ Policy 一般写成 $\pi$。假设你是用 deep learning 的技术来做 reinfo
 我们把一开始的初始画面，写作 $s_1$， 把第一次执行的动作叫做 $a_1$，把第一次执行动作完以后得到的 reward 叫做$r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个的行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。然后这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
 
 ![](img/1.4.png)
-一场游戏，叫做一个 `Episode`。把这个游戏里面，所有得到的 reward 通通总合起来，就是 `Total reward`， 用大 R 来表示它， 这个 actor 它存在的目的就是想办法去 maximize 它可以得到的 reward。
+一场游戏，叫做一个 `Episode`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `Total reward`，我们称其为`Return(回报)`，用 R 来表示它。Actor 存在的目的就是想办法去 maximize 它可以得到的 reward。
 
 ![](img/1.5.png)
 首先，`environment` 也是一个`function`，连那个游戏的主机，也可以把它看作是一个 function，虽然它不一定是 neural network，可能是 rule-based 的规则，但你可以把它看作是一个 function。这个 function，一开始就先吐出一个 state，然后接下来呢，也就是游戏的画面，接下来你的 actor 看到这个游戏画面 $s_1$ 以后，它吐出 $a_1$，然后接下来 environment，把这个 $a_1$ 当作它的输入，然后它再吐出 $s_2$，吐出新的游戏画面。actor 看到新的游戏画面，又再决定新的行为 $a_2$，然后 environment 再看到 $a_2$，再吐出 $s_3$，这个 process 就一直下去，直到 environment 觉得说应该要停止为止。
@@ -140,7 +140,8 @@ $$
 $$
 
 像这种 loss function。你可在 TensorFlow 里 call 现成的 function，它就会自动帮你算。
-然后你就可以把 gradient 计算出来，这是一般的分类问题。RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 pyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
+然后你就可以把 gradient 计算出来，这是一般的分类问题。RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 PyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
+
 ## Tips
 这边有一些在实现的时候，你也许用得上的 tip。
 ### Tip 1: Add a Baseline
