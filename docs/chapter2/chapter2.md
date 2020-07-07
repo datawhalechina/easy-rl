@@ -1,14 +1,14 @@
 # PPO
-## On-policy and Off-policy
+## From On-policy to Off-policy
 在讲 PPO 之前，我们先讲一下 on-policy and off-policy 这两种 training 方法的区别。
-在reinforcement learning 里面，我们要learn 的就是一个agent。
+在 reinforcement learning 里面，我们要learn 的就是一个agent。
 
-* 如果要 learn 的 agent 跟和环境互动的agent 是同一个的话， 这个叫做`on-policy`。 
-* 如果要 learn 的 agent 跟和环境互动的agent 不是同一个的话， 那这个叫做`off-policy`。
+* 如果要 learn 的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy`。 
+* 如果要 learn 的 agent 跟和环境互动的 agent 不是同一个的话， 那这个叫做`off-policy`。
 
-比较拟人化的讲法就是如果今天要学习的那个agent，一边跟环境互动，一边做学习这个叫on-policy。 如果它在旁边看别人玩，通过看别人玩来学习的话，这个叫做off-policy。
+比较拟人化的讲法是如果要学习的那个 agent，一边跟环境互动，一边做学习这个叫 on-policy。 如果它在旁边看别人玩，通过看别人玩来学习的话，这个叫做 off-policy。
 
-为什么我们会想要考虑off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做policy gradient 时，我们会需要有一个agent、一个policy 和 一个actor。这个actor 先去跟环境互动去搜集资料，搜集很多的$\tau$，根据它搜集到的资料，会按照 policy gradient 的式子去 update policy 的参数。所以 policy gradient 是一个 on-policy 的 algorithm。
+为什么我们会想要考虑 off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做policy gradient 时，我们会需要有一个agent、一个policy 和 一个actor。这个actor 先去跟环境互动去搜集资料，搜集很多的$\tau$，根据它搜集到的资料，会按照 policy gradient 的式子去 update policy 的参数。所以 policy gradient 是一个 on-policy 的 algorithm。
 
 ![](img/2.1.png)
 
@@ -60,7 +60,7 @@ $\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(
 
 ![](img/2.4.png)
 
-举个例子，当$p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要sample 的话，都会sample 到这个地方，而$f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+举个例子，当$p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要sample 的话，都会sample 到这个地方，而$f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
 
 接下来我们改成从 $q(x)$ 这边做sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只sample 到右侧。如果你都只sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边sample 到这些点，然后你去计算它们的$f(x) \frac{p(x)}{q(x)}$都是正的，所以你sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你sample 的次数不够多，因为假设你sample 次数很少，你只能sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被sample 到。假设你今天好不容易sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要sample 够多次，这件事情才会发生。但有可能sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
 
