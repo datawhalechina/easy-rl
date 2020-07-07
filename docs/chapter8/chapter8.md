@@ -82,6 +82,7 @@ IRL 有很多的application，举例来说，可以用开来自驾车。然后�
 
 这种技术也可以拿来训练机器人。你可以让机器人，做一些你想要他做的动作，过去如果你要训练机器人，做你想要他做的动作，其实是比较麻烦的。怎么麻烦呢？过去如果你要操控机器的手臂，你要花很多力气去写 program 才让机器做一件很简单的事看。假设你有 Imitation Learning 的技术，你可以让人做一下示范，然后机器就跟着人的示范来进行学习，比如学会摆盘子，拉着机器人的手去摆盘子，机器自己动。让机器学会倒水，人只教他20 次，杯子每次放的位置不太一样。用这种方法来教机械手臂。
 
+## Third Person Lmitation Learning
 ![](img/8.13.png)
 
 其实还有很多相关的研究，举例来说，你在教机械手臂的时候，要注意就是也许机器看到的视野跟人看到的视野是不太一样的。在刚才那个例子里面，人跟机器的动作是一样的。但是在未来的世界里面，也许机器是看着人的行为学的。刚才是人拉着，假设你要让机器学会打高尔夫球，在刚才的例子里面就是人拉着机器人手臂去打高尔夫球，但是在未来有没有可能机器就是看着人打高尔夫球，他自己就学会打高尔夫球了呢？但这个时候，要注意的事情是机器的视野跟他真正去采取这个行为的时候的视野是不一样的。机器必须了解到当他是第三人的视角的时候，看到另外一个人在打高尔夫球，跟他实际上自己去打高尔夫球的时候，看到的视野显然是不一样的。但他怎么把他是第三人的时间所观察到的经验把它 generalize 到他是第一人称视角的时候所采取的行为，这就需要用到`Third Person Imitation Learning`的技术。
@@ -90,6 +91,7 @@ IRL 有很多的application，举例来说，可以用开来自驾车。然后�
 
 这个怎么做呢？它的技术其实也是不只是用到 Imitation Learning，他用到了 `Domain-Adversarial Training`。我们在讲 Domain-Adversarial Training 的时候，我们有讲说这也是一个GAN 的技术。那我们希望今天有一个 extractor，有两个不同 domain 的image，通过 feature extractor 以后，没有办法分辨出他来自哪一个 domain。其实第一人称视角和第三人称视角，Imitation Learning 用的技术其实也是一样的，希望 learn 一个 Feature Extractor，机器在第三人称的时候跟他在第一人称的时候看到的视野其实是一样的，就是把最重要的东西抽出来就好了。 
 
+## Recap: Sentence Generation & Chat-bot
 ![](img/8.15.png)
 
 在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 Imitation Learning。机器在 imitate 人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给他看唐诗三百首。人类写的文字其实就是 expert 的 demonstration。每一个词汇其实就是一个 action。今天，你让机器做Sentence Generation 的时候其实就是在 imitate expert 的trajectory。Chat-bot 也是一样，在Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是 expert 的 demonstration。
