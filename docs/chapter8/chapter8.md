@@ -1,21 +1,21 @@
 # Imitation Learning 
 ![](img/8.1.png)
-Imitation learning 讨论的问题是，假设我们连 reward 都没有，那要怎么办呢？Imitation learning 又叫做 `learning by demonstration` 或者叫做 `apprenticeship learning`。在 Imitation learning 里面，你有一些 expert 的 demonstration，那 machine 也可以跟环境互动，但它没有办法从环境里面得到任何的 reward，它只能看着 expert 的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的reward。举例来说，如果是棋类游戏或者是电玩，你有非常明确的 reward。但是其实多数的任务，都是没有 reward 的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的 reward。所以很多 task 是根本就没有办法给出 reward 的。
+Imitation learning 讨论的问题是，假设我们连 reward 都没有，那要怎么办呢？Imitation learning 又叫做 `learning from demonstration(示范学习)` ，`apprenticeship learning(学徒学习)`，`learning by watching(观察学习)`。在 Imitation learning 里面，你有一些 expert 的 demonstration，那 machine 也可以跟环境互动，但它没有办法从环境里面得到任何的 reward，它只能看着 expert 的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的 reward。举例来说，如果是棋类游戏或者是电玩，你有非常明确的 reward。但是其实多数的任务，都是没有 reward 的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的 reward。所以很多 task 是根本就没有办法给出 reward 的。
 
-虽然没有办法订出reward，但是收集 expert 的 demonstration 是可以做到的。举例来说，在自驾车里面，虽然你没有办法订出自驾车的 reward，但你可以收集很多人类开车的纪录。在 chat-bot 里面，你可能没有办法定义什么叫做好的对话，什么叫做不好的对话。但是收集很多人的对话当作范例，这一件事情也是可行的。所以，imitation learning 的使用性非常高。假设你今天有一个状况是，你不知道该怎么定义 reward。但是你可以收集到 expert 的 demonstration，你可以收集到一些范例的话，你可以收集到一些很厉害的 agent。比如说人跟环境实际上的互动的话，那你就可以考虑imitation learning 这个技术。那在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者又叫做 `Inverse Optimal Control`。
+虽然没有办法给出 reward，但是收集 expert 的 demonstration 是可以做到的。举例来说，在自动驾驶汽车里面，虽然你没有办法给出自动驾驶汽车的 reward，但你可以收集很多人类开车的纪录。在 chat-bot 里面，你可能没有办法定义什么叫做好的对话，什么叫做不好的对话。但是收集很多人的对话当作范例，这一件事情也是可行的。所以 imitation learning 的使用性非常高。假设你不知道该怎么定义 reward，你就可以收集到 expert 的 demonstration，你可以收集到一些范例的话，你可以收集到一些很厉害的 agent，比如说人跟环境实际上的互动的话，那你就可以考虑 imitation learning 这个技术。在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者又叫做 `Inverse Optimal Control`。
 
 ##  Behavior Cloning
 ![](img/8.2.png)
 
-其实 `Behavior Cloning` 跟 supervised learning 是一模一样的。我们以自驾车为例，你可以收集到人开自驾车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了，这个就叫做 Behavior Cloning。Expert 做什么，机器就做一模一样的事，怎么让机器学会跟 expert 一模一样的行为呢？就把它当作一个 supervised learning 的问题，你去收集很多行车纪录器。然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取action $a_1$，人在state $s_2$ 会采取action $a_2$。人在state, $s_3$ 会采取action $a_3$。接下来，你就learn 一个 network。这个 network 就是你的 actor，他input $s_i$ 的时候，你就希望他的output 是$a_i$，就这样结束了。它就是一个的 supervised learning 的problem。
+其实 `Behavior Cloning` 跟 supervised learning 是一模一样的。我们以自动驾驶汽车为例，你可以收集到人开自动驾驶汽车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了，这个就叫做 Behavior Cloning。Expert 做什么，机器就做一模一样的事，怎么让机器学会跟 expert 一模一样的行为呢？就把它当作一个 supervised learning 的问题，你去收集很多行车纪录器。然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取action $a_1$，人在state $s_2$ 会采取action $a_2$。人在state, $s_3$ 会采取action $a_3$。接下来，你就learn 一个 network。这个 network 就是你的 actor，他input $s_i$ 的时候，你就希望他的output 是$a_i$，就这样结束了。它就是一个的 supervised learning 的problem。
 
 ![](img/8.3.png)
 
-Behavior Cloning 虽然非常简单，但它的问题是如果你只收集expert 的资料，你可能看过的 observation 会是非常 limited。举例来说，假设你要 learn 一部自驾车，自驾车就是要过这个弯道。如果是 expert 的话，他就是把车顺着这个红线就开过去了。但假设你的 agent 很笨，他今天开着开着，就开到撞墙了，他永远不知道撞墙这种状况要怎么处理，为什么？因为 training data 里面从来没有撞过墙，所以他根本就不知道撞墙这一种 case 要怎么处理。或是打电玩，电玩也是一样，让人去玩 Mario，那 expert 可能非常强，他从来不会跳不上水管，所以机器根本不知道跳不上水管时要怎么处理。人从来不会跳不上水管，但是机器如果跳不上水管时，就不知道要怎么处理。所以光是做Behavior Cloning 是不够的。只观察 expert 的行为是不够的，需要一个招数，这个招数叫作`Dataset Aggregation`。
+Behavior Cloning 虽然非常简单，但它的问题是如果你只收集expert 的资料，你可能看过的 observation 会是非常 limited。举例来说，假设你要 learn 一部自动驾驶汽车，自动驾驶汽车就是要过这个弯道。如果是 expert 的话，他就是把车顺着这个红线就开过去了。但假设你的 agent 很笨，他今天开着开着，就开到撞墙了，他永远不知道撞墙这种状况要怎么处理，为什么？因为 training data 里面从来没有撞过墙，所以他根本就不知道撞墙这一种 case 要怎么处理。或是打电玩，电玩也是一样，让人去玩 Mario，那 expert 可能非常强，他从来不会跳不上水管，所以机器根本不知道跳不上水管时要怎么处理。人从来不会跳不上水管，但是机器如果跳不上水管时，就不知道要怎么处理。所以光是做Behavior Cloning 是不够的。只观察 expert 的行为是不够的，需要一个招数，这个招数叫作`Dataset Aggregation`。
 
 ![](img/8.4.png)
 
-我们会希望收集更多样性的 data，而不是只收集 expert 所看到的 observation。我们会希望能够收集 expert 在各种极端的情况下，他会采取什么样的行为。以自驾车为例的话，假设一开始，你的actor 叫作 $\pi_1$，你让 $\pi_1$去开这个车。但车上坐了一个 expert。这个 expert 会不断地告诉machine 说，如果在这个情境里面，我会怎么样开。所以 $\pi_1$ 自己开自己的，但是expert 会不断地表示他的想法。比如说，在这个时候，expert 可能说那就往前走。这个时候，expert 可能就会说往右转。但 $\pi_1$ 是不管 expert 的指令的，所以他会继续去撞墙。虽然 expert 说往右转，但是不管他怎么下指令都是没有用的。$\pi_1$ 会自己做自己的事情，因为我们要做的记录的是说，今天expert 在 $\pi_1$ 看到这种observation 的情况下，他会做什么样的反应。这个方法显然是有一些问题的，因为每次你开一次自驾车都会牺牲一个人。那你用这个方法，你牺牲一个expert 以后，你就会得到说，人类在这样子的 state 下，在快要撞墙的时候，会采取什么样的反应。再把这个data 拿去train 新的 $\pi_2$。这个process 就反复继续下去，这个方法就叫做`Dataset Aggregation`。
+我们会希望收集更多样性的 data，而不是只收集 expert 所看到的 observation。我们会希望能够收集 expert 在各种极端的情况下，他会采取什么样的行为。以自动驾驶汽车为例的话，假设一开始，你的actor 叫作 $\pi_1$，你让 $\pi_1$去开这个车。但车上坐了一个 expert。这个 expert 会不断地告诉machine 说，如果在这个情境里面，我会怎么样开。所以 $\pi_1$ 自己开自己的，但是expert 会不断地表示他的想法。比如说，在这个时候，expert 可能说那就往前走。这个时候，expert 可能就会说往右转。但 $\pi_1$ 是不管 expert 的指令的，所以他会继续去撞墙。虽然 expert 说往右转，但是不管他怎么下指令都是没有用的。$\pi_1$ 会自己做自己的事情，因为我们要做的记录的是说，今天expert 在 $\pi_1$ 看到这种observation 的情况下，他会做什么样的反应。这个方法显然是有一些问题的，因为每次你开一次自动驾驶汽车都会牺牲一个人。那你用这个方法，你牺牲一个expert 以后，你就会得到说，人类在这样子的 state 下，在快要撞墙的时候，会采取什么样的反应。再把这个data 拿去train 新的 $\pi_2$。这个process 就反复继续下去，这个方法就叫做`Dataset Aggregation`。
 
 
 
@@ -36,7 +36,7 @@ Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候
 ##  Inverse RL
 
 ![](img/8.7.png)
-为什么叫 Inverse Reinforcement Learning，因为原来的 Reinforcement Learning 里面，有一个环境和一个 reward function。根据环境和 reward function，通过 Reinforcement Learning 这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。但 Inverse Reinforcement Learning 刚好是相反的，你没有 reward function，你只有一堆 expert 的 demonstration。但你还是有环境的。IRL 的做法是说假设我们现在有一堆 expert 的demonstration，我们用 $\hat{\tau}$ 来代表expert 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自驾车的话，就是人开自驾车的纪录。这一边就是 expert 的 demonstration，每一个 $\tau$ 是一个 trajectory。
+为什么叫 Inverse Reinforcement Learning，因为原来的 Reinforcement Learning 里面，有一个环境和一个 reward function。根据环境和 reward function，通过 Reinforcement Learning 这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。但 Inverse Reinforcement Learning 刚好是相反的，你没有 reward function，你只有一堆 expert 的 demonstration。但你还是有环境的。IRL 的做法是说假设我们现在有一堆 expert 的demonstration，我们用 $\hat{\tau}$ 来代表expert 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自动驾驶汽车的话，就是人开自动驾驶汽车的纪录。这一边就是 expert 的 demonstration，每一个 $\tau$ 是一个 trajectory。
 
 
 把所有 expert demonstration 收集起来，然后，使用Inverse Reinforcement Learning 这个技术。使用 Inverse Reinforcement Learning 技术的时候，机器是可以跟环境互动的。但他得不到reward。他的 reward 必须要从 expert 那边推出来，有了环境和 expert demonstration 以后，去反推出 reward function 长什么样子。之前 reinforcement learning 是由 reward function 反推出什么样的 action、actor 是最好的。Inverse Reinforcement Learning 是反过来，我们有expert 的demonstration，我们相信他是不错的，我就反推说，expert 是因为什么样的 reward function 才会采取这些行为。你有了reward function 以后，接下来，你就可以套用一般的 reinforcement learning 的方法去找出 optimal actor。所以 Inverse Reinforcement Learning 是先找出 reward function，找出 reward function 以后，再去用 Reinforcement Learning 找出 optimal actor。
@@ -70,13 +70,13 @@ Expert 去玩一玩游戏，得到这一些游戏的纪录，你的 actor 也去
 
 ![](img/8.10.png)
 
-IRL 有很多的application，举例来说，可以用开来自驾车。然后，有人用这个技术来学开自驾车的不同风格，每个人在开车的时候，其实你会有不同风格。举例来说，能不能够压到线，能不能够倒退，要不要遵守交通规则等等。每个人的风格是不同的，然后用 Inverse Reinforcement Learning 可以让自驾车学会各种不同的开车风格。
+IRL 有很多的application，举例来说，可以用开来自动驾驶汽车。然后，有人用这个技术来学开自动驾驶汽车的不同风格，每个人在开车的时候，其实你会有不同风格。举例来说，能不能够压到线，能不能够倒退，要不要遵守交通规则等等。每个人的风格是不同的，然后用 Inverse Reinforcement Learning 可以让自动驾驶汽车学会各种不同的开车风格。
 
 ![](img/8.11.png)
 
 上图是文献上真实的例子，在这个例子里面， Inverse Reinforcement Learning 有一个有趣的地方,通常你不需要太多的 training data，因为 training data 往往都是个位数。因为 Inverse Reinforcement Learning 只是一种 demonstration，只是一种范例，实际上机器可以去跟环境互动非常多次。所以在 Inverse Reinforcement Learning 的文献， 往往会看到说只用几笔 data 就训练出一些有趣的结果。
 
-比如说，在这个例子里面是要让自驾车学会在停车场里面停。这边的demonstration 是这样，蓝色是终点，自驾车要开到蓝色终点停车。给机器只看一行的四个 demonstration，然后让他去学怎么样开车，最后他就可以学出，在红色的终点位置，如果他要停车的话，他会这样开。今天给机器看不同的demonstration，最后他学出来开车的风格就会不太一样。举例来说，上图第二行是不守规矩的开车方式，因为他会开到道路之外，这边，他会穿过其他的车，然后从这边开进去。所以机器就会学到说，不一定要走在道路上，他可以走非道路的地方。上图第三行是倒退来停车，机器也会学会说，他可以倒退，
+比如说，在这个例子里面是要让自动驾驶汽车学会在停车场里面停。这边的demonstration 是这样，蓝色是终点，自动驾驶汽车要开到蓝色终点停车。给机器只看一行的四个 demonstration，然后让他去学怎么样开车，最后他就可以学出，在红色的终点位置，如果他要停车的话，他会这样开。今天给机器看不同的demonstration，最后他学出来开车的风格就会不太一样。举例来说，上图第二行是不守规矩的开车方式，因为他会开到道路之外，这边，他会穿过其他的车，然后从这边开进去。所以机器就会学到说，不一定要走在道路上，他可以走非道路的地方。上图第三行是倒退来停车，机器也会学会说，他可以倒退，
 
 ![](img/8.12.png)
 

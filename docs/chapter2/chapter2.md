@@ -1,7 +1,7 @@
 # PPO
 ## From On-policy to Off-policy
 在讲 PPO 之前，我们先讲一下 on-policy and off-policy 这两种 training 方法的区别。
-在 reinforcement learning 里面，我们要learn 的就是一个agent。
+在 reinforcement learning 里面，我们要 learn 的就是一个agent。
 
 * 如果要 learn 的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy`。 
 * 如果要 learn 的 agent 跟和环境互动的 agent 不是同一个的话， 那这个叫做`off-policy`。
@@ -12,13 +12,13 @@
 
 ![](img/2.1.png)
 
-PPO是 policy gradient 的一个变形，它是现在 OpenAI default reinforcement learning 的 algorithm。
+PPO 是 policy gradient 的一个变形，它是现在 OpenAI default reinforcement learning 的 algorithm。
 
 $$
 \nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
 $$
 
-问题是上面这个update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做expectation。一旦 update 了参数，从$\theta$ 变成$\theta'$ ，$p_\theta(\tau)$这个概率就不对了。之前sample 出来的 data 就变的不能用了，所以 policy gradient 是一个会花很多时间来 sample data 的algorithm，你会发现大多数时间都在sample data，你的agent 去跟环境做互动以后，接下来就要update 参数。你只能update 参数一次，接下来你就要重新再去collect data， 然后才能再次update 参数，这显然是非常花时间的。所以我们想要从on-policy 变成off-policy。 这样做就可以用另外一个policy， 另外一个actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的data 去训练 $\theta$，意味着说我们可以把$\theta'$  collect 到的data 用非常多次。我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔data 就好了。因为假设 $\theta$ 有能力学习另外一个actor $\theta'$ 所 sample 出来的 data 的话， 那$\theta'$  就只要sample 一次，也许sample 多一点的data， 让$\theta$ 去update 很多次，这样就会比较有效率。
+问题是上面这个 update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做 expectation。一旦 update 了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前sample 出来的 data 就变的不能用了。所以 policy gradient 是一个会花很多时间来 sample data 的 algorithm，你会发现大多数时间都在 sample data，agent 去跟环境做互动以后，接下来就要 update 参数。你只能 update 参数一次。接下来你就要重新再去 collect data， 然后才能再次update 参数，这显然是非常花时间的。所以我们想要从on-policy 变成off-policy。 这样做就可以用另外一个policy， 另外一个actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的data 去训练 $\theta$，意味着说我们可以把$\theta'$  collect 到的data 用非常多次。我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔data 就好了。因为假设 $\theta$ 有能力学习另外一个actor $\theta'$ 所 sample 出来的 data 的话， 那$\theta'$  就只要sample 一次，也许sample 多一点的data， 让$\theta$ 去update 很多次，这样就会比较有效率。
 ![](img/2.2.png)
 
 具体怎么做呢？这边就需要介绍 important sampling 的概念。假设你有一个function $f(x)$，你要计算从 p 这个 distribution sample x，再把 x 带到 f 里面，得到$f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
@@ -33,7 +33,7 @@ $$
 $$
 我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从q 里面 sample x，然后再去计算$f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去sample data，然后代入上式，你就可以计算从 p 这个distribution sample x 代入 f 以后所算出来的期望值。
 
-这边是从 q 做sample，所以从 q 里 sample 出来的每一笔data，你需要乘上一个weight 来修正这两个 distribution 的差异，weight 就是$\frac{p(x)}{q(x)}$。$q(x)$是任何distribution 都可以，唯一的限制就是 $q(x)$ 的概率是0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设 $q(x)$ 的概率是0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以$q(x)$是有定义的。所以这个时候你就可以 apply important sampling 这个技巧。你就可以从 p 做sample 换成从 q 做sample。
+这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是$\frac{p(x)}{q(x)}$。$q(x)$是任何distribution 都可以，唯一的限制就是 $q(x)$ 的概率是0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设 $q(x)$ 的概率是0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以$q(x)$是有定义的。所以这个时候你就可以 apply important sampling 这个技巧。你就可以从 p 做sample 换成从 q 做sample。
 
 ![](img/2.3.png)
 
@@ -60,13 +60,13 @@ $\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(
 
 ![](img/2.4.png)
 
-举个例子，当$p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要sample 的话，都会sample 到这个地方，而$f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
 
-接下来我们改成从 $q(x)$ 这边做sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只sample 到右侧。如果你都只sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边sample 到这些点，然后你去计算它们的$f(x) \frac{p(x)}{q(x)}$都是正的，所以你sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你sample 的次数不够多，因为假设你sample 次数很少，你只能sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被sample 到。假设你今天好不容易sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要sample 够多次，这件事情才会发生。但有可能sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
+接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边sample 到这些点，然后你去计算它们的$f(x) \frac{p(x)}{q(x)}$都是正的，所以你sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你sample 次数很少，你只能sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要sample 够多次，这件事情才会发生。但有可能sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
 
 ![](img/2.5.png)
 
-现在要做的事情就是把 importance sampling 用在 off-policy 的case。把 on-policy training 的algorithm 改成 off-policy training 的 algorithm。怎么改呢，之前我们是拿 $\theta$ 这个policy 去跟环境做互动，sample 出trajectory $\tau$，然后计算$R(\tau) \nabla \log p_{\theta}(\tau)$。
+现在要做的事情就是把 importance sampling 用在 off-policy 的 case。把 on-policy training 的algorithm 改成 off-policy training 的 algorithm。怎么改呢，之前我们是拿 $\theta$ 这个policy 去跟环境做互动，sample 出trajectory $\tau$，然后计算$R(\tau) \nabla \log p_{\theta}(\tau)$。
 
 现在我们不用$\theta$ 去跟环境做互动，假设有另外一个 policy  $\theta'$，它就是另外一个actor。它的工作是他要去做demonstration，$\theta'$ 的工作是要去示范给$\theta$ 看。它去跟环境做互动，告诉 $\theta$ 说，它跟环境做互动会发生什么事。然后，借此来训练$\theta$。我们要训练的是$\theta$ ，$\theta'$  只是负责做 demo，负责跟环境做互动。
 
