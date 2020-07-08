@@ -3,25 +3,37 @@
 
 ![](img/1.1.png)
 
-在reinforcement learning 中有3 个components，一个`actor`，一个`environment`，一个`reward function`。
+在 reinforcement learning 中有 3 个components，一个`actor`，一个`environment`，一个`reward function`。
 
-让机器玩video game时，actor 做的事情就是去操控游戏的摇杆， 比如说向左、向右、开火等操作，environment 就是游戏的主机， 负责控制游戏的画面负责控制说，怪物要怎么移动， 你现在要看到什么画面等等。reward function就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到20分等等。
+让机器玩 video game 时，
 
-同样的概念用在围棋上也是一样的，actor 就是alpha Go，它要决定下哪一个位置，environment 就是对手，reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。在reinforcement 里面，environment 跟 reward function 不是你可以控制的，environment 跟reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情，是调整你的actor，调整你actor 里面的policy，使得它可以得到最大的reward。这个actor 里面会有一个policy， 这个policy 决定了actor 的行为， policy 就是给一个外界的输入，然后它会输出actor 现在应该要执行的行为。
+* actor 做的事情就是去操控游戏的摇杆， 比如说向左、向右、开火等操作；
+* environment 就是游戏的主机， 负责控制游戏的画面负责控制说，怪物要怎么移动， 你现在要看到什么画面等等；
+* reward function 就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到20分等等。
+
+同样的概念用在围棋上也是一样的，
+
+* actor 就是 alpha Go，它要决定下哪一个位置；
+* environment 就是对手；
+* reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。
+
+在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为， policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
 
 ![](img/1.2.png)
-Policy 一般写成 $\pi$。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**，network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西，就是游戏的画面。让 machine 看到什么东西，会影响你现在 training 到底好不好 train。
+**Policy 一般写成 $\pi$**。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**，network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西就是游戏的画面。让 machine 看到什么东西，会影响你现在 training 到底好不好 train。
 
 举例来说，在玩游戏的时候， 也许你觉得游戏的画面，前后是相关的，也许你觉得说，你应该让你的 policy，看从游戏初始到现在这个时间点，所有画面的总和。你可能会觉得你要用到 RNN 来处理它，不过这样子，你会比较难处理。要让你的 machine，你的 policy 看到什么样的画面， 这个是你自己决定的。让你知道说给机器看到什么样的游戏画面，可能是比较有效的。Output 的就是今天机器要采取什么样的行为。
-上图就是具体的例子，
-* policy 就是一个 network；
-* input 就是游戏的画面，它通常就是由 pixels 所组成的；
-* output 就是看看说现在有那些选项是你可以去执行的，你的 output layer 就有几个 neurons。
 
-假设你现在可以做的行为就是有 3 个， 你的 output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数，当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，你的 actor 采取的行为，就会不一样。
+上图就是具体的例子，
+
+* policy 就是一个 network；
+* input 就是游戏的画面，它通常是由 pixels 所组成的；
+* output 就是看看说有那些选项是你可以去执行的，output layer 就有几个 neurons。
+
+假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，你的 actor 采取的行为，就会不一样。
 
 ![](img/1.3.png)
-接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy，它就会决定一个 action。那假设它现在决定的 action 是向右。那它决定完 action 以后，它就会得到一个 reward 代表它采取这个 action 以后，它会得到多少的分数。
+接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy 来决定一个 action。假设它现在决定的 action 是向右，它决定完 action 以后，它就会得到一个 reward ，代表它采取这个 action 以后得到的分数。
 
 我们把一开始的初始画面，写作 $s_1$， 把第一次执行的动作叫做 $a_1$，把第一次执行动作完以后得到的 reward 叫做$r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个的行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。然后这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
 
@@ -57,13 +69,13 @@ $$
 ![](img/1.6.png)
 
 
-在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的小 $r$ 都加起来，我们就得到了 R。
+在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的 $r$ 都加起来，我们就得到了 R。
 
-这边写做 $R(\tau)$ ，代表说是某一个 trajectory $\tau$。在某一场游戏里面， 某一个 episode 里面，我们会得到大 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable，R 其实是一个 random variable。 因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
+这边写做 $R(\tau)$ ，代表说是某一个 trajectory $\tau$。在某一场游戏里面， 某一个 episode 里面，我们会得到 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable，R 其实是一个 random variable。 因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
 $$
 \bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)
 $$
-这个期望值的算法如上式所示，穷举所有可能的 trajectory $\tau$， 每一个 trajectory $\tau$都有一个概率。比如 $\theta$ 是一个很强的 model， 那它都不会死。如果今天有一个 episode 是很快就死掉了， 它的概率就很小；如果有一个 episode 是都一直没有死， 那它的概率就很大。根据你的 $\theta$， 你可以算出某一个 trajectory $\tau$ 出现的概率，接下来你计算这个 $\tau$ 的 total reward 是多少。 Total reward weighted by 这个 $\tau$ 出现的概率，summation over 所有的 $\tau$，就是期望值。给定一个参数，你会得到的期望值。
+这个期望值的算法如上式所示，穷举所有可能的 trajectory $\tau$， 每一个 trajectory $\tau$ 都有一个概率。比如 $\theta$ 是一个很强的 model， 那它都不会死。如果今天有一个 episode 是很快就死掉了， 它的概率就很小；如果有一个 episode 是都一直没有死， 那它的概率就很大。根据你的 $\theta$， 你可以算出某一个 trajectory $\tau$ 出现的概率，接下来你计算这个 $\tau$ 的 total reward 是多少。 Total reward weighted by 这个 $\tau$ 出现的概率，summation over 所有的 $\tau$，就是期望值。给定一个参数，你会得到的期望值。
 $$
 \bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)=E_{\tau \sim p_{\theta}(\tau)}[R(\tau)]
 $$
@@ -198,7 +210,12 @@ $$
 本来的 weight 是整场游戏的 reward 的总和。那现在改一下，改成从某个时间 $t$ 开始，假设这个 action 是在 t 这个时间点所执行的，从 $t$ 这个时间点，一直到游戏结束所有 reward 的总和，才真的代表这个 action 是好的还是不好的。 
 
 ![](img/1.18.png)
-接下来再更进一步，我们把未来的 reward 做一个 discount。为什么要把未来的 reward 做一个 discount 呢？因为虽然在某一个时间点，执行某一个 action，会影响接下来所有的结果。有可能在某一个时间点执行的 action，接下来得到的 reward 都是这个 action 的功劳。但在比较真实的情况下， 如果时间拖得越长，影响力就越小。 比如说在第二个时间点执行某一个 action， 那我在第三个时间点得到 reward 可能是在第二个时间点执行某个 action 的功劳，但是在 100 个 timestamp 之后，又得到 reward，那可能就不是在第二个时间点执行某一个 action 得到的功劳。 所以我们实际上在做的时候，你会在你的 R 前面 乘上一个 term 叫做 $\gamma$， $\gamma$ 它是小于 1 的，它会设个 0.9 或 0.99。  如果 time stamp $t'$ 越大，它前面就乘上越多次的 $\gamma$，就代表说现在在某一个 state $s_t$， 执行某一个 action $a_t$ 的时候，它真正的 credit 是在执行这个 action 之后 所有 reward 的总和，而且你还要乘上 $\gamma$。
+**接下来再更进一步，我们把未来的 reward 做一个 discount**，由此得到的回报被称为 `Discounted Return(折扣回报)`。为什么要把未来的 reward 做一个 discount 呢？因为虽然在某一个时间点，执行某一个 action，会影响接下来所有的结果，有可能在某一个时间点执行的 action，接下来得到的 reward 都是这个 action 的功劳。但在比较真实的情况下， 如果时间拖得越长，影响力就越小。 比如说在第二个时间点执行某一个 action， 那我在第三个时间点得到的 reward 可能是在第二个时间点执行某个 action 的功劳，但是在 100 个 timestamp 之后，又得到 reward，那可能就不是在第二个时间点执行某一个 action 得到的功劳。 所以我们实际上在做的时候，你会在 R 前面乘上一个 `discount factor`  $\gamma$， $\gamma \in [0,1] $ ，一般会设个 0.9 或 0.99，
+
+* $\gamma = 0$ : Only care about the immediate reward；
+* $\gamma = 1$ : Future reward is equal to the immediate reward。
+
+ 如果 time stamp $t'$ 越大，它前面就乘上越多次的 $\gamma$，就代表说现在在某一个 state $s_t$， 执行某一个 action $a_t$ 的时候，它真正的 credit 是在执行这个 action 之后所有 reward 的总和，而且你还要乘上 $\gamma$。
 
 举一个例子， 你就想成说，这是游戏的第 1、2、3、4 回合，那你在游戏的第二回合的某一个  $s_t$ 你执行 $a_t$，它真正的 credit 得到的分数应该是，假设你这边得到 +1 分 这边得到 +3 分，这边得到 -5 分，它的真正的 credit，应该是 1 加上一个 discount 的 credit 叫做 $\gamma$ 乘上 3，再加上 $\gamma^2$ 乘上 -5。
 
@@ -209,3 +226,9 @@ $$
 把 $R-b$ 这一项合起来，我们统称为` advantage function`， 用 `A` 来代表 advantage function。Advantage function 是 dependent on s and a，我们就是要计算的是在某一个 state s 采取某一个 action a 的时候，advantage function 有多大。
 
 这个 advantage function 它的上标是 $\theta$， $\theta$ 是什么意思呢？ 因为在算 advantage function时，你要计算$\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}$ ，你会需要有一个 interaction 的结果。你会需要有一个 model 去跟环境做 interaction，你才知道你接下来得到的 reward 会有多少。这个 $\theta$ 就是代表说是用 $\theta$ 这个 model 跟环境去做 interaction，然后你才计算出这一项。从时间 t 开始到游戏结束为止，所有 R 的 summation 把这一项减掉 b，然后这个就叫 advantage function。它的意义就是，假设我们在某一个 state $s_t$ 执行某一个 action $a_t$，相较于其他可能的 action，它有多好。它真正在意的不是一个绝对的好， 而是说在同样的 state 的时候 是采取某一个 action $a_t$ 相较于其它的 action 它有多好，它是相对的好。因为会减掉一个 b，减掉一个 baseline， 所以这个东西是相对的好，不是绝对的好。 $A^{\theta}\left(s_{t}, a_{t}\right)$ 通常可以是由一个 network estimate 出来的，这个 network 叫做 critic。 
+
+## References
+
+* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
+* [神经网络与深度学习](https://nndl.github.io/)
+

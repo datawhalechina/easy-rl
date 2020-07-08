@@ -4,7 +4,7 @@
 
 ![](img/3.1.png)
 
-Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我们 learn 的不是 policy，我们要 learn 的是一个 `critic`。Critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或者是有多不好。假设有一个 actor $\pi$ ，那 critic 的工作就是来评价这个 actor $\pi$  做得有多好或者有多不好。
+Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我们 learn 的不是 policy，我们要 learn 的是一个 `critic`。Critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或是有多不好。假设有一个 actor $\pi$ ，critic 的工作就是来评价这个 actor 的 policy $\pi$  好还是不好，即 `Policy Evaluation(策略评估)`。
 
 举例来说，有一种 critic 叫做 `state value function`。State value function 的意思就是说，假设 actor 叫做 $\pi$，拿 $\pi$  跟环境去做互动。假设 $\pi$  看到了某一个state s，如果在玩 Atari 游戏的话，state s 是某一个画面，看到某一个画面的时候，接下来一直玩到游戏结束，累积的 reward 的期望值有多大。所以 $V^{\pi}$ 是一个function，这个 function input 一个 state，然后它会 output 一个 scalar。这个 scalar 代表说，$\pi$ 这个 actor 看到 state s 的时候，接下来预期到游戏结束的时候，它可以得到多大的 value。
 
@@ -25,7 +25,7 @@ Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我�
 
 ![](img/3.3.png)
 
-第二个方法是`Temporal-difference` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以怎么办？有另外一种 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以apply TD 的方法。
+第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
 
 怎么 apply TD 的方法呢？这边是基于以下这个式子：
 $$
@@ -111,23 +111,25 @@ Q-function 有两种写法：
 
 ![](img/3.9.png)
 
-虽然表面上我们 learn 一个Q-function，它只能拿来评估某一个actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有这个Q-function，我们就可以决定要采取哪一个action。它的大原则是这样，假设你有一个初始的actor，也许一开始很烂， 随机的也没有关系，初始的actor 叫做 $\pi$，这个$\pi$ 跟环境互动，会collect data。接下来你learn 一个 $\pi$ 这个actor 的Q value，你去衡量一下 $\pi$ 这个actor 在某一个state 强制采取某一个action，接下来用$\pi$ 这个policy 会得到的expected reward，那用TD 或 MC 也是可以的。你learn 出一个Q-function 以后，就保证你可以找到一个新的policy $\pi'$ 。这一个policy $\pi'$ 一定会比原来的policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你只要有一个Q-function，你有某一个policy $\pi$，你根据那个policy $\pi$ learn 出 policy $\pi$ 的Q-function，接下来保证你可以找到一个新的policy  $\pi'$ ，它一定会比$\pi$ 还要好，然后你把原来的$\pi$ 用$\pi'$ 取代掉，再去找它的Q，得到新的以后，再去找一个更好的policy。 然后这个循环一直下去，你的policy 就会越来越好。 
+虽然表面上我们 learn 一个 Q-function，它只能拿来评估某一个 actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有了这个 Q-function，我们就可以决定要采取哪一个 action，我们就可以进行`策略改进(Policy Improvement)`。
+
+它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。 然后这个循环一直下去，你的 policy 就会越来越好。 
 
 ![](img/3.10.png)
 上图就是讲我们刚才讲的到底是什么。
 
 * 首先要定义的是什么叫做比较好？我们说$\pi'$ 一定会比$\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的state s 而言，对同一个state s 而言，$\pi$ 的 value function 一定会小于$\pi'$ 的value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用$\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个state，你用$\pi'$ 去做interaction，得到的expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个policy。
 
-* 有了这个 Q 以后，怎么找这个$\pi'$ 呢？事实上这个$\pi'$ 是什么？这个$\pi'$ 就是， 如果你根据以下的这个式子去决定你的action，
+* 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？事实上这个 $\pi'$ 是什么？这个$\pi'$ 就是， 如果你根据以下的这个式子去决定你的action，
 
 $$
 \pi^{\prime}(s)=\arg \max _{a} Q^{\pi}(s, a)
 $$
 
-根据上式去决定你的action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比$\pi$ 还要好。这个意思是说，假设你已经learn 出 $\pi$ 的Q-function，今天在某一个state s，你把所有可能的action a 都一一带入这个Q-function，看看说那一个 a 可以让 Q-function 的value 最大。那这一个action，就是$\pi'$ 会采取的action。这边要注意一下，今天given 这个state s，你的policy $\pi$ 并不一定会采取action a。今天是 given 某一个state s 强制采取 action a，用$\pi$ 继续互动下去得到的expected reward，才是这个Q-function 的定义。所以在state s 里面不一定会采取action a。假设用这一个 $\pi'$ 在state s 采取action a 跟 $\pi$ 所谓采取action 是不一定会一样的。然后 $\pi'$ 所采取的action 会让他得到比较大的reward。
+根据上式去决定你的action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比$\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个state s，你把所有可能的 action a 都一一带入这个 Q-function，看看说那一个 a 可以让 Q-function 的 value 最大，那这一个 action，就是 $\pi'$ 会采取的 action。这边要注意一下，given 这个 state s，你的 policy $\pi$ 并不一定会采取 action a。我们是 given 某一个 state s 强制采取 action a，用 $\pi$ 继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。假设用这一个 $\pi'$ 在 state s 采取action a 跟 $\pi$ 所谓采取 action 是不一定会一样的。然后 $\pi'$ 所采取的 action 会让他得到比较大的 reward。
 
-* 所以根本就没有一个policy 叫做 $\pi'$，这个$\pi'$ 其实就是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有Q 就可以找出$\pi'$。
-* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以a 如果是continuous 的就会有问题，如果是discrete 的，a 只有3 个选项，一个一个带进去， 看谁的Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，但这个是之后才会解决的。
+* 所以根本就没有一个 policy 叫做 $\pi'$，这个$\pi'$ 是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出$\pi'$。
+* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以 a 如果是continuous 的就会有问题，如果是discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，但这个是之后才会解决的。
 
 ![](img/3.11.png)
 
@@ -154,7 +156,7 @@ $$
 $$
 V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
 $$
-也就是说某一个state，如果你按照policy $\pi$，一直做下去，你得到的reward 一定会小于等于，在这个state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
+也就是说某一个 state，如果你按照policy $\pi$，一直做下去，你得到的 reward 一定会小于等于，在这个 state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
 
 那接下来你想要证的东西就是：
 $$
@@ -211,7 +213,7 @@ $$
 V^{\pi}(s)\le V^{\pi'}(s)
 $$
 
-这边告诉我们的事情如下，你可以estimate 某一个policy 的Q-function，接下来你就一定可以找到另外一个policy 叫做$\pi'$，它一定比原来的policy 还要更好。
+**从这边我们可以知道，你可以 estimate 某一个 policy 的 Q-function，接下来你就一定可以找到另外一个 policy  $\pi'$，它一定比原来的 policy 还要更好。**
 
 ## Target Network
 
@@ -223,7 +225,7 @@ $$
 =r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)
 $$
 
-所以你在learn 的时候，你会说我们有Q-function，input $s_t$, $a_t$ 得到的value，跟input $s_{t+1}$, $\pi (s_{t+1})$ 得到的value 中间，我们希望它差了一个$r_t$， 这跟刚才讲的TD 的概念是一样的。但是实际上在learn 的时候，你会发现这样的一个function 并不好 learn。因为假设你说这是一个regression 的problem，$\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $是你network 的output，$r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$是你的target，你会发现 target 是会动的。当然你要implement 这样的training，其实也没有问题。就是你在做 back propagation 的时候， $Q^{\pi}$ 的参数会被 update，你会把两个update 的结果加在一起。它们是同一个model $Q^{\pi}$， 所以两个update 的结果会加在一起。但是实际上在做的时候，你的training 会变得不太稳定，因为假设你把 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 当作你model 的output， $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 当作target 的话。你要去 fit 的 target 是一直在变的，这种一直在变的target 的training 是不太好train 的。所以实际上你会把其中一个 Q，通常是你就选择下面这个 Q，把它固定住。也就是说你在training 的时候，你并不 update 这个Q 的参数，你只update 左边这个Q 的参数，而右边这个Q 的参数，它会被固定住，我们叫它 `target network`。它负责产生target，所以叫做target network。因为target network 是固定的，所以你现在得到的target，也就是 $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 的值也是固定的。
+所以你在learn 的时候，你会说我们有Q-function，input $s_t$, $a_t$ 得到的value，跟input $s_{t+1}$, $\pi (s_{t+1})$ 得到的value 中间，我们希望它差了一个$r_t$， 这跟刚才讲的TD 的概念是一样的。但是实际上在learn 的时候，你会发现这样的一个function 并不好 learn。因为假设这是一个 regression 的 problem，$\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 是 network 的output，$r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$是你的target，你会发现 target 是会动的。当然你要implement 这样的training，其实也没有问题。就是你在做 back propagation 的时候， $Q^{\pi}$ 的参数会被 update，你会把两个update 的结果加在一起。它们是同一个model $Q^{\pi}$， 所以两个update 的结果会加在一起。但是实际上在做的时候，你的training 会变得不太稳定，因为假设你把 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 当作你model 的output， $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 当作target 的话。你要去 fit 的 target 是一直在变的，这种一直在变的target 的training 是不太好train 的。所以实际上你会把其中一个 Q，通常是你就选择下面这个 Q，把它固定住。也就是说你在training 的时候，你并不 update 这个Q 的参数，你只update 左边这个Q 的参数，而右边这个Q 的参数，它会被固定住，我们叫它 `target network`。它负责产生target，所以叫做 target network。因为 target network 是固定的，所以你现在得到的target，也就是 $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 的值也是固定的。
 
 因为 target network 是固定的，我们只调左边network 的参数，它就变成是一个regression 的problem。我们希望  model 的output，它的值跟你的目标越接近越好，你会minimize 它的 mean square error。你会 minimize 它们 L2 的distance。这个东西就是regression。在实现上，你会把这个Q update 好几次以后，再去用 update 过的 Q 替换这个 target network 。但它们两个不要一起动，它们两个一起动的话， 你的结果会很容易坏掉。一开始这两个network 是一样的，然后接下来在train 的时候，你会把右边的 network fix 住。你在做 gradient decent 的时候，只调左边这个network 的参数，那你可能update 100 次以后才把这个参数，复制到右边的 network 去，把它盖过去。把它盖过去以后，你这个target 的value 就变了。就好像说你今天本来在做一个regression 的problem，那你train后把这个regression problem 的loss 压下去以后，接下来你把这边的参数把它copy 过去以后，你的target 就变掉了。 那你接下来就要重新再train。
 
@@ -266,22 +268,22 @@ $$
 
 * 第二个好处，在train network 的时候，其实我们希望一个batch 里面的data 越diverse 越好。如果你的batch 里面的data 都是同样性质的，你train 下去，其实是容易坏掉的。如果你batch 里面都是一样的data，你train 的时候，performance 会比较差。我们希望batch data 越diverse 越好。那如果你今天，你的这个buffer 里面的那些experience 通通来自于不同的policy ，那你sample 到的一个batch 里面的data 会是比较diverse 。
 
-Q：我们明明是要观察 $\pi$ 的value， 我们要量的是 $\pi$ 的value ，里面混杂了一些不是$\pi$ 的experience 到底有没有关系？
+Q：我们明明是要观察 $\pi$ 的value， 我们要量的是 $\pi$ 的value ，里面混杂了一些不是$\pi$ 的 experience 到底有没有关系？
 
-A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， 就算过去的$\pi$ 没有很像，其实也是没有关系的。主要的原因是因为， 我们并不是去sample 一个trajectory，我们只sample 了一笔experience，所以跟是不是 off-policy 这件事是没有关系的。就算是off-policy，就算是这些 experience 不是来自于 $\pi$，我们其实还是可以拿这些 experience 来估测 $Q^{\pi}(s,a)$。这件事有点难解释，不过你就记得说 replay buffer 这招在理论上也是没有问题的。
+A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， 就算过去的$\pi$ 没有很像，其实也是没有关系的。主要的原因是因为， 我们并不是去sample 一个trajectory，我们只sample 了一笔experience，所以跟是不是 off-policy 这件事是没有关系的。就算是off-policy，就算是这些 experience 不是来自于 $\pi$，我们其实还是可以拿这些 experience 来估测 $Q^{\pi}(s,a)$。这件事有点难解释，不过你就记得说 Experience Replay 在理论上也是没有问题的。
 
-## Typical Q-learing Algorithm
+## DQN
 
 ![](img/3.16.png)
 
 
-上图就是一般的 Q-learning 的算法。
+上图就是一般的 `Deep Q-network(DQN)` 的算法。
 
-这个算法是这样，我们需要一个target network， 先开始initialize 的时候，你initialize 2 个network，一个是 Q，一个是$\hat{Q}$，其实 $\hat{Q}$ 就等于 Q。一开始这个 target Q-network，跟你原来的 Q network 是一样的。在每一个episode，就你拿你的 agent，你拿你的 actor 去跟环境做互动，那在每一次互动的过程中，你都会得到一个state $s_t$，一个游戏的画面，那你会采取某一个action $a_t$，那怎么知道采取哪一个action $a_t$ 呢？你就根据你现在的 Q-function。但是记得你要有exploration 的机制。比如说你用 Boltzmann exploration 或是 Epsilon Greedy 的 exploration。那接下来你得到reward $r_t$，然后跳到state $s_{t+1}$。所以现在collect 到一笔data，这笔data 是 $s_t$, $a_t$ ,$r_t$, $s_{t+1}$。结果这笔 data 就塞到你的buffer 里面去。如果buffer 满的话， 你就再把一些旧有的资料丢掉。那接下来你就从你的buffer 里面去sample data，那你sample 到的是$s_{i}, a_{i}, r_{i}, s_{i+1}$。这笔data 跟你刚放进去的，不一定是同一笔。你把这笔data 塞到buffer 里面，再到buffer 里面去抽data，抽出来并不是同一笔，你可能抽到一个旧的。
+这个算法是这样，我们需要一个 target network， 先开始 initialize 的时候，你 initialize 2 个network，一个是 Q，一个是$\hat{Q}$，其实 $\hat{Q}$ 就等于 Q。一开始这个 target Q-network，跟你原来的 Q-network 是一样的。在每一个episode，就你拿你的 agent，你拿你的 actor 去跟环境做互动，那在每一次互动的过程中，你都会得到一个state $s_t$，一个游戏的画面，那你会采取某一个action $a_t$，那怎么知道采取哪一个action $a_t$ 呢？你就根据你现在的 Q-function。但是记得你要有exploration 的机制。比如说你用 Boltzmann exploration 或是 Epsilon Greedy 的 exploration。那接下来你得到reward $r_t$，然后跳到state $s_{t+1}$。所以现在collect 到一笔data，这笔data 是 $s_t$, $a_t$ ,$r_t$, $s_{t+1}$。结果这笔 data 就塞到你的buffer 里面去。如果buffer 满的话， 你就再把一些旧有的资料丢掉。那接下来你就从你的buffer 里面去sample data，那你sample 到的是$s_{i}, a_{i}, r_{i}, s_{i+1}$。这笔data 跟你刚放进去的，不一定是同一笔。你把这笔data 塞到buffer 里面，再到buffer 里面去抽data，抽出来并不是同一笔，你可能抽到一个旧的。
 
 
 那这边另外要注意的是，其实你sample 出来不是一笔data，你 sample 出来的是一个batch 的data，你sample 一个batch 出来，sample 一把experiences 出来，接下来你要做的事情就是计算你的target。假设你 sample 出这么一笔data。根据这笔data 去算你的target。你的target 是什么呢？target 记得要用target network，也就是$\hat{Q}$ 来算。我们用$\hat{Q}$  来代表target network。Target 就是：
 $$
 y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
 $$
-其中 a 就是看现在哪一个 a 可以让$\hat{Q}$ 的值最大，你就选那一个a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个regression 的problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经update 了某一个数目的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是Q-learning。
+其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个regression 的problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。
