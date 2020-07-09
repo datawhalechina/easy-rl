@@ -131,13 +131,13 @@ $$
 
 其实玩游戏的时候，是有随机性的。所以 agent 本身是有随机性的，在同样 state $s_1$，不是每次都会采取 $a_1$，所以你要记录下来，在 state $s_1$ 采取 $a_1$，在 state $s_2$ 采取 $a_2$。整场游戏结束以后，得到的分数是$R(\tau^1)$。你会 sample 到另外一笔 data，也就是另外一场游戏，在另外一场游戏里面，你在第一个 state 采取这个 action，在第二个 state 采取这个 action，在第二个游戏画面采取这个 action，然后你 sample 到的就是$\tau^2$，你得到的 reward 是 $R(\tau^2)$。你就可以把 sample 到的东西代到这个 gradient 的式子里面，把 gradient 算出来。也就是把这边的每一个 s 跟 a 的 pair 拿进来，算一下它的 log probability 。你计算一下在某一个 state 采取某一个 action 的 log probability，然后对它取 gradient，然后这个 gradient 前面会乘一个 weight，weight 就是这场游戏的 reward。 有了这些以后，你就会去 update 你的 model。
 
-
 Update 完你的 model 以后。你要重新再去收集你的 data，再 update model。这边要注意一下，一般 policy gradient， sample 的 data 就只会用一次。你把这些 data sample 起来，然后拿去 update 参数，这些 data 就丢掉了，再重新 sample data，才能够再重新去 update 参数， 等一下我们会解决这个问题。
 
-## 实现细节
+
+
 ![](img/1.9.png)
 
-接下来讲一些实现的一些细节。实现方法是这个样子，把它想成你就是在做一个分类的问题，在 classification 里面就是 input 一个 image，然后 output 决定说是 10 个 class 里面的哪一个。在做 classification 时，我们要收集一堆 training data，要有 input 跟 output 的 pair。
+接下来讲一些实现的细节。实现方法是这个样子，把它想成一个分类的问题，在 classification 里面就是 input 一个 image，然后 output 决定说是 10 个 class 里面的哪一个。在做 classification 时，我们要收集一堆 training data，要有 input 跟 output 的 pair。
 
 在实现的时候，你就把 state 当作是 classifier 的 input。 你就当在做 image classification 的 problem，只是现在的 class 不是说 image 里面有什么 objects。 现在的 class 是说，看到这张 image 我们要采取什么样的行为，每一个行为就是一个 class。比如说第一个 class 叫做向左，第二个 class 叫做向右，第三个 class 叫做开火。
 
