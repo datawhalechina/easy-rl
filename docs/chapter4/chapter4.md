@@ -59,15 +59,15 @@ $$
 
 ![](img/4.6.png)
 
-实现时，你要给这个A 一个constrain。举个例子，假设你有3 个actions，然后在这边 output 的 vector 是7 3 2，你在把这个 A 跟这个 V 加起来之前，先加一个normalization，就好像做那个layer normalization 一样。加一个normalization，这个normalization 做的事情就是把7+3+2 加起来等于12，12/3 = 4。然后把这边通通减掉4，变成3, -1, 2。再把3, -1, 2 加上1.0，得到最后的Q value。这个normalization 的 step 就是 network 的其中一部分，在train 的时候，你从这边也是一路 back propagate 回来的，只是 normalization 是没有参数的，它只是一个normalization 的operation。把它可以放到network 里面，跟network 的其他部分 jointly trained，这样A 就会有比较大的constrain。这样network 就会给它一些benefit， 倾向于去update V 的值，这个是Dueling DQN。
+实现时，你要给这个 A 一个 constrain。举个例子，假设你有 3 个actions，然后在这边 output 的 vector 是7 3 2，你在把这个 A 跟这个 V 加起来之前，先加一个normalization，就好像做那个layer normalization 一样。加一个normalization，这个normalization 做的事情就是把 7+3+2 加起来等于 12，12/3 = 4。然后把这边通通减掉 4，变成 3, -1, 2。再把 3, -1, 2 加上 1.0，得到最后的Q value。这个normalization 的 step 就是 network 的其中一部分，在train 的时候，你从这边也是一路 back propagate 回来的，只是 normalization 是没有参数的，它只是一个normalization 的operation。把它可以放到network 里面，跟network 的其他部分 jointly trained，这样 A 就会有比较大的 constrain。这样network 就会给它一些benefit， 倾向于去update V 的值，这个是Dueling DQN。
 
 
-## Prioritized Replay
+## Prioritized Experience Replay
 
 ![](img/4.7.png)
-有一个技巧叫做 `Prioritized Replay`。Prioritized Replay 是什么意思呢？
+有一个技巧叫做 `Prioritized Experience Replay`。Prioritized Experience Replay 是什么意思呢？
 
-我们原来在 sample data 去 train 你的 Q-network 的时候，你是 uniformly 从 experience buffer 里面去 sample data。你就是 uniformly 去 sample 每一笔 data，那这样不见得是最好的， 因为也许有一些 data 比较重要。假设有一些 data，你之前有sample 过。你发现说那一笔 data 的 TD error 特别大（TD error 就是你的 network 的 output 跟 target 之间的差距），那这些 data 代表说你在train network 的时候， 你是比较 train 不好的。那既然比较 train 不好， 那你就应该给它比较大的概率被 sample 到，这样在 training 的时候，才会多考虑那些 train 不好的 training data。实际上在做 prioritized replay 的时候，你不仅会更改 sampling 的 process，你还会因为更改了sampling 的process，你会更改 update 参数的方法。所以 prioritized replay 并不只是改变了 sample data 的distribution，你也会改 training process。
+我们原来在 sample data 去 train 你的 Q-network 的时候，你是 uniformly 从 experience buffer 里面去 sample data。那这样不见得是最好的， 因为也许有一些 data 比较重要。假设有一些 data，你之前有 sample 过。你发现这些 data 的 TD error 特别大（TD error 就是 network 的 output 跟 target 之间的差距），那这些 data 代表说你在 train network 的时候， 你是比较 train 不好的。那既然比较 train 不好， 那你就应该给它比较大的概率被 sample 到，即给它 `priority`。这样在 training 的时候才会多考虑那些 train 不好的 training data。实际上在做 prioritized experience replay 的时候，你不仅会更改 sampling 的 process，你还会因为更改了 sampling 的 process，更改 update 参数的方法。所以 prioritized experience replay 不仅改变了 sample data 的 distribution，还改变了 training process。
 ## Balance between MC and TD
 
 ![](img/4.8.png)
@@ -75,7 +75,7 @@ $$
 
 我们记录在$s_t$ 采取$a_t$，得到$r_t$，会跳到什么样$s_t$。一直纪录到在第N 个step 以后，在$s_{t+N}$采取$a_{t+N}$得到 reward $r_{t+N}$，跳到$s_{t+N+1}$的这个经验，通通把它存下来。实际上你今天在做update 的时候， 在做你 Q-network learning 的时候，你的learning 的方法会是这样，你learning 的时候，要让 $Q(s_t,a_t)$ 跟你的target value 越接近越好。$\hat{Q}$ 所计算的不是$s_{t+1}$，而是$s_{t+N+1}$的。你会把 N 个step 以后的state 丢进来，去计算 N 个step 以后，你会得到的reward。要算 target value 的话，要再加上multi-step 的reward $\sum_{t^{\prime}=t}^{t+N} r_{t^{\prime}}$ ，multi-step 的 reward 是从时间 t 一直到 t+N 的 N 个reward 的和。然后希望你的 $Q(s_t,a_t)$ 和 target value 越接近越好。
 
-你会发现说这个方法就是MC 跟TD 的结合。因为它就有 MC 的好处跟坏处，也有 TD 的好处跟坏处。如果看它的这个好处的话，因为我们现在 sample 了比较多的step，之前是只sample 了一个step， 所以某一个step 得到的data 是real 的，接下来都是Q value 估测出来的。现在sample 比较多step，sample N 个step 才估测value，所以估测的部分所造成的影响就会比小。当然它的坏处就跟MC 的坏处一样，因为你的 r 比较多项，你把 N 项的 r 加起来，你的variance 就会比较大。但是你可以去调这个N 的值，去在variance 跟不精确的 Q 之间取得一个平衡。N 就是一个hyper parameter，你要调这个N 到底是多少，你是要多 sample 三步，还是多 sample 五步。
+你会发现说这个方法就是 MC 跟 TD 的结合。因此它就有 MC 的好处跟坏处，也有 TD 的好处跟坏处。如果看它的这个好处的话，因为我们现在 sample 了比较多的step，之前是只sample 了一个step， 所以某一个step 得到的data 是real 的，接下来都是Q value 估测出来的。现在sample 比较多step，sample N 个step 才估测value，所以估测的部分所造成的影响就会比小。当然它的坏处就跟MC 的坏处一样，因为你的 r 比较多项，你把 N 项的 r 加起来，你的variance 就会比较大。但是你可以去调这个N 的值，去在variance 跟不精确的 Q 之间取得一个平衡。N 就是一个hyper parameter，你要调这个N 到底是多少，你是要多 sample 三步，还是多 sample 五步。
 
 ## Noisy Net
 ![](img/4.9.png)
@@ -106,6 +106,6 @@ Distributional Q-function 它想要做的事情是model distribution，怎么做
 
 ![](img/4.14.png)
 
-上图是说，在rainbow 这个方法里面， 如果我们每次拿掉其中一个技术，到底差多少。因为现在是把所有的方法都加在一起，发现说进步很多，但会不会有些方法其实是没用的。所以看看说， 每一个方法哪些方法特别有用，哪些方法特别没用。这边的虚线就是拿掉某一种方法以后的结果，你会发现说，黄色的虚线，拿掉 multi-step 掉很多。Rainbow 是彩色这一条，拿掉 multi-step 会掉下来。拿掉Prioritized Replay 后也马上就掉下来。拿掉这个distribution，它也掉下来。
+上图是说，在rainbow 这个方法里面， 如果我们每次拿掉其中一个技术，到底差多少。因为现在是把所有的方法都加在一起，发现说进步很多，但会不会有些方法其实是没用的。所以看看说， 每一个方法哪些方法特别有用，哪些方法特别没用。这边的虚线就是拿掉某一种方法以后的结果，你会发现说，黄色的虚线，拿掉 multi-step 掉很多。Rainbow 是彩色这一条，拿掉 multi-step 会掉下来。拿掉 Prioritized  Experience Replay 后也马上就掉下来。拿掉这个distribution，它也掉下来。
 
 这边有一个有趣的地方是说，在开始的时候，distribution 训练的方法跟其他方法速度差不多。但是如果你拿掉distribution 的时候，你的训练不会变慢，但是 performance 最后会收敛在比较差的地方。拿掉 Noisy Net 后performance 也是差一点。拿掉Dueling 也是差一点。拿掉 Double 没什么差，所以看来全部合在一起的时候，Double 是比较没有影响的。其实在paper 里面有给一个make sense 的解释，其实当你有用 Distributional DQN的 时候，本质上就不会over estimate 你的reward。我们是为了避免over estimate reward 才加了Double DQN。那在paper 里面有讲说，如果有做 Distributional DQN，就比较不会有over estimate 的结果。 事实上他有真的算了一下发现说，其实多数的状况是 under estimate reward 的，所以会变成Double DQN 没有用。那为什么做 Distributional DQN，不会over estimate reward，反而会under estimate reward 呢？因为这个 distributional DQN 的 output 的是一个distribution 的range，output 的 range 不可能是无限宽的，你一定是设一个range， 比如说我最大output range 就是从-10 到10。假设今天得到的reward 超过10 怎么办？是100 怎么办，就当作没看到这件事。所以 reward 很极端的值，很大的值其实是会被丢掉的， 所以用 Distributional DQN 的时候，你不会有over estimate 的现象，反而会 under estimate。
