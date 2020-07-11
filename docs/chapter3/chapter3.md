@@ -25,7 +25,7 @@ Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我�
 
 ![](img/3.3.png)
 
-第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
+第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算 accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
 
 怎么 apply TD 的方法呢？这边是基于以下这个式子：
 $$
@@ -97,7 +97,7 @@ Q-function 有两种写法：
 
 ![](img/3.8.png)
 
-上图是文献上的结果，你去 estimate Q-function 的话，看到的结果可能会像是这个样子。这是什么意思呢？它说假设我们有3 个 actions，3 个actions 就是原地不动、向上、向下。
+上图是文献上的结果，你去 estimate Q-function 的话，看到的结果可能会像是这个样子。这是什么意思呢？它说假设我们有 3 个 actions，3 个 actions 就是原地不动、向上、向下。
 
 * 假设是在第一个state，不管是采取哪个action，最后到游戏结束的时候，得到的 expected reward 其实都差不多。因为球在这个地方，就算是你向下，接下来你其实应该还来的急救，所以今天不管是采取哪一个action，就差不了太多。
 
@@ -113,7 +113,7 @@ Q-function 有两种写法：
 
 虽然表面上我们 learn 一个 Q-function，它只能拿来评估某一个 actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有了这个 Q-function，我们就可以决定要采取哪一个 action，我们就可以进行`策略改进(Policy Improvement)`。
 
-它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。 然后这个循环一直下去，你的 policy 就会越来越好。 
+它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。 然后这个循环一直下去，你的 policy 就会越来越好。 
 
 ![](img/3.10.png)
 上图就是讲我们刚才讲的到底是什么。
@@ -133,9 +133,9 @@ $$
 
 ![](img/3.11.png)
 
-上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$ 这个Q-function 所决定出来的$\pi'$，一定会比 $\pi$ 还要好。
+上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$ 这个 Q-function 所决定出来的 $\pi'$，一定会比 $\pi$ 还要好。
 
-假设现在呢，我们有一个policy 叫做 $\pi'$，它是由 $Q^{\pi}$ 决定的。我们要证对所有的 state s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。怎么证呢？我们先把$V^{\pi^{\prime}}(s)$写出来：
+假设有一个policy 叫做 $\pi'$，它是由 $Q^{\pi}$ 决定的。我们要证对所有的 state s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。怎么证呢？我们先把$V^{\pi^{\prime}}(s)$写出来：
 $$
 V^{\pi}(s)=Q^{\pi}(s, \pi(s))
 $$
@@ -259,7 +259,7 @@ Q(s, a_3)=0
 \end{array}
 $$
 
-但是假设你在state s，你sample 过某一个action $a_{2}$ ，它得到的值是positive 的reward。那 $Q(s, a_2)$ 就会比其他的action 都要好。在采取action 的时候， 就看说谁的Q value 最大就采取谁，所以之后你永远都只会sample 到$a_{2}$，其他的action 就再也不会被做了，所以就会有问题。就好像说你进去一个餐厅吃饭，其实你都很难选。你今天点了某一个东西以后，假说点了某一样东西， 比如说椒麻鸡，你觉得还可以。接下来你每次去就都会点椒麻鸡，再也不会点别的东西了，那你就不知道说别的东西是不是会比椒麻鸡好吃，这个是一样的问题。
+但是假设你在state s，你sample 过某一个action $a_{2}$ ，它得到的值是 positive 的 reward。那 $Q(s, a_2)$ 就会比其他的action 都要好。在采取action 的时候， 就看说谁的Q value 最大就采取谁，所以之后你永远都只会sample 到$a_{2}$，其他的action 就再也不会被做了，所以就会有问题。就好像说你进去一个餐厅吃饭，其实你都很难选。你今天点了某一个东西以后，假说点了某一样东西， 比如说椒麻鸡，你觉得还可以。接下来你每次去就都会点椒麻鸡，再也不会点别的东西了，那你就不知道说别的东西是不是会比椒麻鸡好吃，这个是一样的问题。
 
 如果你没有好的 exploration 的话， 你在training 的时候就会遇到这种问题。举一个实际的例子， 假设你今天是用 Q-learning 来玩比如说`slither.io`。在玩`slither.io` 你会有一个蛇，然后它在环境里面就走来走去， 然后就吃到星星，它就加分。假设这个游戏一开始，它采取往上走，然后就吃到那个星星，它就得到分数，它就知道说往上走是positive。接下来它就再也不会采取往上走以外的action 了，所以接下来就会变成每次游戏一开始，它就往上冲，然后就死掉，再也做不了别的事。所以今天需要有exploration 的机制，需要让 machine 知道说，虽然根据之前sample 的结果，$a_2$ 好像是不错的，但你至少偶尔也试一下$a_{1}$ 跟$a_{3}$，搞不好他们更好也说不定。
 
@@ -273,7 +273,7 @@ $$
 
 第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，replay buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
 
-这边要注意的事情是 replay buffer 里面的 experience可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的$\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个buffer 里面它其实装了很多不同的 policy 的 experiences。
+这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的$\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个buffer 里面它其实装了很多不同的 policy 的 experiences。
 
 ![](img/3.18.png)
 
@@ -298,10 +298,8 @@ A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， �
 
 上图就是一般的 `Deep Q-network(DQN)` 的算法。
 
-这个算法是这样，我们需要一个 target network， 先开始 initialize 的时候，你 initialize 2 个network，一个是 Q，一个是$\hat{Q}$，其实 $\hat{Q}$ 就等于 Q。一开始这个 target Q-network，跟你原来的 Q-network 是一样的。在每一个episode，就你拿你的 agent，你拿你的 actor 去跟环境做互动，那在每一次互动的过程中，你都会得到一个state $s_t$，一个游戏的画面，那你会采取某一个action $a_t$，那怎么知道采取哪一个action $a_t$ 呢？你就根据你现在的 Q-function。但是记得你要有exploration 的机制。比如说你用 Boltzmann exploration 或是 Epsilon Greedy 的 exploration。那接下来你得到reward $r_t$，然后跳到state $s_{t+1}$。所以现在collect 到一笔data，这笔data 是 $s_t$, $a_t$ ,$r_t$, $s_{t+1}$。结果这笔 data 就塞到你的buffer 里面去。如果buffer 满的话， 你就再把一些旧有的资料丢掉。那接下来你就从你的buffer 里面去sample data，那你sample 到的是$s_{i}, a_{i}, r_{i}, s_{i+1}$。这笔data 跟你刚放进去的，不一定是同一笔。你把这笔data 塞到buffer 里面，再到buffer 里面去抽data，抽出来并不是同一笔，你可能抽到一个旧的。
+这个算法是这样的。开始 initialize 的时候，你 initialize 2 个network，一个是 Q，一个是 $\hat{Q}$，其实 $\hat{Q}$ 就等于 Q。一开始这个 target Q-network，跟你原来的 Q-network 是一样的。在每一个 episode，你拿你的 actor 去跟环境做互动，在每一次互动的过程中，你都会得到一个 state $s_t$，那你会采取某一个action $a_t$。怎么知道采取哪一个action $a_t$ 呢？你就根据你现在的 Q-function。但是你要有 exploration 的机制。比如说你用 Boltzmann exploration 或是 Epsilon Greedy 的 exploration。那接下来你得到 reward $r_t$，然后跳到 state $s_{t+1}$。所以现在 collect 到一笔 data，这笔 data 是 ($s_t$, $a_t$ ,$r_t$, $s_{t+1}$)。这笔 data 就塞到你的 buffer 里面去。如果 buffer 满的话， 你就再把一些旧的资料丢掉。接下来你就从你的buffer 里面去 sample data，那你 sample 到的是 $(s_{i}, a_{i}, r_{i}, s_{i+1})$。这笔data 跟你刚放进去的不一定是同一笔，你可能抽到一个旧的。要注意的是，其实你 sample 出来不是一笔 data，你 sample 出来的是一个 batch 的 data，你 sample 一个batch 出来，sample 一把 experiences 出来。接下来就是计算你的 target。假设你 sample 出这么一笔 data。根据这笔 data 去算你的 target。你的 target 是什么呢？target 记得要用 target network $\hat{Q}$ 来算。Target 是：
 
-
-那这边另外要注意的是，其实你 sample 出来不是一笔 data，你 sample 出来的是一个batch 的data，你 sample 一个batch 出来，sample 一把 experiences 出来，接下来你要做的事情就是计算你的target。假设你 sample 出这么一笔data。根据这笔data 去算你的target。你的target 是什么呢？target 记得要用target network，也就是$\hat{Q}$ 来算。我们用$\hat{Q}$  来代表target network。Target 就是：
 $$
 y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
 $$

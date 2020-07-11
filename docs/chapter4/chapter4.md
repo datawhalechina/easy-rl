@@ -1,32 +1,33 @@
 # Tips of Q-learning
 ## Double DQN
 ![](img/4.1.png)
-接下来我们要讲的是 train Q-learning 的一些 tip。第一个 tip 是做 `Double DQN`。那为什么要有Double DQN 呢？因为在实现上，你会发现 Q value 往往是被高估的。上图来自于 Double DQN 的原始paper，它想要显示的结果就是Q value 往往是被高估的。这边有 4 个不同的小游戏，横轴是training 的时间，红色锯齿状一直在变的线就是 Q-function 对不同的 state estimate 出来的平均Q value，有很多不同的 state，每个state 你都sample 一下，然后算它们的Q value，把它们平均起来。红色这一条线，它在training 的过程中会改变，但它是不断上升的，为什么它不断上升，因为 Q-function 是 depend on 你的policy 的。learn 的过程中你的 policy 越来越强，所以你得到Q 的value 会越来越大。在同一个state， 你得到expected reward 会越来越大，所以general 而言，这个值都是上升的，但这是Q network 估测出来的值。
 
-接下来你真地去算它，那怎么真地去算？你有那个policy，然后真的去玩那个游戏。，就玩很多次，玩个1 百万次。然后就去真的估说，在某一个state， 你会得到的Q value，到底有多少。你会得到说在某一个state，采取某一个action。你接下来会得到accumulated reward 的总和是多少。你会发现估测出来的值是远比实际的值大。在每一个游戏都是这样，都大很多。所以今天要 propose Double DQN 的方法，它可以让估测的值跟实际的值是比较接近的。我们先看它的结果，蓝色的锯齿状的线是Double DQN 的Q network 所估测出来的Q value，蓝色的无锯齿状的线是真正的Q value，你会发现它们是比较接近的。 用 network 估测出来的就不用管它，比较没有参考价值。用 Double DQN 得出来真正的accumulated reward，在这3 个case，都是比原来的DQN 高的，代表 Double DQN learn 出来那个policy 比较强。所以它实际上得到的reward 是比较大的。虽然一般的DQN 的Q network 高估了自己会得到的reward，但实际上它得到的reward 是比较低的。
+接下来要讲的是 train Q-learning 的一些 tip。第一个 tip 是做 `Double DQN`。那为什么要有 Double DQN 呢？因为在实现上，你会发现 Q value 往往是被高估的。上图来自于 Double DQN 的原始 paper，它想要显示的结果就是 Q value 往往是被高估的。这边有 4 个不同的小游戏，横轴是 training 的时间，红色锯齿状一直在变的线就是 Q-function 对不同的 state estimate 出来的平均 Q value，有很多不同的 state，每个 state 你都 sample 一下，然后算它们的 Q value，把它们平均起来。红色这一条线，它在training 的过程中会改变，但它是不断上升的，为什么它不断上升，因为 Q-function 是 depend on 你的 policy 的。learn 的过程中你的 policy 越来越强，所以你得到 Q  value 会越来越大。在同一个state， 你得到 expected reward 会越来越大，所以 general 而言，这个值都是上升的，但这是 Q-network 估测出来的值。
+
+接下来你真地去算它，那怎么真地去算？你有那个policy，然后真的去玩那个游戏。就玩很多次，玩个一百万次。然后就去真地估说，在某一个 state， 你会得到的 Q value 到底有多少。你会得到说在某一个 state，采取某一个 action。你接下来会得到 accumulated reward 是多少。你会发现估测出来的值是远比实际的值大。在每一个游戏都是这样，都大很多。所以今天要 propose Double DQN 的方法，它可以让估测的值跟实际的值是比较接近的。我们先看它的结果，蓝色的锯齿状的线是Double DQN 的 Q-network 所估测出来的Q value，蓝色的无锯齿状的线是真正的Q value，你会发现它们是比较接近的。 用 network 估测出来的就不用管它，比较没有参考价值。用 Double DQN 得出来真正的 accumulated reward，在这 3 个case 都是比原来的DQN 高的，代表 Double DQN learn 出来那个 policy 比较强。所以它实际上得到的reward 是比较大的。虽然一般的 DQN 的 Q-network 高估了自己会得到的reward，但实际上它得到的 reward 是比较低的。
 
 ![](img/4.2.png)
 
-Q: 为什么Q value 总是被高估了呢？
+Q: 为什么 Q value 总是被高估了呢？
 
-A: 因为实际上在做的时候，是要让左边这个式子跟右边我们这个target，越接近越好。那你会发现说，target 的值很容易一不小心就被设得太高。因为在算这个 target 的时候，我们实际上在做的事情是看哪一个a 可以得到最大的Q value，就把它加上去，就变成我们的target。所以假设有某一个action它得到的值是被高估的。
+A: 因为实际上在做的时候，是要让左边这个式子跟右边这个 target 越接近越好。那你会发现说，target 的值很容易一不小心就被设得太高。因为在算这个 target 的时候，我们实际上在做的事情是看哪一个a 可以得到最大的Q value，就把它加上去，就变成我们的target。所以假设有某一个 action 得到的值是被高估的。
 
-举例来说， 现在有4 个actions，本来其实它们得到的值都是差不多的，它们得到的reward 都是差不多的。但是在estimate 的时候，那毕竟是个network。所以estimate 的时候是有误差的。所以假设今天是第一个action它被高估了，假设绿色的东西代表是被高估的量，它被高估了，那这个target 就会选这个action。然后就会选这个高估的Q value来加上$r_t$，来当作你的target。如果第4 个action 被高估了，那就会选第4 个action 来加上$r_t$ 来当作你的target value。所以你总是会选那个Q value 被高估的，你总是会选那个reward 被高估的action 当作这个max 的结果去加上$r_t$ 当作你的target。所以你的target 总是太大。
+举例来说， 现在有 4 个 actions，本来其实它们得到的值都是差不多的，它们得到的reward 都是差不多的。但是在estimate 的时候，那毕竟是个network。所以estimate 的时候是有误差的。所以假设今天是第一个action它被高估了，假设绿色的东西代表是被高估的量，它被高估了，那这个target 就会选这个action。然后就会选这个高估的Q value来加上$r_t$，来当作你的target。如果第4 个action 被高估了，那就会选第4 个action 来加上$r_t$ 来当作你的target value。所以你总是会选那个Q value 被高估的，你总是会选那个reward 被高估的action 当作这个max 的结果去加上$r_t$ 当作你的target。所以你的target 总是太大。
 
 ![](img/4.3.png)
 Q: 怎么解决这target 总是太大的问题呢？
 
-A: 在 Double DQN 里面，选action 的Q-function 跟算value 的Q-function，不是同一个。在原来的DQN 里面，你穷举所有的 a，把每一个a 都带进去， 看哪一个a 可以给你的Q value 最高，那你就把那个Q value 加上$r_t$。但是在 Double DQN 里面，你有两个Q network，第一个Q network，决定哪一个action 的Q value 最大，你用第一个Q network 去带入所有的 a，去看看哪一个Q value 最大，然后你决定你的action 以后。实际上你的Q value 是用$Q'$所算出来的，这样子有什么好处呢？为什么这样就可以避免over estimate 的问题呢？因为今天假设我们有两个 Q-function，假设第一个Q-function 它高估了它现在选出来的action a，那没关系，只要第二个Q-function $Q'$ 没有高估这个action a 的值，那你算出来的，就还是正常的值。假设反过来是 $Q'$ 高估了某一个action 的值，那也没差， 因为反正只要前面这个Q 不要选那个action 出来就没事了。这个就是 Double DQN 神奇的地方。
+A: 在 Double DQN 里面，选 action 的 Q-function 跟算 value 的 Q-function，不是同一个。在原来的DQN 里面，你穷举所有的 a，把每一个a 都带进去， 看哪一个 a 可以给你的 Q value 最高，那你就把那个 Q value 加上$r_t$。但是在 Double DQN 里面，你有两个 Q-network，第一个 Q-network，决定哪一个 action 的 Q value 最大，你用第一个 Q-network 去带入所有的 a，去看看哪一个Q value 最大。然后你决定你的action 以后，你的 Q value 是用 $Q'$ 算出来的，这样子有什么好处呢？为什么这样就可以避免 over estimate 的问题呢？因为今天假设我们有两个 Q-function，假设第一个Q-function 它高估了它现在选出来的action a，那没关系，只要第二个Q-function $Q'$ 没有高估这个action a 的值，那你算出来的，就还是正常的值。假设反过来是 $Q'$ 高估了某一个action 的值，那也没差， 因为反正只要前面这个Q 不要选那个action 出来就没事了。这个就是 Double DQN 神奇的地方。
 
-Q: 哪来两个Q 跟$Q'$ 呢？哪来两个network 呢？
+Q: 哪来 Q  跟 $Q'$ 呢？哪来两个 network 呢？
 
-A: 在实现上，你有两个Q network， 一个是target 的Q network，一个是真正你会update 的Q network。所以在 Double DQN 里面，你的实现方法会是拿你会update 参数的那个Q network 去选action，然后你拿target 的network，那个固定住不动的network 去算value。而那 Double DQN 相较于原来的DQN 的更改是最少的，它几乎没有增加任何的运算量。连新的network 都不用，因为你原来就有两个network 了。你唯一要做的事情只有，本来你在找最大的a 的时候，你在决定这个a 要放哪一个的时候，你是用$Q'$ 来算，你是用target network 来算，现在改成用另外一个会update 的Q network 来算。
+A: 在实现上，你有两个 Q-network， 一个是 target 的 Q-network，一个是真正你会 update 的 Q-network。所以在 Double DQN 里面，你的实现方法会是拿你会 update 参数的那个 Q-network 去选action，然后你拿target 的network，那个固定住不动的network 去算value。而 Double DQN 相较于原来的 DQN 的更改是最少的，它几乎没有增加任何的运算量，连新的network 都不用，因为你原来就有两个network 了。你唯一要做的事情只有，本来你在找最大的a 的时候，你在决定这个a 要放哪一个的时候，你是用$Q'$ 来算，你是用target network 来算，现在改成用另外一个会 update 的 Q-network 来算。
 
-假如你今天只选一个tip 的话，正常人都是implement Double DQN，因为很容易实现。
+假如你今天只选一个tip 的话，正常人都是 implement Double DQN，因为很容易实现。
 
 ## Dueling DQN
 ![](img/4.4.png)
-第二个 tip 是 `Dueling DQN`。其实 Dueling DQN 也蛮好做的，相较于原来的DQN。它唯一的差别是改了network 的架构，Dueling DQN 唯一做的事情是改network 的架构。Q network 就是input state，output 就是每一个action 的Q value。dueling DQN 唯一做的事情，是改了network 的架构，其它的算法，你都不要去动它。
+第二个 tip 是 `Dueling DQN`。其实 Dueling DQN 也蛮好做的，相较于原来的DQN。它唯一的差别是改了network 的架构，Dueling DQN 唯一做的事情是改network 的架构。Q-network 就是input state，output 就是每一个action 的Q value。dueling DQN 唯一做的事情，是改了network 的架构，其它的算法，你都不要去动它。
 
 Q: Dueling DQN 是怎么改了network 的架构呢？
 
@@ -72,13 +73,13 @@ $$
 ![](img/4.8.png)
 另外一个可以做的方法是，你可以balance MC 跟TD。MC 跟 TD 的方法各自有各自的优劣。我们怎么在MC 跟TD 里面取得一个平衡呢？我们的做法是这样，在TD 里面，在某一个state $s_t$采取某一个action $a_t$ 得到 reward $r_t$，接下来跳到那一个state $s_{t+1}$。但是我们可以不要只存一个step 的data，我们存 N 个step 的data。
 
-我们记录在$s_t$ 采取$a_t$，得到$r_t$，会跳到什么样$s_t$。一直纪录到在第N 个step 以后，在$s_{t+N}$采取$a_{t+N}$得到 reward $r_{t+N}$，跳到$s_{t+N+1}$的这个经验，通通把它存下来。实际上你今天在做update 的时候， 在做你Q network learning 的时候，你的learning 的方法会是这样，你learning 的时候，要让 $Q(s_t,a_t)$ 跟你的target value 越接近越好。$\hat{Q}$ 所计算的不是$s_{t+1}$，而是$s_{t+N+1}$的。你会把 N 个step 以后的state 丢进来，去计算 N 个step 以后，你会得到的reward。要算 target value 的话，要再加上multi-step 的reward $\sum_{t^{\prime}=t}^{t+N} r_{t^{\prime}}$ ，multi-step 的 reward 是从时间 t 一直到 t+N 的 N 个reward 的和。然后希望你的 $Q(s_t,a_t)$ 和 target value 越接近越好。
+我们记录在$s_t$ 采取$a_t$，得到$r_t$，会跳到什么样$s_t$。一直纪录到在第N 个step 以后，在$s_{t+N}$采取$a_{t+N}$得到 reward $r_{t+N}$，跳到$s_{t+N+1}$的这个经验，通通把它存下来。实际上你今天在做update 的时候， 在做你 Q-network learning 的时候，你的learning 的方法会是这样，你learning 的时候，要让 $Q(s_t,a_t)$ 跟你的target value 越接近越好。$\hat{Q}$ 所计算的不是$s_{t+1}$，而是$s_{t+N+1}$的。你会把 N 个step 以后的state 丢进来，去计算 N 个step 以后，你会得到的reward。要算 target value 的话，要再加上multi-step 的reward $\sum_{t^{\prime}=t}^{t+N} r_{t^{\prime}}$ ，multi-step 的 reward 是从时间 t 一直到 t+N 的 N 个reward 的和。然后希望你的 $Q(s_t,a_t)$ 和 target value 越接近越好。
 
 你会发现说这个方法就是MC 跟TD 的结合。因为它就有 MC 的好处跟坏处，也有 TD 的好处跟坏处。如果看它的这个好处的话，因为我们现在 sample 了比较多的step，之前是只sample 了一个step， 所以某一个step 得到的data 是real 的，接下来都是Q value 估测出来的。现在sample 比较多step，sample N 个step 才估测value，所以估测的部分所造成的影响就会比小。当然它的坏处就跟MC 的坏处一样，因为你的 r 比较多项，你把 N 项的 r 加起来，你的variance 就会比较大。但是你可以去调这个N 的值，去在variance 跟不精确的 Q 之间取得一个平衡。N 就是一个hyper parameter，你要调这个N 到底是多少，你是要多 sample 三步，还是多 sample 五步。
 
 ## Noisy Net
 ![](img/4.9.png)
-有一个技术是要improve 这个exploration 这件事，我们之前讲的Epsilon Greedy 这样的 exploration 是在action 的space 上面加noise，但是有另外一个更好的方法叫做`Noisy Net`，它是在参数的space 上面加noise。Noisy Net 的意思是说，每一次在一个episode 开始的时候，在你要跟环境互动的时候，你就把你的Q-function 拿出来，Q-function 里面其实就是一个network ，就变成你把那个network 拿出来，在network 的每一个参数上面加上一个Gaussian noise。那你就把原来的Q-function 变成$\tilde{Q}$ 。因为$\hat{Q}$ 已经用过，$\hat{Q}$ 是那个target network，我们用 $\tilde{Q}$  来代表一个`Noisy Q-function`。我们把每一个参数都可能都加上一个Gaussian noise，就得到一个新的network 叫做$\tilde{Q}$。这边要注意在每个episode 开始的时候，开始跟环境互动之前，我们就 sample network。接下来你就会用这个固定住的 noisy network 去玩这个游戏，直到游戏结束，你才重新再去sample 新的noise。OpenAI  跟 Deep mind 又在同时间 propose 一模一样的方法，通通都publish 在ICLR 2018，两篇paper 的方法就是一样的。不一样的地方是，他们用不同的方法，去加noise。OpenAI 加的方法好像比较简单，他就直接加一个 Gaussian noise 就结束了，就你把每一个参数，每一个weight都加一个Gaussian noise 就结束了。Deep mind 做比较复杂，他们的noise 是由一组参数控制的，也就是说 network 可以自己决定说它那个noise 要加多大，但是概念就是一样的。总之就是把你的Q-function的里面的那个network 加上一些noise，把它变得有点不一样，跟原来的Q-function 不一样，然后拿去跟环境做互动。两篇paper 里面都有强调说，你这个参数虽然会加noise，但在同一个episode 里面你的参数就是固定的，你是在换episode， 玩第二场新的游戏的时候，你才会重新sample noise，在同一场游戏里面就是同一个noisy Q network 在玩那一场游戏，这件事非常重要。为什么这件事非常重要呢？因为这是导致了Noisy Net 跟原来的Epsilon Greedy 或其它在action 做sample 方法的本质上的差异。
+有一个技术是要improve 这个exploration 这件事，我们之前讲的Epsilon Greedy 这样的 exploration 是在action 的space 上面加noise，但是有另外一个更好的方法叫做`Noisy Net`，它是在参数的space 上面加noise。Noisy Net 的意思是说，每一次在一个episode 开始的时候，在你要跟环境互动的时候，你就把你的Q-function 拿出来，Q-function 里面其实就是一个network ，就变成你把那个network 拿出来，在network 的每一个参数上面加上一个Gaussian noise。那你就把原来的Q-function 变成$\tilde{Q}$ 。因为$\hat{Q}$ 已经用过，$\hat{Q}$ 是那个target network，我们用 $\tilde{Q}$  来代表一个`Noisy Q-function`。我们把每一个参数都可能都加上一个Gaussian noise，就得到一个新的network 叫做$\tilde{Q}$。这边要注意在每个episode 开始的时候，开始跟环境互动之前，我们就 sample network。接下来你就会用这个固定住的 noisy network 去玩这个游戏，直到游戏结束，你才重新再去sample 新的noise。OpenAI  跟 Deep mind 又在同时间 propose 一模一样的方法，通通都publish 在ICLR 2018，两篇paper 的方法就是一样的。不一样的地方是，他们用不同的方法，去加noise。OpenAI 加的方法好像比较简单，他就直接加一个 Gaussian noise 就结束了，就你把每一个参数，每一个weight都加一个Gaussian noise 就结束了。Deep mind 做比较复杂，他们的noise 是由一组参数控制的，也就是说 network 可以自己决定说它那个noise 要加多大，但是概念就是一样的。总之就是把你的Q-function的里面的那个network 加上一些noise，把它变得有点不一样，跟原来的Q-function 不一样，然后拿去跟环境做互动。两篇paper 里面都有强调说，你这个参数虽然会加noise，但在同一个episode 里面你的参数就是固定的，你是在换episode， 玩第二场新的游戏的时候，你才会重新sample noise，在同一场游戏里面就是同一个noisy  Q-network 在玩那一场游戏，这件事非常重要。为什么这件事非常重要呢？因为这是导致了Noisy Net 跟原来的Epsilon Greedy 或其它在action 做sample 方法的本质上的差异。
 
 ![](img/4.10.png)
 
@@ -91,7 +92,7 @@ $$
 
 ![](img/4.12.png)
 
-Distributional Q-function 它想要做的事情是model distribution，怎么做呢？在原来的 Q-function 里面，假设你只能够采取 $a_1$, $a_2$, $a_3$, 3 个actions，那你就是input 一个state，output 3 个values。3 个values 分别代表3 个actions 的Q value，但是这个 Q value 是一个distribution 的期望值。所以 Distributional Q-function 的想法就是何不直接output 那个 distribution。但是要直接output 一个distribution 也不知道怎么做嘛。实际上的做法是说， 假设 distribution 的值就分布在某一个 range 里面，比如说-10 到10，那把-10 到10 中间拆成一个一个的bin，拆成一个一个的长条图。举例来说，在这个例子里面，每一个action 的 reward 的space 就拆成 5 个bin。假设reward 可以拆成5 个bin 的话，今天你的Q-function 的output 是要预测说，你在某一个 state，采取某一个action，你得到的reward，落在某一个bin 里面的概率。所以其实这边的概率的和，这些绿色的bar 的和应该是 1，它的高度代表说，在某一个state，采取某一个action 的时候，它落在某一个bin 的机率。这边绿色的代表action 1，红色的代表action 2，蓝色的代表action 3。所以今天你就可以真的用Q-function 去 estimate $a_1$ 的distribution，$a_2$ 的distribution，$a_3$ 的distribution。那实际上在做testing 的时候， 我们还是要选某一个action去执行嘛，那选哪一个action 呢？实际上在做的时候，还是选这个mean 最大的那个action 去执行。但假设我们今天可以 model distribution 的话，除了选mean 最大的以外，也许在未来你可以有更多其他的运用。举例来说，你可以考虑它的distribution 长什么样子。若distribution variance 很大，代表说采取这个action 虽然mean 可能平均而言很不错，但也许风险很高，你可以train一个network 它是可以规避风险的。就在 2 个action mean 都差不多的情况下，也许可以选一个风险比较小的 action 来执行，这是 Distributional Q-function 的好处。关于怎么train 这样的Q network  的细节，我们就不讲，你只要记得说 Q network 有办法output 一个distribution 就对了。我们可以不只是估测得到的期望reward mean 的值。我们其实是可以估测一个distribution 的。
+Distributional Q-function 它想要做的事情是model distribution，怎么做呢？在原来的 Q-function 里面，假设你只能够采取 $a_1$, $a_2$, $a_3$, 3 个actions，那你就是input 一个state，output 3 个values。3 个values 分别代表3 个actions 的Q value，但是这个 Q value 是一个distribution 的期望值。所以 Distributional Q-function 的想法就是何不直接output 那个 distribution。但是要直接output 一个distribution 也不知道怎么做嘛。实际上的做法是说， 假设 distribution 的值就分布在某一个 range 里面，比如说-10 到10，那把-10 到10 中间拆成一个一个的bin，拆成一个一个的长条图。举例来说，在这个例子里面，每一个action 的 reward 的space 就拆成 5 个bin。假设reward 可以拆成5 个bin 的话，今天你的Q-function 的output 是要预测说，你在某一个 state，采取某一个action，你得到的reward，落在某一个bin 里面的概率。所以其实这边的概率的和，这些绿色的bar 的和应该是 1，它的高度代表说，在某一个state，采取某一个action 的时候，它落在某一个bin 的机率。这边绿色的代表action 1，红色的代表action 2，蓝色的代表action 3。所以今天你就可以真的用Q-function 去 estimate $a_1$ 的distribution，$a_2$ 的distribution，$a_3$ 的distribution。那实际上在做testing 的时候， 我们还是要选某一个action去执行嘛，那选哪一个action 呢？实际上在做的时候，还是选这个mean 最大的那个action 去执行。但假设我们今天可以 model distribution 的话，除了选mean 最大的以外，也许在未来你可以有更多其他的运用。举例来说，你可以考虑它的distribution 长什么样子。若distribution variance 很大，代表说采取这个action 虽然mean 可能平均而言很不错，但也许风险很高，你可以train一个network 它是可以规避风险的。就在 2 个action mean 都差不多的情况下，也许可以选一个风险比较小的 action 来执行，这是 Distributional Q-function 的好处。关于怎么train 这样的 Q-network  的细节，我们就不讲，你只要记得说  Q-network 有办法output 一个distribution 就对了。我们可以不只是估测得到的期望reward mean 的值。我们其实是可以估测一个distribution 的。
 
 ## Rainbow
 
