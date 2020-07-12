@@ -7,6 +7,7 @@
  - [P6 演员-评论员算法](chapter6/chapter6.md)
  - [P7 稀疏奖励](chapter7/chapter7.md)
  - [P8 模仿学习](chapter8/chapter8.md)
+ - [P9 深度确定性策略梯度 (DDPG) 算法](chapter9/chapter9.md)
 
 
 
