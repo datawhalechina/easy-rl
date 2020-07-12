@@ -15,6 +15,7 @@
 - [P6 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)
 - [P7 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7)
 - [P8 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8)
+- [P9 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9)
 
 
 ## 主要贡献者

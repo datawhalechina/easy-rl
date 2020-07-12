@@ -3,7 +3,7 @@
 ## Actor-Critic
 
 ![](img/6.1.png)
-在 `Actor-Critic` 里面，最知名的方法就是 `A3C(Asynchronous Advantage Actor-Critic)`。如果去掉前面这个 Asynchronous，只有 Advantage Actor-Critic，就叫做 A2C。如果前面加了 Asynchronous，变成 Asynchronous Advantage Actor-Critic，就变成 A3C。
+在 `Actor-Critic` 里面，最知名的方法就是 `A3C(Asynchronous Advantage Actor-Critic)`。如果去掉前面这个 Asynchronous，只有 `Advantage Actor-Critic`，就叫做 `A2C`。如果前面加了 Asynchronous，变成 Asynchronous Advantage Actor-Critic，就变成 A3C。
 
 那我们复习一下 policy gradient，在 policy gradient，我们在 update policy 的参数 $\theta$ 的时候，我们是用了下面这个式子来算出我们的 gradient。
 $$
@@ -11,7 +11,7 @@ $$
 $$
 这个式子是在说，我们先让 agent 去跟环境互动一下，那我们可以计算出在某一个 state s，采取了某一个 action a 的概率  $p_{\theta}(a_t|s_t)$。接下来，我们去计算在某一个 state s 采取了某一个 action a 之后，到游戏结束为止，accumulated reward 有多大。我们把这些 reward 从时间 t 到时间 T 的 reward 通通加起来，并且会在前面乘一个 discount factor，可能设 0.9 或 0.99。我们会减掉一个 baseline b，减掉这个值 b 的目的，是希望括号这里面这一项是有正有负的。如果括号里面这一项是正的，我们就要增加在这个 state 采取这个 action 的机率；如果括号里面是负的，我们就要减少在这个 state 采取这个 action 的机率。
 
-我们把这个 accumulated reward  用 G 来表示它。但 G 这个值，其实是非常的 unstable 的。为什么会说 G 这个值是非常的 unstable ？因为互动的 process 本身是有随机性的，所以在某一个 state s 采取某一个 action a，然后计算 accumulated reward，每次算出来的结果都是不一样的，所以 G 其实是一个 random variable。给同样的 state s，给同样的 action a，G 可能有一个固定的 distribution。但我们是采取 sample 的方式，我们在某一个 state s 采取某一个 action a，然后玩到底，我们看看得到多少的 reward，我们就把这个东西当作 G。把 G 想成是一个 random variable 的话，我们实际上是对这个 G 做一些 sample，然后拿这些 sample 的结果，去 update 我们的参数。但实际上在某一个 state s 采取某一个 action a，接下来会发生什么事，它本身是有随机性的。虽然说有个固定的 distribution，但它本身是有随机性的，而这个 random variable 的 variance 可能会非常大。你在同一个 state 采取同一个 action，你最后得到的结果可能会是天差地远的。假设我们可以 sample 足够的次数，在每次 update 参数之前，我们都可以 sample 足够的次数，那其实没有什么问题。但问题就是我们每次做 policy gradient，每次 update 参数之前都要做一些 sample，这个 sample 的次数其实是不可能太多的，我们只能够做非常少量的 sample。如果你正好 sample 到差的结果，比如说你sample 到 G = 100，sample 到 G = -10，那显然你的结果会是很差的。
+我们把用 G 来表示 accumulated reward。但 G 这个值，其实是非常的 unstable 的。因为互动的 process 本身是有随机性的，所以在某一个 state s 采取某一个 action a，然后计算 accumulated reward，每次算出来的结果都是不一样的，所以 G 其实是一个 random variable。给同样的 state s，给同样的 action a，G 可能有一个固定的 distribution。但我们是采取 sample 的方式，我们在某一个 state s 采取某一个 action a，然后玩到底，我们看看得到多少的 reward，我们就把这个东西当作 G。把 G 想成是一个 random variable 的话，我们实际上是对这个 G 做一些 sample，然后拿这些 sample 的结果，去 update 我们的参数。但实际上在某一个 state s 采取某一个 action a，接下来会发生什么事，它本身是有随机性的。虽然说有个固定的 distribution，但它本身是有随机性的，而这个 random variable 的 variance 可能会非常大。你在同一个 state 采取同一个 action，你最后得到的结果可能会是天差地远的。假设我们可以 sample 足够的次数，在每次 update 参数之前，我们都可以 sample 足够的次数，那其实没有什么问题。但问题就是我们每次做 policy gradient，每次 update 参数之前都要做一些 sample，这个 sample 的次数其实是不可能太多的，我们只能够做非常少量的 sample。如果你正好 sample 到差的结果，比如说你 sample 到 G = 100，sample 到 G = -10，那显然你的结果会是很差的。
 
 ![](img/6.2.png)
 
@@ -30,13 +30,13 @@ $$
 
 因为这个就是 Q 的定义。Q 的定义就是在某一个 state s，采取某一个 action a，假设 policy 就是 $\pi$ 的情况下会得到的 accumulated reward 的期望值有多大，而这个东西就是 G 的期望值。为什么会这样，因为这个就是 Q 的定义，Q-function 的定义。Accumulated reward 的期望值就是 G 的期望值。所以假设用期望值来代表 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}$ 这一项的话，把 Q-function 套在这里就结束了。那我们就可以 Actor 跟 Critic 这两个方法结合起来。
 
-有什么不同的方法来表示 baseline，但一个常见的做法是，你用 value function $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 来表示 baseline。Value function 的意思是说，假设 policy 是 $\pi$，在某一个 state s 一直 interact 到游戏结束。那你 expected 的 reward 有多大。 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 没有 involve action，然后 $ Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 有 involve action。其实 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会是 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 的期望值，所以$Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会有正有负，所以 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项就会是有正有负的。
+有不同的方法来表示 baseline，但一个常见的做法是，你用 value function $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 来表示 baseline。Value function 的意思是说，假设 policy 是 $\pi$，在某一个 state s 一直 interact 到游戏结束。那你 expected 的 reward 有多大。 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 没有 involve action，然后 $ Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 有 involve action。其实 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会是 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 的期望值，所以$Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会有正有负，所以 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项就会是有正有负的。
 
 所以我们就把 policy gradient 里面 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项换成了 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$。
 
 ![](img/6.4.png)
 
-如果你这么实现的话，有一个缺点是，你要 estimate 2 个 networks，而不是一个 network。你要 estimate Q 这个 network，你也要 estimate V 这个 network，你 estimate 估测不准的风险就变成两倍。所以我们何不只估测一个 network 就好了呢？事实上在这个 Actor-Critic 方法里面。你可以只估测 V 这个 network，你可以用 V 的值来表示 Q 的值，什么意思呢？$Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)$可以写成$r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)$的期望值，即
+如果你这么实现的话，有一个缺点是，你要 estimate 2 个 networks，而不是一个 network。你要 estimate Q-network，你也要 estimate V-network，你 estimate 估测不准的风险就变成两倍。所以我们何不只估测一个 network 就好了呢？事实上在这个 Actor-Critic 方法里面。你可以只估测 V 这个 network，你可以用 V 的值来表示 Q 的值，什么意思呢？$Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)$可以写成$r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)$的期望值，即
 
 $$
 Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)=E\left[r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)\right]
@@ -51,30 +51,25 @@ $$
 $$
 r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)
 $$
-把这个期望值去掉的好处就是你不需要再 estimate Q 了，你只需要 estimate V 就够了。你只要 estimate 一个 network 就够了，你不需要 estimate 2 个 network，你只需要 estimate 一个 network 就够了。但这样你就引入了一个随机的东西 r ，它是有随机性的，它是一个 random variable。但是这个 random variable，相较于刚才的 accumulated reward G 可能还好，因为它是某一个 step 会得到的 reward。而 G 是所有未来会得到的 reward 的总和。G variance 比较大，r 虽然也有一些 variance，但它的 variance 会比 G 要小。所以把原来 variance 比较大的 G 换成 variance 比较小的 r 也是合理的。如果你觉得把期望值拿掉不靠谱的话，那我就告诉你原始的 A3C paper，它试了各式各样的方法，最后做出来就是这个最好这样。当然你可能说，搞不好 estimate Q 跟 V 也都 estimate 很好，那我告诉你就是做实验的时候，最后结果就是这个最好。所以后来大家都用这个。
+把这个期望值去掉的好处就是你不需要再 estimate Q 了，你只需要 estimate V 就够了。你只要 estimate 一个 network 就够了，你不需要 estimate 2 个 network，你只需要 estimate 一个 network 就够了。但这样你就引入了一个随机的东西 r ，它是有随机性的，它是一个 random variable。但是这个 random variable，相较于刚才的 accumulated reward G 可能还好，因为它是某一个 step 会得到的 reward。而 G 是所有未来会得到的 reward 的总和。G variance 比较大，r 虽然也有一些 variance，但它的 variance 会比 G 要小。所以把原来 variance 比较大的 G 换成 variance 比较小的 r 也是合理的。如果你觉得把期望值拿掉不靠谱的话，那我就告诉你原始的 A3C paper 试了各式各样的方法，最后做出来就是这个最好这样。当然你可能说，搞不好 estimate Q 跟 V 也都 estimate 很好，那我告诉你就是做实验的时候，最后结果就是这个最好。所以后来大家都用这个。
 
 ![](img/6.5.png)
 
-因为
-$$
-r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)
-$$
-叫做 `Advantage function`。所以这整个方法就叫 `Advantage Actor-Critic`。整个流程是这样子的。
+因为 $r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)$ 叫做 `Advantage function`。所以这整个方法就叫 `Advantage Actor-Critic`。
 
-我们现在先有一个$\pi$，有个初始的 actor 去跟环境做互动，先收集资料。在每一个 policy gradient 收集资料以后，你就要拿去 update 你的 policy。但是在 actor-critic 方法里面，你不是直接拿那些资料去 update 你的 policy。你先拿这些资料去 estimate 出你的 value function，你可以用 TD 或 MC 来 estimate value function 。接下来，你再 based on value function。套用下面这个式子去 update 你的 $\pi$。
-
+整个流程是这样子的。我们有一个 $\pi$，有个初始的 actor 去跟环境做互动，先收集资料。在 policy gradient 方法里面收集资料以后，你就要拿去 update policy。但是在 actor-critic 方法里面，你不是直接拿那些资料去 update policy。你先拿这些资料去 estimate value function，你可以用 TD 或 MC 来 estimate value function 。接下来，你再 based on value function，套用下面这个式子去 update $\pi$。
 $$
 \nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
-然后你有了新的 $\pi$ 以后，再去跟环境互动，再收集新的资料，去 estimate 你的 value function。然后再用新的 value function，去 update 你的 policy，去 update 你的 actor。整个 actor-critic 的 algorithm 就是这么运作的。
+然后你有了新的 $\pi$ 以后，再去跟环境互动，再收集新的资料，去 estimate value function。然后再用新的 value function 去 update policy，去 update actor。整个 actor-critic 的 algorithm 就是这么运作的。
 
 ![](img/6.6.png)
 
-Implement Actor-Critic 的时候，有两个一定会用的 tip。第一个 tip 是说，我们需要 estimate 两个 network，estimate V function，另外一个需要 estimate 的 network 是 policy 的 network，也就是你的 actor。 V 那个 network 它是 input 一个 state，output 一个 scalar。然后 actor 这个 network，它是 input 一个 state，output 就是一个 action 的 distribution。假设你的 action 是 discrete 不是 continuous 的话，如果是 continuous 的话，它也是一样。如果是 continuous 的话，就只是 output 一个 continuous 的 vector。上图是举的是 discrete 的例子，但 continuous 的 case 其实也是一样的，input 一个 state，然后他决定你现在要 take 那一个 action。
+实现 Actor-Critic 的时候，有两个一定会用的 tip。
 
-这两个 network，actor 跟你的 critic，跟你的 value function，它们的 input 都是 s。所以他们前面几个 layer，其实是可以 share 的。尤其是假设你今天是玩 Atari 游戏，input 都是 image。那 input 那个 image 都非常复杂，image 很大，通常你前面都会用一些 CNN 来处理，把那些 image 抽象成 high level 的 information。把 pixel level 到 high level information 这件事情，其实对 actor 跟 critic 来说是可以共用的。所以通常你会让 actor 跟 critic 的前面几个 layer 是 shared，你会让 actor 跟 critic 的前面几个 layer 共用同一组参数。那这一组参数可能是 CNN。先把 input 的 pixel 变成比较 high level 的信息，然后再给 actor 去决定说它要采取什么样的行为，给这个 critic，给 value function 去计算expected reward。
+* 第一个 tip 是说，我们需要 estimate 两个 network，estimate V function，另外一个需要 estimate 的 network 是 policy 的 network，也就是你的 actor。 V-network input 一个 state，output 一个 scalar。然后 actor 这个 network，它是 input 一个 state，output 就是一个 action 的 distribution，假设你的 action 是 discrete，不是 continuous 的话，如果是 continuous 的话，它也是一样。如果是 continuous 的话，就只是 output 一个 continuous 的 vector。上图是举的是 discrete 的例子，但 continuous 的 case 其实也是一样的，input 一个 state，然后他决定你现在要 take 那一个 action。**这两个 network，actor 和 critic 的 input 都是 s，所以它们前面几个 layer，其实是可以 share 的。**尤其是假设你今天是玩 Atari 游戏，input 都是 image。那 input 那个 image 都非常复杂，image 很大，通常你前面都会用一些 CNN 来处理，把那些 image 抽象成 high level 的 information。把 pixel level 到 high level information 这件事情，其实对 actor 跟 critic 来说是可以共用的。所以通常你会让 actor 跟 critic 的前面几个 layer 是 shared，你会让 actor 跟 critic 的前面几个 layer 共用同一组参数。那这一组参数可能是 CNN。先把 input 的 pixel 变成比较 high level 的信息，然后再给 actor 去决定说它要采取什么样的行为，给这个 critic，给 value function 去计算 expected reward。
 
-那另外一个事情是，我们一样需要 exploration 的机制，在做 Actor-Critic 的时候，有一个常见的 exploration 的方法是你会对你的 $\pi$ 的 output 的 distribution 下一个 constrain。这个 constrain 是希望这个 distribution 的 entropy 不要太小，希望这个 distribution 的 entropy 可以大一点，也就是希望不同的 action 它的被采用的机率，平均一点。这样在 testing 的时候，它才会多尝试各种不同的 action，才会把这个环境探索的比较好，才会得到比较好的结果。这个就是 advantage 的 Actor-Critic。
+* 第二个 tip 是我们一样需要 exploration 的机制。在做 Actor-Critic 的时候，有一个常见的 exploration 的方法是你会对你的 $\pi$ 的 output 的 distribution 下一个 constrain。这个 constrain 是希望这个 distribution 的 entropy 不要太小，希望这个 distribution 的 entropy 可以大一点，也就是希望不同的 action 它的被采用的机率，平均一点。这样在 testing 的时候，它才会多尝试各种不同的 action，才会把这个环境探索的比较好，才会得到比较好的结果。这个就是 Advantage Actor-Critic。
 
 ## A3C
 ![](img/6.7.png)
@@ -85,7 +80,7 @@ Implement Actor-Critic 的时候，有两个一定会用的 tip。第一个 tip 
 
 A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就是一个影分身。那最后这些影分身会把所有的经验，通通集合在一起。首先你如果没有很多个 CPU，可能也是不好实现的，你可以 implement A2C 就好。
 
-这个 A3C 是怎么运作的呢？A3C 是这样子，一开始有一个 global network。那我们刚才有讲过说，其实 policy network 跟 value network 是 tie 在一起的，他们的前几个 layer 会被 tie 一起。我们有一个 global network，它们有包含 policy 的部分和 value 的部分。假设它的参数就是 $\theta_1$，你会开很多个 worker。每一个 worker 就用一张 CPU 去跑，比如你就开 8 个 worker ，那你至少 8 张 CPU。第一个 worker 就把 global network 的参数 copy 过来，每一个 worker 工作前都会global network 的参数 copy 过来。接下来你就去跟环境做互动，每一个 actor 去跟环境做互动的时候，为了要 collect 到比较 diverse 的 data，所以举例来说如果是走迷宫的话，可能每一个 actor 起始的位置都会不一样，这样它们才能够收集到比较多样性的 data。每一个 actor 就自己跟环境做互动，互动完之后，你就会计算出 gradient。那计算出 gradient 以后，你要拿 gradient 去 update 你的参数。你就计算一下你的 gradient，然后用你的 gradient 去 update global network 的参数。就是这个 worker 算出 gradient 以后，就把 gradient 传回给中央的控制中心。然后中央的控制中心，就会拿这个 gradient 去 update 原来的参数。但是要注意一下，所有的 actor 都是平行跑的，就每一个 actor 就是各做各的，互相之间就不要管彼此。所以每个人都是去要了一个参数以后，做完就把参数传回去。所以当第一个 worker 做完想要把参数传回去的时候，本来它要的参数是 $\theta_1$，等它要把 gradient 传回去的时候。可能别人已经把原来的参数覆盖掉，变成 $\theta_2$了。但是没有关系，它一样会把这个 gradient 就覆盖过去就是了。Asynchronous actor-critic 就是这么做的，这个就是 A3C。
+这个 A3C 是怎么运作的呢？A3C 是这样子，一开始有一个 global network。那我们刚才有讲过说，其实 policy network 跟 value network 是 tie 在一起的，它们的前几个 layer 会被 tie 一起。我们有一个 global network，它们有包含 policy 的部分和 value 的部分。假设它的参数就是 $\theta_1$，你会开很多个 worker。每一个 worker 就用一张 CPU 去跑，比如你就开 8 个 worker ，那你至少 8 张 CPU。第一个 worker 就把 global network 的参数 copy 过来，每一个 worker 工作前都会global network 的参数 copy 过来。接下来你就去跟环境做互动，每一个 actor 去跟环境做互动的时候，为了要 collect 到比较 diverse 的 data，所以举例来说如果是走迷宫的话，可能每一个 actor 起始的位置都会不一样，这样它们才能够收集到比较多样性的 data。每一个 actor 就自己跟环境做互动，互动完之后，你就会计算出 gradient。那计算出 gradient 以后，你要拿 gradient 去 update 你的参数。你就计算一下你的 gradient，然后用你的 gradient 去 update global network 的参数。就是这个 worker 算出 gradient 以后，就把 gradient 传回给中央的控制中心。然后中央的控制中心，就会拿这个 gradient 去 update 原来的参数。但是要注意一下，所有的 actor 都是平行跑的，就每一个 actor 就是各做各的，互相之间就不要管彼此。所以每个人都是去要了一个参数以后，做完就把参数传回去。所以当第一个 worker 做完想要把参数传回去的时候，本来它要的参数是 $\theta_1$，等它要把 gradient 传回去的时候。可能别人已经把原来的参数覆盖掉，变成 $\theta_2$了。但是没有关系，它一样会把这个 gradient 就覆盖过去就是了。Asynchronous actor-critic 就是这么做的，这个就是 A3C。
 
  ## Pathwise Derivative Policy Gradient
 ![](img/6.9.png)
@@ -101,7 +96,7 @@ A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就�
 
 ![](img/6.11.png)
 
-我们来看一下这个pathwise derivative policy gradient 的算法。一开始你会有一个 actor $\pi$，它去跟环境互动，然后，你可能会要它去 estimate Q value。estimate 完 Q value 以后，你就把 Q value 固定，只去 learn 一个 actor。假设这个 Q 估得是很准的，它知道在某一个 state 采取什么样的 action，会真的得到很大的 value。接下来就 learn 这个 actor，actor 在 given s 的时候，它采取了 a，可以让最后 Q-function 算出来的 value 越大越好。你用这个 criteria 去 update 你的 actor $\pi$。然后有新的 $\pi$ 再去跟环境做互动，再 estimate Q，再得到新的 $\pi$ 去 maximize Q 的 output。本来在 Q-learning 里面，你用得上的技巧，在这边也几乎都用得上，比如说 replay buffer、exploration 等等。
+我们来看一下这个 pathwise derivative policy gradient 的算法。一开始你会有一个 actor $\pi$，它去跟环境互动，然后，你可能会要它去 estimate Q value。estimate 完 Q value 以后，你就把 Q value 固定，只去 learn 一个 actor。假设这个 Q 估得是很准的，它知道在某一个 state 采取什么样的 action，会真的得到很大的 value。接下来就 learn 这个 actor，actor 在 given s 的时候，它采取了 a，可以让最后 Q-function 算出来的 value 越大越好。你用这个 criteria 去 update 你的 actor $\pi$。然后有新的 $\pi$ 再去跟环境做互动，再 estimate Q，再得到新的 $\pi$ 去 maximize Q 的 output。本来在 Q-learning 里面，你用得上的技巧，在这边也几乎都用得上，比如说 replay buffer、exploration 等等。
 
 ![](img/6.12.png)
 
@@ -119,4 +114,4 @@ A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就�
 ## Connection with GAN
 ![](img/6.14.png)
 
-其实 GAN 跟 Actor-Critic 的方法是非常类似的。这边就不细讲，你可以去找到一篇 paper 叫做 Connecting Generative Adversarial Network and Actor-Critic Methods。知道 GAN 跟 Actor-Critic 非常像有什么帮助呢？一个很大的帮助就是 GAN 跟 Actor-Critic 都是以难 train 而闻名的。所以在文献上就会收集各式各样的方法，告诉你说怎么样可以把 GAN train 起来。怎么样可以把 Actor-Critic train 起来。但是因为做 GAN 跟 Actor-Critic 的人是两群人，所以这篇 paper 里面就列出说在 GAN 上面有哪些技术是有人做过的，在 Actor-Critic 上面，有哪些技术是有人做过的。也许在 GAN 上面有试过的技术，你可以试着 apply 在 Actor-Critic 上，在 Actor-Critic 上面做过的技术，你可以试着 apply 在 GAN 上面，看看是否work。
+其实 GAN 跟 Actor-Critic 的方法是非常类似的。这边就不细讲，你可以去找到一篇 paper 叫做 `Connecting Generative Adversarial Network and Actor-Critic Methods`。知道 GAN 跟 Actor-Critic 非常像有什么帮助呢？一个很大的帮助就是 GAN 跟 Actor-Critic 都是以难 train 而闻名的。所以在文献上就会收集各式各样的方法，告诉你说怎么样可以把 GAN train 起来。怎么样可以把 Actor-Critic train 起来。但是因为做 GAN 跟 Actor-Critic 的人是两群人，所以这篇 paper 里面就列出说在 GAN 上面有哪些技术是有人做过的，在 Actor-Critic 上面，有哪些技术是有人做过的。也许在 GAN 上面有试过的技术，你可以试着 apply 在 Actor-Critic 上，在 Actor-Critic 上面做过的技术，你可以试着 apply 在 GAN 上面，看看是否 work。

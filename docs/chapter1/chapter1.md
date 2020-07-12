@@ -9,7 +9,7 @@
 
 * actor 做的事情就是去操控游戏的摇杆， 比如说向左、向右、开火等操作；
 * environment 就是游戏的主机， 负责控制游戏的画面负责控制说，怪物要怎么移动， 你现在要看到什么画面等等；
-* reward function 就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到20分等等。
+* reward function 就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到 20 分等等。
 
 同样的概念用在围棋上也是一样的，
 
@@ -17,7 +17,7 @@
 * environment 就是对手；
 * reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。
 
-在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为， policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
+在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为。Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
 
 ![](img/1.2.png)
 **Policy 一般写成 $\pi$**。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**。Network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西就是游戏的画面。Machine 看到什么东西，会影响你现在 training 到底好不好 train。
@@ -30,7 +30,7 @@
 * input 就是游戏的画面，它通常是由 pixels 所组成的；
 * output 就是看看说有那些选项是你可以去执行的，output layer 就有几个 neurons。
 
-假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，你的 actor 采取的行为，就会不一样。
+假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，actor 采取的行为就会不一样。
 
 ![](img/1.3.png)
 接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy 来决定一个 action。假设它现在决定的 action 是向右，它决定完 action 以后，它就会得到一个 reward ，代表它采取这个 action 以后得到的分数。
@@ -38,7 +38,7 @@
 我们把一开始的初始画面，写作 $s_1$， 把第一次执行的动作叫做 $a_1$，把第一次执行动作完以后得到的 reward 叫做 $r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个的行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。然后这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
 
 ![](img/1.4.png)
-一场游戏，叫做一个 `Episode`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `Total reward`，我们称其为`Return(回报)`，用 R 来表示它。Actor 存在的目的就是想办法去 maximize 它可以得到的 reward。
+一场游戏叫做一个 `Episode`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `Total reward`，我们称其为`Return(回报)`，用 R 来表示它。Actor 存在的目的就是想办法去 maximize 它可以得到的 reward。
 
 ![](img/1.5.png)
 首先，`environment` 是一个`function`，游戏的主机也可以把它看作是一个 function，虽然它不一定是 neural network，可能是 rule-based 的规则，但你可以把它看作是一个 function。这个 function，一开始就先吐出一个 state，也就是游戏的画面，接下来你的 actor 看到这个游戏画面 $s_1$ 以后，它吐出 $a_1$，然后 environment 把 $a_1$ 当作它的输入，然后它再吐出 $s_2$，吐出新的游戏画面。Actor 看到新的游戏画面，再采取新的行为 $a_2$，然后 environment 再看到 $a_2$，再吐出 $s_3$。这个 process 会一直持续下去，直到 environment 觉得说应该要停止为止。

@@ -1,31 +1,31 @@
 # Sparse Reward 
-实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到 reward 的情况下，对 agent 来说它的训练是非常困难的。举例来说，假设你今天要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样得好。所以，它最后什么都不会学到。如果环境中的 reward 非常的 sparse，reinforcement learning 的问题就会变得非常的困难。但是人类可以在非常 sparse 的reward 上面去学习，我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么reward 或者是penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
+实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到 reward 的情况下，对 agent 来说它的训练是非常困难的。举例来说，假设你今天要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样得好。所以，它最后什么都不会学到。如果环境中的 reward 非常的 sparse，reinforcement learning 的问题就会变得非常的困难。但是人类可以在非常 sparse 的 reward 上面去学习，我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么 reward 或是 penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
 
 怎么解决 sparse reward 的这件事情呢？我们等一下会讲三个方向。
 ## Reward Shaping
 ![](img/7.1.png)
 
-第一个方向叫做reward shaping，reward shaping 的意思是说环境有一个固定的reward，它是真正的 reward，但是我们为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些reward 来引导我们的agent。举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可以take 两个actions，一个action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在100 个小时后，他可以得到reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是accumulated reward，但也许对小孩来说，他的discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。所以reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些reward，它不是环境真正的reward。有在玩Atari 游戏里面，真的 reward 是游戏主机给你的reward，但你自己去设一些 reward 好引导你的 machine，做你想要它做的事情。
+第一个方向叫做 `reward shaping`，reward shaping 的意思是说环境有一个固定的 reward，它是真正的 reward，但是我们为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些 reward 来引导我们的 agent。举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可 以take 两个 actions，一个action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到 reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在 100 个小时后，他可以得到 reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是 accumulated reward，但也许对小孩来说，他的 discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多 experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的 reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。Reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些 reward，它不是环境真正的 reward。在玩 Atari 游戏里面，真的 reward 是游戏主机给你的 reward，但你自己去设计一些 reward 好引导你的 machine，做你想要它做的事情。
 
 ![](img/7.2.png)
 
-举例来说，这个例子是 Facebook 玩 VizDoom 的 agent。VizDoom是一个第一人射击游戏，在这个射击游戏中，杀了敌人就得到 positive reward，被杀就得到 negative reward。他们设计了一些新的reward，用新的 reward 来引导 agent 让他们做得更好，这不是游戏中真正的reward。
+举例来说，这个例子是 Facebook 玩 VizDoom 的 agent。VizDoom 是一个第一人射击游戏，在这个射击游戏中，杀了敌人就得到 positive reward，被杀就得到 negative reward。他们设计了一些新的 reward，用新的 reward 来引导 agent 让他们做得更好，这不是游戏中真正的 reward。
 
-比如说掉血就扣0.05的分数，弹药减少就扣分，捡到补给包就加分，呆在原地就扣分，移动就加分。 活着会扣一个很小的分数，因为不这样做的话，machine 会只想活着，一直躲避敌人，这样会让 machine 好战一点。表格中的参数都是调出来的。
+比如说掉血就扣 0.05 的分数，弹药减少就扣分，捡到补给包就加分，呆在原地就扣分，移动就加分。 活着会扣一个很小的分数，因为不这样做的话，machine 会只想活着，一直躲避敌人，这样会让 machine 好战一点。表格中的参数都是调出来的。
 
-Reward Shaping 是有问题的，因为我们需要domain knowledge，举例来说，机器人想要学会的事情是把蓝色的板子从这个柱子穿过去。机器人很难学会，我们可以做 Reward Shaping。一个貌似合理的说法是，蓝色的板子离柱子越近，reward 越大。但是 machine 靠近的方式会有问题，它会用蓝色的板子打柱子。而我们要把蓝色板子放在柱子上面去，才能把蓝色板子穿过柱子。 这种 Reward Shaping 的方式是没有帮助的，那至于什么 reward shaping 有帮助，什么 reward shaping 没帮助，会变成一个 domain knowledge，你要去调的。
+Reward shaping是有问题的，因为我们需要 domain knowledge，举例来说，机器人想要学会的事情是把蓝色的板子从这个柱子穿过去。机器人很难学会，我们可以做 Reward Shaping。一个貌似合理的说法是，蓝色的板子离柱子越近，reward 越大。但是 machine 靠近的方式会有问题，它会用蓝色的板子打柱子。而我们要把蓝色板子放在柱子上面去，才能把蓝色板子穿过柱子。 这种 reward shaping的方式是没有帮助的，那至于什么 reward shaping 有帮助，什么 reward shaping 没帮助，会变成一个 domain knowledge，你要去调的。
 
 ##  Curiosity
 ![](img/7.3.png)
 
-接下来就是介绍各种你可以自己加进去，in general 看起来是有用的reward。举例来说，一个技术是给 machine 加上 curiosity，所以叫 `curiosity driven 的reward`。上图是我们之前讲 Actor-Critic 的时候看过的图。我们有一个 reward function，它给你某一个state，给你某一个action，它就会评断说在这个 state 采取 这个action 得到多少的reward。那我们当然希望 total reward 越大越好。在curiosity driven 的这种技术里面，你会加上一个新的 reward function。这个新的 reward function 叫做 `ICM(intrinsic curiosity module)`，它就是要给机器加上好奇心。ICM 会吃3 个东西，它会吃 state $s_1$、action $a_1$ 和 state $s_2$。根据$s_1$ 、$a_1$、 $a_2$，它会output 另外一个reward，我们这边叫做$r_1^i$。对 machine 来说，total reward 并不是只有 r 而已，还有$r^i$。它不是只有把所有的 r 都加起来，它还把所有 $r^i$ 加起来当作total reward。所以，它在跟环境互动的时候，它不是只希望 r 越大越好，它还同时希望 $r^i$ 越大越好，它希望从 ICM 的 module 里面得到的 reward 越大越好。ICM 就代表了一种curiosity。
+接下来就是介绍各种你可以自己加进去，in general 看起来是有用的 reward。举例来说，一个技术是给 machine 加上 curiosity，所以叫 `curiosity driven reward`。上图是我们之前讲 Actor-Critic 的时候看过的图。我们有一个 reward function，它给你某一个s tate，给你某一个 action，它就会评断说在这个 state 采取 这个action 得到多少的 reward。那我们当然希望 total reward 越大越好。在 curiosity driven 的这种技术里面，你会加上一个新的 reward function。这个新的 reward function 叫做 `ICM(intrinsic curiosity module)`，它就是要给机器加上好奇心。ICM 会吃 3 个东西，它会吃 state $s_1$、action $a_1$ 和 state $s_2$。根据$s_1$ 、$a_1$、 $a_2$，它会 output 另外一个 reward，我们这边叫做 $r_1^i$。对 machine 来说，total reward 并不是只有 r 而已，还有 $r^i$。它不是只有把所有的 r 都加起来，它还把所有 $r^i$ 加起来当作total reward。所以，它在跟环境互动的时候，它不是只希望 r 越大越好，它还同时希望 $r^i$ 越大越好，它希望从 ICM 的 module 里面得到的 reward 越大越好。ICM 就代表了一种curiosity。
 
 
 ![](img/7.4.png)
 
-怎么设计这个ICM？这个是最原始的设计。这个设计是这样。curiosity module 就是 input 3 个东西，input 现在的 state，input 在这个 state 采取的 action，然后接 input 下一个 state $s_{t+1}$。接下来会 output 一个 reward $r^i_t$。那这个 $r^i_t$  是怎么算出来的呢？在ICM 里面，你有一个network，这个network 会 take $a_t$ 跟$s_t$，然后去 output $\hat{s}_{t+1}$，也就是这个 network 根据 $a_t$ 和 $s_t$ 去 predict  $\hat{s}_{t+1}$ 。接下来再看说，这个network 的预测  $\hat{s}_{t+1}$ 跟真实的情况 $s_{t+1}$ 像不像，越不像那得到的reward 就越大。所以这个reward $r_t^i$ 的意思是说，如果未来的 state 越难被预测的话，那得到的 reward 就越大。这就是鼓励 machine 去冒险，现在采取这个action，未来会发生什么事越没有办法预测的话，这个action 的 reward 就大。所以如果有这样子的 ICM，machine 就会倾向于采取一些风险比较大的 action，它想要去探索未知的世界，它想要去看看说，假设某一个 state 是它没有办法预测，它会特别去想要采取那个 state，这可以增加 machine exploration 的能力。
+怎么设计这个 ICM ？这个是最原始的设计。这个设计是这样。curiosity module 就是 input 3 个东西，input 现在的 state，input 在这个 state 采取的 action，然后接 input 下一个 state $s_{t+1}$。接下来会 output 一个 reward $r^i_t$。那这个 $r^i_t$  是怎么算出来的呢？在 ICM 里面，你有一个 network，这个 network 会 take $a_t$ 跟$s_t$，然后去 output $\hat{s}_{t+1}$，也就是这个 network 根据 $a_t$ 和 $s_t$ 去 predict  $\hat{s}_{t+1}$ 。接下来再看说，这个 network 的预测  $\hat{s}_{t+1}$ 跟真实的情况 $s_{t+1}$ 像不像，越不像那得到的 reward 就越大。所以这个 reward $r_t^i$ 的意思是说，如果未来的 state 越难被预测的话，那得到的 reward 就越大。这就是鼓励 machine 去冒险，现在采取这个 action，未来会发生什么事越没有办法预测的话，这个 action 的 reward 就大。所以如果有这样子的 ICM，machine 就会倾向于采取一些风险比较大的 action，它想要去探索未知的世界，它想要去看看说，假设某一个 state 是它没有办法预测，它会特别去想要采取那个 state，这可以增加 machine exploration 的能力。
 
-这个 network 1 其实是另外 train 出来的。Training 的时候，这个network 1，你会给它 $a_t$、 $s_t$、 $s_{t+1}$，然后让这个network 1 去学说 given $a_t, s_t$，怎么 predict $\hat{s}_{t+1}$。Apply 到 agent 互动的时候，其实要把 ICM module fix 住。其实，这一整个想法里面是有一个问题的，这个问题是什么呢？这个问题是，某一些 state它很难被预测，并不代表它就是好的，它就应该要去被尝试的。举例来说，俄罗斯轮盘的结果也是没有办法预测的，并不代表说，人应该每天去玩俄罗斯轮盘这样子。所以只是鼓励 machine 去冒险是不够的，因为如果光是只有这个network 的架构，machine 只知道说什么东西它无法预测。如果在某一个 state 采取某一个 action，它无法预测接下来结果，它就会采取那个action，但并不代表这样的结果一定是好的。举例来说，可能在某个游戏里面，背景会有风吹草动，会有树叶飘动。那也许树叶飘动这件事情，是很难被预测的，对 machine 来说它在某一个 state 什么都不做，看着树叶飘动，然后，发现这个树叶飘动是没有办法预测的，接下来它就会一直站在那边，看树叶飘动。所以说，光是有好奇心是不够的，还要让它知道说，什么事情是真正重要的。
+这个 network 1 其实是另外 train 出来的。Training 的时候，这个network 1，你会给它 $a_t$、 $s_t$、 $s_{t+1}$，然后让这个network 1 去学说 given $a_t, s_t$，怎么 predict $\hat{s}_{t+1}$。Apply 到 agent 互动的时候，其实要把 ICM module fix 住。其实，这一整个想法里面是有一个问题的。这个问题是某一些 state它很难被预测并不代表它就是好的，它就应该要去被尝试的。举例来说，俄罗斯轮盘的结果也是没有办法预测的，并不代表说，人应该每天去玩俄罗斯轮盘这样子。所以只是鼓励 machine 去冒险是不够的，因为如果光是只有这个 network 的架构，machine 只知道说什么东西它无法预测。如果在某一个 state 采取某一个 action，它无法预测接下来结果，它就会采取那个action，但并不代表这样的结果一定是好的。举例来说，可能在某个游戏里面，背景会有风吹草动，会有树叶飘动。那也许树叶飘动这件事情，是很难被预测的，对 machine 来说它在某一个 state 什么都不做，看着树叶飘动，然后，发现这个树叶飘动是没有办法预测的，接下来它就会一直站在那边，看树叶飘动。所以说，光是有好奇心是不够的，还要让它知道说，什么事情是真正重要的。
 
 ![](img/7.5.png)
 
@@ -37,17 +37,16 @@ Reward Shaping 是有问题的，因为我们需要domain knowledge，举例来�
 
 ## Curriculum Learning
 
-
 ![](img/7.6.png)
-接下来讲 `curriculum learning` ，curriculum learning 不是 reinforcement learning 所独有的概念。其实在很多 machine learning，尤其是 deep learning 里面，你都会用到 curriculum learning 的概念，举例来说，curriculum learning 的意思是说，你为机器的学习做规划，你给他喂 training data 的时候，是有顺序的，通常都是由简单到难。就好比说，假设你今天要交一个小朋友作微积分，他做错就打他一巴掌，这样他永远都不会做对，太难了。你要先教他九九乘法，然后才教他微积分。所以curriculum learning 的意思就是在教机器的时候，从简单的题目教到难的题目。就算不是reinforcement learning，一般在 train deep network 的时候，你有时候也会这么做。举例来说，在train RNN 的时候，已经有很多的文献都 report 说，你给机器先看短的 sequence，再慢慢给它长的sequence，通常可以学得比较好。那用在reinforcement learning 里面，你就是要帮机器规划一下它的课程，从最简单的到最难的。 举例来说，在 Facebook 玩 VizDoom 的 agent 里面，Facebook 玩 VizDoom 的 agent 蛮强的。他们在参加这个 VizDoom 的比赛，机器的 VizDoom 比赛是得第一名的，他们是有为机器规划课程的。先从课程 0 一直上到课程 7。在这个课程里面，怪物的速度跟血量是不一样的。所以，在越进阶的课程里面，怪物的速度越快，然后他的血量越多。在 paper 里面也有讲说，如果直接上课程 7，machine 是学不起来的。你就是要从课程 0 一路玩上去，这样machine 才学得起来。
+接下来讲 `curriculum learning` ，curriculum learning 不是 reinforcement learning 所独有的概念。其实在 machine learning，尤其是 deep learning 里面，你都会用到 curriculum learning 的概念。举例来说，curriculum learning 的意思是说，你为机器的学习做规划，你给他喂 training data 的时候，是有顺序的，通常都是由简单到难。就好比说，假设你今天要交一个小朋友作微积分，他做错就打他一巴掌，这样他永远都不会做对，太难了。你要先教他九九乘法，然后才教他微积分。所以curriculum learning 的意思就是在教机器的时候，从简单的题目教到难的题目。就算不是 reinforcement learning，一般在 train deep network 的时候，你有时候也会这么做。举例来说，在 train RNN 的时候，已经有很多的文献都 report 说，你给机器先看短的 sequence，再慢慢给它长的 sequence，通常可以学得比较好。那用在reinforcement learning 里面，你就是要帮机器规划一下它的课程，从最简单的到最难的。 举例来说，在 Facebook 玩 VizDoom 的 agent 里面，Facebook 玩 VizDoom 的 agent 蛮强的。他们在参加这个 VizDoom 的比赛，机器的 VizDoom 比赛是得第一名的，他们是有为机器规划课程的。先从课程 0 一直上到课程 7。在这个课程里面，怪物的速度跟血量是不一样的。所以，在越进阶的课程里面，怪物的速度越快，然后他的血量越多。在 paper 里面也有讲说，如果直接上课程 7，machine 是学不起来的。你就是要从课程 0 一路玩上去，这样 machine 才学得起来。
 
 再举个例子，把蓝色的板子穿过柱子，怎么让机器一直从简单学到难呢？
 
-如第一张图所示，也许一开始机器初始的时候，它的板子就已经在柱子上了。这个时候，机器要做的事情只有把蓝色的板子压下去，就结束了。这比较简单，它应该很快就学的会。它只有往上跟往下这两个选择嘛，往下就得到reward，就结束了，他也不知道学的是什么。
+如第一张图所示，也许一开始机器初始的时候，它的板子就已经在柱子上了。这个时候，机器要做的事情只有把蓝色的板子压下去，就结束了。这比较简单，它应该很快就学的会。它只有往上跟往下这两个选择嘛，往下就得到 reward，就结束了，他也不知道学的是什么。
 
-如第二张图所示，这边就是把板子挪高一点，挪高一点，所以它有时候会很笨的往上拉，然后把板子拿出来了。如果它压板子学得会的话，拿板子也比较有机会学得会。假设它现在学的到说，只要板子接近柱子，它就可以把这个板子压下去的话。接下来，你再让它学更 general 的case。
+如第二张图所示，这边就是把板子挪高一点，挪高一点，所以它有时候会很笨的往上拉，然后把板子拿出来了。如果它压板子学得会的话，拿板子也比较有机会学得会。假设它现在学的到说，只要板子接近柱子，它就可以把这个板子压下去的话。接下来，你再让它学更 general 的 case。
 
-如第三张图所示，一开始，让板子离柱子远一点。然后，板子放到柱子上面的时候，它就会知道把板子压下去，这个就是Curriculum Learning 的概念。当然 curriculum learning 有点ad hoc(特别)，就是需要人去为机器设计它的课程。
+如第三张图所示，一开始，让板子离柱子远一点。然后，板子放到柱子上面的时候，它就会知道把板子压下去，这个就是Curriculum Learning 的概念。当然 curriculum learning 有点 ad hoc(特别)，就是需要人去为机器设计它的课程。
 
 ![](img/7.7.png)
 
@@ -55,7 +54,7 @@ Reward Shaping 是有问题的，因为我们需要domain knowledge，举例来�
 
 ![](img/7.8.png)
 
-接下来，我们把 reward 特别极端的 case 去掉，reward 特别极端的 case 的意思就是说那些 case 太简单，或者是太难了。如果 reward 很大，代表说这个case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的reward。如果 reward 太小，代表这个case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。那当然什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的case 去 sample 出更多的 state。就假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是Curriculum learning，就是你要为机器规划它学习的顺序。因为它说从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse。
+接下来，我们把 reward 特别极端的 case 去掉，reward 特别极端的 case 的意思就是说那些 case 太简单或是太难了。如果 reward 很大，代表说这个 case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的 reward。如果 reward 太小，代表这个 case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。那当然什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的 case 去 sample 出更多的 state。就假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是 Curriculum learning，就是你要为机器规划它学习的顺序。而 reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse。  
 
 ## Hierarchical RL
 
