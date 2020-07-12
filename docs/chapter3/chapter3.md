@@ -271,7 +271,7 @@ $$
 
 ![](img/3.17.png)
 
-第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，replay buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
+第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，Replay Buffer 又被称为 `Replay Memory`。Replay Buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
 
 这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的 $\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个 buffer 里面它其实装了很多不同的 policy 的 experiences。
 
