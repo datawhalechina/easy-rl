@@ -273,13 +273,13 @@ $$
 
 第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，replay buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
 
-这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的$\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个buffer 里面它其实装了很多不同的 policy 的 experiences。
+这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的 $\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个 buffer 里面它其实装了很多不同的 policy 的 experiences。
 
 ![](img/3.18.png)
 
-有了这个buffer 以后，你做的事情就是怎么train 这个 Q 的model 呢，怎么估 Q-function？你的做法是这样：你会iterative 去 train 这个Q-function，在每一个 iteration 里面，你从这个buffer 里面，随机挑一个batch 出来，就跟一般的network training 一样，你从那个 training data set 里面，去挑一个batch 出来。你去sample 一个batch 出来，里面有一把的experiences，根据这把experiences 去update 你的Q-function。就跟我们刚才讲那个 TD learning 要有一个target network 是一样的。你去sample 一堆batch，sample 一个batch 的data，sample 一堆 experiences，然后再去update 你的Q-function。
+有了这个 buffer 以后，你是怎么 train 这个 Q 的 model 呢，怎么估 Q-function？你的做法是这样：你会 iterative 去 train 这个 Q-function，在每一个 iteration 里面，你从这个 buffer 里面，随机挑一个 batch 出来，就跟一般的 network training 一样，你从那个 training data set 里面，去挑一个 batch 出来。你去 sample 一个 batch 出来，里面有一把的 experiences，根据这把 experiences 去 update 你的 Q-function。就跟 TD learning 要有一个 target network 是一样的。你去 sample 一堆 batch，sample 一个 batch 的 data，sample 一堆 experiences，然后再去 update 你的 Q-function。
 
-当我们这么做的时候， 它变成了一个off-policy 的做法。因为本来我们的 Q 是要观察 $\pi$ 这个 action 的 value，但实际上存在你的 replay buffer 里面的这些 experiences 不是通通来自于 $\pi$，有些是过去其他的 $\pi$ 所遗留下来的 experience。因为你不会拿某一个$\pi$ 就把整个buffer 装满，然后拿去测 Q-function，这个$\pi$ 只是 sample 一些 data塞到那个 buffer 里面去，然后接下来就让 Q 去t rain。所以 Q 在 sample 的时候， 它会 sample 到过去的一些资料。
+当我们这么做的时候， 它变成了一个 `off-policy` 的做法。因为本来我们的 Q 是要观察 $\pi$ 的 experience，但实际上存在你的 replay buffer 里面的这些 experiences 不是通通来自于 $\pi$，有些是过去其他的 $\pi$ 所遗留下来的 experience。因为你不会拿某一个 $\pi$ 就把整个 buffer 装满，然后拿去测 Q-function，这个 $\pi$ 只是 sample 一些 data 塞到那个 buffer 里面去，然后接下来就让 Q 去 train。所以 Q 在 sample 的时候， 它会 sample 到过去的一些资料。
 
 但是这样做有什么好处呢？这么做有两个好处。
 
@@ -287,7 +287,7 @@ $$
 
 * 第二个好处，在 train network 的时候，其实我们希望一个 batch 里面的 data 越 diverse 越好。如果你的 batch 里面的 data 都是同样性质的，你 train 下去是容易坏掉的。如果 batch 里面都是一样的data，你 train 的时候，performance 会比较差。我们希望 batch data 越 diverse 越好。那如果你今天，你的这个buffer 里面的那些experience 通通来自于不同的policy ，那你sample 到的一个batch 里面的data 会是比较diverse 。
 
-Q：我们明明是要观察 $\pi$ 的value，里面混杂了一些不是 $\pi$ 的 experience ，这有没有关系？
+Q：我们明明是要观察 $\pi$ 的 value，里面混杂了一些不是 $\pi$ 的 experience ，这有没有关系？
 
 A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， 就算过去的$\pi$ 没有很像，其实也是没有关系的。主要的原因是因为， 我们并不是去sample 一个trajectory，我们只sample 了一笔experience，所以跟是不是 off-policy 这件事是没有关系的。就算是off-policy，就算是这些 experience 不是来自于 $\pi$，我们其实还是可以拿这些 experience 来估测 $Q^{\pi}(s,a)$。这件事有点难解释，不过你就记得说 Experience Replay 在理论上也是没有问题的。
 
