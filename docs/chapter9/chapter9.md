@@ -1,81 +1,81 @@
-# DDPG
+# Sparse Reward 
+实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到 reward 的情况下，对 agent 来说它的训练是非常困难的。举例来说，假设你今天要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样得好。所以，它最后什么都不会学到。如果环境中的 reward 非常的 sparse，reinforcement learning 的问题就会变得非常的困难。但是人类可以在非常 sparse 的 reward 上面去学习，我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么 reward 或是 penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
 
-## 离散动作 vs. 连续动作
-
+怎么解决 sparse reward 的这件事情呢？我们等一下会讲三个方向。
+## Reward Shaping
 ![](img/9.1.png)
-离散动作与连续动作是相对的概念，一个是可数的，一个是不可数的。 在 CartPole 环境中，可以有向左推小车、向右推小车两个动作。在 Frozen Lake 环境中，小乌龟可以有上下左右四个动作。在 Atari 的 Pong 游戏中，游戏有6个按键的动作可以输出。
 
-但在实际情况中，经常会碰到连续动作空间的情况，也就是输出的动作是不可数的。比如说推小车力的大小， 选择下一时刻方向盘的转动角度或者四轴飞行器的四个螺旋桨给的电压的大小等等。
+第一个方向叫做 `reward shaping`，reward shaping 的意思是说环境有一个固定的 reward，它是真正的 reward，但是我们为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些 reward 来引导我们的 agent。举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可 以take 两个 actions，一个action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到 reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在 100 个小时后，他可以得到 reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是 accumulated reward，但也许对小孩来说，他的 discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多 experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的 reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。Reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些 reward，它不是环境真正的 reward。在玩 Atari 游戏里面，真的 reward 是游戏主机给你的 reward，但你自己去设计一些 reward 好引导你的 machine，做你想要它做的事情。
 
 ![](img/9.2.png)
 
-对于这些连续的动作控制空间，Q-learning、DQN 等算法是没有办法处理的。那我们怎么输出连续的动作呢，这个时候，万能的神经网络又出现了。在上面这个离散动作的场景下，比如说我输出上下或是停止这几个动作。有几个动作，神经网络就输出几个概率值。我们用 $\pi_\theta(a_t|s_t)$ 来表示这个随机性的策略。
+举例来说，这个例子是 Facebook 玩 VizDoom 的 agent。VizDoom 是一个第一人射击游戏，在这个射击游戏中，杀了敌人就得到 positive reward，被杀就得到 negative reward。他们设计了一些新的 reward，用新的 reward 来引导 agent 让他们做得更好，这不是游戏中真正的 reward。
 
-然后在连续的动作场景下，比如说我要输出这个机器人手臂弯曲的角度，这样子的一个动作，我们就输出一个具体的浮点数。我们用 $\mu_{\theta}(s_t)$ 来代表这个确定性的策略。
+比如说掉血就扣 0.05 的分数，弹药减少就扣分，捡到补给包就加分，呆在原地就扣分，移动就加分。 活着会扣一个很小的分数，因为不这样做的话，machine 会只想活着，一直躲避敌人，这样会让 machine 好战一点。表格中的参数都是调出来的。
 
-我们再解释一下随机性策略跟确定性策略。
+Reward shaping是有问题的，因为我们需要 domain knowledge，举例来说，机器人想要学会的事情是把蓝色的板子从这个柱子穿过去。机器人很难学会，我们可以做 Reward Shaping。一个貌似合理的说法是，蓝色的板子离柱子越近，reward 越大。但是 machine 靠近的方式会有问题，它会用蓝色的板子打柱子。而我们要把蓝色板子放在柱子上面去，才能把蓝色板子穿过柱子。 这种 reward shaping的方式是没有帮助的，那至于什么 reward shaping 有帮助，什么 reward shaping 没帮助，会变成一个 domain knowledge，你要去调的。
 
-* 对随机性的策略来说，我们输入某一个状态 s，采取某一个 action 的可能性并不是百分之百，而是有一个概率 P 的，就好像抽奖一样，根据概率随机抽取一个动作。
-* 而对于确定性的策略来说，它没有概率的影响。当神经网络的参数固定下来了之后，输入同样的state，必然输出同样的 action，这就是确定性的策略。
-
+##  Curiosity
 ![](img/9.3.png)
 
-* 要输出离散动作的话，我们就是加一层 softmax 层来确保说所有的输出是动作概率，而且所有的动作概率加和为 1。
-* 要输出连续的动作的话，一般我们可以在输出层这里加一层 tanh。tanh 的图像的像右边这样子，它的作用就是可以把输出限制到 [-1,1] 之间。我们拿到这个输出后，就可以根据实际动作的一个范围再做一下缩放，然后再输出给环境。比如神经网络输出一个浮点数是 2.8，然后经过 tanh 之后，它就可以被限制在 [-1,1] 之间，它输出 0.99。然后假设说小车的一个速度的那个动作范围是 [-2,2] 之间，那我们就按比例从 [-1,1] 扩放到 [-2,2]，0.99 乘 2，最终输出的就是1.98，作为小车的速度或者说推小车的力输出给环境。
+接下来就是介绍各种你可以自己加进去，in general 看起来是有用的 reward。举例来说，一个技术是给 machine 加上 curiosity，所以叫 `curiosity driven reward`。上图是我们之前讲 Actor-Critic 的时候看过的图。我们有一个 reward function，它给你某一个s tate，给你某一个 action，它就会评断说在这个 state 采取 这个action 得到多少的 reward。那我们当然希望 total reward 越大越好。在 curiosity driven 的这种技术里面，你会加上一个新的 reward function。这个新的 reward function 叫做 `ICM(intrinsic curiosity module)`，它就是要给机器加上好奇心。ICM 会吃 3 个东西，它会吃 state $s_1$、action $a_1$ 和 state $s_2$。根据$s_1$ 、$a_1$、 $a_2$，它会 output 另外一个 reward，我们这边叫做 $r_1^i$。对 machine 来说，total reward 并不是只有 r 而已，还有 $r^i$。它不是只有把所有的 r 都加起来，它还把所有 $r^i$ 加起来当作total reward。所以，它在跟环境互动的时候，它不是只希望 r 越大越好，它还同时希望 $r^i$ 越大越好，它希望从 ICM 的 module 里面得到的 reward 越大越好。ICM 就代表了一种curiosity。
 
-## DDPG
 
 ![](img/9.4.png)
 
-在连续控制领域，比较经典的强化学习算法就是 `DDPG(Deep Deterministic Policy Gradient)`。DDPG 的特点可以从它的名字当中拆解出来，拆解成 Deep、Deterministic 和 Policy Gradient。
+怎么设计这个 ICM ？这个是最原始的设计。这个设计是这样。curiosity module 就是 input 3 个东西，input 现在的 state，input 在这个 state 采取的 action，然后接 input 下一个 state $s_{t+1}$。接下来会 output 一个 reward $r^i_t$。那这个 $r^i_t$  是怎么算出来的呢？在 ICM 里面，你有一个 network，这个 network 会 take $a_t$ 跟$s_t$，然后去 output $\hat{s}_{t+1}$，也就是这个 network 根据 $a_t$ 和 $s_t$ 去 predict  $\hat{s}_{t+1}$ 。接下来再看说，这个 network 的预测  $\hat{s}_{t+1}$ 跟真实的情况 $s_{t+1}$ 像不像，越不像那得到的 reward 就越大。所以这个 reward $r_t^i$ 的意思是说，如果未来的 state 越难被预测的话，那得到的 reward 就越大。这就是鼓励 machine 去冒险，现在采取这个 action，未来会发生什么事越没有办法预测的话，这个 action 的 reward 就大。所以如果有这样子的 ICM，machine 就会倾向于采取一些风险比较大的 action，它想要去探索未知的世界，它想要去看看说，假设某一个 state 是它没有办法预测，它会特别去想要采取那个 state，这可以增加 machine exploration 的能力。
 
-* Deep 是因为用了神经网络。
-* Deterministic 表示 DDPG 输出的是一个确定性的动作，可以用于连续动作的一个环境。
+这个 network 1 其实是另外 train 出来的。Training 的时候，这个network 1，你会给它 $a_t$、 $s_t$、 $s_{t+1}$，然后让这个network 1 去学说 given $a_t, s_t$，怎么 predict $\hat{s}_{t+1}$。Apply 到 agent 互动的时候，其实要把 ICM module fix 住。其实，这一整个想法里面是有一个问题的。这个问题是某一些 state它很难被预测并不代表它就是好的，它就应该要去被尝试的。举例来说，俄罗斯轮盘的结果也是没有办法预测的，并不代表说，人应该每天去玩俄罗斯轮盘这样子。所以只是鼓励 machine 去冒险是不够的，因为如果光是只有这个 network 的架构，machine 只知道说什么东西它无法预测。如果在某一个 state 采取某一个 action，它无法预测接下来结果，它就会采取那个action，但并不代表这样的结果一定是好的。举例来说，可能在某个游戏里面，背景会有风吹草动，会有树叶飘动。那也许树叶飘动这件事情，是很难被预测的，对 machine 来说它在某一个 state 什么都不做，看着树叶飘动，然后，发现这个树叶飘动是没有办法预测的，接下来它就会一直站在那边，看树叶飘动。所以说，光是有好奇心是不够的，还要让它知道说，什么事情是真正重要的。
 
-* Policy Gradient 代表的是它用到的是策略网络。REINFORCE 算法每隔一个 episode 就更新一次，但 DDPG 网络是每个 step 都会更新一次 policy 网络，也就是说它是一个单步更新的 policy 网络。
-
-DDPG 是 DQN 的一个扩展的版本。在 DDPG 的训练中，它借鉴了 DQN 的技巧：目标网络和经验回放。经验回放这一块跟 DQN 是一样的。但是 target network 这一块的更新跟 DQN 有点不一样。
 ![](img/9.5.png)
-提出 DDPG 是为了让 DQN 可以扩展到连续的动作空间，就是我们刚才提到的小车速度、角度和电压的电流量这样的连续值。所以 DDPG 直接在 DQN 基础上加了一个策略网络，就是蓝色的这个，用来直接输出动作值。所以 DDPG 需要一边学习 Q网络，一边学习策略网络。Q网络的参数用 $w$ 来表示。策略网络的参数用 $\theta$ 来表示。我们称这样的结构为 `Actor-Critic` 的结构。
+
+怎么让 machine 知道说什么事情是真正重要的？你要加上另外一个 module，我们要 learn 一个`feature extractor`，黄色的格子代表 feature extractor，它是 input 一个 state，然后 output 一个feature vector 来代表这个state，那我们期待这个 feature extractor 可以把那种没有意义的画面，state 里面没有意义的东西把它过滤掉，比如说风吹草动、白云的飘动、树叶的飘动这种没有意义的东西直接把它过滤掉，
+
+假设这个 feature extractor 真的可以把无关紧要的东西过滤掉以后，network 1 实际上做的事情是，给它一个 actor，给它一个state $s_t$ 的feature representation，让它预测 state $s_{t+1}$ 的feature representation。接下来我们再看说，这个预测的结果跟真正的 state $s_{t+1}$ 的 feature representation 像不像，越不像，reward 就越大。怎么 learn 这个 feature extractor 呢？让这个feature extractor 可以把无关紧要的事情滤掉呢？这边的 learn 法就是 learn 另外一个network 2。这个 network 2 是吃 $\phi(s_t)$、$\phi(s_{t+1})$ 这两个 vector 当做 input，然后接下来它要predict action a 是什么，然后它希望呢这个 action a 跟真正的 action a 越接近越好。这个network 2 会 output 一个 action，它output 说，从 state $s_t$ 跳到 state $s_{t+1}$，要采取哪一个 action 才能够做到，那希望这个 action 跟真正的 action 越接近越好。加上这个 network 2 的好处就是因为要用 $\phi(s_t)$、$\phi(s_{t+1})$  预测action。所以，今天我们抽出来的 feature 跟预测action 这件事情是有关的。所以风吹草动等与 machine 要采取的 action 无关的东西就会被滤掉，就不会被放在抽出来的 vector representation 里面。
+
+
+
+## Curriculum Learning
 
 ![](img/9.6.png)
-通俗的去解释一下这个 Actor-Critic 的结构，策略网络扮演的就是 actor 的角色，它负责对外展示输出，输出舞蹈动作。Q网络就是评论家(critic)，它会在每一个 step 都对 actor 输出的动作做一个评估，打一个分，估计一下它做一次的 action 未来能有多少收益，也就是去估计这个 actor 输出的这个 action 的 Q值大概是多少，即 $Q_w(s,a)$。 Actor 就需要根据舞台目前的状态来做出一个 action。
+接下来讲 `curriculum learning` ，curriculum learning 不是 reinforcement learning 所独有的概念。其实在 machine learning，尤其是 deep learning 里面，你都会用到 curriculum learning 的概念。举例来说，curriculum learning 的意思是说，你为机器的学习做规划，你给他喂 training data 的时候，是有顺序的，通常都是由简单到难。就好比说，假设你今天要交一个小朋友作微积分，他做错就打他一巴掌，这样他永远都不会做对，太难了。你要先教他九九乘法，然后才教他微积分。所以curriculum learning 的意思就是在教机器的时候，从简单的题目教到难的题目。就算不是 reinforcement learning，一般在 train deep network 的时候，你有时候也会这么做。举例来说，在 train RNN 的时候，已经有很多的文献都 report 说，你给机器先看短的 sequence，再慢慢给它长的 sequence，通常可以学得比较好。那用在reinforcement learning 里面，你就是要帮机器规划一下它的课程，从最简单的到最难的。 举例来说，在 Facebook 玩 VizDoom 的 agent 里面，Facebook 玩 VizDoom 的 agent 蛮强的。他们在参加这个 VizDoom 的比赛，机器的 VizDoom 比赛是得第一名的，他们是有为机器规划课程的。先从课程 0 一直上到课程 7。在这个课程里面，怪物的速度跟血量是不一样的。所以，在越进阶的课程里面，怪物的速度越快，然后他的血量越多。在 paper 里面也有讲说，如果直接上课程 7，machine 是学不起来的。你就是要从课程 0 一路玩上去，这样 machine 才学得起来。
 
-评论家就是评委，它需要根据舞台现在的状态和演员输出的 action 这两个值对 actor 刚刚的表现去打一个分数 $Q_w(s,a)$。所以 actor 就是要根据评委的打分来调整自己的策略。也就是更新 actor 的神经网络参数 $\theta$， 争取下次可以做得更好。而 critic 就是要根据观众的反馈，也就是环境的反馈 reward 来调整自己的打分策略，也就是要更新 critic 的神经网络的参数 $w$ ，它的目标是要让每一场表演都获得观众尽可能多的欢呼声跟掌声，也就是要最大化未来的总收益。其实最开始训练的时候，这两个神经网络参数是随机的。所以 critic 最开始是随机打分的，然后 actor 也跟着乱来，就随机表演，随机输出动作。但是由于我们有环境反馈的 reward 存在，所以 critic 的评分会越来越准确，也会评判的那个 actor 的表现会越来越好。既然 actor 是一个神经网络，是我们希望训练好的这个策略网络，那我们就需要计算梯度来去更新优化它里面的参数 $\theta$ 。简单的说，我们希望调整 actor 的网络参数，使得评委打分尽可能得高。注意，这里的 actor 是不管观众的，它只关注评委，它就是迎合评委的打分，打的这个 $Q_w(s,a)$ 而已。
+再举个例子，把蓝色的板子穿过柱子，怎么让机器一直从简单学到难呢？
+
+如第一张图所示，也许一开始机器初始的时候，它的板子就已经在柱子上了。这个时候，机器要做的事情只有把蓝色的板子压下去，就结束了。这比较简单，它应该很快就学的会。它只有往上跟往下这两个选择嘛，往下就得到 reward，就结束了，他也不知道学的是什么。
+
+如第二张图所示，这边就是把板子挪高一点，挪高一点，所以它有时候会很笨的往上拉，然后把板子拿出来了。如果它压板子学得会的话，拿板子也比较有机会学得会。假设它现在学的到说，只要板子接近柱子，它就可以把这个板子压下去的话。接下来，你再让它学更 general 的 case。
+
+如第三张图所示，一开始，让板子离柱子远一点。然后，板子放到柱子上面的时候，它就会知道把板子压下去，这个就是Curriculum Learning 的概念。当然 curriculum learning 有点 ad hoc(特别)，就是需要人去为机器设计它的课程。
 
 ![](img/9.7.png)
 
-接下来就是类似 DQN。DQN 的最佳策略是想要学出一个很好的 Q网络。 学好这个网络之后，我们希望选取的那个动作使你的 Q值最大。DDPG 的目的也是为了求解让 Q值最大的那个 action。Actor 只是为了迎合评委的打分而已，所以用来优化策略网络的梯度就是要最大化这个 Q 值，所以构造的 loss 函数就是让 Q 取一个负号。我们写代码的时候要做的就是把这个 loss 函数扔到优化器里面，它就会自动最小化 loss，也就是最大化这个 Q。然后这里注意，除了策略网络要做优化，DDPG 还有一个 Q网络也要优化。评委一开始其实也不知道怎么评分，它也是在一步一步的学习当中，慢慢地去给出准确的打分。那我们优化 Q网络的方法其实跟 DQN 优化 Q网络的方法是一模一样的。我们用真实的 reward $r$ 和下一步的 Q 即 Q' 来去拟合未来的收益也就是 Q_target。
-
-然后让 Q网络的输出去逼近这个 Q_target。所以构造的 loss function 就是直接求这两个值的均方差。构造好loss 后，之后我们就扔进去那个优化器，让它自动去最小化 loss 就好了。
+有一个比较 general 的方法叫做 `Reverse Curriculum Generation`。你可以用一个比较通用的方法来帮机器设计课程，这个比较通用的方法是怎么样呢？假设你现在一开始有一个state $s_g$，这是你的gold state，也就是最后最理想的结果。如果拿刚才那个板子和柱子的实验作为例子的话，就把板子放到柱子里面，这样子叫做 gold state。你就已经完成了，或者你让机器去抓东西，你训练一个机器手臂抓东西，抓到东西以后叫做 gold state。接下来你根据你的 gold state 去找其他的 state，这些其他的 state 跟 gold state 是比较接近的。举例来说，如果是让机器抓东西的例子里面，你的机器手臂可能还没有抓到东西。假设这些跟 gold state 很近的 state 叫做 $s_1$。你的机械手臂还没有抓到东西，但它离 gold state 很近，那这个叫做$s_1$。至于什么叫做近，这是 case dependent，你要根据你的 task 来 design 说怎么从 $s_g$ sample 出 $s_1$。如果是机械手臂的例子，可能就比较好想。其他例子可能就比较难想。接下来呢，你再从这些 $s_1$ 开始做互动，看它能不能够达到gold state $s_g$，那每一个state，你跟环境做互动的时候，你都会得到一个reward R。
 
 ![](img/9.8.png)
 
-那我们把两个网络的 loss function 就可以构造出来。我们可以看到策略网络的 loss function 是一个复合函数。我们把那个 $a = \mu_\theta(s)$ 代进去，最终策略网络要优化的是策略网络的参数  $\theta$ 。
+接下来，我们把 reward 特别极端的 case 去掉，reward 特别极端的 case 的意思就是说那些 case 太简单或是太难了。如果 reward 很大，代表说这个 case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的 reward。如果 reward 太小，代表这个 case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。那当然什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的 case 去 sample 出更多的 state。就假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是 Curriculum learning，就是你要为机器规划它学习的顺序。而 reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse。  
 
-Q 网络要优化的是那个 Q 的输出 $Q_w(s,a)$ 和那个 Q_target 之间的一个均方差。但是 Q网络的优化存在一个和 DQN 一模一样的问题就是它后面的这个 Q_target 是不稳定的。这个在之前的 DQN 有讲过。后面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是不稳定的。因为 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是一个预估的值。为了稳定这个 Q_target。DDPG 分别给 Q网络和策略网络都搭建了 target network，专门就是为了用来稳定这个 Q_target。
+## Hierarchical RL
 
+![](img/9.9.png)
 
-target Q 网络就为了来计算 Q_target 里面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$。然后 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$  里面的需要的 next action $a'$  就是通过 target_P 网络来去输出，即 $a^{\prime}=\mu_{\bar{\theta}}\left(s^{\prime}\right)$。
+那最后一个 tip 叫做 `Hierarchical Reinforcement learning`，分层的 reinforcement learning。
+所谓分层的Reinforcement learning 是说，我们有好几个 agent。然后，有一些agent 负责比较high level 的东西，它负责订目标，然后它订完目标以后，再分配给其他的 agent，去把它执行完成。这样的想法其实也是很合理的。因为我们知道说，我们人在一生之中，并不是时时刻刻都在做决定。举例来说，假设你想要写一篇paper，你会说就我先想个梗这样子，然后想完梗以后，你还要跑个实验。跑完实验以后，你还要写。写完以后呢，你还要这个去发表。每一个动作下面又还会再细分，比如说怎么跑实验呢？你要先 collect data，collect 完data 以后，你要再 label，你要弄一个network，然后又 train 不起来，要 train 很多次。然后重新 design network 架构好几次，最后才把network train 起来。
 
-为了区分前面的 Q网络和策略网络以及后面的 target_Q 网络和 target_p 策略网络。前面的网络的参数是 $w$，后面的网络的参数是 $\bar{w}$。这就是为什么我们去看一些 DDPG 的文章，会发现 DDPG 会有四个网络。策略网络的 target 网络 和 Q网络的 target 网络就是颜色比较深的这两个。它只是为了让计算 Q_target 的时候能够更稳定一点而已。因为这两个网络也是固定一段时间的参数之后再跟评估网络同步一下最新的参数。
+所以，我们要完成一个很大的 task 的时候，我们并不是从非常底层的那些 action 开始想起，我们其实是有个 plan。我们先想说，如果要完成这个最大的任务，那接下来要拆解成哪些小任务。每一个小任务要再怎么拆解成小小的任务。举例来说，叫你直接写一本书可能很困难，但叫你先把一本书拆成好几个章节，每个章节拆成好几段，每一段又拆成好几个句子，每一个句子又拆成好几个词汇，这样你可能就比较写得出来，这个就是分层的 Reinforcement learning 的概念。
 
-这里面训练需要用到的数据就是 $s,a,r,s'$。我们只需要用到这四个数据，我们就用 Replay Memory 把这些数据存起来，然后再 sample 进来训练就好了。这个经验回放的技巧跟 DQN 是一模一样的。注意，因为 DDPG 使用了经验回放这个技巧，所以 DDPG 是一个 `off-policy` 的算法。
+这边是举一个例子，就是假设校长、教授和研究生通通都是 agent。那今天假设我们的reward 就是只要进入百大就可以得到 reward。假设进入百大的话，校长就要提出愿景告诉其他的agent 说，现在你要达到什么样的目标。那校长的愿景可能就是说教授每年都要发三篇期刊。然后接下来这些agent 都是有分层的，所以上面的 agent，他的动作就是提出愿景这样。那他把他的愿景传给下一层的agent，下一层的 agent 就把这个愿景吃下去。如果他下面还有其他人的话，它就会提出新的愿景。比如说，校长要教授发期刊，但其实教授自己也是不做实验的。所以，教授也只能够叫下面的研究生做实验。所以教授就提出愿景，就做出实验的规划，然后研究生才是真的去执行这个实验的人。然后，真的把实验做出来，最后大家就可以得到reward。那现在是这样子的，在 learn 的时候，其实每一个 agent 都会 learn。那他们的整体的目标就是要达到最后的reward。那前面的这些 agent，他提出来的 actions 就是愿景这样。你如果是玩游戏的话，他提出来的就是，我现在想要产生这样的游戏画面。但是，假设他提出来的愿景是下面的 agent 达不到的，那就会被讨厌。举例来说，教授对研究生都一直逼迫研究生做一些很困难的实验，研究生都做不出来的话，研究生就会跑掉，所以他就会得到一个penalty。所以如果今天下层的 agent 没有办法达到上层 agent 所提出来的 goal 的话，上层的 agent 就会被讨厌，它就会得到一个 negative reward。所以他要避免提出那些愿景是底下的agent 所做不到的。那每一个agent 都是把上层的 agent 所提出来的愿景当作输入，然后决定他自己要产生什么输出。
 
-## Exploration vs. Exploitation
-DDPG 通过 off-policy 的方式来训练一个确定性策略。因为策略是确定的，如果 agent 使用同策略来探索，在一开始的时候，它会很可能不会尝试足够多的 action 来找到有用的学习信号。为了让 DDPG 的策略更好地探索，我们在训练的时候给它们的 action 加了噪音。DDPG 的原作者推荐使用时间相关的 [OU noise](https://en.wikipedia.org/wiki/Ornstein–Uhlenbeck_process)，但最近的结果表明不相关的、均值为 0 的 Gaussian noise 的效果非常好。由于后者更简单，因此我们更喜欢使用它。为了便于获得更高质量的训练数据，你可以在训练过程中把噪声变小。
+但是你知道说，就算你看到上面的的愿景说，叫你做这一件事情。你最后也不一定能做成这一件事情。假设本来教授目标是要写期刊，但是不知道怎么回事，他就要变成一个YouTuber。这个paper 里面的 solution，我觉得非常有趣。给大家做一个参考，这其实本来的目标是要写期刊，但却变成 YouTuber，那怎么办呢? 把原来的愿景改成变成 YouTuber 就行了，在paper 里面就是这么做的，为什么这么做呢? 因为虽然本来的愿景是要写期刊，但是后来变成YouTuber，难道这些动作都浪费了吗? 不是，这些动作是没有被浪费的。我们就假设说，本来的愿景其实就是要成为YouTuber，那你就知道成为 YouTuber 要怎做了。这个是分层 RL，是可以做得起来的 tip。
 
-在测试的时候，为了查看策略利用它学到的东西的表现，我们不会在 action 中加噪音。
-
-## References
-
-* [百度强化学习课](https://aistudio.baidu.com/aistudio/education/lessonvideo/460292)
-
-* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/algorithms/ddpg.html#)
-
-  
+![](img/9.10.png)
 
 
+上图是真实的例子。实际上呢，这里面就做了一些比较简单的游戏，这个是走迷宫，蓝色是 agent，蓝色的 agent 要走到黄色的目标。这边也是，这个单摆要碰到黄色的球。那愿景是什么呢？
 
+在这个 task 里面，它只有两个 agent ，下层的一个 agent 负责决定说要怎么走，上层的 agent 就负责提出愿景。虽然，实际上你可以用很多层，但 paper 就用了两层。
 
+走迷宫的例子是说粉红色的这个点代表的就是愿景。上层这个 agent，它告诉蓝色的这个 agent 说，你现在的第一个目标是先走到这个地方，蓝色的 agent 走到以后，再说你的新的目标是走到这里。蓝色的 agent 再走到以后，新的目标在这里。接下来又跑到这边，最后希望蓝色的 agent 就可以走到黄色的这个位置。
 
+单摆的例子也一样，就是粉红色的这个点代表的是上层的 agent 所提出来的愿景，所以这个agent 先摆到这边，接下来，新的愿景又跑到这边，所以它又摆到这里。然后，新的愿景又跑到上面。然后又摆到上面，最后就走到黄色的位置了。这个就是 hierarchical 的 Reinforcement Learning。

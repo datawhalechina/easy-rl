@@ -1,240 +1,308 @@
-# Policy Gradient
-##  Policy Gradient
+[toc]
+# Reinforement Learning
+
+## Reinforcement Learning
 
 ![](img/1.1.png)
-
-在 reinforcement learning 中有 3 个components，一个`actor`，一个`environment`，一个`reward function`。
-
-让机器玩 video game 时，
-
-* actor 做的事情就是去操控游戏的摇杆， 比如说向左、向右、开火等操作；
-* environment 就是游戏的主机， 负责控制游戏的画面负责控制说，怪物要怎么移动， 你现在要看到什么画面等等；
-* reward function 就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到 20 分等等。
-
-同样的概念用在围棋上也是一样的，
-
-* actor 就是 alpha Go，它要决定下哪一个位置；
-* environment 就是对手；
-* reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。
-
-在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为。Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
+强化学习讨论的问题是说一个 agent 怎么在一个复杂不确定的环境里面去极大化它能获得的这个奖励。示意图由两部分组成，一部分是agent，下面一部分是环境。然后在强化学习过程中，Agent 跟 environment 其实一直在交互。当 agent 在环境里面获取到状态，agent 会利用这个状态会输出一个 action，一个决策。然后这个决策会放到这个环境之中去，然后环境会通过这个 agent 采取的决策，输出下一个状态以及当前的这个决策得到的奖励。Agent 的目的就是为了尽可能多的从环境中获取这个奖励。
 
 ![](img/1.2.png)
-**Policy 一般写成 $\pi$**。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**。Network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西就是游戏的画面。Machine 看到什么东西，会影响你现在 training 到底好不好 train。
 
-举例来说，在玩游戏的时候， 也许你觉得游戏的画面，前后是相关的，也许你觉得说，你应该让你的 policy，看从游戏初始到现在这个时间点，所有画面的总和。你可能会觉得你要用到 RNN 来处理它，不过这样子，你会比较难处理。要让你的 machine，你的 policy 看到什么样的画面， 这个是你自己决定的。让你知道说给机器看到什么样的游戏画面，可能是比较有效的。Output 的就是今天机器要采取什么样的行为。
+我们可以把强化学习跟监督学习做一个对比。上图说的是 supervised learning， 举个图片分类的例子，监督学习的意思就是说我们有一大堆标定的数据，比如车、然后飞机、然后凳子这些标定的图片。然后这些图片都要满足 i.i.d 分布，就是它们之间是没有关联的一个分布。然后我们训练一个分类器，比如说右边这个神经网络。为了分出这个图片，车辆是飞机。训练过程中，我们直接把这个真实的 label 给了这个网络。当这个网络做出一个错误的预测，比如现在输入了这个汽车的图片，然后它预测出来是飞机。我们就会直接告诉它，你现在这个预测是错误的，正确的 label 应该是车。然后我们把这个错误写成一个`损失函数(loss function)`，通过 Backpropagation 来训练这个网络。所以在监督学习过程中，有两个假设，
 
-上图就是具体的例子，
-
-* policy 就是一个 network；
-* input 就是游戏的画面，它通常是由 pixels 所组成的；
-* output 就是看看说有那些选项是你可以去执行的，output layer 就有几个 neurons。
-
-假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，actor 采取的行为就会不一样。
+* 输入的数据。标定的数据，它都是没有关联的，尽可能没有关联。因为如果有关联的话，这个网络就是其实不好学习。
+* 我们告诉了这个 learner 正确的标签是什么，这样它可以通过正确的标签来修正自己的这个预测。
 
 ![](img/1.3.png)
-接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy 来决定一个 action。假设它现在决定的 action 是向右，它决定完 action 以后，它就会得到一个 reward ，代表它采取这个 action 以后得到的分数。
-
-我们把一开始的初始画面，写作 $s_1$， 把第一次执行的动作叫做 $a_1$，把第一次执行动作完以后得到的 reward 叫做 $r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个的行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。然后这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
+在强化学习里面，这两点其实都不满足。举一个 Atari Breakout 游戏的例子，这是一个打砖块的游戏，控制木板，然后把这个球反弹到上面来消除这些砖块。在游戏过程中，大家可以发现你这个 agent，你这个 learner 得到的观测其实不是个 i.i.d 的分布。就是你上一帧下一帧其实有非常强的这个连续性。另外一点，你这个玩游戏的过程中，其实并没有立刻获得这个反馈，比如你现在把这个木板往右移，那么只会使得这个球然后往上或者往左上去一点，你并不会得到立刻的反馈。所以这也是为什么强化学习这么困难，就是你没有得到很好的反馈，然后你依然希望这个 agent 在这个环境里面学习。
 
 ![](img/1.4.png)
-一场游戏叫做一个 `Episode`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `Total reward`，我们称其为`Return(回报)`，用 R 来表示它。Actor 存在的目的就是想办法去 maximize 它可以得到的 reward。
+
+在强化学习之中，它的训练数据其实就是这样一个玩游戏的过程。你从步数从第一步开始，然后你采取一个决策，比如说你把这个往右移，接到这个球了。第二步你又做出决策，然后你得到的 training data 就是这样一个序列，一个玩游戏的一个序列。比如现在是在第三步，然后你把这个序列放进去，你希望这个网络，这个 learner 可以输出一个决策，在当前的这个状态应该输出往右移或者往左移。这里有个问题就是我们没有标签来说明你现在这个动作是正确还是错误，我们必须等到这个游戏结束可能，这个游戏结束要可能十秒过后才结束。现在这个动作往左往右到底是不是对最后游戏的结束能赢有帮助，其实这是不清楚的的。这里就面临一个`奖励的延迟(Delayed Reward)`，所以就使得训练这个网络非常困难。
 
 ![](img/1.5.png)
-首先，`environment` 是一个`function`，游戏的主机也可以把它看作是一个 function，虽然它不一定是 neural network，可能是 rule-based 的规则，但你可以把它看作是一个 function。这个 function，一开始就先吐出一个 state，也就是游戏的画面，接下来你的 actor 看到这个游戏画面 $s_1$ 以后，它吐出 $a_1$，然后 environment 把 $a_1$ 当作它的输入，然后它再吐出 $s_2$，吐出新的游戏画面。Actor 看到新的游戏画面，再采取新的行为 $a_2$，然后 environment 再看到 $a_2$，再吐出 $s_3$。这个 process 会一直持续下去，直到 environment 觉得说应该要停止为止。
 
-在一场游戏里面，我们把 environment 输出的 $s$ 跟 actor 输出的行为 $a$，把这个 $s$ 跟 $a$ 全部串起来， 叫做一个 `Trajectory`，如下式所示。
-$$
-\text { Trajectory } \tau=\left\{s_{1}, a_{1}, s_{2}, a_{2}, \cdots, s_{t}, a_{t}\right\}
-$$
+我们对比下强化学习和监督学习。首先强化学习输入的序列的数据并不是像 supervised learning 里面这些样本都是独立的。另外一点是 learner 并没有被告诉你正确的每一步，正确的行为应该是什么。这个  learner 不得不自己去发现哪些行为是可以使得它最后得到这个奖励的啊，通过不停的去尝试发现最有利的 action。  
 
-每一个 trajectory，你可以计算它发生的概率。假设现在 actor 的参数已经被给定了话，就是 $\theta$。根据 $\theta$，你其实可以计算某一个 trajectory 发生的概率，你可以计算某一个回合，某一个 episode 里面， 发生这样子状况的概率。
+这里还有一点是 agent 获得自己能力的过程中，其实是通过不断地试错，就这里 trial-and-error exploration，exploration 和 exploitation 是强化学习里面非常核心的一个问题。Exploitation意思是说你会去尝试一些新的行为，让这些新的行为有可能会使你得到更高的这个奖励，也有可能使你一无所有。Exploitation 说的是你就是就采取你已知道可以获得最大行为的过程，那你就重复执行这个 action 就可以了。因为你已经知道可以获得一定的奖励，所以这就需要一个权衡，这也是在这个监督学习里面没有的情况。
 
-$$
-\begin{aligned}
-p_{\theta}(\tau)
-&=p\left(s_{1}\right) p_{\theta}\left(a_{1} | s_{1}\right) p\left(s_{2} | s_{1}, a_{1}\right) p_{\theta}\left(a_{2} | s_{2}\right) p\left(s_{3} | s_{2}, a_{2}\right) \cdots \\
-&=p\left(s_{1}\right) \prod_{t=1}^{T} p_{\theta}\left(a_{t} | s_{t}\right) p\left(s_{t+1} | s_{t}, a_{t}\right)
-\end{aligned}
-$$
+在强化学习过程中，没有这个非常强的 supervisor，这里只有一个奖励信号(reward signal)，就是这个环境会在很久以后告诉你之前你采取的行为到底是不是有效的。Agent 在这个强化学习里面学习的话就非常困难，因为你并没有得到即时反馈，当你采取一个行为过后，如果是监督学习，你就立刻可以获得一个指引，就说你现在做出了一个错误的决定，那么正确的决定应该是谁。而在强化学习里面，环境可能会告诉你这个行为是错误，但是它并没有告诉你正确的行为是什么。而且更困难的是，他可能是在一两分钟过后告诉你错误，它在告诉你之前的行为到底行不行。所以这也是强化学习和监督学习不同的地方。
 
-怎么算呢，如上式所示。在假设你 actor 的参数就是 $\theta$ 的情况下，某一个 trajectory $\tau$ 的概率就是这样算的，你先算 environment 输出 $s_1$ 的概率，再计算根据 $s_1$ 执行 $a_1$ 的概率，这是由你 policy 里面的 network 参数 $\theta$ 所决定的， 它是一个概率，因为你的 policy 的 network 的 output 是一个 distribution，actor 是根据这个 distribution 去做 sample，决定现在实际上要采取的 action是哪一个。接下来 environment 根据 $a_1$ 跟 $s_1$ 产生 $s_2$，因为 $s_2$ 跟$s_1$  还是有关系的，下一个游戏画面，跟前一个游戏画面通常还是有关系的，至少要是连续的， 所以给定前一个游戏画面 $s_1$ 和现在 actor 采取的行为 $a_1$，就会产生 $s_2$。
-
-这件事情可能是概率，也可能不是概率，这个取决于 environment，就是主机它内部设定是怎样。看今天这个主机在决定，要输出什么样的游戏画面的时候，有没有概率。因为如果没有概率的话，这个游戏的每次的行为都一样，你只要找到一条 path 就可以过关了，这样感觉是蛮无聊的 。所以游戏里面，通常是还是有一些概率的，你做同样的行为，给同样的前一个画面， 下次产生的画面不见得是一样的。Process 就反复继续下去，你就可以计算一个 trajectory $s_1$,$a_1$, $s_2$ , $a_2$ 出现的概率有多大。
-
-**这个概率取决于两部分**， 
-
-* 一部分是 `environment 的行为`， environment 的 function 它内部的参数或内部的规则长什么样子。 $p(s_{t+1}|s_t,a_t)$这一项代表的是 environment， environment 这一项通常你是无法控制它的，因为那个是人家写好的，你不能控制它。
-* 另一部分是 `agent 的行为`。你能控制的是 $p_\theta(a_t|s_t)$。给定一个 $s_t$， actor 要采取什么样的 $a_t$ 会取决于你 actor 的参数 $\theta$， 所以这部分是 actor 可以自己控制的。随着 actor 的行为不同，每个同样的 trajectory， 它就会有不同的出现的概率。
 
 
 ![](img/1.6.png)
 
+通过跟监督学习比较，我们可以总结出这个强化学习的一些特征。
 
-在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的 $r$ 都加起来，我们就得到了 $R(\tau)$ ，代表某一个 trajectory $\tau$ 的 reward。在某一场游戏里面， 某一个 episode 里面，我们会得到 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable，R 其实是一个 random variable。 因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
-
-$$
-\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)
-$$
-这个期望值的算法如上式所示，穷举所有可能的 trajectory $\tau$， 每一个 trajectory $\tau$ 都有一个概率。比如 $\theta$ 是一个很强的 model， 那它都不会死。如果有一个 episode 很快就死掉了， 它的概率就很小；如果有一个 episode 都一直没有死， 那它的概率就很大。根据你的 $\theta$， 你可以算出某一个 trajectory $\tau$ 出现的概率，接下来你计算这个 $\tau$ 的 total reward 是多少。 Total reward weighted by 这个 $\tau$ 出现的概率，对所有的 $\tau$ 进行求和，就是期望值。给定一个参数，你会得到的期望值。
-$$
-\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)=E_{\tau \sim p_{\theta}(\tau)}[R(\tau)]
-$$
-我们还可以写成上式那样，从 $p_{\theta}(\tau)$ 这个 distribution sample 一个 trajectory $\tau$，然后计算 $R(\tau)$ 的期望值，就是你的 expected reward。 我们要做的事情就是 maximize expected reward。
+* 首先它是有这个 trial-and-error exploration，它需要通过在环境里面探索来获取对这个环境的理解。
+* 第二点是这个强化学习 agent 会从环境里面获得延迟的奖励。
+* 第三点是这个强化学习的训练过程中时间非常重要，因为你得到的数据都是有这个时间关联的，而不是这个 i.i.d 分布的。大家如果做过机器学习的话就会发现，如果你的观测数据有非常强的关联，其实会使得这个训练非常不稳定。这也是为什么监督学习我们希望我们的 data 尽量是  i.i.d 了，这样就可以消除数据之间的相关性。
+* 第四点是这个 agent 的行为会影响它随后得到的数据，这一点其实也是非常重要的。就是在我们训练这个 agent 的过程中，很多时候我们也是通过正在学习的这个 agent 去跟这个环境交互得到数据。所以如果我们在训练过程中，这个 agent 的模型如果快死掉了，那么就会使得我们采集到的数据也是非常糟糕的。这样整个训练过程就失败了。所以其实在强化学习里面一个非常重要的问题就是怎么使得让这个 agent 的行为一直稳定的提升。
 
 ![](img/1.7.png)
-怎么 maximize expected reward 呢？我们用的是 `gradient ascent`，因为要让它越大越好，所以是 gradient ascent。Gradient ascent 在 update 参数的时候要加。要进行 gradient ascent，我们先要计算 expected reward $\bar{R}$ 的 gradient 。我们对 $\bar{R}$ 取一个 gradient，这里面只有 $p_{\theta}(\tau)$ 是跟 $\theta$ 有关，所以 gradient 就放在 $p_{\theta}(\tau)$ 这个地方。$R(\tau)$ 这个 reward function 不需要是 differentiable，我们也可以解接下来的问题。举例来说，如果是在 GAN 里面，$R(\tau)$ 其实是一个 discriminator，它就算是没有办法微分，也无所谓，你还是可以做接下来的运算。
 
-取 gradient之后，我们背一个公式，
-$$
-\nabla f(x)=f(x)\nabla \log f(x)
-$$
-我们可以对 $\nabla p_{\theta}(\tau)$ 使用这个公式，然后会得到 $\nabla p_{\theta}(\tau)=p_{\theta}(\tau)  \nabla \log p_{\theta}(\tau)$。
-
-接下来， 分子分母，上下同乘$p_{\theta}(\tau)$，然后我们可以得到下式：
-$$
-\frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)}=\log p_{\theta}(\tau)
-$$
-
- 然后如下式所示， 对 $\tau$ 进行求和，把 $R(\tau)$  和  $\log p_{\theta}(\tau)$ 这两项 weighted by $ p_{\theta}(\tau)$， 既然有 weighted by  $p_{\theta}(\tau)$，它们就可以被写成这个 expected 的形式。也就是你从 $p_{\theta}(\tau)$ 这个 distribution 里面 sample $\tau$ 出来， 去计算 $R(\tau)$ 乘上 $\nabla\log p_{\theta}(\tau)$，然后把它对所有可能的 $\tau$ 进行求和，就是这个 expected value 。
-
-$$
-\begin{aligned}
-\nabla \bar{R}_{\theta}&=\sum_{\tau} R(\tau) \nabla p_{\theta}(\tau)\\&=\sum_{\tau} R(\tau) p_{\theta}(\tau) \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)} \\&=
-\sum_{\tau} R(\tau) p_{\theta}(\tau) \nabla \log p_{\theta}(\tau) \\
-&=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
-\end{aligned}
-$$
-
-实际上这个 expected value 没有办法算，所以你是用 sample 的方式来 sample 一大堆的 $\tau$。你 sample $N$ 笔  $\tau$， 然后你去计算每一笔的这些 value，然后把它全部加起来，最后你就得到你的 gradient。你就可以去 update 你的参数，你就可以去 update 你的 agent，如下式所示。
-$$
-\begin{aligned}
-E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right] &\approx \frac{1}{N} \sum_{n=1}^{N} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(\tau^{n}\right) \\
-&=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
-\end{aligned}
-$$
-注意 $p_{\theta}(\tau)$ 里面有两项，$p(s_{t+1}|s_t,a_t)$ 来自于 environment，$p_\theta(a_t|s_t)$ 是来自于 agent。 $p(s_{t+1}|s_t,a_t)$ 由环境决定从而与 $\theta$ 无关，因此 $\nabla \log p(s_{t+1}|s_t,a_t) =0 $。因此 $\nabla p_{\theta}(\tau)=
-\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$。
-
-你可以非常直观的来理解这个部分，也就是在你 sample 到的 data 里面， 你 sample 到，在某一个 state $s_t$ 要执行某一个 action $a_t$， 这个 $s_t$ 跟 $a_t$ 它是在整个 trajectory $\tau$ 的里面的某一个 state and action 的 pair。
-
-*  假设你在 $s_t$ 执行 $a_t$，最后发现 $\tau$ 的 reward 是正的， 那你就要增加这一项的概率，你就要增加在 $s_t$ 执行 $a_t$ 的概率。
-*  反之，在 $s_t$ 执行 $a_t$ 会导致$\tau$  的 reward 变成负的， 你就要减少这一项的概率。
-
-
+为什么我们关注这个强化学习，其中非常重要的一点就是强化学习得到的这个模型可以取得超人类的结果。这一个有意思的点就是之前的监督学习就是我们在获取的这些监督数据，其实是让人来标定的。比如说 ImageNet，这些图片都是人类标定的。那么我们就可以确定这个算法的 upper bound(上限)。其实就是人类的这个标定结果决定了它永远不可能超越人类。但是对于强化学习，它在环境里面自己探索，有非常大的潜力，它可以获得超越人的能力的这个表现，比如说 AlphaGo，谷歌 DeepMind 的 AlphaGo 这样一个强化学习的算法可以把人类最强的棋手都打败。
 
 ![](img/1.8.png)
-这个怎么实现呢？ 你用 gradient ascent 来 update 你的参数，你原来有一个参数 $\theta$ ，把你的 $\theta$  加上你的 gradient 这一项，那当然前面要有个 learning rate，learning rate 其实也是要调的，你可用 Adam、RMSProp 等方法对其进行调整。
 
-我们可以套下面这个公式来把 gradient 计算出来: 
+这里我给大家举一些在现实生活中强化学习的一些例子。
 
-$$
-\nabla \bar{R}_{\theta}=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)
-$$
-实际上，要套上面这个公式， 首先你要先收集一大堆的 s 跟 a 的 pair，你还要知道这些 s 跟 a 在跟环境互动的时候，你会得到多少的 reward。 这些资料怎么收集呢？你要拿你的 agent，它的参数是 $\theta$，去跟环境做互动， 也就是拿你已经 train 好的 agent 先去跟环境玩一下，先去跟那个游戏互动一下， 互动完以后，你就会得到一大堆游戏的纪录，你会记录说，今天先玩了第一场，在第一场游戏里面，我们在 state $s_1$ 采取 action $a_1$，在 state $s_2$ 采取 action $a_2$ 。
+* 国际象棋其实也是一个强化学习的过程，因为这个棋手就是在做出一个选择来跟对方对战。
+* 然后在自然界中，羚羊其实也是在做一个强化学习，它刚刚出生的时候，可能都不知道怎么站立，然后它通过 trial- and-error 的一个尝试，三十分钟过后，它就可以每个小时36公里跑到这样的速度，很快的适应了这个环境。
 
-玩游戏的时候是有随机性的，所以 agent 本身是有随机性的，在同样 state $s_1$，不是每次都会采取 $a_1$，所以你要记录下来。在 state $s_1^1$ 采取 $a_1^1$，在 state $s_2^1$ 采取 $a_2^1$。整场游戏结束以后，得到的分数是$R(\tau^1)$。你会 sample 到另外一笔 data，也就是另外一场游戏。在另外一场游戏里面，你在 state $s_1^2$ 采取 $a_1^2$，在 state $s_2^2$ 采取 $a_2^2$，然后你 sample 到的就是 $\tau^2$，得到的 reward 是 $R(\tau^2)$。
-
-你就可以把 sample 到的东西代到这个 gradient 的式子里面，把 gradient 算出来。也就是把这边的每一个 s 跟 a 的 pair 拿进来，算一下它的 log probability 。你计算一下在某一个 state 采取某一个 action 的 log probability，然后对它取 gradient，然后这个 gradient 前面会乘一个 weight，weight 就是这场游戏的 reward。 有了这些以后，你就会去 update 你的 model。
-
-Update 完你的 model 以后。你要重新去收集 data，再 update model。这边要注意一下，一般 policy gradient sample 的 data 就只会用一次。你把这些 data sample 起来，然后拿去 update 参数，这些 data 就丢掉了。接着再重新 sample data，才能够去 update 参数， 等一下我们会解决这个问题。
+* 你也可以把股票交易看成一个强化学习的问题，就怎么去买卖去使你的收益极大化。
+* 玩雅达利游戏或者一些电脑游戏，其实也是在一个强化学习的过程。
 
 
 
 ![](img/1.9.png)
 
-接下来讲一些实现细节。实现方法是这个样子，把它想成一个分类的问题，在 classification 里面就是 input 一个 image，然后 output 决定说是 10 个 class 里面的哪一个。在做 classification 时，我们要收集一堆 training data，要有 input 跟 output 的 pair。
-
-在实现的时候，你就把 state 当作是 classifier 的 input。 你就当在做 image classification 的 problem，只是现在的 class 不是说 image 里面有什么 objects。 现在的 class 是说，看到这张 image 我们要采取什么样的行为，每一个行为就是一个 class。比如说第一个 class 叫做向左，第二个 class 叫做向右，第三个 class 叫做开火。
-
-这些训练的数据从哪里来的呢？ 做分类的问题时，要有 input 和正确的 output。  这些训练数据是从 sampling 的 process 来的。假设在 sampling 的 process 里面，在某一个 state，你 sample 到你要采取 action a， 你就把这个 action a 当作是你的 ground truth。你在这个 state，你 sample 到要向左。 本来向左这件事概率不一定是最高， 因为你是 sample，它不一定概率最高。假设你 sample 到向左，在 training 的时候 你叫告诉 machine 说，调整 network 的参数， 如果看到这个 state，你就向左。在一般的 classification 的 problem 里面，其实你在 implement classification 的时候， 你的 objective function 都会写成 minimize cross entropy，其实 minimize cross entropy 就是 maximize log likelihood。
-
+上图是强化学习的一个经典例子，就是在雅达利叫 Pong 的一个游戏。这个游戏就是通过把这个球然后拍到左边，然后左边这个选手需要把这个球拍到右边，这里我给大家看的是训练好的一个 agent 。大家可以猜猜哪一边是强化学习的 agent 。右边是强化学习的agent 。你会发现它，一直在做这种无意义的一些振动，而正常的选手不会出现这种这样的行为。
 
 ![](img/1.10.png)
 
-做 classification 的时候，objective function 就是 maximize 或 minimize 的对象， 因为我们现在是 maximize likelihood 所以其实是 maximize， 你要 maximize 的对象，如下式所示:
-$$
-\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
-$$
-
-像这种 loss function。你可在 TensorFlow 里 call 现成的 function，它就会自动帮你算。
-然后你就可以把 gradient 计算出来，这是一般的分类问题。RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 PyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
-
-## Tips
-这边有一些在实现的时候，你也许用得上的 tip。
-### Tip 1: Add a Baseline
+在这个 pong 的游戏里面，这里的决策其实就是两个动作就是你把它往上或者往下。如果强化学习是通过学习一个 policy network 来分类的话，其实就是输入当前帧的图片，然后 policy network 就会输出所有决策的可能性。
 
 ![](img/1.11.png)
+在这种情况下面，对于监督学习的话，我们就可以直接告诉这个 agent，你正确的 label 是什么。在这种游戏情况下面，我们并不知道它的正确的标签是什么。
 
-第一个 tip 是 add 一个 baseline。add baseline 是什么意思呢？如果 given state s 采取 action a 会给你整场游戏正面的 reward，就要增加它的概率。如果 state s 执行 action a，整场游戏得到负的 reward，就要减少这一项的概率。
-
-但在很多游戏里面， reward 总是正的，就是说最低都是 0。比如说打乒乓球游戏， 你的分数就是介于 0 到 21 分之间，所以这个 R 总是正的。假设你直接套用这个式子， 在 training 的时候，告诉 model 说，不管是什么 action 你都应该要把它的概率提升。 在理想上，这么做并不一定会有问题。因为虽然说 R 总是正的，但它正的量总是有大有小，你在玩乒乓球那个游戏里面，得到的 reward 总是正的，但它是介于 0~21分之间，有时候你采取某些 action 可能是得到 0 分，采取某些 action 可能是得到 20 分。
 ![](img/1.12.png)
+在强化学习里面，我们是通过让它尝试去玩这个游戏，然后直到游戏结束过后，我们再去说你前面的一系列动作到底是正确还是错误。
 
-假设你有 3 个 action a/b/c 可以执行，在某一个 state 有 3 个 action a/b/c可以执行。根据这个式子，你要把这 3 项的概率， log probability 都拉高。 但是它们前面 weight 的这个 R 是不一样的。 R 是有大有小的，weight 小的，它上升的就少，weight 多的，它上升的就大一点。 因为这个 log probability，它是一个概率，所以action a、b、c 的和要是 0。 所以上升少的，在做完 normalize 以后， 它其实就是下降的，上升的多的，才会上升。
+![](img/1.13.png)
+然后这个过程就是 rollout 的一个过程。Rollout 的意思是从当前帧去生成很多局的游戏。然后这个很多局就通过是你当前的这个网络去跟这个环境交互，然后你就会得到一堆这个观测。这里其实每一个观测，你就可以把它看成一个轨迹(Trajectory)，轨迹的话就是当前当前帧以及它采取的策略，每一步的这个策略都有。最后结束过后，你会知道你到底有没有把这个球击到对方区域，然后对方没有接住，你是赢了还是输了。我们可以通过观测序列以及 Eventual Reward 来训练这个 agent ，使它尽可能地采取最后可以获得这个 Eventual Reward 的过程。
 
+![](img/1.14.png)
+其实强化学习是有一定的历史的，只是最近大家把强化学习跟深度学习结合起来，就形成了`深度强化学习(Deep Reinforcemet Learning)`。我这里做一个类比，就是把它类比于这个传统的计算机视觉以及深度计算机视觉。
 
- ![1](img/1.13.png)
+* 传统的计算机视觉由两个过程组成。你给一张图，我们先要提取它的特征，用一些设计好的 feature，比如说 HOG、DPM。提取这些 feature 后，我们再单独训练一个分类器。这些分类器可以是 SVM、Boosting，然后就可以分出这个图片到底是狗是猫。 
 
-
-这个是一个理想上的状况，但是实际上，我们是在做 sampling 就本来这边应该是一个 expectation， summation over 所有可能的 s 跟 a 的 pair。 但你真正在学的时候，当然不可能是这么做的，你只是 sample 了少量的 s 跟 a 的 pair 而已。 因为我们做的是 sampling，有一些 action 可能从来都没有 sample 到。在某一个 state1，虽然可以执行的 action 有 a/b/c 3 个，但你可能只 sample 到 action b，你可能只 sample 到 action c，你没有 sample 到 action a。但现在所有 action 的 reward 都是正的，所以根据这个式子，它的每一项的概率都应该要上升。你会遇到的问题是，因为 a 没有被 sample 到，其它 action 的概率如果都要上升，a 的概率就下降。 所以 a 不一定是一个不好的 action， 它只是没被 sample 到。但只是因为它没被 sample 到， 它的概率就会下降，这个显然是有问题的，要怎么解决这个问题呢？你会希望你的 reward 不要总是正的。
-
-![1.](img/1.14.png)
-
-为了解决 reward 总是正的这个问题，你可以把 reward 减掉一项叫做 b，这项 b 叫做 baseline。你减掉这项 b 以后，就可以让 $R(\tau^n)-b$ 这一项， 有正有负。 所以如果得到的 total reward $R(\tau^n)$ 大于 b 的话，就让它的概率上升。如果这个 total reward 小于 b，就算它是正的，正的很小也是不好的，你就要让这一项的概率下降。 如果$R(\tau^n)<b$  ， 你就要让这个 state 采取这个 action 的分数下降 。这个 b 怎么设呢？一个最简单的做法就是， 你把 $\tau^n$ 的值取 expectation， 算一下 $\tau^n$的平均值。
-$$
-b \approx E[R(\tau)]
-$$
-
-这是其中一种做法， 你可以想想看有没有其它的做法。
-
- 所以在 implement training 的时候，你会不断地把 $R(\tau)$ 的分数记录下来 然后你会不断地去计算 $R(\tau)$ 的平均值， 你会把这个平均值，当作你的 b 来用。 这样就可以让你在 training 的时候， $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$ 乘上前面这一项， 是有正有负的，这个是第一个 tip。
-
-
-### Tip 2: Assign Suitable Credit
-
-第二个 tip：给每一个 action 合适的 credit。什么意思呢，如果我们看今天下面这个式子的话，
-$$
-\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(R\left(\tau^{n}\right)-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
-$$
-我们原来会做的事情是，在某一个 state，假设你执行了某一个 action a，它得到的 reward ，它前面乘上的这一项 $R(\tau^n)-b$。
-
-只要在同一个 Episode 里面，在同一场游戏里面， 所有的 state 跟 a 的 pair，它都会 weighted by 同样的 reward term，这件事情显然是不公平的，因为在同一场游戏里面 也许有些 action 是好的，有些 action 是不好的。 假设整场游戏的结果是好的， 并不代表这个游戏里面每一个行为都是对的。若是整场游戏结果不好， 但不代表游戏里面的所有行为都是错的。所以我们希望可以给每一个不同的 action 前面都乘上不同的 weight。每一个 action 的不同 weight， 它反映了每一个 action 到底是好还是不好。 
+* 2012年过后，我们有了这个卷积神经网络，大家就把特征提取以及分类两者合到一块儿去，就是说我们训练一个神经网络。这个神经网络既可以做特征提取，也可以做分类。然后它可以实现这种端到端的一个训练，然后可以让它里面的参数，在每一个阶段都得到极大的优化，这样就得到了一个非常重要的突破。
 
 ![](img/1.15.png)
 
-举个例子， 假设这个游戏都很短，只有 3~4 个互动， 在 $s_a$ 执行 $a_1$ 得到 5 分。在 $s_b$ 执行 $a_2$ 得到 0 分。在 $s_c$ 执行 $a_3$ 得到 -2 分。 整场游戏下来，你得到 +3 分，那你得到 +3 分 代表在 state $s_b$ 执行 action $a_2$ 是好的吗？并不见得代表 state $s_b$ 执行 $a_2$ 是好的。因为这个正的分数，主要来自于在 state $s_a$ 执行了 $a_1$，跟在 state $s_b$ 执行 $a_2$ 是没有关系的，也许在 state $s_b$ 执行 $a_2$ 反而是不好的， 因为它导致你接下来会进入 state $s_c$，执行 $a_3$ 被扣分，所以整场游戏得到的结果是好的， 并不代表每一个行为都是对的。
+我们也可以把这个放到强化学习之中去。
+
+* 之前的强化学习，比如 TD-Gammon  玩 backgammon 这个游戏，它其实也是通过了这个设计特征，然后通过训练价值函数的一个过程，就是它先设计了很多手工的一些特征，这个手工特征可以描述现在整个状态。得到这些特征过后，它就可以通过训练一个分类网络或者分别训练一个价值估计函数，然后来做出决策。
+* 现在我们有了深度学习，有了神经网络，那么就大家也把这个过程改进成一个 end-to-end training 的一个过程。你直接输入这个状态，我们不需要去手工的设计这个特征，就可以让它直接输出 action。那么就可以用一个神经网络来拟合我们这里的 value function 或 policy networ，省去 了 feature engineering 的过程。
 
 ![](img/1.16.png)
 
-如果按照我们刚才的讲法，整场游戏得到的分数是 3 分，那到时候在 training 的时候， 每一个 state 跟 action 的 pair，都会被乘上 +3。 在理想的状况下，这个问题，如果你 sample 够多就可以被解决。因为假设你 sample 够多，在 state $s_b$ 执行 $a_2$ 的这件事情，被 sample 到很多。就某一场游戏，在 state $s_b$ 执行 $a_2$，你会得到 +3 分。 但在另外一场游戏，在 state $s_b$ 执行 $a_2$，你却得到了 -7 分，为什么会得到 -7 分呢？ 因为在 state $s_b$ 执行 $a_2$ 之前， 你在 state $s_a$ 执行 $a_2$ 得到 -5 分，-5 分这件事可能也不是在 $s_b$ 执行 $a_2$ 的错，这两件事情，可能是没有关系的，因为它先发生了，这件事才发生，所以它们是没有关系的。
+为什么强化学习在这几年就用到各种应用中去，比如玩游戏以及机器人的一些应用，然后已经取得了这样可以击败人类最好棋手的一个结果。
 
-在 state $s_b$ 执行 $a_2$ 可能造成的问题只有会在接下来 -2 分，而跟前面的 -5 分没有关系的。但是假设我们今天 sample 到这项的次数够多，把所有发生这件事情的情况的分数通通都集合起来， 那可能不是一个问题。但现在的问题就是，我们 sample 的次数是不够多的。在 sample 的次数不够多的情况下，你要给每一个 state 跟 action pair 合理的 credit，你要让大家知道它合理的 contribution。怎么给它一个合理的 contribution 呢？ 一个做法是计算这个 pair 的 reward 的时候，不把整场游戏得到的 reward 全部加起来，**只计算从这一个 action 执行以后所得到的 reward**。因为这场游戏在执行这个 action 之前发生的事情是跟执行这个 action 是没有关系的， 所以在执行这个 action 之前得到多少 reward 都不能算是这个 action 的功劳。跟这个 action 有关的东西， 只有在执行这个 action 以后发生的所有的 reward 把它加起来，才是这个 action 真正的 contribution。所以在这个例子里面，在 state $s_b$ 执行 $a_2$ 这件事情，也许它真正会导致你得到的分数应该是 -2 分而不是 +3 分，因为前面的 +5 分 并不是执行 $a_2$ 的功劳。实际上执行 $a_2$ 以后，到游戏结束前， 你只有被扣 2 分而已，所以它应该是 -2。那一样的道理，今天执行 $a_2$ 实际上不应该是扣 7 分，因为前面扣 5 分，跟在 $s_b$ 这个 state 执行 $a_2$ 是没有关系的。在 $s_b$ 这个 state 执行 $a_2$，只会让你被扣两分而已，所以也许在 $s_b$ 这个 state 执行 $a_2$， 你真正会导致的结果只有扣两分而已。如果要把它写成式子的话是什么样子呢？如下式所示。
+有几点组成：
+
+* 第一点是我们有了更多的这个计算能力，我们有了更多的这个GPU显卡，然后可以更快的做更多的这个 trial-and-error 的尝试通。
+* 过这种不同尝试就可以使得 agent 在这个环境里面获得很多信息，然后可以在这个环境里面取得很大的奖励。
+* 第三点是我们有了这个端到端的一个训练，可以使得这个特征提取跟这个最后的这个价值估计或者决策一块来优化，这样就可以得到了一个更强的一个决策网络。
 
 ![](img/1.17.png)
+ 接下来我会给大家再看一些强化学习里面比较有意思的一些例子。
 
-本来的 weight 是整场游戏的 reward 的总和。那现在改成从某个时间 $t$ 开始，假设这个 action 是在 t 这个时间点所执行的，从 $t$ 这个时间点，一直到游戏结束所有 reward 的总和，才真的代表这个 action 是好的还是不好的。 
+*  第一个例子是DeepMind 研发的一个走路的agent。这个 agent 往前走一步，你就会得到一个 reward。这个agent 有不同的这个形态，然后就可以学到很多有意思的功能。比如怎么跨越这个障碍物，就像那个蜘蛛那样的 agent 。怎么跨越障碍物，像这个人有双腿一样， 这个  agent 往前走。以及像这个人形 的agent，怎么在一个曲折的道路上面往前走，这个结果也是非常有意思。这个人形 agent 会把手举得非常高，因为它这个手的功能就是为了使它身体保持平衡，这样它就可以更快的在这个环境里面这个往前跑，而且这里你也可以增加这个环境的难度，加入一些扰动，这个 agent 就会变得更鲁棒。
 
+* 第二个例子是机械臂抓取的一个例子。因为这个机械臂的应用自动去强化学习需要大量的这个 rollout，所以它这里就有好多机械臂，然后一个分布式系统，然后可以让这个机械臂尝试抓取不同的物体。你发现这个盘子里面物体的形状、形态其实都是不同的，这样就可以让这个机械臂学到一个统一的一个行为。然后在不同的这个抓取物下面都可以采取最优的一个抓取特征。你的这个抓取的物件形态存在很多不同，一些传统的这个抓取算法就没法把这些所有物体都抓起来，因为你对每一个物体都需要做一个建模，这样的话就是非常花时间。但是就通过这个强化学习，你就可以学到一个统一的一个抓取算法，在不同物体上它都可以适用。
+
+* 第三个例子是 OpenAI 做的一个机械臂翻魔方的一个结果，这里它们18年的时候先设计了一个这个手指的一个机械臂，让它可以通过翻动手指，使得这个手中的这个木块达到一个预定的这个设定。人的手指其实是一个非常精细的过程，怎么使得这个机械手臂也具有这样灵活的能力就一直是一个问题。它们就通过这个强化学习在一个虚拟环境里面先训练，让 agent 能翻到特定的这个方向，再把它应用到这个真实的手臂之中。这也其实在强化学习里面是一个比较常用的一个做法，就是你先在虚拟环境里面得到一个很好的 agent，然后再把它使用到真实的这个机器人中。因为很多时候真实的机械手臂通常都是非常容易坏，而且非常贵，你没法大批量的购买。2019年的时候让它们进一步改进，然后这个手臂就可以玩魔方了。这个结果也是非常有意思的，到后面，你看这个魔方就被恢复成了个六面都是一样的结构了。
+
+*  第四个例子是一个穿衣服的 agent ，就是训练这个 agent 穿衣服。因为很多时候你要在电影或者一些动画实现这个人穿衣的这种场景，通过手写执行命令让机器人穿衣服其实是非常困难。有很多时候穿衣服也是一个非常精细的一个操作，那么它们这个工作就是通过训练这个强化学习 agent，然后就可以实现这个穿衣功能。这里你还可以加入一些扰动，然后 agent 可以抗扰动，然后可能有这种 failure case， agent 就穿不进去，就卡在这个地方。
+
+## Introduction to Sequential Decision Making
 ![](img/1.18.png)
-**接下来再更进一步，我们把未来的 reward 做一个 discount**，由此得到的回报被称为 `Discounted Return(折扣回报)`。为什么要把未来的 reward 做一个 discount 呢？因为虽然在某一个时间点，执行某一个 action，会影响接下来所有的结果，有可能在某一个时间点执行的 action，接下来得到的 reward 都是这个 action 的功劳。但在比较真实的情况下， 如果时间拖得越长，影响力就越小。 比如说在第二个时间点执行某一个 action， 那我在第三个时间点得到的 reward 可能是在第二个时间点执行某个 action 的功劳，但是在 100 个 timestamp 之后，又得到 reward，那可能就不是在第二个时间点执行某一个 action 得到的功劳。 所以我们实际上在做的时候，你会在 R 前面乘上一个 `discount factor`  $\gamma$， $\gamma \in [0,1] $ ，一般会设个 0.9 或 0.99，
+接下来我们讲序列决策过程，强化学习研究的问题 是 agent 跟环境交互，这幅图左边画的是一个 agent，agent 一直在跟环境进行交互。这个agent 把它输出的动作给环境，然后环境取得这个动作过后，会进行到下一步，然后会把下一步的观测跟它上一步是否得到奖励返还给 agent。通过这样的交互过程，然后会产生很多观测，agent 的目的就是为了从这些观测之中学到能极大化奖励的策略。
 
-* $\gamma = 0$ : Only care about the immediate reward；
-* $\gamma = 1$ : Future reward is equal to the immediate reward。
-
- 如果 time stamp $t'$ 越大，它前面就乘上越多次的 $\gamma$，就代表说现在在某一个 state $s_t$， 执行某一个 action $a_t$ 的时候，它真正的 credit 是在执行这个 action 之后所有 reward 的总和，而且你还要乘上 $\gamma$。
-
-举一个例子， 你就想成说，这是游戏的第 1、2、3、4 回合，那你在游戏的第二回合的某一个  $s_t$ 你执行 $a_t$，它真正的 credit 得到的分数应该是，假设你这边得到 +1 分 这边得到 +3 分，这边得到 -5 分，它的真正的 credit，应该是 1 加上一个 discount 的 credit 叫做 $\gamma$ 乘上 3，再加上 $\gamma^2$ 乘上 -5。
-
-如果大家可以接受这样子的话， 实际上就是这么 implement 的。这个 b 可以是 state-dependent 的，事实上 b 它通常是一个 network estimate 出来的，它是一个 network 的 output。
+### Rewards
 
 ![](img/1.19.png)
+奖励是由环境给的一个反馈信号，这个信号指定了这个 agent 在某一步采取了某个策略是否得到奖励。强化学习的目的就是为了极大化 agent 可以获得的奖励，这个 agent 在这个环境里面存在的目的就是为了极大它的期望积累的奖励。
 
-把 $R-b$ 这一项合起来，我们统称为` advantage function`， 用 `A` 来代表 advantage function。Advantage function 是 dependent on s and a，我们就是要计算的是在某一个 state s 采取某一个 action a 的时候，advantage function 有多大。
+![](img/1.20.png)
 
-这个 advantage function 它的上标是 $\theta$， $\theta$ 是什么意思呢？ 因为在算 advantage function时，你要计算$\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}$ ，你会需要有一个 interaction 的结果。你会需要有一个 model 去跟环境做 interaction，你才知道你接下来得到的 reward 会有多少。这个 $\theta$ 就是代表说是用 $\theta$ 这个 model 跟环境去做 interaction，然后你才计算出这一项。从时间 t 开始到游戏结束为止，所有 R 的 summation 把这一项减掉 b，然后这个就叫 advantage function。它的意义就是，假设我们在某一个 state $s_t$ 执行某一个 action $a_t$，相较于其他可能的 action，它有多好。它真正在意的不是一个绝对的好， 而是说在同样的 state 的时候 是采取某一个 action $a_t$ 相较于其它的 action 它有多好，它是相对的好。因为会减掉一个 b，减掉一个 baseline， 所以这个东西是相对的好，不是绝对的好。 $A^{\theta}\left(s_{t}, a_{t}\right)$ 通常可以是由一个 network estimate 出来的，这个 network 叫做 critic。 
+这里我给大家举一些奖励的例子。不同的环境，奖励的也是不同的。
 
-## References
+* 比如说一个下象棋的选手，它的目的其实就为了赢棋，奖励是说在最后棋局结束的时候，他知道会得到一个正奖励或者负奖励。
+* 羚羊站立其实也是一个强化学习过程，那它得到的奖励就是它是否可以最后跟它妈妈一块离开或者它被吃掉。
+* 股票管理里面，奖励定义由你的股票获取的收益跟损失决定。
+* 在玩雅达利游戏的时候，奖励就是你有没有在增加游戏的分数，奖励本身的稀疏程度其实也决定了这个游戏的难度。
 
-* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
-* [神经网络与深度学习](https://nndl.github.io/)
+### Sequential Decision Making
+
+![](img/1.21.png)
+
+在一个强化学习环境里面，agent 目的就是为了选取一系列的动作，从而使得它的奖励可以极大化。所以这些采取的措施必须有长期的影响，但这个过程里面它的奖励其实是被延误了。就是说你现在采取的某一步决策可能要等到时间很久过后才知道这一步到底产生了什么样的影响。这里一个示意图就是我们玩这个 Atari 的 Pong 这个游戏，你可能只有到最后游戏结束过后，你才知道这个球到底有没有击打过去。中间你采取的 up 或 down 行为，并不会直接产生奖励。
+
+强化学习里面一个重要的课题就是在近期奖励和远期奖励的一个 trade-off。怎么让 agent 的取得更多的长期奖励是强化学习的问题。
+
+![](img/1.22.png)
+在跟环境的交互过程中，agent 其实会获得很多观测。然后在每一个观测会采取一个动作，它也会得到一个奖励。Agent在采取当前动作的时候会依赖于它之前得到的这个历史，所以你可以把整个游戏的状态看成关于这个历史的函数。
+
+![](img/1.23.png)
+在 Agent 自己的内部也有一个函数来更新这个状态。当 agent 的状态跟环境的状态等价的时候，我们就说现在这个环境是 full observability，就是全部可以观测。
+
+![](img/1.24.png)
+但是有一种情况是 agent 得到的观测并不能包含所有环境运作的状态，因为在这个强化学习的设定里面，环境的状态才是真正的所有状态。Agent 在玩游戏的过程中，比如说它在玩这个 Black jack 这个游戏，它能看到的其实是牌面上的牌或者在玩雅达利游戏的时候，你们观测到的只是当前电视上面这一帧的信息，你并没有得到游戏内部里面所有的运作状态。所以在这种情况下面，强化学习通常被建模成一个 POMDP 的问题。
+
+### Major Components of an RL Agent 
+
+![](img/1.25.png)
+对于一个强化学习 agent，它有哪些组成成分，首先agent ，它可能有一个这决策函数，policy function，这个函数是会被 agent 用来选取它下一步的动作。
+
+然后它也可能生成一个价值函数(value function)。这个价值函数被 agent 用来对现在当前状态进行估价，它就是说你进入现在这个状态，到底可以对你后面的收益带来多大的影响。当这个价值函数大的时候，说明你进入这个状态越有利。
+
+另外一个组成成分是这个模型(model)。这里模型表示了 agent 对这个环境的状态进行了一个整个理解，他决定了这个世界是如何进行的。
+
+### Policy
+
+![](img/1.26.png)
+我们深入看这三个组成成分的一些细节。
+
+Policy 就是决定了这个 agent 的行为，它其实是一个函数，把输入的状态变成行为。所以这里有有两种 policy。
+
+* 一种是 stochastic  policy，它就是这个 $\pi$ 函数，当你输入一个状态 s 的时候，它输出其实是一个概率。这概率就是你所有行为的一个概率，然后你可以进一步对这个概率分布进行采样，然后得到真实的你采取的行为。比如说这个概率可能是有70%的概率往左，30%的概率往右，那么你通过采样就可以得到一个 action。
+
+* 另外一种是 deterministic policy，就是说你这里有可能只是采取它的极大化，采取最有可能的概率。所以你现在这个概率就是事先决定好的。
+
+从  Atari 游戏的来看的话，policy function 的输入就是一游戏的一帧，然后它的输出决定你是往左走或者是往右走。
+
+
+
+### Value Function
+![](img/1.27.png)
+价值函数是一个折扣的未来奖励的加和，就是你通过进行某一种行为，然后你未来得到多大的奖励。然后这个价值函数里面其实有一个 discount factor。我们希望尽可能在短的时间里面得到尽可能多的奖励。所以如果我们说十天过后我给你100块钱，跟我现在给你100块钱，你肯定更希望我现在就给你100块钱，因为你可以把这100块钱存在银行里面，你就会有一些利息。所以我们就通过把这个 discount factor 放到价值函数的定义里面。后面我们得到的奖励价值函数的定义其实是一个期望。
+
+你可以看这里有一个 $\mathbb{E}_{\pi}$ 的期望，这里有个小角标是 $\pi$ 函数，这个 $\pi$ 函数就是说在我们已知某一个 policy function 的时候，到底可以得到多少的奖励，所以这个价值函数就是把我们后面未来得的奖励。
+
+对于这个奖励函数，我们另外还有一个这个 Q 函数。Q 函数里面包含两个变量，有一个是状态，另外一个是动作。所以你未来可以获得多少的奖励，你可以看到它的这个期望取决于你当前的状态和当前的行为。这个Q 函数是强化学习算法在学习的一个函数。因为当我们得到这个Q 函数的过后，我们进入某一种状态，它最优的行为其实就可以通过这个 Q 函数来得到。
+
+### Model
+![](img/1.28.png)
+然后这里第三个组成部分是这个模型，模型决定了下一个状态会是什么样的，就是说下一步的状态取决于你当前的状态以及你当前采取的行为。然后它由两个部分组成，一个是 Probability，它这个转移状态之间是怎么转移的。另外一个模型的是这个奖励函数，当你在当前状态采取了某一个行为可以得到多大的奖励。
+
+
+
+![](img/1.29.png)
+
+当我们有了这三个成分过后，然后其实就形成了一个马尔科夫决策过程(Markov Decision Process)。这个决策过程可视化了状态之间的转移以及我们采取的行为。
+
+
+
+![](img/1.30.png)
+
+这里我们来看一个走迷宫的例子，这个例子是要求这个 agent 从 start 开始，然后到达 goal 的位置。我们这里设定的奖励是每走一步，你就会得到一个负的奖励，然后这里可以采取的动作是往上下左右走。然后当前状态用现在 agent 所在的位置来描述。
+
+
+
+![](img/1.31.png)
+我们可以用不同的强化学习算法来解这个环境，如果我们这里采取的是 Policy-based RL。当我们学习好了这个环境过后，然后在每一个状态，我们就会得到一个最佳的行为。比如说现在在第一格开始的时候，我们知道它最佳行为是往右走，然后第二格的时候，得到的最佳策略是往上走，第三格是往右走。通过这个最佳的策略，我们就可以最快地到达终点。
+
+![](img/1.32.png)
+如果换成 Value-based RL 这个算法，利用价值函数来作为导向，我们就会得到另外一种表征。这里就表征了你每一个状态会返回一个价值，比如说你现在当前在 start 位置的时候，你的价值是 -16，因为你最快可以16步到达终点。因为每走一步会减一，所以你这里的价值是 -16。当我们快接近最后终点的时候，它的这个数字是变得越来越大。在拐角的时候，比如要现在在第二格 -15。然后现在 agent 会看上下，他看到上面指变大变成 -14了，它下面是 -16，那么这个 agent 的肯定就会采取一个往上走的策略。所以通过这个学习的值的不同，我们可以抽取出现在最佳的策略。
+
+### Types of RL Agents
+
+![](img/1.33.png)
+所以根据强化学习 agent 的不同，我们可以把 agent 进行归类。
+
+* 基于价值函数的 agent。这一类 agent 显式地学习的就是价值函数，隐式地学习了它的策略。因为这个策略是从我们学到的价值函数里面推算出来的。
+* 另外一种基于策略导向的 agent。它直接去学习 policy，就是说你直接给它一个 state，它就会输出这个动作的概率。然后在这个 policy-based agent 里面并没有去学习它的价值函数。
+
+* 然后另外还有一种 agent 是把这两者结合。把 value-based 和 policy-based 结合起来就有了 `Actor-Critic agent`。这一类 agent 就把它的策略函数和价值函数都学习了，然后通过两者的交互得到一个最佳的行为。
+
+![](img/1.34.png)
+另外，我们是可以通过 agent 到底有没有学习这个环境模型来分类。
+
+* 有一类这个强化学习 agent 我们可以叫它 model-based RL agent，就是它通过学习这个状态的转移来采取措施。
+* 另外一种是 model-free RL agent，就是它没有去直接估计这个状态的转移，也没有得到环境的具体转移变量，然后它通过学习 value function 和 policy function 进行决策。这种 model-free 的模型里面它并没有一个环境转移的一个模型。
+
+![](img/1.35.png)
+
+把几类模型放到同一个 pie chart 里面。三个组成部分：value function、policy、model。按一个 agent 具不具有三者中的两者或者一者可以把它分成很多类。
+
+### Exploration and Exploitation
+
+![](img/1.36.png)
+在强化学习里面，Exploration 和 Exploitation 是两个很核心的问题。
+
+* Exploration 的意思是说我们怎么去探索这个环境。通过尝试不同的行为，然后可以得到一个最佳的策略，得到最大奖励的策略。
+
+* Exploitation 的意思是我们现在不去尝试新的东西，就采取我们已知的可以得到很大奖励的行为。
+
+因为在刚开始的时候这个强化学习 agent 并不知道它采取了某个行为会发生什么，所以它只能通过试错去探索。所以 Exploration 就是在试错来理解采取的这个行为到底可不可以得到好的奖励。Exploitation 是说我们直接采取已知的可以得到很好奖励的行为。所以这里就面临一个 trade-off。怎么通过牺牲一些短期的 reward 来获得行为的理解。
+
+![](img/1.37.png)
+这里我再给大家举一些例子来说明 Exploration 和 Exploitation 的定义。
+
+* 比如说我们在选择餐馆的时候。
+  * Exploitation 的意思是说我们直接去你最喜欢的餐馆吗，因为你去过这个餐馆去过很多次了，所以你知道这里面的菜都非常可口。
+  * Exploration 就是说你把手机拿出来，你直接搜索一个新的餐馆，然后去尝试它到底好不好吃。这里的结果就是有可能这种新的餐馆非常不满意，那么你就这个钱就浪费了。
+
+* 广告的例子。
+  * Exploitation 就是说我们直接可以采取最优的这个广告策略。
+  * Exploration 就是说我们换一种广告方式，然后看这个新的广告策略到底可不可以得到奖励。
+
+* 挖油的例子。
+  * Exploitation 就是说我们直接在已知的地方挖油。那么我们就可以确保可以挖到油。
+  * Exploration 就是说我们在一个新的一个地方挖油，就有很大的概率，你可能不能发现任何油，但也可能有比较小的概率可以发现一个非常大的一个油田。
+* 玩游戏的例子。
+  * Exploitation 就是说你总是采取某一种策略。比如说，你可能打街霸，你采取的策略可能是蹲在角落，然后一直触脚。这个策略嗯很可能可以奏效，但是可能遇到特定的对手就失效。
+  *  Exploration 就是说你可能尝试一些新的一些招式，有可能你会发出大招来，这样就可能一招毙命。
+
+
+
+### Experiment with Reinforcement Learning
+![](img/1.38.png)
+接下来我们会进入一个实践环节。强化学习其实是一个理论跟实践结合的一个机器学习分支，需要去推导很多算法公式。然后去理解它算法背后的一些数学原理。另外一方面，上机实践通过实现算法，然后在很多实验环境里面去真正探索这个算法是不是可以得到预期效果也是一个非常重要的一个过程。所以我希望大家把实践提到一个很高的高度，真正去实践这个强化学习的算法。
+
+
+
+![](img/1.39.png)
+
+然后我们这门课程，我会在网页上面公布一些代码，会有很多会利用到 Python编程，然后也会利用到深度学习的一些包，主要是用 PyTorch 为主，然后在[这个链接](https://github.com/cuhkrlcourse/RLexample)里面，我其实已经公布了一些 RL 相关的代码。
+
+![](img/1.40.png)
+
+你就直接调用现有的包来实践，现在其实有很多深度学习的包可以用，熟练使用这里面的两三种其实已经可以实现非常多的功能。所以你并不需要从头去去造轮子，就直接调用它里面的函数去实现你想实现的功能。
+
+![](img/1.41.png)
+
+强化学习的话就不得不提 OpenAI 这家公司。OpenAI 是一个非盈利的人工智能研究公司。Open AI 公布了非常多的学习资源以及这个算法资源，他们之所以叫 Open AI，就是他们把他们所有开发的这些算法都 open source 出来。
+
+
+
+![](img/1.42.png)
+
+`OpenAI Gym` 里面包含了很多现有的环境，比如说这个 Atari 游戏，然后还有一些强化学习里面比较经典的一些控制的环境。Gym Retro 是这个 gym 环境的进一步扩展，包含了更多的一些游戏。
+
+![](img/1.43.png)
+
+强化学习的这个交互就是由 agent 跟环境进行交互。所以我们算法的 interface 也是用这个来表示。比如说我们现在安装了 OpenAI Gym。那我们这里就可以直接调入 Taxi-v2 的环境，就建立了一个这个环境初始化这个环境过后，就可以进行交互了。Agent 得到这个观测过后，它就会输出一个 action。然后这个 action 会被这个环境拿进去执行这个step，然后环境就会往前走一步，然后返回新的 observation 和 reward 以及一个 flag variable 就决定你现在这个游戏是不是结束了。这几行代码就实现了强化学习里面的 framework。
+
+![](img/1.44.png)
+在OpenAI Gym 里面有很经典的控制类游戏，比如说 Acrobot，就是把这个两节铁杖，然后甩了立起来。还有 CartPole，通过控制一个平板，让这个木棍立起来。还有 MountainCar 的一个例子，就通过前后移动这个车，让它到达这个旗子的位置。大家可以去[这个链接](https://gym.openai.com/envs/#classic_control)看一看这些环境。在刚开始测试强化学习的时候，可以选择这些简单环境，因为这些环境可能是在一两分钟之内你就可以见到一个效果。
+
+![](img/1.45.png)
+
+这里我们看一下 CartPole 的这个环境。对于这个环境，有两个动作，Cart 往左移还是往右移。这里得到了观测：它这个车当前的位置，Cart 当前的往左往右移的速度，这个杆的这个角度以及它的杆的最高点的这个速度。
+
+如果 observation 越详细的话，就可以更好地描述当前这个所有的状态。然后这里有 reward 定义的话，如果能多保留一步，然后你就会得到一个奖励，所以你尽可能多的时间存活来得到更多的奖励。一段游戏，它的终止条件就是说，你没有把这个杆平衡。当这个杆的角度大于某一个角度的时候或者这个车已经出到外面的时候，你就输了。所以这个 agent 的目的就是为了控制这个木棍，让它尽可能地保持平衡以及尽可能保持在这个环境的中央。
+
+```python
+import gym 
+env = gym.make('CartPole-v0’) 
+env.reset() 
+env.render() # display the rendered scene 
+action = env.action_space.sample() 
+observation, reward, done, info = env.step(action)
+```
+
+如果我们玩这个环境的话，就就直接可以 import gym，调入 CartPole 这个环境。然后这里就可以通过这个采样，然后来执行这个环境。
+
+
+
+## Todo
+
+* Gym 安装过程
+* RL例子
+
+
 

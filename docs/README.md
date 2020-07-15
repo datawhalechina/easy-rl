@@ -12,15 +12,17 @@
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
 
 ## 目录
-- [P1 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1)
-- [P2 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)
-- [P3 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3)
-- [P4 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)
-- [P5 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5)
-- [P6 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)
-- [P7 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7)
-- [P8 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8)
-- [P9 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9)
+- [P1 强化学习基础](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1)
+- [P2 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)
+- [P3 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3)
+- [P4 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)
+- [P5 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5)
+- [P6 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)
+- [P7 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7)
+- [P8 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8)
+- [P9 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9)
+- [P10 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10)
+- [P11 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11)
 
 
 ## 主要贡献者

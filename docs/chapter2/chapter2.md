@@ -1,227 +1,181 @@
-# PPO
-## From On-policy to Off-policy
-在讲 PPO 之前，我们先讲一下 on-policy 和 off-policy 这两种 training 方法的区别。
-在 reinforcement learning 里面，我们要 learn 的就是一个agent。
+# 表格型方法
 
-* 如果要 learn 的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy(同策略)`。 
-* 如果要 learn 的 agent 跟和环境互动的 agent 不是同一个的话， 那这个叫做`off-policy(异策略)`。
-
-比较拟人化的讲法是如果要学习的那个 agent，一边跟环境互动，一边做学习这个叫 on-policy。 如果它在旁边看别人玩，通过看别人玩来学习的话，这个叫做 off-policy。
-
-为什么我们会想要考虑 off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做 policy gradient 时，我们需要有一个 agent、一个 policy 和一个 actor。这个 actor 先去跟环境互动去搜集资料，搜集很多的 $\tau$，根据它搜集到的资料，会按照 policy gradient 的式子去 update policy 的参数。所以 policy gradient 是一个 on-policy 的 algorithm。
+这节课我们通过最简单的`表格型的方法`来讲解如何使用 value-based 方法去求解强化学习。
 
 ![](img/2.1.png)
 
-PPO 是 policy gradient 的一个变形，它是现在 OpenAI default reinforcement learning 的 algorithm。
+强化学习的三个重要的要素：状态动作和奖励。强化学习智能体跟环境是一步一步交互的，就是我先观察一下状态，然后再输入动作。再观察一下状态，再输出动作，拿到这些reward 。它是一个跟时间相关的一个序列决策的问题。
 
-$$
-\nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
-$$
+举个例子，在 $t-1$ 时刻，我看到了熊对我招手，那我下意识的可能输出的动作就是我赶紧跑路。熊看到了有人跑了，可能就觉得发现猎物，开始发动攻击。而在 $t$ 时刻的话，我如果选择装死的动作，可能熊咬了咬我那个摔了几下就发现就觉得挺无趣的，可能会走开。那这个时候，我再跑路的话可能就跑路成功了，就是大概是这样子的一个序列决策的过程。
 
-问题是上面这个 update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做 expectation。一旦 update 了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前sample 出来的 data 就变的不能用了。所以 policy gradient 是一个会花很多时间来 sample data 的 algorithm，你会发现大多数时间都在 sample data，agent 去跟环境做互动以后，接下来就要 update 参数。你只能 update 参数一次。接下来你就要重新再去 collect data， 然后才能再次update 参数，这显然是非常花时间的。所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个policy， 另外一个actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的data 去训练 $\theta$，意味着说我们可以把$\theta'$  collect 到的data 用非常多次。我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔data 就好了。因为假设 $\theta$ 有能力学习另外一个actor $\theta'$ 所 sample 出来的 data 的话， 那$\theta'$  就只要sample 一次，也许sample 多一点的data， 让$\theta$ 去update 很多次，这样就会比较有效率。
+当然在输出每一个动作之前，其实你都是可以选择不同的动作。比如说在 $t$ 时刻，我选择跑路的时候，熊已经追上来了，如果说 $t$ 时刻，我没有选择装死，而我是选择跑路的话，这个时候熊已经追上了，那这个时候，其实我有两种情况转移到不同的状态去，就我有一定的概率可以逃跑成功，也有很大的概率我会逃跑失败。那我们就用状态转移概率 $p\left[s_{t+1}, r_{t} \mid s_{t}, a_{t}\right]$ 来表述说在 $s_t$ 的状态选择了 $a_t$ 的动作的时候，转移到 $s_{t+1}$ ，而且拿到  $r_t$ 的概率是多少。
+
+我们就说这样子的一个状态转移概率是符合马尔科夫的，因为这个状态转移概率，它是下一时刻的状态是取决于当前的状态，它和之前的 $s_{t-1}$ 和 $s_{t-2}$    都没有什么关系。然后再加上说这个过程也取决于智能体跟环境交互的这个$a_t$ ，所以有一个决策的一个过程在里面。我们就称这样的一个过程为马尔可夫决策过程(MDP)。
+
+MDP 就是序列决策这样一个经典的表达方式。MDP 也是强化学习里面一个非常基本的学习框架。像之前的这四个状态、动作、奖励和状态转移概率，S，A，P，R，这四个合集就构成了强化学习 MDP 的四元组，那后面其实也可能会再加个衰减因子构成五元组。
+
+
 ![](img/2.2.png)
 
-具体怎么做呢？这边就需要介绍 `important sampling` 的概念。假设你有一个function $f(x)$，你要计算从 p 这个 distribution sample x，再把 x 带到 f 里面，得到$f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
 
-现在有另外一个问题，我们没有办法从 p 这个 distribution 里面 sample data。假设我们不能从 p sample data，只能从另外一个 distribution q 去 sample data，q  可以是任何 distribution。我们不能够从 p 去sample data，但可以从 q 去 sample $x$。我们从 q 去 sample $x^i$ 的话就不能直接套下面的式子。
-$$
-E_{x \sim p}[f(x)] \approx \frac{1}{N} \sum_{i=1}^N f(x^i)
-$$
-因为上式是假设你的 $x$ 都是从 p sample 出来的。所以做一个修正，修正是这样子的。期望值$E_{x \sim p}[f(x)]$其实就是$\int f(x) p(x) dx$，我们对其做如下的变换：
-$$
-\int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]
-$$
-我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从q 里面 sample x，然后再去计算$f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去sample data，然后代入上式，你就可以计算从 p 这个distribution sample x 代入 f 以后所算出来的期望值。
 
-这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是$\frac{p(x)}{q(x)}$。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以 apply important sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
+
+我们把这些可能的动作和可能的状态转移的关系画成这样子的一个树状图。它们之间的关系就是一个从 $s_t$ 到 $a_t$ ，再到 $s_{t+1}$ ，再到 $a_{t+1}$，再到 $s_{t+2}$ 这样子的一个过程。
+
+我们去跟环境交互，我们只能走完整的一条通路。这里面产生了一系列的一个决策的过程，就是我们跟环境交互产生了一个经验。然后我们会使用 P 函数和 R 函数来去描述环境。P 函数就是状态转移的概率，R 函数就是Reward function。P函数实际上反映的是环境的一个随机性。比方说，在熊发怒的情况下，我如果选择装死，假设熊看到人装死就一定会走的话，我们就称在这里面的这个状态转移概率就是百分之百。但如果说在熊发怒的情况下，我选择跑路而导致说我有可能跑成功以及跑失败，出现这两种情况。那我们就可以用概率去表达一下说转移到其中一种情况的概率大概 10%，另外一种情况的概率大概是90%会跑失败。**如果我们知道这些状态转移概率和奖励函数的话，我们就说这个环境是已知的，因为我们是用这两个函数去描述环境的。**如果是已知的话，我们其实可以用动态规划去计算说，我如果要逃脱熊，那么能够逃脱熊概率最大的最优策略是什么。很多强化学习的经典的算法都是 model-free 的，就是环境是未知的这样子的一个情况下，我们强化学习怎么去解决。
 
 ![](img/2.3.png)
+因为现实世界中人类第一次遇到熊之前，我们根本不知道我们能不能跑得过熊。所以刚刚那个10%、90%的概率也就是虚构出来的概率，熊到底在什么时候会往什么方向去转变的话，我们经常是不知道的。我们是处在一个未知的环境里的，也就是这一系列的决策的 P 函数和 R 函数是未知的。这就是 model-based 跟 model-free 的一个最大的区别。强化学习就是可以用来解决用完全未知的和随机的环境。
 
-Important sampling 有一些 issue。虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能够差太多。差太多的话，会有一些问题。什么样的问题呢？
+强化学习要像人类一样去学习了，人类学习的话就是一条路一条路的去尝试一下，先走一条路，我看看结果到底是什么。多试几次，只要能活命的，我们其实可以慢慢的了解哪个状态会更好。我们用价值函数 $V(s)$ 来代表这个状态是好的还是坏的。然后用这个 Q 函数来判断说在什么状态下做什么动作能够拿到最大奖励，我们用Q函数来表示这个状态动作值。
 
-$$
-E_{x \sim p}[f(x)]=E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
-$$
-虽然上式成立。但上式左边是$f(x)$ 的期望值，它的distribution 是 p，上式右边是$f(x) \frac{p(x)}{q(x)}$ 的期望值，它的distribution 是 q。如果不是算期望值，而是算 variance 的话。这两个variance 是不一样的。两个 random variable 的 mean 一样，并不代表它的 variance 一样。
 
-我们可以代一下方差的公式
-$$
-\operatorname{Var}_{x \sim p}[f(x)]=E_{x \sim p}\left[f(x)^{2}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
-$$
-
-$$
-\begin{aligned}
-\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=E_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\
-&=E_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
-\end{aligned}
-$$
-
-$\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的差别在第一项是不同的， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的第一项多乘了$\frac{p(x)}{q(x)}$，如果$\frac{p(x)}{q(x)}$ 差距很大的话， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$的 variance 就会很大。所以虽然理论上它们的expectation 一样，也就是说，你只要对 p 这个distribution sample 够多次，q 这个distribution sample 够多，你得到的结果会是一样的。但是假设你sample 的次数不够多，因为它们的variance 差距是很大的，所以你就有可能得到非常大的差别。
 
 ![](img/2.4.png)
 
-举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+接下来就会介绍 Q函数。在经过多次尝试和那个熊打交道之后，人类就可以对熊的不同的状态去做出判断，我们可以用状态动作价值的来表达说在某个状态下，为什么动作 1 会比动作 2 好。因为动作1的价值比动作2要高。这个价值就叫 Q 函数。如果说这个 Q 表格是一张已经训练好的表格的话，那这一张表格就像是我们的一本生活手册。我们就知道在熊发怒的时候，装死的价值会高一点。在熊离开的时候，我们可能偷偷逃跑的会比较容易获救。这张表格里面 Q 函数的物理意义就是我选择了这个动作之后我最后面能不能成功，就是我需要去计算我在这个状态下，我选择了这个动作，后续能够一共拿到多少总收益。如果我可以预估未来的总收益的大小，我们当然知道在当前的这个状态下选择哪个动作，价值更高。我选择某个动作是因为我未来一共可以拿到的那个价值会更高一点。所以强化学习它的目标导向性很强，环境给了这个 reward 是一个非常重要的反馈，它就是根据环境的 reward 的反馈来去做选择。
 
-接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边sample 到这些点，然后你去计算它们的$f(x) \frac{p(x)}{q(x)}$都是正的，所以你sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你sample 次数很少，你只能sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要sample 够多次，这件事情才会发生。但有可能sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
+![](img/2.5.png)未来的总收益是一个什么样的概念，为什么可以用这个来评价当前这个动作是好是坏。举个例子，假设说一辆车在路上，当前是红灯，我们直接走的那个收益就很低，因为违反交通规则，这是就是当前的单步收益。可是如果我们这是一辆救护车，我们正在运送病人，把病人快速送达医院的收益非常的高，而且越快你的收益越大。很可能是我们这个时候应该要闯红灯，因为未来的远期收益太高了。这也是为什么说强化学习需要去学习远期的收益，因为现实世界当中这个奖励往往是延迟的，是有delay 的。
 
-![](img/2.5.png)
-
-现在要做的事情就是把 importance sampling 用在 off-policy 的 case。把 on-policy training 的algorithm 改成 off-policy training 的 algorithm。怎么改呢，之前我们是拿 $\theta$ 这个policy 去跟环境做互动，sample 出trajectory $\tau$，然后计算$R(\tau) \nabla \log p_{\theta}(\tau)$。
-
-现在我们不用$\theta$ 去跟环境做互动，假设有另外一个 policy  $\theta'$，它就是另外一个actor。它的工作是他要去做demonstration，$\theta'$ 的工作是要去示范给$\theta$ 看。它去跟环境做互动，告诉 $\theta$ 说，它跟环境做互动会发生什么事。然后，借此来训练$\theta$。我们要训练的是$\theta$ ，$\theta'$  只是负责做 demo，负责跟环境做互动。
-
-我们现在的$\tau$ 是从 $\theta'$ sample 出来的，是拿 $\theta'$ 去跟环境做互动。所以sample 出来的 $\tau$ 是从 $\theta'$ sample 出来的，这两个distribution 不一样。但没有关系，假设你本来是从 p 做sample，但你发现你不能够从 p 做sample，所以我们不拿$\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面这边补上一个 importance weight。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个importance weight $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个 importance weight 就是某一个 trajectory $\tau$ 用 $\theta$ 算出来的概率除以这个 trajectory $\tau$，用$\theta'$ 算出来的概率。这一项是很重要的，因为今天你要learn 的是actor $\theta$ 和 $\theta'$ 是不太一样的。$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
-
-现在的data 不是从$\theta$ sample 出来，是从 $\theta'$ sample 出来的。从$\theta$ 换成$\theta'$ 有什么好处呢？因为现在跟环境做互动是$\theta'$ 而不是$\theta$。所以 sample 出来的东西跟 $\theta$ 本身是没有关系的。所以你就可以让 $\theta'$ 做互动 sample 一大堆的data，$\theta$ 可以update 参数很多次。然后一直到 $\theta$  train 到一定的程度，update 很多次以后，$\theta'$ 再重新去做sample，这就是on-policy 换成off-policy 的妙用。
+所以我们一般会从当前状态开始，后续有可能会收到所有收益加起来计算。当前动作的 Q 的价值，让 Q 的价值可以真正的代表当前这个状态动作的真正的价值。
 
 ![](img/2.6.png)
 
-实际在做 policy gradient 的时候，我们并不是给整个 trajectory $\tau$ 都一样的分数，而是每一个state-action 的pair 会分开来计算。实际上 update gradient 的时候，我们的式子是长这样子的。
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta}}\left[A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
-$$
-
-我们用 $\theta$ 这个actor 去sample 出$s_t$ 跟$a_t$，sample 出state 跟action 的pair，我们会计算这个state 跟action pair 它的advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在state $s_t$ 采取action $a_t$ 是好的，还是不好的。那接下来后面会乘上$\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果$A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
-
-那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在$s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把$s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
-
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{P_{\theta}\left(s_{t}, a_{t}\right)}{P_{\theta^{\prime}}\left(s_{t}, a_{t}\right)} A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
-$$
-
-这边 $A^{\theta}(s_t,a_t)$ 有一个上标 $\theta$，$\theta$  代表说这个是 actor $\theta$ 跟环境互动的时候所计算出来的 A。但是实际上从 $\theta$ 换到 $\theta'$  的时候，$A^{\theta}(s_t,a_t)$ 应该改成 $A^{\theta'}(s_t,a_t)$，为什么？A 这一项是想要估测说现在在某一个 state 采取某一个 action，接下来会得到 accumulated reward 的值减掉base line 。你怎么估 A 这一项，你就会看在 state $s_t$，采取 action $a_t$，接下来会得到的reward 的总和，再减掉baseline。之前是 $\theta$ 在跟环境做互动，所以你观察到的是 $\theta$ 可以得到的reward。但现在是 $\theta'$  在跟环境做互动，所以你得到的这个advantage， 其实是根据 $\theta'$  所estimate 出来的advantage。但我们现在先不要管那么多， 我们就假设这两项可能是差不多的。
-
-那接下来，我们可以拆解 $p_{\theta}\left(s_{t}, a_{t}\right)$ 和 $p_{\theta'}\left(s_{t}, a_{t}\right)$，即
-$$
-\begin{aligned}
-p_{\theta}\left(s_{t}, a_{t}\right)&=p_{\theta}\left(a_{t}|s_{t}\right) p_{\theta}(s_t) \\
-p_{\theta'}\left(s_{t}, a_{t}\right)&=p_{\theta'}\left(a_{t}|s_{t}\right) p_{\theta'}(s_t) 
-\end{aligned}
-$$
-于是我们得到下式：
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} \frac{p_{\theta}\left(s_{t}\right)}{p_{\theta^{\prime}}\left(s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
-$$
 
 
-然后这边需要做一件事情是，假设 model 是 $\theta$ 的时候，你看到$s_t$ 的概率，跟 model 是$\theta'$  的时候，你看到$s_t$ 的概率是差不多的，即$p_{\theta}(s_t)=p_{\theta'}(s_t)$。因为它们是一样的，所以你可以把它删掉，即
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]  \quad(1)
-$$
-
-为什么可以假设它是差不多的。举例来说，会看到什么state 往往跟你会采取什么样的action 是没有太大的关系的。比如说你玩不同的 Atari 的游戏，其实你看到的游戏画面都是差不多的，所以也许不同的 $\theta$  对 $s_t$ 是没有影响的。但是有一个更直觉的理由就是这一项到时候真的要你算，你会算吗？因为想想看这项要怎么算，这一项你还要说我有一个参数$\theta$，然后拿$\theta$ 去跟环境做互动，算$s_t$ 出现的概率，这个你根本很难算。尤其是你如果 input 是image 的话， 同样的 $s_t$ 根本就不会出现第二次。你根本没有办法估这一项， 所以干脆就无视这个问题。
-
-但是 $p_{\theta}(a_t|s_t)$很好算。你手上有$\theta$ 这个参数，它就是个network。你就把$s_t$ 带进去，$s_t$ 就是游戏画面，你把游戏画面带进去，它就会告诉你某一个state 的 $a_t$ 概率是多少。我们其实有个 policy 的network，把 $s_t$ 带进去，它会告诉我们每一个 $a_t$ 的概率是多少。所以
-$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$ 这一项，你只要知道$\theta$ 和 $\theta'$ 的参数就可以算。
-
-现在我们得到一个新的objective function。
-
-$$
-J^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]
-$$
-
-
-式(1)是 gradient，其实我们可以从 gradient 去反推原来的 objective function。这边有一个公式
-
-$$
-\nabla f(x)=f(x) \nabla \log f(x)
-$$
-
-我们可以用这个公式来反推objective  function，要注意一点，对 $\theta$ 求梯度时，$p_{\theta^{\prime}}(a_{t} | s_{t})$ 和 $A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 都是常数。
-
-
-所以实际上，当我们apply importance sampling 的时候，要去optimize 的那一个objective function 就长这样子，我们把它写作$J^{\theta^{\prime}}(\theta)$。为什么写成$J^{\theta^{\prime}}(\theta)$ 呢，这个括号里面那个$\theta$ 代表我们要去optimize 的那个参数。$\theta'$  是说我们拿 $\theta'$  去做demonstration，就是现在真正在跟环境互动的是$\theta'$。因为 $\theta$ 不跟环境做互动，是 $\theta'$  在跟环境互动。
-
-然后你用$\theta'$  去跟环境做互动，sample 出$s_t$、$a_t$ 以后，你要去计算$s_t$ 跟$a_t$ 的advantage，然后你再去把它乘上$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$。$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$是好算的，$A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 可以从这个 sample 的结果里面去估测出来的，所以 $J^{\theta^{\prime}}(\theta)$ 是可以算的。实际上在 update 参数的时候，就是按照式(1) 来 update 参数。
-
-
-
-## PPO
+但是有的时候你目光放的太长远不好，因为如果说事情很快就结束的话，你考虑到最后一步的收益无可厚非，可是如果说是一个持续的没有尽头的任务，你单纯的把所有未来的收益全部相加，作为当前的状态价值就很不合理。股票的例子就很典型了，我们要关注的是累积的收益。可是如果说十年之后才有一次大涨大跌，你要把十年后的收益也作为当前动作的考虑因素，显然我们不会这么做。那我们会怎么办呢，就有句俗话说得好，就对远一点的东西呢，我们就当做近视就不需要看得太清楚，我们就可以适当引入这个衰减因子 $\gamma$ 来去计算这个未来总收益。$\gamma \in [0,1]$ 。越往后 $\gamma^n$ 就会越小，也就是说越后面的收益对当前价值的影响就会越小。
 
 ![](img/2.7.png)
 
-我们可以把 on-policy 换成 off-policy，但 importance sampling 有一个 issue，如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多的话，这两个 distribution 差太多的话，importance sampling 的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。它实际上做的事情就是这样，在 off-policy 的方法里要optimize 的是 $J^{\theta^{\prime}}(\theta)$。但是这个 objective function 又牵涉到 importance sampling。在做 importance sampling 的时候，$p_{\theta}\left(a_{t} | s_{t}\right)$ 不能跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$差太多。你做 demonstration 的 model 不能够跟真正的 model 差太多，差太多的话 importance sampling 的结果就会不好。我们在 training 的时候，多加一个 constrain。这个constrain 是 $\theta$  跟 $\theta'$  output 的 action 的 KL divergence，简单来说，这一项的意思就是要衡量说 $\theta$ 跟 $\theta'$  有多像。
 
-然后我们希望在 training 的过程中，learn 出来的 $\theta$ 跟 $\theta'$  越像越好。因为如果 $\theta$ 跟 $\theta'$ 不像的话，最后的结果就会不好。所以在 PPO 里面有两个式子，一方面是 optimize 本来要 optimize 的东西，但再加一个 constrain。这个 constrain 就好像那个 regularization 的 term 一样，在做 machine learning 的时候不是有 L1/L2 的regularization。这一项也很像 regularization，这样 regularization 做的事情就是希望最后 learn 出来的 $\theta$ 不要跟 $\theta'$ 太不一样。
+举个具体的例子来看看这些计算出来的是什么效果。这是一个悬崖问题。这个问题是需要智能体从这个出发点 S 出发，然后到达目的地 G，同时避免掉进悬崖(cliff)，掉进悬崖的话就会有负一百分的惩罚，而且不会结束游戏，它会被直接拖回那个起点，游戏继续。为了到达目的地的话，我们可以沿着蓝线和红线走。
 
-PPO 有一个前身叫做TRPO，TRPO 的式子如下式所示。
-$$
-\begin{aligned}
-J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] \\ \\
-\mathrm{KL}\left(\theta, \theta^{\prime}\right)<\delta
-\end{aligned}
-$$
 
-它与PPO不一样的地方 是 constrain 摆的位置不一样，PPO是直接把 constrain 放到你要 optimize 的那个式子里面，然后你就可以用 gradient ascent 的方法去 maximize 这个式子。但 TRPO 是把 KL divergence 当作constrain，它希望 $\theta$ 跟 $\theta'$ 的 KL divergence 小于一个$\delta$。如果你是用 gradient based optimization 时，有 constrain 是很难处理的。
 
-PPO是很难处理的，因为它是把 KL divergence constrain 当做一个额外的 constrain，没有放 objective 里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用PPO 不要用TRPO。看文献上的结果是，PPO 跟TRPO 可能 performance 差不多，但 PPO 在实现上比 TRPO 容易的多。
 
-KL divergence 到底指的是什么？这边我是直接把 KL divergence 当做一个 function，input 是 $\theta$ 跟 $\theta'$，但我的意思并不是说把 $\theta$ 或 $\theta'$  当做一个distribution，算这两个distribution 之间的距离，我不是这个意思。所谓的 $\theta$ 跟 $\theta'$  的距离并不是参数上的距离，而是 behavior 上的距离。
-
-假设你有一个model，有一个actor 它是$\theta$，你有另外一个actor 的参数是$\theta'$ ，所谓参数上的距离就是你算这两组参数有多像。我今天所讲的不是参数上的距离， 而是它们行为上的距离。就是你先带进去一个state s，它会对这个 action 的 space output 一个 distribution。假设你有 3 个actions，3 个可能的 actions 就 output 3 个值。那今天所指的 distance 是behavior distance。也就是说，给同样的 state 的时候，输出 action 之间的差距。这两个 actions 的 distribution 都是一个概率分布。所以就可以计算这两个概率分布的 KL divergence。把不同的 state output 的这两个 distribution 的KL divergence 平均起来才是我这边所指的两个 actor 间的 KL divergence。你可能说怎么不直接算这个 $\theta$ 或 $\theta'$ 之间的距离，甚至不要用KL divergence 算，L1 跟 L2 的 norm 也可以保证 $\theta$ 跟 $\theta'$ 很接近啊。在做reinforcement learning 的时候，之所以我们考虑的不是参数上的距离，而是 action 上的距离，是因为很有可能对 actor 来说，参数的变化跟 action 的变化不一定是完全一致的。有时候你参数小小变了一下，它可能 output 的行为就差很多。或是参数变很多，但 output 的行为可能没什么改变。**所以我们真正在意的是这个actor 它的行为上的差距，而不是它们参数上的差距。**所以在做PPO 的时候，所谓的 KL divergence 并不是参数的距离，而是action 的距离。
 
 ![](img/2.8.png)
 
-我们来看一下PPO1 的algorithm。它先initial 一个policy 的参数$\theta^0$。然后在每一个iteration 里面呢，你要用参数$\theta^k$，$\theta^k$ 就是你在前一个training 的iteration得到的actor 的参数，你用$\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的pair。
+在这个环境当中，我们去怎么去计算状态动作价值，就是未来的总收益的话。假设我走一条路，然后这条路的话，我从这个状态出发，在这里选择是向上，这里选择向右，选择向右。
 
-然后你根据$\theta^k$ 互动的结果，估测一下$A^{\theta^{k}}\left(s_{t}, a_{t}\right)$。然后你就 apply PPO 的 optimization 的 formulation。但跟原来的policy gradient 不一样，原来的 policy gradient 只能 update 一次参数，update 完以后，你就要重新 sample data。但是现在不用，你拿 $\theta^k$ 去跟环境做互动，sample 到这组 data 以后，你可以让 $\theta$ update 很多次，想办法去 maximize objective function。这边 $\theta$ update 很多次没有关系，因为我们已经有做 importance sampling，所以这些experience，这些 state-action 的 pair 是从 $\theta^k$ sample 出来的没有关系。$\theta$ 可以 update 很多次，它跟 $\theta^k$ 变得不太一样也没有关系，你还是可以照样训练 $\theta$。
+如果 $\gamma = 0$，然后用这个公式去计算的话，它相当于考虑的就是一个单步的收益。我们可以认为它是一个目光短浅的一个计算的方法。
+
+但 $\gamma = 1$ 的话，那就等于是说把后续所有的收益可能都全部加起来。在这里悬崖问题，你每走一步都会拿到一个 -1 分的 reward。只有到了终点之后，它才会停止。如果说 $\gamma =1 $的话，我们用这个公式去计算，就这里是 -1。然后这里的话，未来的总收益就是 $-1+-1=-2$ ，这样子去计算。
+
+如果说折中一下，让 $\gamma = 0.6$ 话，那就是目光没有放得那么的长远，计算出来是这个样子的。
+
+
+利用 $G_{t}=R_{t+1}+\gamma G_{t+1}$ 这个公式从后往前推。
+$$
+\begin{array}{l}
+G_{7}=R+\gamma G_{8}=-1+0.6 *(-2.176)=-2.3056 \approx-2.3 \\
+G_{8}=R+\gamma G_{9}=-1+0.6 *(-1.96)=-2.176 \approx-2.18 \\
+G_{9}=R+\gamma G_{10}=-1+0.6 *(-1.6)=-1.96 \\
+G_{10}=R+\gamma G_{11}=-1+0.6 *(-1)=-1.6 \\
+G_{12}=R+\gamma G_{13}=-1+0.6 * 0=-1 \\
+G_{13}=0
+\end{array}
+$$
+
+
+这里的计算是我们选择了一条路，走完这条路径上每一个状态动作的价值，我们可以看一下右下角这个图，如果说我走的不是这条路，我走的是这一条路，那我算出来那个状态动作价值的 Q 值可能是这样。那我们就知道，当小乌龟在 -12 这个点的时候，往右边走是 -11，往上走是 -15。它自然就知道往右走的价值更大，小乌龟就会往右走
 
 ![](img/2.9.png)
+最后我们要求解的就是类似于这样子的一张 Q表格。就是它的行数是所有的状态数量，一般可以用坐标来表示表示格子的状态，也可以用 1、2、3、4、5、6、7 来表示不同的位置。那一共四列的话就代表说是上下左右四个动作。最开始这张  Q 表格会全部初始化为零，然后在 agent 不断地去和环境交互得到不同的轨迹，当交互的次数足够多的时候，我们就可以估算出每一个状态下，每个行动的平均总收益去更新这个 Q  表格。怎么去更新 Q 表格就是我们接下来要引入的强化学习的强化概念。
 
-在PPO 的paper 里面还有一个 `adaptive KL divergence`，这边会遇到一个问题就是 $\beta$  要设多少，它就跟那个regularization 一样。regularization 前面也要乘一个weight，所以这个 KL divergence 前面也要乘一个 weight，但 $\beta$  要设多少呢？所以有个动态调整 $\beta$ 的方法。在这个方法里面呢，你先设一个 KL divergence，你可以接受的最大值。然后假设你发现说你 optimize 完这个式子以后，KL divergence 的项太大，那就代表说后面这个 penalize 的 term 没有发挥作用，那就把 $\beta$ 调大。那另外你定一个 KL divergence 的最小值。如果发现 optimize 完上面这个式子以后，KL divergence 比最小值还要小，那代表后面这一项的效果太强了，你怕他只弄后面这一项，那$\theta$ 跟$\theta^k$ 都一样，这不是你要的，所以你这个时候你叫要减少 $\beta$。所以 $\beta$ 是可以动态调整的。这个叫做 adaptive KL penalty。
+强化概念的就是我们可以用下一个状态的价值来更新当前状态的价值。其实就是强化学习里面有一个bootstrap(自助)的概念。在强化学习里面，你可以每走一步更新一下 Q 表格，然后用下一个状态的 Q 值来更新这个状态的 Q 值。
 
 ![](img/2.10.png)
 
-如果你觉得算 KL divergence 很复杂。有一个PPO2。PPO2 要去 maximize 的 objective function 如下式所示，它的式子里面就没有 KL divergence 。
-$$
-\begin{aligned}
-J_{P P O 2}^{\theta^{k}}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)} A^{\theta^{k}}\left(s_{t}, a_{t}\right),\right.\\
-&\left.\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{k}}\left(s_{t}, a_{t}\right)\right)
-\end{aligned}
-$$
-这个式子看起来有点复杂，但实际 implement 就很简单。我们来实际看一下说这个式子到底是什么意思。
-min 这个 operator 做的事情是第一项跟第二项里面选比较小的那个。第二项前面有个clip function，clip 这个function 的意思是说，在括号里面有3 项，如果第一项小于第二项的话，那就output $1-\varepsilon$ 。第一项如果大于第三项的话，那就output $1+\varepsilon$。 $\varepsilon$ 是一个 hyper parameter，你要tune 的，你可以设成 0.1 或 设 0.2 。
-假设这边设0.2 的话，如下式所示
-$$
-\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 0.8, 1.2\right)
-$$
-
-如果$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$算出来小于0.8，那就当作0.8。如果算出来大于1.2，那就当作1.2。
-
-我们先看一下下面这项这个算出来到底是什么的东西。
-$$
-\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)
-$$
+这种单步更新的方法是我们在强化学习里面会接触到的叫`时序差分`的更新方法。为了让大家更好理解强化学习里面时序差分的这种更新方法。我这里就找了一下它的的物理意义。我们先理解一下巴普洛夫的条件反射实验了。这个实验讲的是什么呢？就是小狗对盆里面的食物，它会产生无条件刺激分泌唾液。一开始小狗对于铃声这种中性刺激是没有反应的。可是我们把这个铃声和这个食物结合起来，每次先给它响一下铃，再给它喂食物。多次重复之后，当铃声响起的时候，小狗也会开始流口水。盆里的肉可以认为是强化学习里面最后面的那个延迟的那个 reward。声音的刺激可以认为是有 reward 的那个状态之前的一个状态。多次重复实验之后，最后的这个 reward 会强化小狗对于这个声音的条件反射，它会让小狗知道说这个声音代表着有食物，这个声音对于小狗来说也就有了价值，它听到这个声音也会也会流口水。
 
 ![](img/2.11.png)
 
-上图的横轴是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴是 clip function 实际的输出。
+巴普洛夫效应揭示的是中性刺激(铃声)跟无条件刺激(食物)紧紧挨着反复出现的时候，条件刺激也可以引起无条件刺激引起的唾液分泌，然后形成这个条件刺激。这种中性刺激跟无条件刺激在时间上面的结合，我们就称之为强化。 强化的次数越多，那条件反射就会越巩固，那就是小狗原本不觉得铃声有价值的，经过强化之后，小狗就会慢慢地意识到铃声也是有价值的，它可能带来带来食物。更重要是一种条件反射巩固之后，我们再用另外一种新的刺激和条件反射去结合，还可以形成第二级条件反射，同样还可以形成第三级条件反射。在人的身上是可以建立多级的条件反射的。举个例子，比如说一般我们遇到熊都是这样一个顺序，看到树上有熊瓜，然后看到熊之后，突然熊发怒，扑过来了。经历这个过程之后，我们可能最开始看到熊才会瑟瑟发抖，后面就是看到树上有熊爪就已经有害怕的感觉了。也就说在不断的重复试验之后，下一个状态的价值，它是可以不断地去强化影响上一个状态的价值的。
 
-* 如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 大于$1+\varepsilon$，输出就是$1+\varepsilon$。
-* 如果小于 $1-\varepsilon$， 它输出就是 $1-\varepsilon$。
-* 如果介于 $1+\varepsilon$ 跟 $1-\varepsilon$ 之间， 就是输入等于输出。
+
 
 ![](img/2.12.png)
 
- $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 是绿色的线，$\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)$ 是蓝色的线。在绿色的线跟蓝色的线中间，我们要取一个最小的。假设前面乘上的这个 term A，它是大于0 的话，取最小的结果，就是红色的这一条线。
+为了让大家更加直观感受一下这个下一个状态影响上一个状态效果，这里推荐那个斯坦福大学的一个网站[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。这个网站模拟了就是这种单步更新的过程中，所有格子的一个状态价值的变化过程。我们可以看到格子里面有几个 -1的 reward。只有一个 +1 reward 的那个格子。
 
 ![](img/2.13.png)
 
-如果 A 小于0 的话，取最小的以后，就得到红色的这一条线。
-这一个式子虽然看起来有点复杂，implement 起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的那个model， 跟你实际上 learn 的 model，在optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
+玩起来是这样的，先初始化一下，然后开始时序差分的更新过程，训练的过程你会看到这个小黄球不断的在试错。但探索当中会先迅速地发现有 reward的地方。最开始的时候，只是这些有 reward 的格子 才有价值，当不断的重复走这些路线的时候，这些有价值的格子，它可以去慢慢的影响它附近的格子的价值。反复训练之后，有 reward 的这些格子周围的格子的状态就会慢慢的被强化，然后强化就是当它收敛到最后一个最优的状态了，就是把这些价值最终收敛到一个最优的情况之后，那个小黄球就会自动地知道，就是我一直往价值高的地方走，我就能够走到能够拿到 reward 的地方。
 
-如果 A 大于 0，也就是某一个 state-action 的pair 是好的。那我们希望增加这个state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过$1+\varepsilon$  的话，就没有benefit 了。红色的线就是我们的objective function，我们希望objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$只要大过 $1+\varepsilon$，就没有benefit 了。
 
-所以今天在train 的时候，当$p_{\theta}(a_{t} | s_{t})$ 被 train 到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$大于 $1+\varepsilon$ 时，它就会停止。
 
-假设 $p_{\theta}(a_{t} | s_{t})$  比 $p_{\theta^k}(a_{t} | s_{t})$ 还要小，那我们的目标是要让 $p_{\theta}(a_{t} | s_{t})$ 越大越好。
-
-* 假设这个 advantage 是正的，我们希望$p_{\theta}(a_{t} | s_{t})$ 越大越好。假设这个 action 是好的，我们当然希望这个 action 被采取的概率越大越好。所以假设 $p_{\theta}(a_{t} | s_{t})$ 还比 $p_{\theta^k}(a_{t} | s_{t})$  小，那就尽量把它挪大，但只要大到$1+\varepsilon$ 就好。
-* 负的时候也是一样，如果某一个state-action pair 是不好的，我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比$p_{\theta^k}(a_{t} | s_{t})$  还大，那你就尽量把它压小，压到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$是$1-\epsilon$ 的时候就停了，就不要再压得更小。
-
-这样的好处就是， 你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要 implement 这个东西，很简单。
 
 
 ![](img/2.14.png)
-上图是 PPO 跟其它方法的比较。Actor-Critic 和 A2C+Trust Region 方法是actor-critic based 的方法。PPO 是紫色线的方法，这边每张图就是某一个RL 的任务，你会发现说在多数的cases 里面，PPO 都是不错的，不是最好的，就是第二好的。
+
+这种强化方式其实在数学上面一行公式就表达出来了。我们也喊说这种更新的方式叫做时序差分的一个更新的方式。这个公式它想要表达就是我可以拿下一步的Q 值 $Q(S_{t+_1},A_{t+1})$ 来更新我这一步的 Q 值 $Q(S_t,A_t)$ 。
+
+为了理解这个公式，如图所示，我们先把这一块当作是一个目标值，就是 $Q(S_t,A_t)$ 想要去逼近的一个目标值。我们想要计算的就是这个 $Q(S_t,A_t)$ 。因为最开始Q值都是随机初始化，或者是初始化为零。它需要不断的去逼近它理想中真实的Q 值，我们就叫 target 。Target 就是未来收益的总和大概是有多少，而且是带衰减的那个。
+
+我们用 $G_t$ 来表示未来收益总和(return)，我们对 return 做一下简单的数学变化，然后我们可以知道 
+$$
+G_t = R_{t+1}+ \gamma G_{t+1}
+$$
+
+
+也就是说，我们拿 $Q(S_t,A_t)$ 来逼近这个 $G_t$ , 那 $Q(S_{t+1},A_{t+1})$ 其实就是近似这个 $G_{t+1}$ ，那我们可以把 $G_{t+1}$  放到这个目标值这里。$Q(S_t,A_t)$  就是要逼近这个目标值，怎么去逼近了。我们用软更新的方式。
+
+软更新的方式就是 $\alpha$ ，每次我只更新一点点。这个 $\alpha$ 有点类似于像学习率一样的东西。最终的话，Q 值都是可以慢慢地逼近到真实的 target 值的。这样我们的更新公式只需要用到当前时刻的 $S_{t},A_t$ ，然后还有拿到的 $R_{t+1}, S_{t+1}，A_{t+1}$ 。
+
+我们只需要这几个值，就是$(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ ，这就是 Sarsa 算法。它的命名其实就是因为它用到的就是这几个值。因为它走了一步之后，它拿到了 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ 之后，它就可以做一次这样子的更新。
+
+![](img/2.15.png)
+
+然后知关于就是用那个巴甫洛夫效应来去理解的公式的，也是在强化学习那本书名第14章有提到过了。大家感兴趣可以再去读一读，了解一下。
+
+我们看看用代码去怎么去实现。了解单步更新的一个基本公式之后，代码实现就很简单了。这个是环境，这个是 agent 。我们每次跟环境交互一次之后呢，就可以 learn 一下。我们向环境输出 action，
+
+然后从环境当中拿到那 state 和 reward。Agent 主要实现两个方法，一个就是根据 Q 表格去选择动作，输出action。另外一个就是拿到 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$  这几个值去更新我们的 Q 表格。
+
+
+
+![](img/2.16.png)我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值来更新这一步的 Q 值，不断地强化每一个 Q。
+
+## Q-learning
+
+![](img/2.17.png)
+
+Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略。它直接拿下一步，我一定会执行的 action 来去优化我的 Q 表格，所以 on-policy 在学习的过程中，只存在一种策略，它用一种策略去做 action 的选取，也用一种策略去做优化。所以 Sarsa 知道它下一步的动作有可能会跑到悬崖那边去，所以它就会在优化它自己的策略的时候，它会尽可能的离悬崖远一点哦。那这样子就会保证说，它下一步哪怕是有随机动作，它也还是在安全区域内。
+
+而 off-policy 在学习的过程中，保留了两种不同的策略。第一个策略是我们希望学到一个最佳的目标策略，另外一个策略是探索环境的策略。它可以大胆地去探索到所有可能的轨迹，然后喂给这个目标策略去学习。而且喂给目标策略的数据中并不需要 $a_{t+1}$ 。注意，Sarsa 是有 $a_{t+1}$ 的。它喂给目标策略的数据不需要 $a_{t+1}$，比如说目标策略优化时候，它才不管你下一步去往哪里探索，会不会掉悬崖，我就只选我收益最大一个最优的策略。探索环境的策略，我们叫做 `behavior policy`，它像是一个天不怕地不怕的一个前线的战士，可以在环境里面探索所有的动作和轨迹和经验。然后把这些经验的交给目标策略去学习。目标策略就像是在后方指挥战术的一个军师，它可以根据自己的经验来学习最优的策略，它不需要去和环境交互。
+
+![](img/2.18.png)
+
+Q-learning 是 off-policy 的，Sarsa 是 on-policy 的。 我们通过对比的方式来去理解 Q-learning。Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，我用到了的 A' 是下一个 step 一定会执行的 action 。这个也 action 有可能是 $\varepsilon$-greddy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作。但是就是它实实在在执行了的那个动作。
+
+但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a')$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。Q-learning 默认的 action 不是通过 behavior policy 来选取的，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入A'，即 $a_{t+1}$  的值。
+
+![](img/2.19.png)
+
+我们再仔细地对比一下两个更新公式，它们俩的更新公式都是一样的。区别只在 target 计算的这一部分。Sarsa 是 $R_{t+1}+\gamma Q(S_{t+1}, A_{t+1})$  ，Q-learning 是$R_{t+1}+\gamma  \underset{a}{\max} Q\left(S_{t+1}, a\right)$ 。
+
+Sarsa 实际上都是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 $Q(S_{t+1},A_{t+1})$ 去更新原本的Q值 $Q(S_t,A_t)$。 但是 Q-learning 并不需要知道，我实际上选择哪一个 action ，它默认下一个动作就是 Q 最大的那个动作。所以它知道实际上 behavior policy 可能会有 10% 的概率去选择别的动作，但是 Q-learning 并不担心受到探索的影响，它默认了就按照最优的策略来去优化我的目标策略，所以它可以更大胆地去寻找最优的路径，它其实会表现的比 Sarsa 大胆非常多。
+
+然后Q-learning 的这个逐步的一个拆解的话，跟Sarsa 唯一一点不一样就是我并不需要提前知道我 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-leanring 在 learn 之前它也不需要去拿到 next action A'，它只需要前面四个 $(S,A,R,S')$也就可以了。这一点就是跟 Sarsa 有一个很明显的区别。
+
+
+
+![](img/2.20.png)
+
+下面我讲一下 on-policy 和 off-policy 的区别。
+
+Sarsa 就是一个典型的 on-policy 策略，它只用一个 $\pi$ ，为了兼顾探索和利用，所以它训练的时候会显得有一点点胆小怕事。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点了，也还是在安全区域内不不至于跳进悬崖。Q-leanring 是一个比较典型的 off-policy 的策略，它有目标策略 target policy，一般用 $\pi$ 来表示。然后还有行为策略 behavior policy，用 $\mu$ 来表示。它分离了目标策略跟行为策略。Q-learning 就可以大胆的用 behavior policy 去探索得到的经验轨迹来去优化我的目标策略。这样子我更有可能去探索到最优的策略。
+
+
+
+![](img/2.21.png)
+
+总结如上图所示。
+
+
+
+
+
+
 

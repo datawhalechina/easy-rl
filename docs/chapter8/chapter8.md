@@ -1,100 +1,117 @@
-# Imitation Learning 
+# Actor-Critic
+
+## Actor-Critic
+
 ![](img/8.1.png)
-`Imitation learning` 讨论的问题是，假设我们连 reward 都没有，那要怎么办呢？Imitation learning 又叫做 `learning from demonstration(示范学习)` ，`apprenticeship learning(学徒学习)`，`learning by watching(观察学习)`。在 Imitation learning 里面，你有一些 expert 的 demonstration，那 machine 也可以跟环境互动，但它没有办法从环境里面得到任何的 reward，它只能看着 expert 的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的 reward。举例来说，如果是棋类游戏或者是电玩，你有非常明确的 reward。但是其实多数的任务，都是没有 reward 的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的 reward。所以很多 task 是根本就没有办法给出 reward 的。
+在 `Actor-Critic` 里面，最知名的方法就是 `A3C(Asynchronous Advantage Actor-Critic)`。如果去掉前面这个 Asynchronous，只有 `Advantage Actor-Critic`，就叫做 `A2C`。如果前面加了 Asynchronous，变成 Asynchronous Advantage Actor-Critic，就变成 A3C。
 
-虽然没有办法给出 reward，但是收集 expert 的 demonstration 是可以做到的。举例来说，在自动驾驶汽车里面，虽然你没有办法给出自动驾驶汽车的 reward，但你可以收集很多人类开车的纪录。在 chat-bot 里面，你可能没有办法定义什么叫做好的对话，什么叫做不好的对话。但是收集很多人的对话当作范例，这一件事情也是可行的。所以 imitation learning 的使用性非常高。假设你不知道该怎么定义 reward，你就可以收集到 expert 的 demonstration，你可以收集到一些范例的话，你可以收集到一些很厉害的 agent，比如说人跟环境实际上的互动的话，那你就可以考虑 imitation learning 这个技术。在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者又叫做 `Inverse Optimal Control`。
+那我们复习一下 policy gradient，在 policy gradient，我们在 update policy 的参数 $\theta$ 的时候，我们是用了下面这个式子来算出我们的 gradient。
+$$
+\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+$$
+这个式子是在说，我们先让 agent 去跟环境互动一下，那我们可以计算出在某一个 state s，采取了某一个 action a 的概率  $p_{\theta}(a_t|s_t)$。接下来，我们去计算在某一个 state s 采取了某一个 action a 之后，到游戏结束为止，accumulated reward 有多大。我们把这些 reward 从时间 t 到时间 T 的 reward 通通加起来，并且会在前面乘一个 discount factor，可能设 0.9 或 0.99。我们会减掉一个 baseline b，减掉这个值 b 的目的，是希望括号这里面这一项是有正有负的。如果括号里面这一项是正的，我们就要增加在这个 state 采取这个 action 的机率；如果括号里面是负的，我们就要减少在这个 state 采取这个 action 的机率。
 
-##  Behavior Cloning
+我们把用 G 来表示 accumulated reward。但 G 这个值，其实是非常的 unstable 的。因为互动的 process 本身是有随机性的，所以在某一个 state s 采取某一个 action a，然后计算 accumulated reward，每次算出来的结果都是不一样的，所以 G 其实是一个 random variable。给同样的 state s，给同样的 action a，G 可能有一个固定的 distribution。但我们是采取 sample 的方式，我们在某一个 state s 采取某一个 action a，然后玩到底，我们看看得到多少的 reward，我们就把这个东西当作 G。把 G 想成是一个 random variable 的话，我们实际上是对这个 G 做一些 sample，然后拿这些 sample 的结果，去 update 我们的参数。但实际上在某一个 state s 采取某一个 action a，接下来会发生什么事，它本身是有随机性的。虽然说有个固定的 distribution，但它本身是有随机性的，而这个 random variable 的 variance 可能会非常大。你在同一个 state 采取同一个 action，你最后得到的结果可能会是天差地远的。假设我们可以 sample 足够的次数，在每次 update 参数之前，我们都可以 sample 足够的次数，那其实没有什么问题。但问题就是我们每次做 policy gradient，每次 update 参数之前都要做一些 sample，这个 sample 的次数其实是不可能太多的，我们只能够做非常少量的 sample。如果你正好 sample 到差的结果，比如说你 sample 到 G = 100，sample 到 G = -10，那显然你的结果会是很差的。
+
 ![](img/8.2.png)
 
-其实 `Behavior Cloning` 跟 supervised learning 是一模一样的。我们以自动驾驶汽车为例，你可以收集到人开自动驾驶汽车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了，这个就叫做 Behavior Cloning。Expert 做什么，机器就做一模一样的事，怎么让机器学会跟 expert 一模一样的行为呢？就把它当作一个 supervised learning 的问题，你去收集很多行车纪录器。然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取action $a_1$，人在state $s_2$ 会采取action $a_2$。人在state, $s_3$ 会采取action $a_3$。接下来，你就learn 一个 network。这个 network 就是你的 actor，他input $s_i$ 的时候，你就希望他的output 是$a_i$，就这样结束了。它就是一个的 supervised learning 的problem。
+能不能让这整个 training process 变得比较 stable 一点，能不能够直接估测 G 这个 random variable 的期望值？我们在 state s 采取 action a 的时候，直接用一个 network 去估测在 state s 采取 action a 的时候，G 的期望值。如果这件事情是可行的，那之后 training 的时候，就用期望值来代替 sample 的值，这样会让 training 变得比较 stable。
+
+怎么拿期望值代替 sample 的值呢？这边就需要引入 value based 的方法。value based 的方法就是 Q-learning。Q-learning 有两种 functions，有两种 critics。第一种 critic 我们写作 $V^{\pi}(s)$，它的意思是说，假设 actor 是 $\pi$，拿 $\pi$ 去跟环境做互动，当今天我们看到 state s 的时候，接下来 accumulated reward 的期望值有多少。还有一个 critic 叫做 $Q^{\pi}(s,a)$。$Q^{\pi}(s,a)$ 把 s 跟 a 当作 input，它的意思是说，在 state s 采取 action a，接下来都用 actor $\pi$ 来跟环境进行互动，accumulated reward 的期望值是多少。
+
+$V^{\pi}$  input s，output 一个 scalar。$Q^{\pi}$  input s，然后它会给每一个 a 都 assign 一个 Q value。这个 estimate 的时候，你可以用  TD 也可以用 MC。用TD 比较稳，用 MC 比较精确。
 
 ![](img/8.3.png)
 
-Behavior Cloning 虽然非常简单，但它的问题是如果你只收集expert 的资料，你可能看过的 observation 会是非常 limited。举例来说，假设你要 learn 一部自动驾驶汽车，自动驾驶汽车就是要过这个弯道。如果是 expert 的话，他就是把车顺着这个红线就开过去了。但假设你的 agent 很笨，他今天开着开着，就开到撞墙了，他永远不知道撞墙这种状况要怎么处理，为什么？因为 training data 里面从来没有撞过墙，所以他根本就不知道撞墙这一种 case 要怎么处理。或是打电玩，电玩也是一样，让人去玩 Mario，那 expert 可能非常强，他从来不会跳不上水管，所以机器根本不知道跳不上水管时要怎么处理。人从来不会跳不上水管，但是机器如果跳不上水管时，就不知道要怎么处理。所以光是做Behavior Cloning 是不够的。只观察 expert 的行为是不够的，需要一个招数，这个招数叫作`Dataset Aggregation`。
+G 的 random variable 的期望值正好就是 Q ，即
+$$
+E\left[G_{t}^{n}\right]=Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}
+$$
+
+因为这个就是 Q 的定义。Q 的定义就是在某一个 state s，采取某一个 action a，假设 policy 就是 $\pi$ 的情况下会得到的 accumulated reward 的期望值有多大，而这个东西就是 G 的期望值。为什么会这样，因为这个就是 Q 的定义，Q-function 的定义。Accumulated reward 的期望值就是 G 的期望值。所以假设用期望值来代表 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}$ 这一项的话，把 Q-function 套在这里就结束了。那我们就可以 Actor 跟 Critic 这两个方法结合起来。
+
+有不同的方法来表示 baseline，但一个常见的做法是，你用 value function $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 来表示 baseline。Value function 的意思是说，假设 policy 是 $\pi$，在某一个 state s 一直 interact 到游戏结束。那你 expected 的 reward 有多大。 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 没有 involve action，然后 $ Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 有 involve action。其实 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会是 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 的期望值，所以$Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会有正有负，所以 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项就会是有正有负的。
+
+所以我们就把 policy gradient 里面 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项换成了 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$。
 
 ![](img/8.4.png)
 
-我们会希望收集更多样性的 data，而不是只收集 expert 所看到的 observation。我们会希望能够收集 expert 在各种极端的情况下，他会采取什么样的行为。以自动驾驶汽车为例的话，假设一开始，你的actor 叫作 $\pi_1$，你让 $\pi_1$去开这个车。但车上坐了一个 expert。这个 expert 会不断地告诉machine 说，如果在这个情境里面，我会怎么样开。所以 $\pi_1$ 自己开自己的，但是expert 会不断地表示他的想法。比如说，在这个时候，expert 可能说那就往前走。这个时候，expert 可能就会说往右转。但 $\pi_1$ 是不管 expert 的指令的，所以他会继续去撞墙。虽然 expert 说往右转，但是不管他怎么下指令都是没有用的。$\pi_1$ 会自己做自己的事情，因为我们要做的记录的是说，今天expert 在 $\pi_1$ 看到这种observation 的情况下，他会做什么样的反应。这个方法显然是有一些问题的，因为每次你开一次自动驾驶汽车都会牺牲一个人。那你用这个方法，你牺牲一个expert 以后，你就会得到说，人类在这样子的 state 下，在快要撞墙的时候，会采取什么样的反应。再把这个data 拿去train 新的 $\pi_2$。这个process 就反复继续下去，这个方法就叫做`Dataset Aggregation`。
+如果你这么实现的话，有一个缺点是，你要 estimate 2 个 networks，而不是一个 network。你要 estimate Q-network，你也要 estimate V-network，你 estimate 估测不准的风险就变成两倍。所以我们何不只估测一个 network 就好了呢？事实上在这个 Actor-Critic 方法里面。你可以只估测 V 这个 network，你可以用 V 的值来表示 Q 的值，什么意思呢？$Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)$可以写成$r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)$的期望值，即
 
+$$
+Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)=E\left[r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)\right]
+$$
 
+你在 state s 采取 action a，接下来你会得到 reward r，然后跳到 state, $s_{t+1}$，但是你会得到什么样的 reward r，跳到什么样的 state $s_{t+1}$，它本身是有随机性的。所以要把右边这个式子，取期望值它才会等于 Q-function。但我们现在把期望值这件事情去掉，即
+$$
+Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)=r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)
+$$
+
+我们就可以把 Q-function 用 r + V 取代掉，然后得到下式
+$$
+r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)
+$$
+把这个期望值去掉的好处就是你不需要再 estimate Q 了，你只需要 estimate V 就够了。你只要 estimate 一个 network 就够了，你不需要 estimate 2 个 network，你只需要 estimate 一个 network 就够了。但这样你就引入了一个随机的东西 r ，它是有随机性的，它是一个 random variable。但是这个 random variable，相较于刚才的 accumulated reward G 可能还好，因为它是某一个 step 会得到的 reward。而 G 是所有未来会得到的 reward 的总和。G variance 比较大，r 虽然也有一些 variance，但它的 variance 会比 G 要小。所以把原来 variance 比较大的 G 换成 variance 比较小的 r 也是合理的。如果你觉得把期望值拿掉不靠谱的话，那我就告诉你原始的 A3C paper 试了各式各样的方法，最后做出来就是这个最好这样。当然你可能说，搞不好 estimate Q 跟 V 也都 estimate 很好，那我告诉你就是做实验的时候，最后结果就是这个最好。所以后来大家都用这个。
 
 ![](img/8.5.png)
 
-Behavior Cloning 还有一个 issue 是说，机器会完全 copy expert 的行为，不管 expert 的行为是否有道理，就算没有道理，没有什么用的，这是expert 本身的习惯，机器也会硬把它记下来。如果机器确实可以记住所有 expert 的行为，那也许还好，为什么呢？因为如果 expert 这么做，有些行为是多余的。但是没有问题，假设机器的行为可以完全仿造 expert 行为，那也就算了，那他是跟 expert 一样得好，只是做一些多余的事。但问题就是它是一个 machine，它是一个 network，network 的capacity 是有限的。就算给 network training data，它在training data 上得到的正确率往往也不是100%，他有些事情是学不起来的。这个时候，什么该学，什么不该学就变得很重要。
+因为 $r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)$ 叫做 `Advantage function`。所以这整个方法就叫 `Advantage Actor-Critic`。
 
-举例来说，在学习中文的时候，你的老师，他有语音，他也有行为，他也有知识，但其实只有语音部分是重要的，知识的部分是不重要的。也许 machine 只能够学一件事，也许他就只学到了语音，那没有问题。如果他只学到了手势，这样子就有问题了。所以让机器学习什么东西是需要 copy，什么东西是不需要 copy，这件事情是重要的。而单纯的 Behavior Cloning 就没有把这件事情学进来，因为机器只是复制 expert 所有的行为而已，它不知道哪些行为是重要，是对接下来有影响的，哪些行为是不重要的，是对接下来是没有影响的。
-
+整个流程是这样子的。我们有一个 $\pi$，有个初始的 actor 去跟环境做互动，先收集资料。在 policy gradient 方法里面收集资料以后，你就要拿去 update policy。但是在 actor-critic 方法里面，你不是直接拿那些资料去 update policy。你先拿这些资料去 estimate value function，你可以用 TD 或 MC 来 estimate value function 。接下来，你再 based on value function，套用下面这个式子去 update $\pi$。
+$$
+\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+$$
+然后你有了新的 $\pi$ 以后，再去跟环境互动，再收集新的资料，去 estimate value function。然后再用新的 value function 去 update policy，去 update actor。整个 actor-critic 的 algorithm 就是这么运作的。
 
 ![](img/8.6.png)
 
-Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候，training data 跟 testing data 是 mismatch 的。我们可以用 Dataset Aggregation 的方法来缓解这个问题。这个问题是，在 training 跟 testing 的时候，data distribution 其实是不一样的。因为在 reinforcement learning 里面，action 会影响到接下来所看到的 state。我们是先有 state $s_1$，然后采取 action $a_1$，action $a_1$ 其实会决定接下来你看到什么样的 state $s_2$。所以在 reinforcement learning 里面有一个很重要的特征，就是你采取了 action 会影响你接下来所看到的 state。如果做了Behavior Cloning 的话，我们只能观察到 expert 的一堆 state 跟 action 的pair。然后我们希望可以 learn 一个 $\pi^*$，我们希望 $\pi^*$ 跟 $\hat{\pi}$ 越接近越好。如果 $\pi^*$ 可以跟 $\hat{\pi}$ 一模一样的话，你 training 的时候看到的 state 跟 testing 的时候所看到的 state 会是一样的。因为虽然 action 会影响我们看到的 state，但假设两个 policy 一模一样， 在同一个 state 都会采取同样的 action，那你接下来所看到的 state 都会是一样的。但问题就是你很难让你的 learn 出来的 policy 跟expert 的 policy 一模一样。Expert 可是一个人，network 要跟人一模一样，感觉很难吧。
+实现 Actor-Critic 的时候，有两个一定会用的 tip。
 
-如果你的 $\pi^*$ 跟 $\hat{\pi}$ 有一点误差。这个误差在一般 supervised learning problem 里面，每一个 example 都是 independent 的，也许还好。但对 reinforcement learning 的 problem 来说，你可能在某个地方就是失之毫厘，差之千里。可能在某个地方，也许 machine 没有办法完全复制 expert 的行为，它只复制了一点点，差了一点点，也许最后得到的结果就会差很多这样。所以 Behavior Cloning 并不能够完全解决 Imatation learning 这件事情。所以就有另外一个比较好的做法叫做 `Inverse Reinforcement Learning`。
+* 第一个 tip 是说，我们需要 estimate 两个 network，estimate V function，另外一个需要 estimate 的 network 是 policy 的 network，也就是你的 actor。 V-network input 一个 state，output 一个 scalar。然后 actor 这个 network，它是 input 一个 state，output 就是一个 action 的 distribution，假设你的 action 是 discrete，不是 continuous 的话，如果是 continuous 的话，它也是一样。如果是 continuous 的话，就只是 output 一个 continuous 的 vector。上图是举的是 discrete 的例子，但 continuous 的 case 其实也是一样的，input 一个 state，然后他决定你现在要 take 那一个 action。**这两个 network，actor 和 critic 的 input 都是 s，所以它们前面几个 layer，其实是可以 share 的。**尤其是假设你今天是玩 Atari 游戏，input 都是 image。那 input 那个 image 都非常复杂，image 很大，通常你前面都会用一些 CNN 来处理，把那些 image 抽象成 high level 的 information。把 pixel level 到 high level information 这件事情，其实对 actor 跟 critic 来说是可以共用的。所以通常你会让 actor 跟 critic 的前面几个 layer 是 shared，你会让 actor 跟 critic 的前面几个 layer 共用同一组参数。那这一组参数可能是 CNN。先把 input 的 pixel 变成比较 high level 的信息，然后再给 actor 去决定说它要采取什么样的行为，给这个 critic，给 value function 去计算 expected reward。
 
+* 第二个 tip 是我们一样需要 exploration 的机制。在做 Actor-Critic 的时候，有一个常见的 exploration 的方法是你会对你的 $\pi$ 的 output 的 distribution 下一个 constrain。这个 constrain 是希望这个 distribution 的 entropy 不要太小，希望这个 distribution 的 entropy 可以大一点，也就是希望不同的 action 它的被采用的机率，平均一点。这样在 testing 的时候，它才会多尝试各种不同的 action，才会把这个环境探索的比较好，才会得到比较好的结果。这个就是 Advantage Actor-Critic。
 
-##  Inverse RL
-
+## A3C
 ![](img/8.7.png)
-为什么叫 Inverse Reinforcement Learning，因为原来的 Reinforcement Learning 里面，有一个环境和一个 reward function。根据环境和 reward function，通过 Reinforcement Learning 这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。但 Inverse Reinforcement Learning 刚好是相反的，你没有 reward function，你只有一堆 expert 的 demonstration。但你还是有环境的。IRL 的做法是说假设我们现在有一堆 expert 的demonstration，我们用 $\hat{\tau}$ 来代表expert 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自动驾驶汽车的话，就是人开自动驾驶汽车的纪录。这一边就是 expert 的 demonstration，每一个 $\tau$ 是一个 trajectory。
 
-
-把所有 expert demonstration 收集起来，然后，使用Inverse Reinforcement Learning 这个技术。使用 Inverse Reinforcement Learning 技术的时候，机器是可以跟环境互动的。但他得不到reward。他的 reward 必须要从 expert 那边推出来，有了环境和 expert demonstration 以后，去反推出 reward function 长什么样子。之前 reinforcement learning 是由 reward function 反推出什么样的 action、actor 是最好的。Inverse Reinforcement Learning 是反过来，我们有expert 的demonstration，我们相信他是不错的，我就反推说，expert 是因为什么样的 reward function 才会采取这些行为。你有了reward function 以后，接下来，你就可以套用一般的 reinforcement learning 的方法去找出 optimal actor。所以 Inverse Reinforcement Learning 是先找出 reward function，找出 reward function 以后，再去用 Reinforcement Learning 找出 optimal actor。
-
-把这个 reward function learn 出来，相较于原来的 Reinforcement Learning 有什么样好处。一个可能的好处是也许 reward function 是比较简单的。也许，虽然这个 expert 的行为非常复杂，但也许简单的 reward function 就可以导致非常复杂的行为。一个例子就是也许人类本身的 reward function 就只有活着这样，每多活一秒，你就加一分。但人类有非常复杂的行为，但是这些复杂的行为，都只是围绕着要从这个 reward function 里面得到分数而已。有时候很简单的 reward function 也许可以推导出非常复杂的行为。
+什么是 A3C 呢？Reinforcement learning 有一个问题就是它很慢。那怎么增加训练的速度呢？这个可以讲到火影忍者就是有一次鸣人说，他想要在一周之内打败晓，所以要加快修行的速度，他老师就教他一个方法，这个方法是说你只要用影分身进行同样修行。那两个一起修行的话呢？经验值累积的速度就会变成2倍，所以，鸣人就开了 1000 个影分身，开始修行了。这个其实就是 Asynchronous(异步的) Advantage Actor-Critic，也就是 A3C 这个方法的精神。
 
 ![](img/8.8.png)
 
-Inverse Reinforcement Learning 实际上是怎么做的呢？首先，我们有一个 expert $\hat{\pi}$，这个 expert 去跟环境互动，给我们很多 $\hat{\tau_1}$ 到 $\hat{\tau_n}$。如果是玩游戏的话，就让某一个电玩高手，去玩 n 场游戏。把 n 场游戏的 state 跟 action 的 sequence 都记录下来。接下来，你有一个actor $\pi$，一开始actor 很烂，这个 actor 也去跟环境互动。他也去玩了n 场游戏，他也有 n 场游戏的纪录。接下来，我们要反推出 reward function。怎么推出 reward function 呢？**原则就是 expert 永远是最棒的，是先射箭，再画靶的概念。**
+A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就是一个影分身。那最后这些影分身会把所有的经验，通通集合在一起。首先你如果没有很多个 CPU，可能也是不好实现的，你可以 implement A2C 就好。
 
-Expert 去玩一玩游戏，得到这一些游戏的纪录，你的 actor 也去玩一玩游戏，得到这些游戏的纪录。接下来，你要定一个 reward function，这个 reward function 的原则就是 expert 得到的分数要比 actor 得到的分数高，先射箭，再画靶。所以我们就 learn 出一个 reward function。你就找出一个 reward function。这个 reward function 会使 expert 所得到的 reward 大过于 actor 所得到的reward。你有了新的 reward function 以后，就可以套用一般 Reinforcement Learning 的方法去learn 一个actor，这个actor 会针对 reward function 去 maximize 他的reward。他也会采取一大堆的action。但是，今天这个 actor 虽然可以 maximize 这个 reward function，采取一大堆的行为，得到一大堆游戏的纪录。
+这个 A3C 是怎么运作的呢？A3C 是这样子，一开始有一个 global network。那我们刚才有讲过说，其实 policy network 跟 value network 是 tie 在一起的，它们的前几个 layer 会被 tie 一起。我们有一个 global network，它们有包含 policy 的部分和 value 的部分。假设它的参数就是 $\theta_1$，你会开很多个 worker。每一个 worker 就用一张 CPU 去跑，比如你就开 8 个 worker ，那你至少 8 张 CPU。第一个 worker 就把 global network 的参数 copy 过来，每一个 worker 工作前都会global network 的参数 copy 过来。接下来你就去跟环境做互动，每一个 actor 去跟环境做互动的时候，为了要 collect 到比较 diverse 的 data，所以举例来说如果是走迷宫的话，可能每一个 actor 起始的位置都会不一样，这样它们才能够收集到比较多样性的 data。每一个 actor 就自己跟环境做互动，互动完之后，你就会计算出 gradient。那计算出 gradient 以后，你要拿 gradient 去 update 你的参数。你就计算一下你的 gradient，然后用你的 gradient 去 update global network 的参数。就是这个 worker 算出 gradient 以后，就把 gradient 传回给中央的控制中心。然后中央的控制中心，就会拿这个 gradient 去 update 原来的参数。但是要注意一下，所有的 actor 都是平行跑的，就每一个 actor 就是各做各的，互相之间就不要管彼此。所以每个人都是去要了一个参数以后，做完就把参数传回去。所以当第一个 worker 做完想要把参数传回去的时候，本来它要的参数是 $\theta_1$，等它要把 gradient 传回去的时候。可能别人已经把原来的参数覆盖掉，变成 $\theta_2$了。但是没有关系，它一样会把这个 gradient 就覆盖过去就是了。Asynchronous actor-critic 就是这么做的，这个就是 A3C。
 
-但接下来，我们就改 reward function。这个 actor 就会很生气，它已经可以在这个reward function 得到高分。但是他得到高分以后，我们就改 reward function，仍然让 expert 可以得到比 actor 更高的分数。这个就是 `Inverse Reinforcement learning`。有了新的 reward function 以后，根据这个新的 reward function，你就可以得到新的 actor，新的 actor 再去跟环境做一下互动，他跟环境做互动以后， 你又会重新定义你的 reward function，让 expert 得到的 reward 比 actor 大。
-
-怎么让 expert 得到的 reward 大过 actor 呢？其实你在 learning 的时候，你可以很简单地做一件事就是，reward function 也许就是 neural network。这个 neural network 就是吃一个 $\tau$，output 就是应该要给这个 $\tau$ 多少的分数。或者说，你假设觉得 input 整个$\tau$ 太难了。因为$\tau$ 是 s 和 a 的一个很强的sequence。也许他就是 input 一个 s 和 a 的 pair，然后 output 一个real number。把整个 sequence，整个$\tau$ 会得到的 real number 都加起来就得到 $R(\tau)$。在training 的时候，对于 $\left\{\hat{\tau}_{1}, \hat{\tau}_{2}, \cdots, \hat{\tau}_{N}\right\}$，我们希望它 output 的 R 越大越好。对于 $\left\{\tau_{1}, \tau_{2}, \cdots, \tau_{N}\right\}$，我们就希望它 R 的值越小越好。
-
-什么叫做一个最好的 reward function。最后你 learn 出来的 reward function 应该就是 expert 和 actor 在这个 reward function 都会得到一样高的分数。最终你的 reward function 没有办法分辨出谁应该会得到比较高的分数。
-
-通常在 train 的时候，你会 iterative 的去做。那今天的状况是这样，最早的 Inverse Reinforcement Learning 对 reward function 有些限制，他是假设 reward function 是 linear 的。如果reward function 是 linear 的话，你可以 prove 这个algorithm 会 converge。但是如果不是 linear 的，你就没有办法 prove 说它会 converge。你有没有觉得这个东西，看起来还挺熟悉呢？其实你只要把他换个名字，说 actor 就是 generator，然后说 reward function 就是discriminator，它就是GAN。所以它会不会收敛这个问题就等于是问说 GAN 会不会收敛。如果你已经实现过，你会知道不一定会收敛。但除非你对 R 下一个非常严格的限制，如果你的 R 是一个 general 的network 的话，你就会有很大的麻烦。
-
-
+ ## Pathwise Derivative Policy Gradient
 ![](img/8.9.png)
 
-那怎么说它像是一个GAN，我们来跟GAN 比较一下。GAN 里面，你有一堆很好的图。然后你有一个generator，一开始他根本不知道要产生什么样的图，他就乱画。然后你有一个discriminator，discriminator 的工作就是给画的图打分，expert 画的图就是高分，generator 画的图就是低分。你有discriminator 以后，generator 会想办法去骗过 discriminator。Generator 会希望 discriminator 也会给它画的图高分。整个 process 跟 Inverse Reinforcement Learning 是一模一样的。
+讲完 A3C 之后，我们要讲另外一个方法叫做 `Pathwise Derivative Policy Gradient`，这个方法很神奇，它可以想成是 Q-learning 解 continuous action 的一种特别的方法。那它也可以想成是一种特别的 Actor-Critic 的方法。
+ 用棋灵王来比喻的话，阿光是一个 actor，佐为是一个 critic。阿光落某一子以后呢，如果佐为是一般的 Actor-Critic，他会告诉他说这时候不应该下小马步飞，他会告诉你，你现在采取的这一步算出来的 value 到底是好还是不好，但这样就结束了，他只告诉你说好还是不好。因为一般的这个 Actor-Critic 里面那个 critic 就是 input state 或 input state 跟 action 的 pair，然后给你一个 value 就结束了。所以对 actor 来说，它只知道它做的这个行为到底是好还是不好。但如果是在pathwise derivative policy gradient 里面，这个 critic 会直接告诉 actor 说采取什么样的 action 才是好的。所以今天佐为不只是告诉阿光说，这个时候不要下小马步飞，同时还告诉阿光说这个时候应该要下大马步飞，所以这个就是Pathwise Derivative Policy Gradient 中的 critic。critic 会直接告诉 actor 做什么样的 action 才可以得到比较大的 value。
 
-* 画的图就是 expert 的 demonstration。generator 就是actor，generator 画很多图，actor 会去跟环境互动，产生很多 trajectory。这些 trajectory 跟环境互动的记录，游戏的纪录其实就是等于 GAN 里面的这些图。
-* 然后你 learn 一个reward function。Reward function 就是 discriminator。Rewards function 要给 expert 的 demonstration 高分，给 actor 互动的结果低分。
-* 接下来，actor 会想办法，从这个已经 learn 出来的 reward function 里面得到高分，然后 iterative 地去循环。跟GAN 其实是一模一样的，我们只是换个说法来而已。
-
-
+从 Q-learning 的观点来看，Q-learning 的一个问题是你没有办法在用 Q-learning 的时候，考虑 continuous vector。其实也不是完全没办法，就是比较麻烦，比较没有 general solution，我们怎么解这个 optimization problem 呢？我们用一个 actor 来解这个 optimization 的 problem。本来在 Q-learning 里面，如果是一个 continuous action，我们要解这个 optimization problem。但是现在这个 optimization problem 由 actor 来解，我们假设 actor 就是一个 solver，这个 solver 的工作就是给你 state, s，然后它就去解解告诉我们说，哪一个 action 可以给我们最大的 Q value，这是从另外一个观点来看 pathwise derivative policy gradient 这件事情。这个说法，你有没有觉得非常的熟悉呢？我们在讲 GAN 的时候，不是也讲过一个说法。我们 learn 一个 discriminator，它是要 evaluate 东西好不好，discriminator 要自己生成东西，非常的困难，那怎么办？因为要解一个 arg max 的 problem 非常的困难，所以用 generator 来生，所以今天的概念其实是一样的。Q 就是那个 discriminator，要根据这个 discriminator 决定 action 非常困难，怎么办？另外 learn 一个 network 来解这个 optimization problem，这个东西就是 actor。所以，两个不同的观点是同一件事，从两个不同的观点来看，一个观点是说，我们可以对原来的 Q-learning 加以改进，怎么改进呢？我们 learn 一个 actor 来决定 action 以解决 arg max 不好解的问题。或是另外一个观点是，原来的 actor-critic 的问题是 critic 并没有给 actor 足够的信息，它只告诉它好或不好，没有告诉它说什么样叫好，那现在有新的方法可以直接告诉 actor 说，什么样叫做好。
 
 ![](img/8.10.png)
 
-IRL 有很多的application，举例来说，可以用开来自动驾驶汽车。然后，有人用这个技术来学开自动驾驶汽车的不同风格，每个人在开车的时候，其实你会有不同风格。举例来说，能不能够压到线，能不能够倒退，要不要遵守交通规则等等。每个人的风格是不同的，然后用 Inverse Reinforcement Learning 可以让自动驾驶汽车学会各种不同的开车风格。
+那我们讲一下它的 algorithm。假设我们 learn 了一个 Q-function，Q-function 就是 input s 跟 a，output 就是 $Q^{\pi}(s,a)$。那接下来，我们要 learn 一个 actor，这个 actor 的工作就是解这个 arg max 的 problem。这个 actor 的工作就是 input 一个 state s，希望可以 output 一个 action a。这个 action a 被丢到 Q-function 以后，它可以让 $Q^{\pi}(s,a)$ 的值越大越好。那实际上在 train 的时候，你其实就是把 Q 跟 actor 接起来变成一个比较大的 network。Q 是一个 network，input s 跟 a，output 一个 value。Actor 在 training 的时候，它要做的事情就是 input s，output a。把 a 丢到 Q 里面，希望 output 的值越大越好。在 train 的时候会把 Q 跟 actor 接起来，当作是一个大的 network。然后你会 fix 住 Q 的参数，只去调 actor 的参数，就用 gradient ascent 的方法去 maximize Q 的 output。这就是一个 GAN，这就是 conditional GAN。Q 就是 discriminator，但在 reinforcement learning 就是 critic，actor 在 GAN 里面就是 generator，其实它们就是同一件事情。
 
 ![](img/8.11.png)
 
-上图是文献上真实的例子，在这个例子里面， Inverse Reinforcement Learning 有一个有趣的地方,通常你不需要太多的 training data，因为 training data 往往都是个位数。因为 Inverse Reinforcement Learning 只是一种 demonstration，只是一种范例，实际上机器可以去跟环境互动非常多次。所以在 Inverse Reinforcement Learning 的文献， 往往会看到说只用几笔 data 就训练出一些有趣的结果。
-
-比如说，在这个例子里面是要让自动驾驶汽车学会在停车场里面停。这边的demonstration 是这样，蓝色是终点，自动驾驶汽车要开到蓝色终点停车。给机器只看一行的四个 demonstration，然后让他去学怎么样开车，最后他就可以学出，在红色的终点位置，如果他要停车的话，他会这样开。今天给机器看不同的demonstration，最后他学出来开车的风格就会不太一样。举例来说，上图第二行是不守规矩的开车方式，因为他会开到道路之外，这边，他会穿过其他的车，然后从这边开进去。所以机器就会学到说，不一定要走在道路上，他可以走非道路的地方。上图第三行是倒退来停车，机器也会学会说，他可以倒退，
+我们来看一下这个 pathwise derivative policy gradient 的算法。一开始你会有一个 actor $\pi$，它去跟环境互动，然后，你可能会要它去 estimate Q value。estimate 完 Q value 以后，你就把 Q value 固定，只去 learn 一个 actor。假设这个 Q 估得是很准的，它知道在某一个 state 采取什么样的 action，会真的得到很大的 value。接下来就 learn 这个 actor，actor 在 given s 的时候，它采取了 a，可以让最后 Q-function 算出来的 value 越大越好。你用这个 criteria 去 update 你的 actor $\pi$。然后有新的 $\pi$ 再去跟环境做互动，再 estimate Q，再得到新的 $\pi$ 去 maximize Q 的 output。本来在 Q-learning 里面，你用得上的技巧，在这边也几乎都用得上，比如说 replay buffer、exploration 等等。
 
 ![](img/8.12.png)
 
-这种技术也可以拿来训练机器人。你可以让机器人，做一些你想要他做的动作，过去如果你要训练机器人，做你想要他做的动作，其实是比较麻烦的。怎么麻烦呢？过去如果你要操控机器的手臂，你要花很多力气去写 program 才让机器做一件很简单的事看。假设你有 Imitation Learning 的技术，你可以让人做一下示范，然后机器就跟着人的示范来进行学习，比如学会摆盘子，拉着机器人的手去摆盘子，机器自己动。让机器学会倒水，人只教他20 次，杯子每次放的位置不太一样。用这种方法来教机械手臂。
+上图是原来 Q-learning 的 algorithm。你有一个 Q-function Q，你有另外一个 target 的 Q-function 叫做 $\hat{Q}$。然后在每一次 training，在每一个 episode 的每一个 timestamp 里面，你会看到一个 state $s_t$，你会 take 某一个 action $a_{t}$。至于 take 哪一个 action 是由 Q-function 所决定的，因为解一个 arg max 的 problem。如果是 discrete 的话没有问题，你就看说哪一个 a 可以让 Q 的 value 最大，就 take 哪一个 action。那你需要加一些 exploration，这样 performance 才会好。你会得到 reward $r_t$，跳到新的 state $s_{t+1}$。你会把 $s_t$, $a_{t}$, $r_t$, $s_{t+1}$ 塞到你的 buffer 里面去。你会从你的 buffer 里面 sample 一个 batch 的 data，这个 batch data 里面，可能某一笔是 $s_i, a_i, r_i, s_{i+1}$。接下来你会算一个 target，这个 target 叫做$y$ ，$y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)$。然后怎么 learn 你的 Q 呢？你希望 $Q(s_i,a_i)$ 跟 y 越接近越好，这是一个 regression 的 problem，最后每 C 个 step，你要把用 Q 替代 $\hat{Q}$ 。
 
-## Third Person lmitation Learning
 ![](img/8.13.png)
 
-其实还有很多相关的研究，举例来说，你在教机械手臂的时候，要注意就是也许机器看到的视野跟人看到的视野是不太一样的。在刚才那个例子里面，人跟机器的动作是一样的。但是在未来的世界里面，也许机器是看着人的行为学的。刚才是人拉着，假设你要让机器学会打高尔夫球，在刚才的例子里面就是人拉着机器人手臂去打高尔夫球，但是在未来有没有可能机器就是看着人打高尔夫球，他自己就学会打高尔夫球了呢？但这个时候，要注意的事情是机器的视野跟他真正去采取这个行为的时候的视野是不一样的。机器必须了解到当他是第三人的视角的时候，看到另外一个人在打高尔夫球，跟他实际上自己去打高尔夫球的时候，看到的视野显然是不一样的。但他怎么把他是第三人的时间所观察到的经验把它 generalize 到他是第一人称视角的时候所采取的行为，这就需要用到`Third Person Imitation Learning`的技术。
+ 接下来我们把它改成 Pathwise Derivative Policy Gradient，这边就是只要做四个改变就好。
 
+* 第一个改变是，你要把 Q 换成 $\pi$，本来是用 Q 来决定在 state $s_t$ 产生那一个 action, $a_{t}$ 现在是直接用 $\pi$ 。我们不用再解 arg max 的 problem 了，我们直接 learn 了一个 actor。这个 actor input $s_t$ 就会告诉我们应该采取哪一个 $a_{t}$。所以本来 input $s_t$，采取哪一个 $a_t$，是 Q 决定的。在 Pathwise Derivative Policy Gradient 里面，我们会直接用 $\pi$ 来决定，这是第一个改变。
+* 第二个改变是，本来这个地方是要计算在 $s_{i+1}$，根据你的 policy 采取某一个 action a 会得到多少的 Q value。那你会采取让 $\hat{Q}$ 最大的那个 action a。那现在因为我们其实不好解这个 arg max 的 problem，所以 arg max problem，其实现在就是由 policy $\pi$ 来解了，所以我们就直接把 $s_{i+1}$ 代到 policy $\pi$ 里面，你就会知道说  given $s_{i+1}$ ，哪一个 action 会给我们最大的 Q value，那你在这边就会 take 那一个 action。在 Q-function 里面，有两个 Q network，一个是真正的 Q network，另外一个是 target Q network。那实际上你在 implement 这个 algorithm 的时候，你也会有两个 actor，你会有一个真正要 learn 的 actor $\pi$，你会有一个 target actor $\hat{\pi}$ 。这个原理就跟为什么要有 target Q network 一样，我们在算 target value 的时候，我们并不希望它一直的变动，所以我们会有一个 target 的 actor 和一个 target 的 Q-function，它们平常的参数就是固定住的，这样可以让你的这个 target 的 value 不会一直地变化。所以本来到底是要用哪一个 action a，你会看说哪一个 action a 可以让 $\hat{Q}$  最大。但现在因为哪一个 action a 可以让 $\hat{Q}$ 最大这件事情已经被用那个 policy 取代掉了，所以我们要知道哪一个 action a 可以让 $\hat{Q}$ 最大，就直接把那个 state 带到 $\hat{\pi}$ 里面，看它得到哪一个 a，就用那一个 a，那一个 a 就是会让 $\hat{Q}(s,a)$ 的值最大的那个 a 。其实跟原来的这个 Q-learning 也是没什么不同，只是原来你要解 arg max 的地方，通通都用 policy 取代掉了，那这个是第二个不同。
+* 第三个不同就是之前只要 learn Q，现在你多 learn 一个 $\pi$，那 learn $\pi$ 的时候的方向是什么呢？learn $\pi$ 的目的，就是为了 maximize Q-function，希望你得到的这个 actor，它可以让你的 Q-function output 越大越好，这个跟 learn GAN 里面的 generator 的概念。其实是一样的。
+* 第四个 step，就跟原来的 Q-function 一样。你要把 target 的 Q network 取代掉，你现在也要把 target policy 取代掉。
+
+## Connection with GAN
 ![](img/8.14.png)
 
-这个怎么做呢？它的技术其实也是不只是用到 Imitation Learning，他用到了 `Domain-Adversarial Training`。我们在讲 Domain-Adversarial Training 的时候，我们有讲说这也是一个GAN 的技术。那我们希望今天有一个 extractor，有两个不同 domain 的image，通过 feature extractor 以后，没有办法分辨出他来自哪一个 domain。其实第一人称视角和第三人称视角，Imitation Learning 用的技术其实也是一样的，希望 learn 一个 Feature Extractor，机器在第三人称的时候跟他在第一人称的时候看到的视野其实是一样的，就是把最重要的东西抽出来就好了。 
-
-## Recap: Sentence Generation & Chat-bot
-![](img/8.15.png)
-
-在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 Imitation Learning。机器在 imitate 人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给他看唐诗三百首。人类写的文字其实就是 expert 的 demonstration。每一个词汇其实就是一个 action。今天，你让机器做Sentence Generation 的时候其实就是在 imitate expert 的trajectory。Chat-bot 也是一样，在Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是 expert 的 demonstration。
-
-如果我们今天单纯用 maximum likelihood 这个技术来 maximize 会得到 likelihood，这个其实就是behavior cloning。我们今天做 behavior cloning 就是看到一个 state，接下来预测我们会得到什么样的 action。看到一个state，然后有一个 ground truth 告诉机器说什么样的 action 是最好的。在做 likelihood 的时候也是一样，given sentence 已经产生的部分。接下来 machine 要 predict 说接下来要写哪一个word 才是最好的。所以，其实 maximum likelihood 在做Sequence generation 的时候，它对应到 Imitation Learning 里面就是 behavior cloning。只有 maximum likelihood 是不够的，我们想要用 Sequence GAN，其实 Sequence GAN 就是对应到 Inverse Reinforcement Learning，Inverse Reinforcement Learning 就是一种 GAN 的技术。你把 Inverse Reinforcement Learning 的技术放在 Sentence generation，放到 Chat-bot 里面，其实就是 Sequence GAN 跟它的种种的变形。
-
+其实 GAN 跟 Actor-Critic 的方法是非常类似的。这边就不细讲，你可以去找到一篇 paper 叫做 `Connecting Generative Adversarial Network and Actor-Critic Methods`。知道 GAN 跟 Actor-Critic 非常像有什么帮助呢？一个很大的帮助就是 GAN 跟 Actor-Critic 都是以难 train 而闻名的。所以在文献上就会收集各式各样的方法，告诉你说怎么样可以把 GAN train 起来。怎么样可以把 Actor-Critic train 起来。但是因为做 GAN 跟 Actor-Critic 的人是两群人，所以这篇 paper 里面就列出说在 GAN 上面有哪些技术是有人做过的，在 Actor-Critic 上面，有哪些技术是有人做过的。也许在 GAN 上面有试过的技术，你可以试着 apply 在 Actor-Critic 上，在 Actor-Critic 上面做过的技术，你可以试着 apply 在 GAN 上面，看看是否 work。
