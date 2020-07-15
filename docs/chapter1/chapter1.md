@@ -1,4 +1,3 @@
-[toc]
 # Reinforement Learning
 
 ## Reinforcement Learning
