@@ -1,5 +1,5 @@
 - 目录
-- [P1 强化学习基础](chapter1/chapter1)
+- [P1 强化学习概述](chapter1/chapter1)
 - [P2 表格型方法](chapter2/chapter2)
 - [P3 策略梯度](chapter3/chapter3)
 - [P4 近端策略优化 (PPO) 算法](chapter4/chapter4)
