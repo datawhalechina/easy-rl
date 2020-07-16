@@ -14,7 +14,7 @@
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
 
 ## 目录
-- [P1 强化学习基础](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1)
+- [P1 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1)
 - [P2 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)
 - [P3 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3)
 - [P4 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)
