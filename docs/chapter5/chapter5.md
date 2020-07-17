@@ -15,17 +15,17 @@ Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我�
 
 这边需要强调的一个点是说，当你在讲这一个 critic 的时候，critic 都是绑一个 actor 的，critic 没有办法去凭空去 evaluate 一个 state 的好坏，它所 evaluate 的东西是在给定某一个 state 的时候， 假设接下来互动的 actor 是 $\pi$，那我会得到多少 reward。因为就算是给同样的 state，你接下来的 $\pi$ 不一样，你得到的 reward 也是不一样的。举例来说，在左边那个case，虽然假设是一个正常的 $\pi$，它可以杀很多怪，那假设他是一个很弱的 $\pi$，它就站在原地不动，然后马上就被射死了，那你得到的 V 还是很小。所以 critic output 值有多大，其实是取决于两件事：state 和 actor。所以你的 critic 其实都要绑一个 actor，它是在衡量某一个 actor 的好坏，而不是 generally 衡量一个 state 的好坏。这边要强调一下，critic output 是跟 actor 有关的，state value 其实是 depend on 你的 actor。当你的 actor 变的时候，state value function 的output 其实也是会跟着改变的。
 
-再来问题就是，怎么衡量这一个 state value function 呢？怎么衡量这一个$V^{\pi}(s)$ 呢？有两种不同的做法。
+### State Value Function Estimation
 
 ![](img/5.2.png)
 
-怎么 estimate 这些critic，那怎么 estimate $V^{\pi}(s)$  呢。有两个方向，一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让 actor 去跟环境做互动，给critic 看。然后，critic 就统计说，actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward 会有多大。但是实际上，你当然不可能把所有的state 通通都扫过。如果你是玩 Atari 游戏的话，你的 state 是 image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个network。对一个network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个 value 的值。
+怎么衡量这个 state value function  $V^{\pi}(s)$ 呢？有两种不同的做法。一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让 actor 去跟环境做互动，给 critic 看。然后，critic 就统计说，actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward 会有多大。但是实际上，你不可能把所有的state 通通都扫过。如果你是玩 Atari 游戏的话，你的 state 是 image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个 network。对一个 network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个 value 的值。
 
 怎么训练这个 network 呢？因为如果在state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果 input 是 state $s_a$，正确的 output 应该是$G_a$。如果 input state $s_b$，正确的output 应该是value $G_b$。所以在 training 的时候， 它就是一个 `regression problem`。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟 $G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把 network train 下去，就结束了。这是第一个方法，MC based 的方法。
 
 ![](img/5.3.png)
 
-第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算 accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有 reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，你可能根本收集不到太多的资料，花的时间太长了。所以我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
+第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算 accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有 reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，花的时间太长了。因此我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
 
 怎么 apply TD 的方法呢？这边是基于以下这个式子：
 $$
@@ -46,7 +46,7 @@ $$
 Var 就是指 variance。 
 通过这个式子，我们知道 $G_a$ 的 variance  相较于某一个 state 的 reward，它会是比较大的，$G_a$ 的variance 是比较大的。
 
-现在，如果说用TD 的话呢？用 TD 的话，你是要去 minimize 这样的一个式子：
+如果用 TD 的话，你是要去 minimize 这样的一个式子：
 
 ![](img/5.5.png)
 
@@ -56,7 +56,7 @@ Var 就是指 variance。
 上图是讲 TD 跟 MC 的差异。假设有某一个 critic，它去观察某一个 policy $\pi$  跟环境互动的 8 个 episode 的结果。有一个actor $\pi$ 跟环境互动了8 次，得到了8 次玩游戏的结果。接下来这个 critic 去估测 state 的 value。
 
 * 我们看看 $s_b$ 的 value 是多少。$s_b$ 这个state 在 8 场游戏里面都有经历过，其中有6 场得到 reward 1，有两场得到 reward 0，所以如果你是要算期望值的话，就看到 state $s_b$ 以后得到的 reward，一直到游戏结束的时候得到的 accumulated reward 期望值是 3/4。
-* 但 $s_a$ 期望的 reward 到底应该是多少呢？这边其实有两个可能的答案：一个是0，一个是3/4。为什么有两个可能的答案呢？这取决于你用MC 还是TD。用MC 跟用TD 算出来的结果是不一样的。
+* 但 $s_a$ 期望的 reward 到底应该是多少呢？这边其实有两个可能的答案：一个是 0，一个是 3/4。为什么有两个可能的答案呢？这取决于你用MC 还是TD。用 MC 跟用 TD 算出来的结果是不一样的。
 
 假如你用 MC 的话，你会发现这个$s_a$ 就出现一次，看到$s_a$ 这个state，接下来 accumulated reward 就是 0。所以今天 $s_a$ expected reward 就是 0。
 
@@ -67,13 +67,13 @@ $$
 
 因为我们在 state $s_a$ 得到 reward r=0 以后，跳到 state $s_b$。所以 state $s_b$ 的 reward 会等于 state $s_b$ 的 reward 加上在state $s_a$ 跳到 state $s_b$ 的时候可能得到的 reward r。而这个得到的 reward r 的值是 0，$s_b$ expected reward 是3/4，那$s_a$ 的reward 应该是3/4。
 
-用 MC 跟 TD 估出来的结果，其实很有可能是不一样的。就算 critic observed 到一样的 training data，它最后估出来的结果。也不见得会是一样。那为什么会这样呢？你可能问说，那一个比较对呢？其实就都对。
+用 MC 跟 TD 估出来的结果，其实很有可能是不一样的。就算 critic 观察到一样的 training data，它最后估出来的结果。也不见得会是一样。那为什么会这样呢？你可能问说，那一个比较对呢？其实就都对。
 
 因为在第一个 trajectory， $s_a$ 得到 reward 0 以后，再跳到 $s_b$ 也得到 reward 0。这边有两个可能。
 
 * 一个可能是$s_a$，它就是一个带 sign 的 state，所以只要看到 $s_a$ 以后，$s_b$ 就会拿不到reward，有可能$s_a$ 其实影响了$s_b$。如果是用 MC 的算法的话，它会把 $s_a$ 影响 $s_b$ 这件事考虑进去。所以看到 $s_a$ 以后，接下来 $s_b$ 就得不到 reward，所以看到$s_a$ 以后，期望的reward 是 0。
 
-* 另一个可能是，看到$s_a$ 以后， $s_b$ 的 reward 是0 这件事只是一个巧合，就并不是 $s_a$ 所造成，而是因为说 $s_b$ 有时候就是会得到 reward 0，这只是单纯运气的问题。其实平常 $s_b$ 会得到 reward 期望值是3/4，跟 $s_a$ 是完全没有关系的。所以假设 $s_a$ 之后会跳到 $s_b$，那其实得到的 reward 按照 TD 来算应该是3/4。
+* 另一个可能是，看到$s_a$ 以后， $s_b$ 的 reward 是0 这件事只是一个巧合，就并不是 $s_a$ 所造成，而是因为说 $s_b$ 有时候就是会得到 reward 0，这只是单纯运气的问题。其实平常 $s_b$ 会得到 reward 期望值是 3/4，跟 $s_a$ 是完全没有关系的。所以假设 $s_a$ 之后会跳到 $s_b$，那其实得到的 reward 按照 TD 来算应该是 3/4。
 
 所以不同的方法考虑了不同的假设，运算结果不同。
 
@@ -295,9 +295,9 @@ $$
 
 但是这样做有什么好处呢？这么做有两个好处。
 
-* 第一个好处，其实在做 reinforcement learning 的时候， 往往最花时间的 step 是在跟环境做互动，train network 反而是比较快的。因为你用 GPU train 其实很快， 真正花时间的往往是在跟环境做互动。用 replay buffer 可以减少跟环境做互动的次数，因为在做 training 的时候，你的experience 不需要通通来自于某一个policy。一些过去的 policy 所得到的 experience 可以放在 buffer 里面被使用很多次，被反复的再利用，这样让你的 sample 到 experience 的利用是比较 efficient。
+* 第一个好处，其实在做 reinforcement learning 的时候， 往往最花时间的 step 是在跟环境做互动，train network 反而是比较快的。因为你用 GPU train 其实很快， 真正花时间的往往是在跟环境做互动。用 replay buffer 可以减少跟环境做互动的次数，因为在做 training 的时候，你的 experience 不需要通通来自于某一个policy。一些过去的 policy 所得到的 experience 可以放在 buffer 里面被使用很多次，被反复的再利用，这样让你的 sample 到 experience 的利用是比较 efficient。
 
-* 第二个好处，在 train network 的时候，其实我们希望一个 batch 里面的 data 越 diverse 越好。如果你的 batch 里面的 data 都是同样性质的，你 train 下去是容易坏掉的。如果 batch 里面都是一样的data，你 train 的时候，performance 会比较差。我们希望 batch data 越 diverse 越好。那如果你今天，你的这个buffer 里面的那些experience 通通来自于不同的policy ，那你sample 到的一个batch 里面的data 会是比较diverse 。
+* 第二个好处，在 train network 的时候，其实我们希望一个 batch 里面的 data 越 diverse 越好。如果你的 batch 里面的 data 都是同样性质的，你 train 下去是容易坏掉的。如果 batch 里面都是一样的 data，你 train 的时候，performance 会比较差。我们希望 batch data 越 diverse 越好。那如果 buffer 里面的那些 experience 通通来自于不同的 policy ，那你 sample 到的一个 batch 里面的 data 会是比较 diverse 。
 
 Q：我们明明是要观察 $\pi$ 的 value，里面混杂了一些不是 $\pi$ 的 experience ，这有没有关系？
 

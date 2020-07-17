@@ -159,7 +159,7 @@ POMDP 可以用一个 7 元组描述：$(S,A,T,R,\Omega,O,\gamma)$，其中 $S$ 
 ## Major Components of an RL Agent 
 
 ![](img/1.25.png)
-对于一个强化学习 agent，它有哪些组成成分，首先 agent 有一个这决策函数，policy function，这个函数是会被 agent 用来选取它下一步的动作。
+对于一个强化学习 agent，它有哪些组成成分，首先 agent 有一个 policy function，这个函数是会被 agent 用来选取它下一步的动作。
 
 然后它也可能生成一个价值函数(value function)。这个价值函数被 agent 用来对现在当前状态进行估价，它就是说你进入现在这个状态，到底可以对你后面的收益带来多大的影响。当这个价值函数大的时候，说明你进入这个状态越有利。
 
@@ -357,10 +357,6 @@ $python
 ![](img/1.45.png)
 在OpenAI Gym 里面有很经典的控制类游戏，比如说 Acrobot，就是把这个两节铁杖，然后甩了立起来。还有 CartPole，通过控制一个平板，让这个木棍立起来。还有 MountainCar 的一个例子，就通过前后移动这个车，让它到达这个旗子的位置。大家可以去[这个链接](https://gym.openai.com/envs/#classic_control)看一看这些环境。在刚开始测试强化学习的时候，可以选择这些简单环境，因为这些环境可能是在一两分钟之内你就可以见到一个效果。
 
-
-
-Gym 官方网站提供了一个简单的例子供我们了解接口(https://gym.openai.com/docs/)。通过这个例子，我们就能知道这个接口的使用方法。
-
 ![](img/1.46.png)
 
 这里我们看一下 CartPole 的这个环境。对于这个环境，有两个动作，Cart 往左移还是往右移。这里得到了观测：它这个车当前的位置，Cart 当前的往左往右移的速度，这个杆的这个角度以及它的杆的最高点的这个速度。
@@ -368,30 +364,21 @@ Gym 官方网站提供了一个简单的例子供我们了解接口(https://gym.
 如果 observation 越详细的话，就可以更好地描述当前这个所有的状态。然后这里有 reward 定义的话，如果能多保留一步，然后你就会得到一个奖励，所以你尽可能多的时间存活来得到更多的奖励。一段游戏，它的终止条件就是说，你没有把这个杆平衡。当这个杆的角度大于某一个角度的时候或者这个车已经出到外面的时候，你就输了。所以这个 agent 的目的就是为了控制这个木棍，让它尽可能地保持平衡以及尽可能保持在这个环境的中央。
 
 ```python
-import gym 
-env = gym.make('CartPole-v0’) 
-env.reset() 
-env.render() # display the rendered scene 
-action = env.action_space.sample() 
-observation, reward, done, info = env.step(action)
-```
-
-如果我们玩这个环境的话，就就直接可以 import gym，调入 CartPole 这个环境。然后这里就可以通过这个采样，然后来执行这个环境。
-
-```python
 import gym  # 导入Gym的Python接口环境包
 env = gym.make('CartPole-v0')  # 构建实验环境
 env.reset()  # 重置一个 episode
 for _ in range(1000):
-    env.render()  # 用于显示渲染的场景
-    action = env.action_space.sample() 
+    env.render()  # 显示图形界面
+    action = env.action_space.sample() # 从动作空间中随机选取一个动作
     env.step(action) # 用于提交动作，括号内是具体的动作
-env.close()
+env.close() # 关闭环境
 ```
 
-当你执行这段代码时，可能会很失望，因为机器人就像个醉汉，完全无视那根本该立起来的杆子，驾驶着小车朝某个方向一通跑，直到不见踪影。别着急，我们还没开始训练机器人呢。
+注意：如果绘制了实验的图形界面窗口，那么关闭该窗口的最佳方式是调用`env.close()`。试图直接关闭图形界面窗口可能会导致内存不能释放，甚至会导致死机。
 
-Gym中的小游戏，大部分都可以用一个普通的实数或者向量来充当动作。打印 `env.action_space.sample()` 的返回值，能看到输出为1或者0。
+当你执行这段代码时，可能会很失望，因为机器人会完全无视那根本该立起来的杆子，驾驶着小车朝某个方向一通跑，直到不见踪影。别着急，我们还没开始训练机器人呢。
+
+Gym 中的小游戏，大部分都可以用一个普通的实数或者向量来充当动作。打印 `env.action_space.sample()` 的返回值，能看到输出为1或者0。
 
 `env.action_space.sample()`的含义是，在该游戏的所有动作空间里随机选择一个作为输出。在这个例子中，意思就是，动作只有两个，一个是 0，另一个是 1，一左一右。
 
@@ -405,11 +392,11 @@ Gym中的小游戏，大部分都可以用一个普通的实数或者向量来�
 在每个训练中都要使用的返回值有observation、reward、done。但是，observation的结构会由于游戏的不同而发生变化。以CartPole-v0小游戏为例，我们修改下代码：
 
 ```python
-import gym  # 导入Gym的Python接口环境包
-env = gym.make('CartPole-v0')  # 构建实验环境
-env.reset()  # 重置一个 episode
+import gym  
+env = gym.make('CartPole-v0')  
+env.reset()  
 for _ in range(1000):
-    env.render()  # 用于显示渲染的场景
+    env.render()  
     action = env.action_space.sample() 
     observation, reward, done, info = env.step(action)
     print(observation)
@@ -429,11 +416,141 @@ env.close()
 
 `env.step()`完成了一个完整的 $S \to A \to R \to S'$ 过程。我们只要不断观测这样的过程，并让机器在其中用相应的算法完成训练，就能得到一个高质量的强化学习模型。
 
+想要查看当前 Gym 库已经注册了哪些环境，可以使用以下代码：
+
+```python
+from gym import envs
+env_specs = envs.registry.all()
+envs_ids = [env_spec.id for env_spec in env_specs]
+print(envs_ids)
+```
+
+每个环境都定义了自己的观测空间和动作空间。环境 env 的观测空间用`env.observation_space`表示，动作空间用 `env.action_space `表示。观测空间和动作空间既可以是离散空间（即取值是有限个离散的值），也可以是连续空间（即取值是连续的）。在Gym库中，离散空间一般用`gym.spaces.Discrete`类表示，连续空间用`gym.spaces.Box`类表示。
+
+例如，环境`'MountainCar-v0'`的观测空间是`Box(2,)`，表示观测可以用 2 个float值表示；环境`'MountainCar-v0'`的动作空间是`Dicrete(3)`，表示动作取值自`{0,1,2}`。对于离散空间，`gym.spaces.Discrete`类实例的成员 n 表示有几个可能的取值；对于连续空间，`Box`类实例的成员 low 和 high 表示每个浮点数的取值范围。
+
+### MountainCar-v0 Example
+
+接下来，我们通过一个例子来学习如何与 Gym 库进行交互。我们选取的 `小车上山(MountainCar-v0)`。
+
+首先我们来看看这个任务的观测空间和动作空间：
+
+```python
+import gym
+env = gym.make('MountainCar-v0')
+print('观测空间 = {}'.format(env.observation_space))
+print('动作空间 = {}'.format(env.action_space))
+print('观测范围 = {} ~ {}'.format(env.observation_space.low,
+        env.observation_space.high))
+print('动作数 = {}'.format(env.action_space.n))
+```
+
+输出：
+
+```
+观测空间 = Box(2,)
+动作空间 = Discrete(3)
+观测范围 = [-1.2  -0.07] ~ [0.6  0.07]
+动作数 = 3
+```
+
+由输出可知，观测空间是形状为 (2,) 的浮点型 np.array，动作空间是取 {0,1,2} 的 int 型数值。
+
+接下来考虑智能体。智能体往往是我们自己实现的。我们可以实现一个智能体类：`BespokeAgent类`，代码如下所示：
+
+```python
+class BespokeAgent:
+    def __init__(self, env):
+        pass
+    
+    def decide(self, observation): # 决策
+        position, velocity = observation
+        lb = min(-0.09 * (position + 0.25) ** 2 + 0.03,
+                0.3 * (position + 0.9) ** 4 - 0.008)
+        ub = -0.07 * (position + 0.38) ** 2 + 0.07
+        if lb < velocity < ub:
+            action = 2
+        else:
+            action = 0
+        return action # 返回动作
+
+    def learn(self, *args): # 学习
+        pass
+    
+agent = BespokeAgent(env)
+```
+
+智能体的 `decide()` 方法实现了决策功能，而 `learn()` 方法实现了学习功能。`BespokeAgent`类是一个比较简单的类，它只能根据给定的数学表达式进行决策，并且不能有效学习。所以它并不是一个真正意义上的强化学习智能体类。但是，用于演示智能体和环境的交互已经足够了。
+
+接下来我们试图让智能体与环境交互，代码如下所示：
+
+```python
+def play_montecarlo(env, agent, render=False, train=False):
+    episode_reward = 0. # 记录回合总奖励，初始化为0
+    observation = env.reset() # 重置游戏环境，开始新回合
+    while True: # 不断循环，直到回合结束
+        if render: # 判断是否显示
+            env.render() # 显示图形界面，图形界面可以用 env.close() 语句关闭
+        action = agent.decide(observation)
+        next_observation, reward, done, _ = env.step(action) # 执行动作
+        episode_reward += reward # 收集回合奖励
+        if train: # 判断是否训练智能体
+            agent.learn(observation, action, reward, done) # 学习
+        if done: # 回合结束，跳出循环
+            break
+        observation = next_observation
+    return episode_reward # 返回回合总奖励
+```
+
+上面代码中的 `play_montecarlo`  函数可以让智能体和环境交互一个回合。这个函数有 4 个参数：
+
+* `env` 是环境类
+* `agent` 是智能体类
+*  `render`是 bool 类型变量，指示在运行过程中是否要图形化显示。如果函数参数 render为 True，那么在交互过程中会调用 `env.render()` 以显示图形化界面，而这个界面可以通过调用 `env.close()` 关闭。
+* `train`是 bool 类型的变量，指示在运行过程中是否训练智能体。在训练过程中应当设置为 True，以调用 `agent.learn()` 函数；在测试过程中应当设置为 False，使得智能体不变。
+
+这个函数有一个返回值 `episode_reward`，是 float 类型的数值，表示智能体与环境交互一个回合的回合总奖励。
+
+接下来，我们使用下列代码让智能体和环境交互一个回合，并在交互过程中图形化显示，可用 `env.close()` 语句关闭图形化界面。
+
+```python
+env.seed(0) # 设置随机数种子,只是为了让结果可以精确复现,一般情况下可删去
+episode_reward = play_montecarlo(env, agent, render=True)
+print('回合奖励 = {}'.format(episode_reward))
+env.close() # 此语句可关闭图形界面
+```
+
+输出：
+
+```
+回合奖励 = -105.0
+```
+
+为了系统评估智能体的性能，下列代码求出了连续交互 100 回合的平均回合奖励。
+
+```python
+episode_rewards = [play_montecarlo(env, agent) for _ in range(100)]
+print('平均回合奖励 = {}'.format(np.mean(episode_rewards)))
+```
+
+输出：
+
+```
+平均回合奖励 = -102.61
+```
+
+小车上山环境有一个参考的回合奖励值 -110，如果当连续 100 个回合的平均回合奖励大于 -110，则认为这个任务被解决了。`BespokeAgent` 类对应的策略的平均回合奖励大概就在 -110 左右。
+
+测试 agent 在 Gym 库中某个任务的性能时，学术界一般最关心 100 个回合的平均回合奖励。至于为什么是 100 个回合而不是其他回合数（比如 128 个回合），完全是习惯使然，没有什么特别的原因。对于有些环境，还会指定一个参考的回合奖励值，当连续 100 个回合的奖励大于指定的值时，就认为这个任务被解决了。但是，并不是所有的任务都指定了这样的值。对于没有指定值的任务，就无所谓任务被解决了或者没有被解决。
+
+最后提一下，Gym 有对应的[官方文档](https://gym.openai.com/docs/)，大家可以阅读文档来学习 Gym。
+
 ##  References
 
 * [百面深度学习](https://book.douban.com/subject/35043939/)
+* [强化学习：原理与Python实现](https://book.douban.com/subject/34478302/)
 * [白话强化学习与PyTorch](https://book.douban.com/subject/34809676/)
-* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/algorithms/ddpg.html#)
+* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#)
 
 
 
