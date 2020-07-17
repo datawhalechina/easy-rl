@@ -164,24 +164,6 @@ Sarsa 实际上都是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。�
 
 然后Q-learning 的这个逐步的一个拆解的话，跟Sarsa 唯一一点不一样就是我并不需要提前知道我 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-leanring 在 learn 之前它也不需要去拿到 next action A'，它只需要前面四个 $(S,A,R,S')$也就可以了。这一点就是跟 Sarsa 有一个很明显的区别。
 
-初始状态为$s$并进行动作 $a$，然后执行策略 $\pi$ 得到的期望总回报，称为`状态-动作值函数(State-Action Value Function)`：
-$$
-Q^{\pi}(s, a)=\mathbb{E}_{s^{\prime} \sim p\left(s^{\prime} | s, a\right)}\left[r\left(s, a, s^{\prime}\right)+\gamma V^{\pi}\left(s^{\prime}\right)\right] \qquad(1)
-$$
-
-状态-动作值函数也经常称为`Q 函数(Q-Function)`。
-
-状态值函数$V^{\pi}(s)$ 是 Q-Function $Q^{\pi}(s,a)$ 关于动作 $a$ 的期望，即
-$$
-V^{\pi}(s)=\mathbb{E}_{a \sim \pi(a | s)}\left[Q^{\pi}(s, a)\right] \qquad(2)
-$$
-
-结合公式(1) 和公式(2)，Q-Function可以写为
-$$
-Q^{\pi}(s, a)=\mathbb{E}_{s^{\prime} \sim p\left(s^{\prime} | s, a\right)}\left[r\left(s, a, s^{\prime}\right)+\gamma \mathbb{E}_{a^{\prime} \sim \pi\left(a^{\prime} | s^{\prime}\right)}\left[Q^{\pi}\left(s^{\prime}, a^{\prime}\right)\right]\right]
-$$
-这是关于 Q-Function 的 Bellman Equation。
-
 ### Bellman Equation
 
 记策略 $\pi $ 的状态-动作值函数为 $Q^{\pi}(s_t,a_t)$，它表示在状态 $s_t$ 下，执行动作 $a_t$ 会带来的累积奖励 $G_t$ 的期望，具体公式为：
