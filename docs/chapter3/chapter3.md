@@ -218,20 +218,22 @@ $$
 ![](img/3.18.png)
 **接下来再更进一步，我们把未来的 reward 做一个 discount**，由此得到的回报被称为 `Discounted Return(折扣回报)`。为什么要把未来的 reward 做一个 discount 呢？因为虽然在某一个时间点，执行某一个 action，会影响接下来所有的结果，有可能在某一个时间点执行的 action，接下来得到的 reward 都是这个 action 的功劳。但在比较真实的情况下， 如果时间拖得越长，影响力就越小。 比如说在第二个时间点执行某一个 action， 那我在第三个时间点得到的 reward 可能是在第二个时间点执行某个 action 的功劳，但是在 100 个 timestamp 之后，又得到 reward，那可能就不是在第二个时间点执行某一个 action 得到的功劳。 所以我们实际上在做的时候，你会在 R 前面乘上一个 `discount factor`  $\gamma$， $\gamma \in [0,1] $ ，一般会设个 0.9 或 0.99，
 
-* $\gamma = 0$ : Only care about the immediate reward；
-* $\gamma = 1$ : Future reward is equal to the immediate reward。
+* $\gamma = 0$ : 只关心即时奖励； 
+* $\gamma = 1$ : 未来奖励等同于即时奖励。
 
  如果 time stamp $t'$ 越大，它前面就乘上越多次的 $\gamma$，就代表说现在在某一个 state $s_t$， 执行某一个 action $a_t$ 的时候，它真正的 credit 是在执行这个 action 之后所有 reward 的总和，而且你还要乘上 $\gamma$。
 
 举一个例子， 你就想成说，这是游戏的第 1、2、3、4 回合，那你在游戏的第二回合的某一个  $s_t$ 你执行 $a_t$，它真正的 credit 得到的分数应该是，假设你这边得到 +1 分 这边得到 +3 分，这边得到 -5 分，它的真正的 credit，应该是 1 加上一个 discount 的 credit 叫做 $\gamma$ 乘上 3，再加上 $\gamma^2$ 乘上 -5。
 
-如果大家可以接受这样子的话， 实际上就是这么 implement 的。这个 b 可以是 state-dependent 的，事实上 b 它通常是一个 network estimate 出来的，它是一个 network 的 output。
+如果大家可以接受这样子的话， 实际上就是这么 implement 的。这个 b 可以是 state-dependent 的，事实上 b 它通常是一个 network 估计出来的，它是一个 network 的 output。
 
 ![](img/3.19.png)
 
 把 $R-b$ 这一项合起来，我们统称为` advantage function`， 用 `A` 来代表 advantage function。Advantage function 是 dependent on s and a，我们就是要计算的是在某一个 state s 采取某一个 action a 的时候，advantage function 有多大。
 
-这个 advantage function 它的上标是 $\theta$， $\theta$ 是什么意思呢？ 因为在算 advantage function时，你要计算$\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}$ ，你会需要有一个 interaction 的结果。你会需要有一个 model 去跟环境做 interaction，你才知道你接下来得到的 reward 会有多少。这个 $\theta$ 就是代表说是用 $\theta$ 这个 model 跟环境去做 interaction，然后你才计算出这一项。从时间 t 开始到游戏结束为止，所有 R 的 summation 把这一项减掉 b，然后这个就叫 advantage function。它的意义就是，假设我们在某一个 state $s_t$ 执行某一个 action $a_t$，相较于其他可能的 action，它有多好。它真正在意的不是一个绝对的好， 而是说在同样的 state 的时候 是采取某一个 action $a_t$ 相较于其它的 action 它有多好，它是相对的好。因为会减掉一个 b，减掉一个 baseline， 所以这个东西是相对的好，不是绝对的好。 $A^{\theta}\left(s_{t}, a_{t}\right)$ 通常可以是由一个 network estimate 出来的，这个 network 叫做 critic。 
+在算 advantage function 时，你要计算$\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}$ ，你会需要有一个互动的结果。你会需要有一个 model 去跟环境做互动，你才知道接下来得到的 reward 会有多少。这个 advantage function 的上标是 $\theta$，$\theta$ 就是代表说是用 $\theta$ 这个 model 跟环境去做互动，然后你才计算出这一项。从时间 t 开始到游戏结束为止，所有 r 的加和减掉 b，这个就叫 advantage function。
+
+Advantage function 的意义就是，假设我们在某一个 state $s_t$ 执行某一个 action $a_t$，相较于其他可能的 action，它有多好。它在意的不是一个绝对的好，而是相对的好，即`相对优势(relative advantage)`。因为会减掉一个 b，减掉一个 baseline， 所以这个东西是相对的好，不是绝对的好。 $A^{\theta}\left(s_{t}, a_{t}\right)$ 通常可以是由一个 network estimate 出来的，这个 network 叫做 critic。 
 
 ## References
 
