@@ -144,7 +144,7 @@ Q-function 有两种写法：
 ![](img/5.10.png)
 上图就是讲我们刚才讲的到底是什么。
 
-* 首先要定义的是什么叫做比较好？我们说$\pi'$ 一定会比$\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的state s 而言，对同一个state s 而言，$\pi$ 的 value function 一定会小于$\pi'$ 的value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用$\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个state，你用$\pi'$ 去做interaction，得到的expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个policy。
+* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的 state s 而言，对同一个 state s 而言，$\pi$ 的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个policy。
 
 * 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？事实上这个 $\pi'$ 是什么？这个$\pi'$ 就是， 如果你根据以下的这个式子去决定你的action，
 
@@ -293,13 +293,9 @@ $$
 
 有两个方法解这个问题，一个是`Epsilon Greedy`。Epsilon Greedy 的意思是说，我们有$1-\varepsilon$ 的机率，通常$\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是90%，也就是90% 的机率，完全按照Q-function 来决定action。但是你有10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。也就是在最开始的时候。因为还不知道那个action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着training 的次数越来越多。已经比较确定说哪一个Q 是比较好的。你就会减少你的exploration，你会把 $\varepsilon$ 的值变小，主要根据Q-function 来决定你的action，比较少做random，这是Epsilon Greedy。
 
-还有一个方法叫做 `Boltzmann Exploration`，这个方法就比较像是 policy gradient。在 policy gradient 里面我们说network 的output 是一个 expected action space 上面的一个的 probability distribution。再根据 probability distribution 去做 sample。那其实你也可以根据 Q value 去定一个 probability distribution，假设某一个 action 的 Q value 越大，代表它越好，那我们采取这个 action 的机率就越高。但是某一个 action 的 Q value 小，不代表我们不能try，try 看它好不好用。所以我们有时候也要 try，try 那些 Q value 比较差的 action，怎么做呢？因为 Q value 是有正有负的，所以你要把它弄成一个概率，你可能就先取 exponential，再做 normalize。然后把 $exp(Q(s,a))$ 做 normalize 的这个概率当作是你在决定 action 的时候 sample 的概率。在实现上，Q 是一个 network，所以你有点难知道， 在一开始的时候 network 的 output 到底会长怎么样子。假设你一开始没有任何的 training data，你的参数是随机的，那给定某一个 state s，不同的 a output 的值，可能就是差不多的，所以一开始$ Q(s,a)$ 应该会倾向于是 uniform。也就是在一开始的时候，你这个probability distribution 算出来，它可能是比较 uniform 的。
+还有一个方法叫做 `Boltzmann Exploration`，这个方法就比较像是 policy gradient。在 policy gradient 里面我们说network 的output 是一个 expected action space 上面的一个的 probability distribution。再根据 probability distribution 去做 sample。那其实你也可以根据 Q value 去定一个 probability distribution，假设某一个 action 的 Q value 越大，代表它越好，我们采取这个 action 的机率就越高。但是某一个 action 的 Q value 小，不代表我们不能try。所以我们有时候也要 try 那些 Q value 比较差的 action，怎么做呢？
 
-
-
-
-
-
+因为 Q value 是有正有负的，所以可以它弄成一个概率，你先取 exponential，再做 normalize。然后把 $\exp(Q(s,a))$ 做 normalize 的这个概率当作是你在决定 action 的时候 sample 的概率。在实现上，Q 是一个 network，所以你有点难知道， 在一开始的时候 network 的 output 到底会长怎么样子。假设你一开始没有任何的 training data，你的参数是随机的，那给定某一个 state s，不同的 a output 的值，可能就是差不多的，所以一开始 $Q(s,a)$ 应该会倾向于是 uniform。也就是在一开始的时候，你这 个 probability distribution 算出来，它可能是比较 uniform 的。
 
 ## Experience Replay
 
@@ -337,7 +333,14 @@ A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， �
 $$
 y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
 $$
-其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。最后，我们给出 [DQN 的 PyTorch 实现](https://github.com/qfettes/DeepRL-Tutorials/blob/master/01.DQN.ipynb) 。
+其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。我们给出 [DQN 的 PyTorch 实现](https://github.com/qfettes/DeepRL-Tutorials/blob/master/01.DQN.ipynb) 。
+
+Q: DQN 和 Q-learning 有什么不同？
+
+A: 整体来说，DQN 与 Q-learning 的目标价值以及价值的更新方式都非常相似，主要的不同点在于：
+
+* DQN 将 Q-learning 与深度学习结合，用深度网络来近似动作价值函数，而 Q-learning 则是采用表格存储；
+* DQN 采用了经验回放的训练方法，从历史数据中随机采样，而 Q-learning 直接采用下一个状态的数据进行学习。
 
 ## References
 
