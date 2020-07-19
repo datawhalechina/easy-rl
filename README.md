@@ -4,9 +4,9 @@
 
 ## 使用说明
 
-* 第 1 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
 * 第 3 章到第 10 章为李宏毅《深度强化学习》课程的部分；
-* 第 2 章和第 9 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
+* 第 1 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
+* 第 2 章和第 11 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
 
 
 ## 笔记在线阅读地址

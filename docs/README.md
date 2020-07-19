@@ -2,10 +2,9 @@
 李宏毅老师的《深度强化学习》是强化学习领域经典的中文视频之一。李老师幽默风趣的上课风格让晦涩难懂的强化学习理论变得轻松易懂，他会通过很多有趣的例子来讲解强化学习理论。比如老师经常会用玩 Atari 游戏的例子来讲解强化学习算法。对于想入门强化学习又想看中文讲解的人来说绝对是非常推荐的。
 
 ## 使用说明
-
-* 第 1 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
 * 第 3 章到第 10 章为李宏毅《深度强化学习》课程的部分；
-* 第 2 章和第 9 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
+* 第 1 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
+* 第 2 章和第 11 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
 
 ## 笔记在线阅读地址
 在线阅读地址：https://datawhalechina.github.io/leedeeprl-notes/
