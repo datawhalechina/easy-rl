@@ -6,6 +6,8 @@
 
 Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我们 learn 的不是 policy，我们要 learn 的是一个 `critic`。Critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或是有多不好。假设有一个 actor $\pi$ ，critic 的工作就是来评价这个 actor 的 policy $\pi$  好还是不好，即 `Policy Evaluation(策略评估)`。
 
+> 注：李宏毅深度强化学习课程提到的 Q-learning，其实是 DQN。
+
 举例来说，有一种 critic 叫做 `state value function`。State value function 的意思就是说，假设 actor 叫做 $\pi$，拿 $\pi$  跟环境去做互动。假设 $\pi$  看到了某一个state s，如果在玩 Atari 游戏的话，state s 是某一个画面，看到某一个画面的时候，接下来一直玩到游戏结束，累积的 reward 的期望值有多大。所以 $V^{\pi}$ 是一个function，这个 function input 一个 state，然后它会 output 一个 scalar。这个 scalar 代表说，$\pi$ 这个 actor 看到 state s 的时候，接下来预期到游戏结束的时候，它可以得到多大的 value。
 
 举个例子，假设你是玩 space invader 的话，
