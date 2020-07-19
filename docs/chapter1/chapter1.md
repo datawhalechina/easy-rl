@@ -434,7 +434,7 @@ print(envs_ids)
 
 ### MountainCar-v0 Example
 
-接下来，我们通过一个例子来学习如何与 Gym 库进行交互。我们选取的 `小车上山(MountainCar-v0)`。
+接下来，我们通过一个例子来学习如何与 Gym 库进行交互。我们选取 `小车上山(MountainCar-v0)`作为例子。
 
 首先我们来看看这个任务的观测空间和动作空间：
 
