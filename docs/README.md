@@ -29,6 +29,7 @@
 ## 主要贡献者
 
 - [@qiwang067](https://github.com/qiwang067)
+- [@JohnJim0816](https://github.com/JohnJim0816)
 
 ## 关注我们
 
