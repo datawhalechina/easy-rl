@@ -125,7 +125,7 @@ $$
 
 然后从环境当中拿到那 state 和 reward。Agent 主要实现两个方法，一个就是根据 Q 表格去选择动作，输出 action。另外一个就是拿到 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$  这几个值去更新我们的 Q 表格。
 
-![](img/2.16.png)我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值来更新这一步的 Q 值，不断地强化每一个 Q。这边我们给出 [Sarsa 的 Python 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/docs/code/Sarsa)。
+![](img/2.16.png)我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值来更新这一步的 Q 值，不断地强化每一个 Q。这边我们给出 [Sarsa 的 Python 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Sarsa)。
 
 ## Sarsa(λ) 
 
@@ -183,7 +183,7 @@ Sarsa 和 Q-learning 的更新公式都是一样的，区别只在 target 计算
 
 Sarsa 实际上都是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 $Q(S_{t+1},A_{t+1})$ 去更新原本的 Q 值 $Q(S_t,A_t)$。 但是 Q-learning 并不需要知道，我实际上选择哪一个 action ，它默认下一个动作就是 Q 最大的那个动作。Q-learning 知道实际上 behavior policy 可能会有 10% 的概率去选择别的动作，但是 Q-learning 并不担心受到探索的影响，它默认了就按照最优的策略来去优化我的目标策略，所以它可以更大胆地去寻找最优的路径，它其实会表现的比 Sarsa 大胆非常多。
 
-然后 Q-learning 的这个逐步的一个拆解的话，跟 Sarsa 唯一一点不一样就是我并不需要提前知道我 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action A'，它只需要前面四个 $(S,A,R,S')$也就可以了，这一点就是跟 Sarsa 有一个很明显的区别。这边我们给出[ Q-learning 的 Python实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/docs/code/Q-learning)。
+然后 Q-learning 的这个逐步的一个拆解的话，跟 Sarsa 唯一一点不一样就是我并不需要提前知道我 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action A'，它只需要前面四个 $(S,A,R,S')$也就可以了，这一点就是跟 Sarsa 有一个很明显的区别。这边我们给出[ Q-learning 的 Python实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Q-learning)。
 
 ### Q-function Bellman Equation
 
