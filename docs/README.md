@@ -28,8 +28,10 @@
 
 ## 主要贡献者
 
-- [@qiwang067](https://github.com/qiwang067)
-- [@JohnJim0816](https://github.com/JohnJim0816)
+| 作者 | 贡献 |
+|------|------|
+|   [@qiwang067](https://github.com/qiwang067)   |   撰写笔记、传统 RL 代码   |
+|  [@JohnJim0816](https://github.com/JohnJim0816)    |   DRL 代码   |
 
 ## 关注我们
 
