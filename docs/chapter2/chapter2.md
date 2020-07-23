@@ -238,6 +238,8 @@ $$
 
 * [百面深度学习](https://book.douban.com/subject/35043939/)
 
+* [神经网络与深度学习](https://nndl.github.io/)
+
 
 
 
