@@ -1,100 +1,81 @@
-# Imitation Learning 
+# Sparse Reward 
+实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到 reward 的情况下，对 agent 来说它的训练是非常困难的。举例来说，假设你今天要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样得好。所以，它最后什么都不会学到。如果环境中的 reward 非常的 sparse，reinforcement learning 的问题就会变得非常的困难。但是人类可以在非常 sparse 的 reward 上面去学习，我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么 reward 或是 penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
+
+怎么解决 sparse reward 的这件事情呢？我们等一下会讲三个方向。
+## Reward Shaping
 ![](img/10.1.png)
-`Imitation learning` 讨论的问题是，假设我们连 reward 都没有，那要怎么办呢？Imitation learning 又叫做 `learning from demonstration(示范学习)` ，`apprenticeship learning(学徒学习)`，`learning by watching(观察学习)`。在 Imitation learning 里面，你有一些 expert 的 demonstration，那 machine 也可以跟环境互动，但它没有办法从环境里面得到任何的 reward，它只能看着 expert 的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的 reward。举例来说，如果是棋类游戏或者是电玩，你有非常明确的 reward。但是其实多数的任务，都是没有 reward 的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的 reward。所以很多 task 是根本就没有办法给出 reward 的。
 
-虽然没有办法给出 reward，但是收集 expert 的 demonstration 是可以做到的。举例来说，在自动驾驶汽车里面，虽然你没有办法给出自动驾驶汽车的 reward，但你可以收集很多人类开车的纪录。在 chat-bot 里面，你可能没有办法定义什么叫做好的对话，什么叫做不好的对话。但是收集很多人的对话当作范例，这一件事情也是可行的。所以 imitation learning 的使用性非常高。假设你不知道该怎么定义 reward，你就可以收集到 expert 的 demonstration，你可以收集到一些范例的话，你可以收集到一些很厉害的 agent，比如说人跟环境实际上的互动的话，那你就可以考虑 imitation learning 这个技术。在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者又叫做 `Inverse Optimal Control`。
+第一个方向叫做 `reward shaping`，reward shaping 的意思是说环境有一个固定的 reward，它是真正的 reward，但是我们为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些 reward 来引导我们的 agent。举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可 以take 两个 actions，一个action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到 reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在 100 个小时后，他可以得到 reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是 accumulated reward，但也许对小孩来说，他的 discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多 experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的 reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。Reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些 reward，它不是环境真正的 reward。在玩 Atari 游戏里面，真的 reward 是游戏主机给你的 reward，但你自己去设计一些 reward 好引导你的 machine，做你想要它做的事情。
 
-##  Behavior Cloning
 ![](img/10.2.png)
 
-其实 `Behavior Cloning` 跟 supervised learning 是一模一样的。我们以自动驾驶汽车为例，你可以收集到人开自动驾驶汽车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了，这个就叫做 Behavior Cloning。Expert 做什么，机器就做一模一样的事，怎么让机器学会跟 expert 一模一样的行为呢？就把它当作一个 supervised learning 的问题，你去收集很多行车纪录器。然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取action $a_1$，人在state $s_2$ 会采取action $a_2$。人在state, $s_3$ 会采取action $a_3$。接下来，你就learn 一个 network。这个 network 就是你的 actor，他input $s_i$ 的时候，你就希望他的output 是$a_i$，就这样结束了。它就是一个的 supervised learning 的problem。
+举例来说，这个例子是 Facebook 玩 VizDoom 的 agent。VizDoom 是一个第一人射击游戏，在这个射击游戏中，杀了敌人就得到 positive reward，被杀就得到 negative reward。他们设计了一些新的 reward，用新的 reward 来引导 agent 让他们做得更好，这不是游戏中真正的 reward。
 
+比如说掉血就扣 0.05 的分数，弹药减少就扣分，捡到补给包就加分，呆在原地就扣分，移动就加分。 活着会扣一个很小的分数，因为不这样做的话，machine 会只想活着，一直躲避敌人，这样会让 machine 好战一点。表格中的参数都是调出来的。
+
+Reward shaping是有问题的，因为我们需要 domain knowledge，举例来说，机器人想要学会的事情是把蓝色的板子从这个柱子穿过去。机器人很难学会，我们可以做 Reward Shaping。一个貌似合理的说法是，蓝色的板子离柱子越近，reward 越大。但是 machine 靠近的方式会有问题，它会用蓝色的板子打柱子。而我们要把蓝色板子放在柱子上面去，才能把蓝色板子穿过柱子。 这种 reward shaping的方式是没有帮助的，那至于什么 reward shaping 有帮助，什么 reward shaping 没帮助，会变成一个 domain knowledge，你要去调的。
+
+##  Curiosity
 ![](img/10.3.png)
 
-Behavior Cloning 虽然非常简单，但它的问题是如果你只收集expert 的资料，你可能看过的 observation 会是非常 limited。举例来说，假设你要 learn 一部自动驾驶汽车，自动驾驶汽车就是要过这个弯道。如果是 expert 的话，他就是把车顺着这个红线就开过去了。但假设你的 agent 很笨，他今天开着开着，就开到撞墙了，他永远不知道撞墙这种状况要怎么处理，为什么？因为 training data 里面从来没有撞过墙，所以他根本就不知道撞墙这一种 case 要怎么处理。或是打电玩，电玩也是一样，让人去玩 Mario，那 expert 可能非常强，他从来不会跳不上水管，所以机器根本不知道跳不上水管时要怎么处理。人从来不会跳不上水管，但是机器如果跳不上水管时，就不知道要怎么处理。所以光是做Behavior Cloning 是不够的。只观察 expert 的行为是不够的，需要一个招数，这个招数叫作`Dataset Aggregation`。
+接下来就是介绍各种你可以自己加进去，in general 看起来是有用的 reward。举例来说，一个技术是给 machine 加上 curiosity，所以叫 `curiosity driven reward`。上图是我们之前讲 Actor-Critic 的时候看过的图。我们有一个 reward function，它给你某一个s tate，给你某一个 action，它就会评断说在这个 state 采取 这个action 得到多少的 reward。那我们当然希望 total reward 越大越好。在 curiosity driven 的这种技术里面，你会加上一个新的 reward function。这个新的 reward function 叫做 `ICM(intrinsic curiosity module)`，它就是要给机器加上好奇心。ICM 会吃 3 个东西，它会吃 state $s_1$、action $a_1$ 和 state $s_2$。根据$s_1$ 、$a_1$、 $a_2$，它会 output 另外一个 reward，我们这边叫做 $r_1^i$。对 machine 来说，total reward 并不是只有 r 而已，还有 $r^i$。它不是只有把所有的 r 都加起来，它还把所有 $r^i$ 加起来当作total reward。所以，它在跟环境互动的时候，它不是只希望 r 越大越好，它还同时希望 $r^i$ 越大越好，它希望从 ICM 的 module 里面得到的 reward 越大越好。ICM 就代表了一种curiosity。
+
 
 ![](img/10.4.png)
 
-我们会希望收集更多样性的 data，而不是只收集 expert 所看到的 observation。我们会希望能够收集 expert 在各种极端的情况下，他会采取什么样的行为。以自动驾驶汽车为例的话，假设一开始，你的actor 叫作 $\pi_1$，你让 $\pi_1$去开这个车。但车上坐了一个 expert。这个 expert 会不断地告诉machine 说，如果在这个情境里面，我会怎么样开。所以 $\pi_1$ 自己开自己的，但是expert 会不断地表示他的想法。比如说，在这个时候，expert 可能说那就往前走。这个时候，expert 可能就会说往右转。但 $\pi_1$ 是不管 expert 的指令的，所以他会继续去撞墙。虽然 expert 说往右转，但是不管他怎么下指令都是没有用的。$\pi_1$ 会自己做自己的事情，因为我们要做的记录的是说，今天expert 在 $\pi_1$ 看到这种observation 的情况下，他会做什么样的反应。这个方法显然是有一些问题的，因为每次你开一次自动驾驶汽车都会牺牲一个人。那你用这个方法，你牺牲一个expert 以后，你就会得到说，人类在这样子的 state 下，在快要撞墙的时候，会采取什么样的反应。再把这个data 拿去train 新的 $\pi_2$。这个process 就反复继续下去，这个方法就叫做`Dataset Aggregation`。
+怎么设计这个 ICM ？这个是最原始的设计。这个设计是这样。curiosity module 就是 input 3 个东西，input 现在的 state，input 在这个 state 采取的 action，然后接 input 下一个 state $s_{t+1}$。接下来会 output 一个 reward $r^i_t$。那这个 $r^i_t$  是怎么算出来的呢？在 ICM 里面，你有一个 network，这个 network 会 take $a_t$ 跟$s_t$，然后去 output $\hat{s}_{t+1}$，也就是这个 network 根据 $a_t$ 和 $s_t$ 去 predict  $\hat{s}_{t+1}$ 。接下来再看说，这个 network 的预测  $\hat{s}_{t+1}$ 跟真实的情况 $s_{t+1}$ 像不像，越不像那得到的 reward 就越大。所以这个 reward $r_t^i$ 的意思是说，如果未来的 state 越难被预测的话，那得到的 reward 就越大。这就是鼓励 machine 去冒险，现在采取这个 action，未来会发生什么事越没有办法预测的话，这个 action 的 reward 就大。所以如果有这样子的 ICM，machine 就会倾向于采取一些风险比较大的 action，它想要去探索未知的世界，它想要去看看说，假设某一个 state 是它没有办法预测，它会特别去想要采取那个 state，这可以增加 machine exploration 的能力。
 
-
+这个 network 1 其实是另外 train 出来的。Training 的时候，这个network 1，你会给它 $a_t$、 $s_t$、 $s_{t+1}$，然后让这个network 1 去学说 given $a_t, s_t$，怎么 predict $\hat{s}_{t+1}$。Apply 到 agent 互动的时候，其实要把 ICM module fix 住。其实，这一整个想法里面是有一个问题的。这个问题是某一些 state它很难被预测并不代表它就是好的，它就应该要去被尝试的。举例来说，俄罗斯轮盘的结果也是没有办法预测的，并不代表说，人应该每天去玩俄罗斯轮盘这样子。所以只是鼓励 machine 去冒险是不够的，因为如果光是只有这个 network 的架构，machine 只知道说什么东西它无法预测。如果在某一个 state 采取某一个 action，它无法预测接下来结果，它就会采取那个action，但并不代表这样的结果一定是好的。举例来说，可能在某个游戏里面，背景会有风吹草动，会有树叶飘动。那也许树叶飘动这件事情，是很难被预测的，对 machine 来说它在某一个 state 什么都不做，看着树叶飘动，然后，发现这个树叶飘动是没有办法预测的，接下来它就会一直站在那边，看树叶飘动。所以说，光是有好奇心是不够的，还要让它知道说，什么事情是真正重要的。
 
 ![](img/10.5.png)
 
-Behavior Cloning 还有一个 issue 是说，机器会完全 copy expert 的行为，不管 expert 的行为是否有道理，就算没有道理，没有什么用的，这是expert 本身的习惯，机器也会硬把它记下来。如果机器确实可以记住所有 expert 的行为，那也许还好，为什么呢？因为如果 expert 这么做，有些行为是多余的。但是没有问题，假设机器的行为可以完全仿造 expert 行为，那也就算了，那他是跟 expert 一样得好，只是做一些多余的事。但问题就是它是一个 machine，它是一个 network，network 的capacity 是有限的。就算给 network training data，它在training data 上得到的正确率往往也不是100%，他有些事情是学不起来的。这个时候，什么该学，什么不该学就变得很重要。
+怎么让 machine 知道说什么事情是真正重要的？你要加上另外一个 module，我们要 learn 一个`feature extractor`，黄色的格子代表 feature extractor，它是 input 一个 state，然后 output 一个feature vector 来代表这个state，那我们期待这个 feature extractor 可以把那种没有意义的画面，state 里面没有意义的东西把它过滤掉，比如说风吹草动、白云的飘动、树叶的飘动这种没有意义的东西直接把它过滤掉，
 
-举例来说，在学习中文的时候，你的老师，他有语音，他也有行为，他也有知识，但其实只有语音部分是重要的，知识的部分是不重要的。也许 machine 只能够学一件事，也许他就只学到了语音，那没有问题。如果他只学到了手势，这样子就有问题了。所以让机器学习什么东西是需要 copy，什么东西是不需要 copy，这件事情是重要的。而单纯的 Behavior Cloning 就没有把这件事情学进来，因为机器只是复制 expert 所有的行为而已，它不知道哪些行为是重要，是对接下来有影响的，哪些行为是不重要的，是对接下来是没有影响的。
+假设这个 feature extractor 真的可以把无关紧要的东西过滤掉以后，network 1 实际上做的事情是，给它一个 actor，给它一个state $s_t$ 的feature representation，让它预测 state $s_{t+1}$ 的feature representation。接下来我们再看说，这个预测的结果跟真正的 state $s_{t+1}$ 的 feature representation 像不像，越不像，reward 就越大。怎么 learn 这个 feature extractor 呢？让这个feature extractor 可以把无关紧要的事情滤掉呢？这边的 learn 法就是 learn 另外一个network 2。这个 network 2 是吃 $\phi(s_t)$、$\phi(s_{t+1})$ 这两个 vector 当做 input，然后接下来它要predict action a 是什么，然后它希望呢这个 action a 跟真正的 action a 越接近越好。这个network 2 会 output 一个 action，它output 说，从 state $s_t$ 跳到 state $s_{t+1}$，要采取哪一个 action 才能够做到，那希望这个 action 跟真正的 action 越接近越好。加上这个 network 2 的好处就是因为要用 $\phi(s_t)$、$\phi(s_{t+1})$  预测action。所以，今天我们抽出来的 feature 跟预测action 这件事情是有关的。所以风吹草动等与 machine 要采取的 action 无关的东西就会被滤掉，就不会被放在抽出来的 vector representation 里面。
 
+
+
+## Curriculum Learning
 
 ![](img/10.6.png)
+接下来讲 `curriculum learning` ，curriculum learning 不是 reinforcement learning 所独有的概念。其实在 machine learning，尤其是 deep learning 里面，你都会用到 curriculum learning 的概念。举例来说，curriculum learning 的意思是说，你为机器的学习做规划，你给他喂 training data 的时候，是有顺序的，通常都是由简单到难。就好比说，假设你今天要交一个小朋友作微积分，他做错就打他一巴掌，这样他永远都不会做对，太难了。你要先教他九九乘法，然后才教他微积分。所以curriculum learning 的意思就是在教机器的时候，从简单的题目教到难的题目。就算不是 reinforcement learning，一般在 train deep network 的时候，你有时候也会这么做。举例来说，在 train RNN 的时候，已经有很多的文献都 report 说，你给机器先看短的 sequence，再慢慢给它长的 sequence，通常可以学得比较好。那用在reinforcement learning 里面，你就是要帮机器规划一下它的课程，从最简单的到最难的。 举例来说，在 Facebook 玩 VizDoom 的 agent 里面，Facebook 玩 VizDoom 的 agent 蛮强的。他们在参加这个 VizDoom 的比赛，机器的 VizDoom 比赛是得第一名的，他们是有为机器规划课程的。先从课程 0 一直上到课程 7。在这个课程里面，怪物的速度跟血量是不一样的。所以，在越进阶的课程里面，怪物的速度越快，然后他的血量越多。在 paper 里面也有讲说，如果直接上课程 7，machine 是学不起来的。你就是要从课程 0 一路玩上去，这样 machine 才学得起来。
 
-Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候，training data 跟 testing data 是 mismatch 的。我们可以用 Dataset Aggregation 的方法来缓解这个问题。这个问题是，在 training 跟 testing 的时候，data distribution 其实是不一样的。因为在 reinforcement learning 里面，action 会影响到接下来所看到的 state。我们是先有 state $s_1$，然后采取 action $a_1$，action $a_1$ 其实会决定接下来你看到什么样的 state $s_2$。所以在 reinforcement learning 里面有一个很重要的特征，就是你采取了 action 会影响你接下来所看到的 state。如果做了Behavior Cloning 的话，我们只能观察到 expert 的一堆 state 跟 action 的pair。然后我们希望可以 learn 一个 $\pi^*$，我们希望 $\pi^*$ 跟 $\hat{\pi}$ 越接近越好。如果 $\pi^*$ 可以跟 $\hat{\pi}$ 一模一样的话，你 training 的时候看到的 state 跟 testing 的时候所看到的 state 会是一样的。因为虽然 action 会影响我们看到的 state，但假设两个 policy 一模一样， 在同一个 state 都会采取同样的 action，那你接下来所看到的 state 都会是一样的。但问题就是你很难让你的 learn 出来的 policy 跟expert 的 policy 一模一样。Expert 可是一个人，network 要跟人一模一样，感觉很难吧。
+再举个例子，把蓝色的板子穿过柱子，怎么让机器一直从简单学到难呢？
 
-如果你的 $\pi^*$ 跟 $\hat{\pi}$ 有一点误差。这个误差在一般 supervised learning problem 里面，每一个 example 都是 independent 的，也许还好。但对 reinforcement learning 的 problem 来说，你可能在某个地方就是失之毫厘，差之千里。可能在某个地方，也许 machine 没有办法完全复制 expert 的行为，它只复制了一点点，差了一点点，也许最后得到的结果就会差很多这样。所以 Behavior Cloning 并不能够完全解决 Imatation learning 这件事情。所以就有另外一个比较好的做法叫做 `Inverse Reinforcement Learning`。
+如第一张图所示，也许一开始机器初始的时候，它的板子就已经在柱子上了。这个时候，机器要做的事情只有把蓝色的板子压下去，就结束了。这比较简单，它应该很快就学的会。它只有往上跟往下这两个选择嘛，往下就得到 reward，就结束了，他也不知道学的是什么。
 
+如第二张图所示，这边就是把板子挪高一点，挪高一点，所以它有时候会很笨的往上拉，然后把板子拿出来了。如果它压板子学得会的话，拿板子也比较有机会学得会。假设它现在学的到说，只要板子接近柱子，它就可以把这个板子压下去的话。接下来，你再让它学更 general 的 case。
 
-##  Inverse RL
+如第三张图所示，一开始，让板子离柱子远一点。然后，板子放到柱子上面的时候，它就会知道把板子压下去，这个就是Curriculum Learning 的概念。当然 curriculum learning 有点 ad hoc(特别)，就是需要人去为机器设计它的课程。
 
 ![](img/10.7.png)
-为什么叫 Inverse Reinforcement Learning，因为原来的 Reinforcement Learning 里面，有一个环境和一个 reward function。根据环境和 reward function，通过 Reinforcement Learning 这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。但 Inverse Reinforcement Learning 刚好是相反的，你没有 reward function，你只有一堆 expert 的 demonstration。但你还是有环境的。IRL 的做法是说假设我们现在有一堆 expert 的demonstration，我们用 $\hat{\tau}$ 来代表expert 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自动驾驶汽车的话，就是人开自动驾驶汽车的纪录。这一边就是 expert 的 demonstration，每一个 $\tau$ 是一个 trajectory。
 
-
-把所有 expert demonstration 收集起来，然后，使用Inverse Reinforcement Learning 这个技术。使用 Inverse Reinforcement Learning 技术的时候，机器是可以跟环境互动的。但他得不到reward。他的 reward 必须要从 expert 那边推出来，有了环境和 expert demonstration 以后，去反推出 reward function 长什么样子。之前 reinforcement learning 是由 reward function 反推出什么样的 action、actor 是最好的。Inverse Reinforcement Learning 是反过来，我们有expert 的demonstration，我们相信他是不错的，我就反推说，expert 是因为什么样的 reward function 才会采取这些行为。你有了reward function 以后，接下来，你就可以套用一般的 reinforcement learning 的方法去找出 optimal actor。所以 Inverse Reinforcement Learning 是先找出 reward function，找出 reward function 以后，再去用 Reinforcement Learning 找出 optimal actor。
-
-把这个 reward function learn 出来，相较于原来的 Reinforcement Learning 有什么样好处。一个可能的好处是也许 reward function 是比较简单的。也许，虽然这个 expert 的行为非常复杂，但也许简单的 reward function 就可以导致非常复杂的行为。一个例子就是也许人类本身的 reward function 就只有活着这样，每多活一秒，你就加一分。但人类有非常复杂的行为，但是这些复杂的行为，都只是围绕着要从这个 reward function 里面得到分数而已。有时候很简单的 reward function 也许可以推导出非常复杂的行为。
+有一个比较 general 的方法叫做 `Reverse Curriculum Generation`。你可以用一个比较通用的方法来帮机器设计课程，这个比较通用的方法是怎么样呢？假设你现在一开始有一个state $s_g$，这是你的gold state，也就是最后最理想的结果。如果拿刚才那个板子和柱子的实验作为例子的话，就把板子放到柱子里面，这样子叫做 gold state。你就已经完成了，或者你让机器去抓东西，你训练一个机器手臂抓东西，抓到东西以后叫做 gold state。接下来你根据你的 gold state 去找其他的 state，这些其他的 state 跟 gold state 是比较接近的。举例来说，如果是让机器抓东西的例子里面，你的机器手臂可能还没有抓到东西。假设这些跟 gold state 很近的 state 叫做 $s_1$。你的机械手臂还没有抓到东西，但它离 gold state 很近，那这个叫做$s_1$。至于什么叫做近，这是 case dependent，你要根据你的 task 来 design 说怎么从 $s_g$ sample 出 $s_1$。如果是机械手臂的例子，可能就比较好想。其他例子可能就比较难想。接下来呢，你再从这些 $s_1$ 开始做互动，看它能不能够达到gold state $s_g$，那每一个state，你跟环境做互动的时候，你都会得到一个reward R。
 
 ![](img/10.8.png)
 
-Inverse Reinforcement Learning 实际上是怎么做的呢？首先，我们有一个 expert $\hat{\pi}$，这个 expert 去跟环境互动，给我们很多 $\hat{\tau_1}$ 到 $\hat{\tau_n}$。如果是玩游戏的话，就让某一个电玩高手，去玩 n 场游戏。把 n 场游戏的 state 跟 action 的 sequence 都记录下来。接下来，你有一个actor $\pi$，一开始actor 很烂，这个 actor 也去跟环境互动。他也去玩了n 场游戏，他也有 n 场游戏的纪录。接下来，我们要反推出 reward function。怎么推出 reward function 呢？**原则就是 expert 永远是最棒的，是先射箭，再画靶的概念。**
+接下来，我们把 reward 特别极端的 case 去掉，reward 特别极端的 case 的意思就是说那些 case 太简单或是太难了。如果 reward 很大，代表说这个 case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的 reward。如果 reward 太小，代表这个 case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。那当然什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的 case 去 sample 出更多的 state。就假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是 Curriculum learning，就是你要为机器规划它学习的顺序。而 reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse。  
 
-Expert 去玩一玩游戏，得到这一些游戏的纪录，你的 actor 也去玩一玩游戏，得到这些游戏的纪录。接下来，你要定一个 reward function，这个 reward function 的原则就是 expert 得到的分数要比 actor 得到的分数高，先射箭，再画靶。所以我们就 learn 出一个 reward function。你就找出一个 reward function。这个 reward function 会使 expert 所得到的 reward 大过于 actor 所得到的reward。你有了新的 reward function 以后，就可以套用一般 Reinforcement Learning 的方法去learn 一个actor，这个actor 会针对 reward function 去 maximize 他的reward。他也会采取一大堆的action。但是，今天这个 actor 虽然可以 maximize 这个 reward function，采取一大堆的行为，得到一大堆游戏的纪录。
-
-但接下来，我们就改 reward function。这个 actor 就会很生气，它已经可以在这个reward function 得到高分。但是他得到高分以后，我们就改 reward function，仍然让 expert 可以得到比 actor 更高的分数。这个就是 `Inverse Reinforcement learning`。有了新的 reward function 以后，根据这个新的 reward function，你就可以得到新的 actor，新的 actor 再去跟环境做一下互动，他跟环境做互动以后， 你又会重新定义你的 reward function，让 expert 得到的 reward 比 actor 大。
-
-怎么让 expert 得到的 reward 大过 actor 呢？其实你在 learning 的时候，你可以很简单地做一件事就是，reward function 也许就是 neural network。这个 neural network 就是吃一个 $\tau$，output 就是应该要给这个 $\tau$ 多少的分数。或者说，你假设觉得 input 整个$\tau$ 太难了。因为$\tau$ 是 s 和 a 的一个很强的sequence。也许他就是 input 一个 s 和 a 的 pair，然后 output 一个real number。把整个 sequence，整个$\tau$ 会得到的 real number 都加起来就得到 $R(\tau)$。在training 的时候，对于 $\left\{\hat{\tau}_{1}, \hat{\tau}_{2}, \cdots, \hat{\tau}_{N}\right\}$，我们希望它 output 的 R 越大越好。对于 $\left\{\tau_{1}, \tau_{2}, \cdots, \tau_{N}\right\}$，我们就希望它 R 的值越小越好。
-
-什么叫做一个最好的 reward function。最后你 learn 出来的 reward function 应该就是 expert 和 actor 在这个 reward function 都会得到一样高的分数。最终你的 reward function 没有办法分辨出谁应该会得到比较高的分数。
-
-通常在 train 的时候，你会 iterative 的去做。那今天的状况是这样，最早的 Inverse Reinforcement Learning 对 reward function 有些限制，他是假设 reward function 是 linear 的。如果reward function 是 linear 的话，你可以 prove 这个algorithm 会 converge。但是如果不是 linear 的，你就没有办法 prove 说它会 converge。你有没有觉得这个东西，看起来还挺熟悉呢？其实你只要把他换个名字，说 actor 就是 generator，然后说 reward function 就是discriminator，它就是GAN。所以它会不会收敛这个问题就等于是问说 GAN 会不会收敛。如果你已经实现过，你会知道不一定会收敛。但除非你对 R 下一个非常严格的限制，如果你的 R 是一个 general 的network 的话，你就会有很大的麻烦。
-
+## Hierarchical RL
 
 ![](img/10.9.png)
 
-那怎么说它像是一个GAN，我们来跟GAN 比较一下。GAN 里面，你有一堆很好的图。然后你有一个generator，一开始他根本不知道要产生什么样的图，他就乱画。然后你有一个discriminator，discriminator 的工作就是给画的图打分，expert 画的图就是高分，generator 画的图就是低分。你有discriminator 以后，generator 会想办法去骗过 discriminator。Generator 会希望 discriminator 也会给它画的图高分。整个 process 跟 Inverse Reinforcement Learning 是一模一样的。
+那最后一个 tip 叫做 `Hierarchical Reinforcement learning`，分层的 reinforcement learning。
+所谓分层的Reinforcement learning 是说，我们有好几个 agent。然后，有一些agent 负责比较high level 的东西，它负责订目标，然后它订完目标以后，再分配给其他的 agent，去把它执行完成。这样的想法其实也是很合理的。因为我们知道说，我们人在一生之中，并不是时时刻刻都在做决定。举例来说，假设你想要写一篇paper，你会说就我先想个梗这样子，然后想完梗以后，你还要跑个实验。跑完实验以后，你还要写。写完以后呢，你还要这个去发表。每一个动作下面又还会再细分，比如说怎么跑实验呢？你要先 collect data，collect 完data 以后，你要再 label，你要弄一个network，然后又 train 不起来，要 train 很多次。然后重新 design network 架构好几次，最后才把network train 起来。
 
-* 画的图就是 expert 的 demonstration。generator 就是actor，generator 画很多图，actor 会去跟环境互动，产生很多 trajectory。这些 trajectory 跟环境互动的记录，游戏的纪录其实就是等于 GAN 里面的这些图。
-* 然后你 learn 一个reward function。Reward function 就是 discriminator。Rewards function 要给 expert 的 demonstration 高分，给 actor 互动的结果低分。
-* 接下来，actor 会想办法，从这个已经 learn 出来的 reward function 里面得到高分，然后 iterative 地去循环。跟GAN 其实是一模一样的，我们只是换个说法来而已。
+所以，我们要完成一个很大的 task 的时候，我们并不是从非常底层的那些 action 开始想起，我们其实是有个 plan。我们先想说，如果要完成这个最大的任务，那接下来要拆解成哪些小任务。每一个小任务要再怎么拆解成小小的任务。举例来说，叫你直接写一本书可能很困难，但叫你先把一本书拆成好几个章节，每个章节拆成好几段，每一段又拆成好几个句子，每一个句子又拆成好几个词汇，这样你可能就比较写得出来，这个就是分层的 Reinforcement learning 的概念。
 
+这边是举一个例子，就是假设校长、教授和研究生通通都是 agent。那今天假设我们的reward 就是只要进入百大就可以得到 reward。假设进入百大的话，校长就要提出愿景告诉其他的agent 说，现在你要达到什么样的目标。那校长的愿景可能就是说教授每年都要发三篇期刊。然后接下来这些agent 都是有分层的，所以上面的 agent，他的动作就是提出愿景这样。那他把他的愿景传给下一层的agent，下一层的 agent 就把这个愿景吃下去。如果他下面还有其他人的话，它就会提出新的愿景。比如说，校长要教授发期刊，但其实教授自己也是不做实验的。所以，教授也只能够叫下面的研究生做实验。所以教授就提出愿景，就做出实验的规划，然后研究生才是真的去执行这个实验的人。然后，真的把实验做出来，最后大家就可以得到reward。那现在是这样子的，在 learn 的时候，其实每一个 agent 都会 learn。那他们的整体的目标就是要达到最后的reward。那前面的这些 agent，他提出来的 actions 就是愿景这样。你如果是玩游戏的话，他提出来的就是，我现在想要产生这样的游戏画面。但是，假设他提出来的愿景是下面的 agent 达不到的，那就会被讨厌。举例来说，教授对研究生都一直逼迫研究生做一些很困难的实验，研究生都做不出来的话，研究生就会跑掉，所以他就会得到一个penalty。所以如果今天下层的 agent 没有办法达到上层 agent 所提出来的 goal 的话，上层的 agent 就会被讨厌，它就会得到一个 negative reward。所以他要避免提出那些愿景是底下的agent 所做不到的。那每一个agent 都是把上层的 agent 所提出来的愿景当作输入，然后决定他自己要产生什么输出。
 
+但是你知道说，就算你看到上面的的愿景说，叫你做这一件事情。你最后也不一定能做成这一件事情。假设本来教授目标是要写期刊，但是不知道怎么回事，他就要变成一个YouTuber。这个paper 里面的 solution，我觉得非常有趣。给大家做一个参考，这其实本来的目标是要写期刊，但却变成 YouTuber，那怎么办呢? 把原来的愿景改成变成 YouTuber 就行了，在paper 里面就是这么做的，为什么这么做呢? 因为虽然本来的愿景是要写期刊，但是后来变成YouTuber，难道这些动作都浪费了吗? 不是，这些动作是没有被浪费的。我们就假设说，本来的愿景其实就是要成为YouTuber，那你就知道成为 YouTuber 要怎做了。这个是分层 RL，是可以做得起来的 tip。
 
 ![](img/10.10.png)
 
-IRL 有很多的application，举例来说，可以用开来自动驾驶汽车。然后，有人用这个技术来学开自动驾驶汽车的不同风格，每个人在开车的时候，其实你会有不同风格。举例来说，能不能够压到线，能不能够倒退，要不要遵守交通规则等等。每个人的风格是不同的，然后用 Inverse Reinforcement Learning 可以让自动驾驶汽车学会各种不同的开车风格。
 
-![](img/10.11.png)
+上图是真实的例子。实际上呢，这里面就做了一些比较简单的游戏，这个是走迷宫，蓝色是 agent，蓝色的 agent 要走到黄色的目标。这边也是，这个单摆要碰到黄色的球。那愿景是什么呢？
 
-上图是文献上真实的例子，在这个例子里面， Inverse Reinforcement Learning 有一个有趣的地方,通常你不需要太多的 training data，因为 training data 往往都是个位数。因为 Inverse Reinforcement Learning 只是一种 demonstration，只是一种范例，实际上机器可以去跟环境互动非常多次。所以在 Inverse Reinforcement Learning 的文献， 往往会看到说只用几笔 data 就训练出一些有趣的结果。
+在这个 task 里面，它只有两个 agent ，下层的一个 agent 负责决定说要怎么走，上层的 agent 就负责提出愿景。虽然，实际上你可以用很多层，但 paper 就用了两层。
 
-比如说，在这个例子里面是要让自动驾驶汽车学会在停车场里面停。这边的demonstration 是这样，蓝色是终点，自动驾驶汽车要开到蓝色终点停车。给机器只看一行的四个 demonstration，然后让他去学怎么样开车，最后他就可以学出，在红色的终点位置，如果他要停车的话，他会这样开。今天给机器看不同的demonstration，最后他学出来开车的风格就会不太一样。举例来说，上图第二行是不守规矩的开车方式，因为他会开到道路之外，这边，他会穿过其他的车，然后从这边开进去。所以机器就会学到说，不一定要走在道路上，他可以走非道路的地方。上图第三行是倒退来停车，机器也会学会说，他可以倒退，
+走迷宫的例子是说粉红色的这个点代表的就是愿景。上层这个 agent，它告诉蓝色的这个 agent 说，你现在的第一个目标是先走到这个地方，蓝色的 agent 走到以后，再说你的新的目标是走到这里。蓝色的 agent 再走到以后，新的目标在这里。接下来又跑到这边，最后希望蓝色的 agent 就可以走到黄色的这个位置。
 
-![](img/10.12.png)
-
-这种技术也可以拿来训练机器人。你可以让机器人，做一些你想要他做的动作，过去如果你要训练机器人，做你想要他做的动作，其实是比较麻烦的。怎么麻烦呢？过去如果你要操控机器的手臂，你要花很多力气去写 program 才让机器做一件很简单的事看。假设你有 Imitation Learning 的技术，你可以让人做一下示范，然后机器就跟着人的示范来进行学习，比如学会摆盘子，拉着机器人的手去摆盘子，机器自己动。让机器学会倒水，人只教他20 次，杯子每次放的位置不太一样。用这种方法来教机械手臂。
-
-## Third Person lmitation Learning
-![](img/10.13.png)
-
-其实还有很多相关的研究，举例来说，你在教机械手臂的时候，要注意就是也许机器看到的视野跟人看到的视野是不太一样的。在刚才那个例子里面，人跟机器的动作是一样的。但是在未来的世界里面，也许机器是看着人的行为学的。刚才是人拉着，假设你要让机器学会打高尔夫球，在刚才的例子里面就是人拉着机器人手臂去打高尔夫球，但是在未来有没有可能机器就是看着人打高尔夫球，他自己就学会打高尔夫球了呢？但这个时候，要注意的事情是机器的视野跟他真正去采取这个行为的时候的视野是不一样的。机器必须了解到当他是第三人的视角的时候，看到另外一个人在打高尔夫球，跟他实际上自己去打高尔夫球的时候，看到的视野显然是不一样的。但他怎么把他是第三人的时间所观察到的经验把它 generalize 到他是第一人称视角的时候所采取的行为，这就需要用到`Third Person Imitation Learning`的技术。
-
-![](img/10.14.png)
-
-这个怎么做呢？它的技术其实也是不只是用到 Imitation Learning，他用到了 `Domain-Adversarial Training`。我们在讲 Domain-Adversarial Training 的时候，我们有讲说这也是一个GAN 的技术。那我们希望今天有一个 extractor，有两个不同 domain 的image，通过 feature extractor 以后，没有办法分辨出他来自哪一个 domain。其实第一人称视角和第三人称视角，Imitation Learning 用的技术其实也是一样的，希望 learn 一个 Feature Extractor，机器在第三人称的时候跟他在第一人称的时候看到的视野其实是一样的，就是把最重要的东西抽出来就好了。 
-
-## Recap: Sentence Generation & Chat-bot
-![](img/10.15.png)
-
-在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 Imitation Learning。机器在 imitate 人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给他看唐诗三百首。人类写的文字其实就是 expert 的 demonstration。每一个词汇其实就是一个 action。今天，你让机器做Sentence Generation 的时候其实就是在 imitate expert 的trajectory。Chat-bot 也是一样，在Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是 expert 的 demonstration。
-
-如果我们今天单纯用 maximum likelihood 这个技术来 maximize 会得到 likelihood，这个其实就是behavior cloning。我们今天做 behavior cloning 就是看到一个 state，接下来预测我们会得到什么样的 action。看到一个state，然后有一个 ground truth 告诉机器说什么样的 action 是最好的。在做 likelihood 的时候也是一样，given sentence 已经产生的部分。接下来 machine 要 predict 说接下来要写哪一个word 才是最好的。所以，其实 maximum likelihood 在做Sequence generation 的时候，它对应到 Imitation Learning 里面就是 behavior cloning。只有 maximum likelihood 是不够的，我们想要用 Sequence GAN，其实 Sequence GAN 就是对应到 Inverse Reinforcement Learning，Inverse Reinforcement Learning 就是一种 GAN 的技术。你把 Inverse Reinforcement Learning 的技术放在 Sentence generation，放到 Chat-bot 里面，其实就是 Sequence GAN 跟它的种种的变形。
-
+单摆的例子也一样，就是粉红色的这个点代表的是上层的 agent 所提出来的愿景，所以这个agent 先摆到这边，接下来，新的愿景又跑到这边，所以它又摆到这里。然后，新的愿景又跑到上面。然后又摆到上面，最后就走到黄色的位置了。这个就是 hierarchical 的 Reinforcement Learning。

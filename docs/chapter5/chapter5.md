@@ -1,341 +1,227 @@
-# Q-learning
+# PPO
+## From On-policy to Off-policy
+在讲 PPO 之前，我们先讲一下 on-policy 和 off-policy 这两种 training 方法的区别。
+在 reinforcement learning 里面，我们要 learn 的就是一个agent。
 
-## State Value Function
+* 如果要 learn 的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy(同策略)`。 
+* 如果要 learn 的 agent 跟和环境互动的 agent 不是同一个的话， 那这个叫做`off-policy(异策略)`。
+
+比较拟人化的讲法是如果要学习的那个 agent，一边跟环境互动，一边做学习这个叫 on-policy。 如果它在旁边看别人玩，通过看别人玩来学习的话，这个叫做 off-policy。
+
+为什么我们会想要考虑 off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做 policy gradient 时，我们需要有一个 agent、一个 policy 和一个 actor。这个 actor 先去跟环境互动去搜集资料，搜集很多的 $\tau$，根据它搜集到的资料，会按照 policy gradient 的式子去 update policy 的参数。所以 policy gradient 是一个 on-policy 的 algorithm。
 
 ![](img/5.1.png)
 
-Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我们 learn 的不是 policy，我们要 learn 的是一个 `critic`。Critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或是有多不好。假设有一个 actor $\pi$ ，critic 的工作就是来评价这个 actor 的 policy $\pi$  好还是不好，即 `Policy Evaluation(策略评估)`。
+PPO 是 policy gradient 的一个变形，它是现在 OpenAI default reinforcement learning 的 algorithm。
 
-> 注：李宏毅深度强化学习课程提到的 Q-learning，其实是 DQN。
->
-> DQN 是指基于深度学习的 Q-learning 算法，主要结合了`价值函数近似(Value Function Approximation)`与神经网络技术，并采用了目标网络和经历回放的方法进行网络的训练。
->
-> 在 Q-learning 中，我们使用表格来存储每个状态 s 下采取动作 a 获得的奖励，即状态-动作值函数 $Q(s,a)$。然而，这种方法在状态量巨大甚至是连续的任务中，会遇到维度灾难问题，往往是不可行的。因此，DQN 采用了价值函数近似的表示方法。
-
-举例来说，有一种 critic 叫做 `state value function`。State value function 的意思就是说，假设 actor 叫做 $\pi$，拿 $\pi$  跟环境去做互动。假设 $\pi$  看到了某一个state s，如果在玩 Atari 游戏的话，state s 是某一个画面，看到某一个画面的时候，接下来一直玩到游戏结束，累积的 reward 的期望值有多大。所以 $V^{\pi}$ 是一个function，这个 function input 一个 state，然后它会 output 一个 scalar。这个 scalar 代表说，$\pi$ 这个 actor 看到 state s 的时候，接下来预期到游戏结束的时候，它可以得到多大的 value。
-
-举个例子，假设你是玩 space invader 的话，
-
-* 左边这个 state s，这一个游戏画面，你的 $V^{\pi}(s)$  也许会很大，因为还有很多的怪可以杀， 所以你会得到很大的分数。一直到游戏结束的时候，你仍然有很多的分数可以吃。
-* 右边那个case，也许你得到的 $V^{\pi}(s)$ 就很小，因为剩下的怪也不多了，并且红色的防护罩已经消失了，所以可能很快就会死掉。所以接下来得到预期的 reward，就不会太大。
-
-这边需要强调的一个点是说，当你在讲这一个 critic 的时候，critic 都是绑一个 actor 的，critic 没有办法去凭空去 evaluate 一个 state 的好坏，它所 evaluate 的东西是在给定某一个 state 的时候， 假设接下来互动的 actor 是 $\pi$，那我会得到多少 reward。因为就算是给同样的 state，你接下来的 $\pi$ 不一样，你得到的 reward 也是不一样的。举例来说，在左边那个case，虽然假设是一个正常的 $\pi$，它可以杀很多怪，那假设他是一个很弱的 $\pi$，它就站在原地不动，然后马上就被射死了，那你得到的 V 还是很小。所以 critic output 值有多大，其实是取决于两件事：state 和 actor。所以你的 critic 其实都要绑一个 actor，它是在衡量某一个 actor 的好坏，而不是 generally 衡量一个 state 的好坏。这边要强调一下，critic output 是跟 actor 有关的，state value 其实是 depend on 你的 actor。当你的 actor 变的时候，state value function 的output 其实也是会跟着改变的。
-
-### State-value Function Bellman Equation
-
-记策略 $\pi $ 的状态值函数为 $V^{\pi}(s_t)$ ，它表示在状态 $s_t$ 下带来的累积奖励 $G_t$ 的期望，具体公式为：
 $$
-\begin{aligned} V ^ { \pi } \left( s _ { t }  \right) & = \mathbb { E } \left[ G _ { t } \mid s _ { t }  \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma r _ { t + 1 } + \gamma ^ { 2 } r _ { t + 2 } + \cdots \mid s _ { t }  \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma \left( r _ { t + 1 } + \gamma r _ { t + 2 } + \cdots \right) \mid s _ { t }  \right] \\ 
-&= \mathbb{E}[r_t|s_t]+ \gamma\mathbb{E}[r_{t+1}+\gamma r_{t+2}+\cdots|s_t] \\
-& =\mathbb{E}[r_t|s_t]+ \gamma\mathbb{E}[G_{t+1}|s_t]
-\\& = \mathbb { E } \left[ r _ { t } + \gamma V ^ { \pi } \left( s _ { t + 1 }  \right) \mid s _ { t} \right] \end{aligned}
+\nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
 $$
 
-上式是 State-value Function 的 Bellman Equation。
-
-### State Value Function Estimation
-
+问题是上面这个 update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做 expectation。一旦 update 了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前sample 出来的 data 就变的不能用了。所以 policy gradient 是一个会花很多时间来 sample data 的 algorithm，你会发现大多数时间都在 sample data，agent 去跟环境做互动以后，接下来就要 update 参数。你只能 update 参数一次。接下来你就要重新再去 collect data， 然后才能再次update 参数，这显然是非常花时间的。所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个policy， 另外一个actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的data 去训练 $\theta$，意味着说我们可以把$\theta'$  collect 到的data 用非常多次。我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔data 就好了。因为假设 $\theta$ 有能力学习另外一个actor $\theta'$ 所 sample 出来的 data 的话， 那$\theta'$  就只要sample 一次，也许sample 多一点的data， 让$\theta$ 去update 很多次，这样就会比较有效率。
 ![](img/5.2.png)
 
-怎么衡量这个 state value function  $V^{\pi}(s)$ 呢？有两种不同的做法。一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让 actor 去跟环境做互动，给 critic 看。然后，critic 就统计说，actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward 会有多大。但是实际上，你不可能把所有的state 通通都扫过。如果你是玩 Atari 游戏的话，你的 state 是 image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个 network。对一个 network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个 value 的值。
+具体怎么做呢？这边就需要介绍 `important sampling` 的概念。假设你有一个function $f(x)$，你要计算从 p 这个 distribution sample x，再把 x 带到 f 里面，得到$f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
 
-怎么训练这个 network 呢？因为如果在state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果 input 是 state $s_a$，正确的 output 应该是$G_a$。如果 input state $s_b$，正确的output 应该是value $G_b$。所以在 training 的时候， 它就是一个 `regression problem`。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟 $G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把 network train 下去，就结束了。这是第一个方法，MC based 的方法。
+现在有另外一个问题，我们没有办法从 p 这个 distribution 里面 sample data。假设我们不能从 p sample data，只能从另外一个 distribution q 去 sample data，q  可以是任何 distribution。我们不能够从 p 去sample data，但可以从 q 去 sample $x$。我们从 q 去 sample $x^i$ 的话就不能直接套下面的式子。
+$$
+E_{x \sim p}[f(x)] \approx \frac{1}{N} \sum_{i=1}^N f(x^i)
+$$
+因为上式是假设你的 $x$ 都是从 p sample 出来的。所以做一个修正，修正是这样子的。期望值$E_{x \sim p}[f(x)]$其实就是$\int f(x) p(x) dx$，我们对其做如下的变换：
+$$
+\int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]
+$$
+我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从q 里面 sample x，然后再去计算$f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去sample data，然后代入上式，你就可以计算从 p 这个distribution sample x 代入 f 以后所算出来的期望值。
+
+这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是$\frac{p(x)}{q(x)}$。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以 apply important sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
 
 ![](img/5.3.png)
 
-第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算 accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有 reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，花的时间太长了。因此我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
+Important sampling 有一些 issue。虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能够差太多。差太多的话，会有一些问题。什么样的问题呢？
 
-怎么 apply TD 的方法呢？这边是基于以下这个式子：
 $$
-V^{\pi}\left(s_{t}\right)=V^{\pi}\left(s_{t+1}\right)+r_{t}
+E_{x \sim p}[f(x)]=E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
+$$
+虽然上式成立。但上式左边是$f(x)$ 的期望值，它的distribution 是 p，上式右边是$f(x) \frac{p(x)}{q(x)}$ 的期望值，它的distribution 是 q。如果不是算期望值，而是算 variance 的话。这两个variance 是不一样的。两个 random variable 的 mean 一样，并不代表它的 variance 一样。
+
+我们可以代一下方差的公式
+$$
+\operatorname{Var}_{x \sim p}[f(x)]=E_{x \sim p}\left[f(x)^{2}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
 $$
 
-假设我们现在用的是某一个 policy $\pi$，在 state $s_t$，它会采取 action $a_t$，给我们 reward $r_t$ ，接下来进入$s_{t+1}$ 。state $s_{t+1}$ 的 value 跟 state $s_t$ 的 value，它们的中间差了一项 $r_t$。因为你把 $s_{t+1}$ 得到的 value 加上得到的 reward $r_t$ 就会等于 $s_t$ 得到的 value。有了这个式子以后，你在 training 的时候，你并不是直接去估测 V，而是希望你得到的结果 V 可以满足这个式子。也就是说你会是这样 train 的，你把 $s_t$ 丢到 network 里面，因为 $s_t$ 丢到 network 里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的 value network 里面会得到$V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减 $V^{\pi}(s_{t+1})$ 的值应该是 $r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，train 下去，update V 的参数，你就可以把 V function learn 出来。
+$$
+\begin{aligned}
+\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=E_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\
+&=E_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
+\end{aligned}
+$$
+
+$\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的差别在第一项是不同的， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的第一项多乘了$\frac{p(x)}{q(x)}$，如果$\frac{p(x)}{q(x)}$ 差距很大的话， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$的 variance 就会很大。所以虽然理论上它们的expectation 一样，也就是说，你只要对 p 这个distribution sample 够多次，q 这个distribution sample 够多，你得到的结果会是一样的。但是假设你sample 的次数不够多，因为它们的variance 差距是很大的，所以你就有可能得到非常大的差别。
 
 ![](img/5.4.png)
 
-MC 跟 TD 有什么样的差别呢？**MC 最大的问题就是 variance 很大**。因为我们在玩游戏的时候，它本身是有随机性的。所以你可以把 $G_a$ 看成一个 random 的 variable。因为你每次同样走到 $s_a$ 的时候，最后你得到的 $G_a$ 其实是不一样的。你看到同样的state $s_a$，最后玩到游戏结束的时候，因为游戏本身是有随机性的，玩游戏的 model 搞不好也有随机性，所以你每次得到的 $G_a$ 是不一样的，每一次得到$G_a$ 的差别其实会很大。为什么它会很大呢？因为 $G_a$ 其实是很多个不同的 step 的 reward 的和。假设你每一个step 都会得到一个reward，$G_a$ 是从 state $s_a$  开始，一直玩到游戏结束，每一个timestamp reward 的和。
+举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
 
-举例来说，我在右上角就列一个式子是说，
-
-$$
-\operatorname{Var}[k X]=k^{2} \operatorname{Var}[X]
-$$
-Var 就是指 variance。 
-通过这个式子，我们知道 $G_a$ 的 variance  相较于某一个 state 的 reward，它会是比较大的，$G_a$ 的variance 是比较大的。
-
-如果用 TD 的话，你是要去 minimize 这样的一个式子：
+接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边sample 到这些点，然后你去计算它们的$f(x) \frac{p(x)}{q(x)}$都是正的，所以你sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你sample 次数很少，你只能sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要sample 够多次，这件事情才会发生。但有可能sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
 
 ![](img/5.5.png)
 
-在这中间会有随机性的是 r。因为计算你在 $s_t$ 采取同一个 action，你得到的 reward 也不一定是一样的，所以 r 是一个 random variable。但这个 random variable 的 variance 会比 $G_a$ 还要小，因为 $G_a$ 是很多 r 合起来，这边只是某一个 r  而已。$G_a$ 的 variance 会比较大，r  的 variance 会比较小。但是这边你会遇到的**一个问题是你这个 V 不一定估得准**。假设你的这个 V 估得是不准的，那你 apply 这个式子 learn 出来的结果，其实也会是不准的。所以 MC 跟 TD各有优劣。**今天其实 TD 的方法是比较常见的，MC 的方法其实是比较少用的。**
+现在要做的事情就是把 importance sampling 用在 off-policy 的 case。把 on-policy training 的algorithm 改成 off-policy training 的 algorithm。怎么改呢，之前我们是拿 $\theta$ 这个policy 去跟环境做互动，sample 出trajectory $\tau$，然后计算$R(\tau) \nabla \log p_{\theta}(\tau)$。
+
+现在我们不用$\theta$ 去跟环境做互动，假设有另外一个 policy  $\theta'$，它就是另外一个actor。它的工作是他要去做demonstration，$\theta'$ 的工作是要去示范给$\theta$ 看。它去跟环境做互动，告诉 $\theta$ 说，它跟环境做互动会发生什么事。然后，借此来训练$\theta$。我们要训练的是$\theta$ ，$\theta'$  只是负责做 demo，负责跟环境做互动。
+
+我们现在的$\tau$ 是从 $\theta'$ sample 出来的，是拿 $\theta'$ 去跟环境做互动。所以sample 出来的 $\tau$ 是从 $\theta'$ sample 出来的，这两个distribution 不一样。但没有关系，假设你本来是从 p 做sample，但你发现你不能够从 p 做sample，所以我们不拿$\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面这边补上一个 importance weight。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个importance weight $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个 importance weight 就是某一个 trajectory $\tau$ 用 $\theta$ 算出来的概率除以这个 trajectory $\tau$，用$\theta'$ 算出来的概率。这一项是很重要的，因为今天你要learn 的是actor $\theta$ 和 $\theta'$ 是不太一样的。$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
+
+现在的data 不是从$\theta$ sample 出来，是从 $\theta'$ sample 出来的。从$\theta$ 换成$\theta'$ 有什么好处呢？因为现在跟环境做互动是$\theta'$ 而不是$\theta$。所以 sample 出来的东西跟 $\theta$ 本身是没有关系的。所以你就可以让 $\theta'$ 做互动 sample 一大堆的data，$\theta$ 可以update 参数很多次。然后一直到 $\theta$  train 到一定的程度，update 很多次以后，$\theta'$ 再重新去做sample，这就是on-policy 换成off-policy 的妙用。
 
 ![](img/5.6.png)
-上图是讲 TD 跟 MC 的差异。假设有某一个 critic，它去观察某一个 policy $\pi$  跟环境互动的 8 个 episode 的结果。有一个actor $\pi$ 跟环境互动了8 次，得到了8 次玩游戏的结果。接下来这个 critic 去估测 state 的 value。
 
-* 我们看看 $s_b$ 的 value 是多少。$s_b$ 这个state 在 8 场游戏里面都有经历过，其中有6 场得到 reward 1，有两场得到 reward 0，所以如果你是要算期望值的话，就看到 state $s_b$ 以后得到的 reward，一直到游戏结束的时候得到的 accumulated reward 期望值是 3/4。
-* 但 $s_a$ 期望的 reward 到底应该是多少呢？这边其实有两个可能的答案：一个是 0，一个是 3/4。为什么有两个可能的答案呢？这取决于你用MC 还是TD。用 MC 跟用 TD 算出来的结果是不一样的。
-
-假如你用 MC 的话，你会发现这个$s_a$ 就出现一次，看到$s_a$ 这个state，接下来 accumulated reward 就是 0。所以今天 $s_a$ expected reward 就是 0。
-
-但 TD 在计算的时候，它要update 下面这个式子。
+实际在做 policy gradient 的时候，我们并不是给整个 trajectory $\tau$ 都一样的分数，而是每一个state-action 的pair 会分开来计算。实际上 update gradient 的时候，我们的式子是长这样子的。
 $$
-V^{\pi}\left(s_{a}\right)=V^{\pi}\left(s_{b}\right)+r
+=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta}}\left[A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
 $$
 
-因为我们在 state $s_a$ 得到 reward r=0 以后，跳到 state $s_b$。所以 state $s_b$ 的 reward 会等于 state $s_b$ 的 reward 加上在state $s_a$ 跳到 state $s_b$ 的时候可能得到的 reward r。而这个得到的 reward r 的值是 0，$s_b$ expected reward 是3/4，那$s_a$ 的reward 应该是3/4。
+我们用 $\theta$ 这个actor 去sample 出$s_t$ 跟$a_t$，sample 出state 跟action 的pair，我们会计算这个state 跟action pair 它的advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在state $s_t$ 采取action $a_t$ 是好的，还是不好的。那接下来后面会乘上$\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果$A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
 
-用 MC 跟 TD 估出来的结果，其实很有可能是不一样的。就算 critic 观察到一样的 training data，它最后估出来的结果。也不见得会是一样。那为什么会这样呢？你可能问说，那一个比较对呢？其实就都对。
+那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在$s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把$s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
 
-因为在第一个 trajectory， $s_a$ 得到 reward 0 以后，再跳到 $s_b$ 也得到 reward 0。这边有两个可能。
+$$
+=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{P_{\theta}\left(s_{t}, a_{t}\right)}{P_{\theta^{\prime}}\left(s_{t}, a_{t}\right)} A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
+$$
 
-* 一个可能是$s_a$，它就是一个带 sign 的 state，所以只要看到 $s_a$ 以后，$s_b$ 就会拿不到reward，有可能$s_a$ 其实影响了$s_b$。如果是用 MC 的算法的话，它会把 $s_a$ 影响 $s_b$ 这件事考虑进去。所以看到 $s_a$ 以后，接下来 $s_b$ 就得不到 reward，所以看到$s_a$ 以后，期望的reward 是 0。
+这边 $A^{\theta}(s_t,a_t)$ 有一个上标 $\theta$，$\theta$  代表说这个是 actor $\theta$ 跟环境互动的时候所计算出来的 A。但是实际上从 $\theta$ 换到 $\theta'$  的时候，$A^{\theta}(s_t,a_t)$ 应该改成 $A^{\theta'}(s_t,a_t)$，为什么？A 这一项是想要估测说现在在某一个 state 采取某一个 action，接下来会得到 accumulated reward 的值减掉base line 。你怎么估 A 这一项，你就会看在 state $s_t$，采取 action $a_t$，接下来会得到的reward 的总和，再减掉baseline。之前是 $\theta$ 在跟环境做互动，所以你观察到的是 $\theta$ 可以得到的reward。但现在是 $\theta'$  在跟环境做互动，所以你得到的这个advantage， 其实是根据 $\theta'$  所estimate 出来的advantage。但我们现在先不要管那么多， 我们就假设这两项可能是差不多的。
 
-* 另一个可能是，看到$s_a$ 以后， $s_b$ 的 reward 是0 这件事只是一个巧合，就并不是 $s_a$ 所造成，而是因为说 $s_b$ 有时候就是会得到 reward 0，这只是单纯运气的问题。其实平常 $s_b$ 会得到 reward 期望值是 3/4，跟 $s_a$ 是完全没有关系的。所以假设 $s_a$ 之后会跳到 $s_b$，那其实得到的 reward 按照 TD 来算应该是 3/4。
+那接下来，我们可以拆解 $p_{\theta}\left(s_{t}, a_{t}\right)$ 和 $p_{\theta'}\left(s_{t}, a_{t}\right)$，即
+$$
+\begin{aligned}
+p_{\theta}\left(s_{t}, a_{t}\right)&=p_{\theta}\left(a_{t}|s_{t}\right) p_{\theta}(s_t) \\
+p_{\theta'}\left(s_{t}, a_{t}\right)&=p_{\theta'}\left(a_{t}|s_{t}\right) p_{\theta'}(s_t) 
+\end{aligned}
+$$
+于是我们得到下式：
+$$
+=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} \frac{p_{\theta}\left(s_{t}\right)}{p_{\theta^{\prime}}\left(s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
+$$
 
-所以不同的方法考虑了不同的假设，运算结果不同。
 
-## State-action Value Function
+然后这边需要做一件事情是，假设 model 是 $\theta$ 的时候，你看到$s_t$ 的概率，跟 model 是$\theta'$  的时候，你看到$s_t$ 的概率是差不多的，即$p_{\theta}(s_t)=p_{\theta'}(s_t)$。因为它们是一样的，所以你可以把它删掉，即
+$$
+=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]  \quad(1)
+$$
+
+为什么可以假设它是差不多的。举例来说，会看到什么state 往往跟你会采取什么样的action 是没有太大的关系的。比如说你玩不同的 Atari 的游戏，其实你看到的游戏画面都是差不多的，所以也许不同的 $\theta$  对 $s_t$ 是没有影响的。但是有一个更直觉的理由就是这一项到时候真的要你算，你会算吗？因为想想看这项要怎么算，这一项你还要说我有一个参数$\theta$，然后拿$\theta$ 去跟环境做互动，算$s_t$ 出现的概率，这个你根本很难算。尤其是你如果 input 是image 的话， 同样的 $s_t$ 根本就不会出现第二次。你根本没有办法估这一项， 所以干脆就无视这个问题。
+
+但是 $p_{\theta}(a_t|s_t)$很好算。你手上有$\theta$ 这个参数，它就是个network。你就把$s_t$ 带进去，$s_t$ 就是游戏画面，你把游戏画面带进去，它就会告诉你某一个state 的 $a_t$ 概率是多少。我们其实有个 policy 的network，把 $s_t$ 带进去，它会告诉我们每一个 $a_t$ 的概率是多少。所以
+$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$ 这一项，你只要知道$\theta$ 和 $\theta'$ 的参数就可以算。
+
+现在我们得到一个新的objective function。
+
+$$
+J^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]
+$$
+
+
+式(1)是 gradient，其实我们可以从 gradient 去反推原来的 objective function。这边有一个公式
+
+$$
+\nabla f(x)=f(x) \nabla \log f(x)
+$$
+
+我们可以用这个公式来反推objective  function，要注意一点，对 $\theta$ 求梯度时，$p_{\theta^{\prime}}(a_{t} | s_{t})$ 和 $A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 都是常数。
+
+
+所以实际上，当我们apply importance sampling 的时候，要去optimize 的那一个objective function 就长这样子，我们把它写作$J^{\theta^{\prime}}(\theta)$。为什么写成$J^{\theta^{\prime}}(\theta)$ 呢，这个括号里面那个$\theta$ 代表我们要去optimize 的那个参数。$\theta'$  是说我们拿 $\theta'$  去做demonstration，就是现在真正在跟环境互动的是$\theta'$。因为 $\theta$ 不跟环境做互动，是 $\theta'$  在跟环境互动。
+
+然后你用$\theta'$  去跟环境做互动，sample 出$s_t$、$a_t$ 以后，你要去计算$s_t$ 跟$a_t$ 的advantage，然后你再去把它乘上$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$。$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$是好算的，$A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 可以从这个 sample 的结果里面去估测出来的，所以 $J^{\theta^{\prime}}(\theta)$ 是可以算的。实际上在 update 参数的时候，就是按照式(1) 来 update 参数。
+
+
+
+## PPO
 
 ![](img/5.7.png)
 
-还有另外一种critic，这种critic 叫做 `Q-function`。它又叫做`state-action value function`。
+我们可以把 on-policy 换成 off-policy，但 importance sampling 有一个 issue，如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多的话，这两个 distribution 差太多的话，importance sampling 的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。它实际上做的事情就是这样，在 off-policy 的方法里要optimize 的是 $J^{\theta^{\prime}}(\theta)$。但是这个 objective function 又牵涉到 importance sampling。在做 importance sampling 的时候，$p_{\theta}\left(a_{t} | s_{t}\right)$ 不能跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$差太多。你做 demonstration 的 model 不能够跟真正的 model 差太多，差太多的话 importance sampling 的结果就会不好。我们在 training 的时候，多加一个 constrain。这个constrain 是 $\theta$  跟 $\theta'$  output 的 action 的 KL divergence，简单来说，这一项的意思就是要衡量说 $\theta$ 跟 $\theta'$  有多像。
 
-* state value function 的 input 是一个 state，它是根据 state 去计算出，看到这个state 以后的 expected accumulated reward 是多少。
-* state-action value function 的 input 是一个 state 跟 action 的 pair，它的意思是说，在某一个 state 采取某一个action，假设我们都使用 actor $\pi$ ，得到的 accumulated reward 的期望值有多大。
+然后我们希望在 training 的过程中，learn 出来的 $\theta$ 跟 $\theta'$  越像越好。因为如果 $\theta$ 跟 $\theta'$ 不像的话，最后的结果就会不好。所以在 PPO 里面有两个式子，一方面是 optimize 本来要 optimize 的东西，但再加一个 constrain。这个 constrain 就好像那个 regularization 的 term 一样，在做 machine learning 的时候不是有 L1/L2 的regularization。这一项也很像 regularization，这样 regularization 做的事情就是希望最后 learn 出来的 $\theta$ 不要跟 $\theta'$ 太不一样。
 
-Q-function 有一个需要注意的问题是，这个 actor $\pi$，在看到 state s 的时候，它采取的 action 不一定是 a。Q-function 假设在 state s 强制采取 action a。不管你现在考虑的这个 actor $\pi$， 它会不会采取 action a，这不重要。在state s 强制采取 action a。接下来都用 actor $\pi$ 继续玩下去，就只有在 state s，我们才强制一定要采取 action a，接下来就进入自动模式，让actor $\pi$ 继续玩下去，得到的 expected reward 才是$Q^{\pi}(s,a)$ 。
+PPO 有一个前身叫做TRPO，TRPO 的式子如下式所示。
+$$
+\begin{aligned}
+J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] \\ \\
+\mathrm{KL}\left(\theta, \theta^{\prime}\right)<\delta
+\end{aligned}
+$$
 
-Q-function 有两种写法：
+它与PPO不一样的地方 是 constrain 摆的位置不一样，PPO是直接把 constrain 放到你要 optimize 的那个式子里面，然后你就可以用 gradient ascent 的方法去 maximize 这个式子。但 TRPO 是把 KL divergence 当作constrain，它希望 $\theta$ 跟 $\theta'$ 的 KL divergence 小于一个$\delta$。如果你是用 gradient based optimization 时，有 constrain 是很难处理的。
 
-* input 是 state 跟action，output 就是一个 scalar；
-* input  是一个 state s，output 就是好几个 value。
+PPO是很难处理的，因为它是把 KL divergence constrain 当做一个额外的 constrain，没有放 objective 里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用PPO 不要用TRPO。看文献上的结果是，PPO 跟TRPO 可能 performance 差不多，但 PPO 在实现上比 TRPO 容易的多。
 
-假设 action 是 discrete 的，action 就只有3 个可能，往左往右或是开火。那这个 Q-function output 的3 个 values 就分别代表 a 是向左的时候的 Q value，a 是向右的时候的Q value，还有 a 是开火的时候的 Q value。
+KL divergence 到底指的是什么？这边我是直接把 KL divergence 当做一个 function，input 是 $\theta$ 跟 $\theta'$，但我的意思并不是说把 $\theta$ 或 $\theta'$  当做一个distribution，算这两个distribution 之间的距离，我不是这个意思。所谓的 $\theta$ 跟 $\theta'$  的距离并不是参数上的距离，而是 behavior 上的距离。
 
-那你要注意的事情是，上图右边的 function 只有discrete action 才能够使用。如果 action 是无法穷举的，你只能够用上图左边这个式子，不能够用右边这个式子。
+假设你有一个model，有一个actor 它是$\theta$，你有另外一个actor 的参数是$\theta'$ ，所谓参数上的距离就是你算这两组参数有多像。我今天所讲的不是参数上的距离， 而是它们行为上的距离。就是你先带进去一个state s，它会对这个 action 的 space output 一个 distribution。假设你有 3 个actions，3 个可能的 actions 就 output 3 个值。那今天所指的 distance 是behavior distance。也就是说，给同样的 state 的时候，输出 action 之间的差距。这两个 actions 的 distribution 都是一个概率分布。所以就可以计算这两个概率分布的 KL divergence。把不同的 state output 的这两个 distribution 的KL divergence 平均起来才是我这边所指的两个 actor 间的 KL divergence。你可能说怎么不直接算这个 $\theta$ 或 $\theta'$ 之间的距离，甚至不要用KL divergence 算，L1 跟 L2 的 norm 也可以保证 $\theta$ 跟 $\theta'$ 很接近啊。在做reinforcement learning 的时候，之所以我们考虑的不是参数上的距离，而是 action 上的距离，是因为很有可能对 actor 来说，参数的变化跟 action 的变化不一定是完全一致的。有时候你参数小小变了一下，它可能 output 的行为就差很多。或是参数变很多，但 output 的行为可能没什么改变。**所以我们真正在意的是这个actor 它的行为上的差距，而不是它们参数上的差距。**所以在做PPO 的时候，所谓的 KL divergence 并不是参数的距离，而是action 的距离。
 
 ![](img/5.8.png)
 
-上图是文献上的结果，你去 estimate Q-function 的话，看到的结果可能会像是这个样子。这是什么意思呢？它说假设我们有 3 个 actions，3 个 actions 就是原地不动、向上、向下。
+我们来看一下PPO1 的algorithm。它先initial 一个policy 的参数$\theta^0$。然后在每一个iteration 里面呢，你要用参数$\theta^k$，$\theta^k$ 就是你在前一个training 的iteration得到的actor 的参数，你用$\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的pair。
 
-* 假设是在第一个state，不管是采取哪个action，最后到游戏结束的时候，得到的 expected reward 其实都差不多。因为球在这个地方，就算是你向下，接下来你其实应该还来的急救，所以今天不管是采取哪一个action，就差不了太多。
-
-* 假设在第二个state，这个乒乓球它已经反弹到很接近边缘的地方，这个时候你采取向上，你才能得到positive 的reward，才接的到球。如果你是站在原地不动或向下的话，接下来你都会miss 掉这个球。你得到的reward 就会是负的。
-
-* 假设在第三个state，球很近了，所以就要向上。
-
-* 假设在第四个state，球被反弹回去，这时候采取那个action就都没有差了。
-
-这个是 state-action value 的一个例子。
+然后你根据$\theta^k$ 互动的结果，估测一下$A^{\theta^{k}}\left(s_{t}, a_{t}\right)$。然后你就 apply PPO 的 optimization 的 formulation。但跟原来的policy gradient 不一样，原来的 policy gradient 只能 update 一次参数，update 完以后，你就要重新 sample data。但是现在不用，你拿 $\theta^k$ 去跟环境做互动，sample 到这组 data 以后，你可以让 $\theta$ update 很多次，想办法去 maximize objective function。这边 $\theta$ update 很多次没有关系，因为我们已经有做 importance sampling，所以这些experience，这些 state-action 的 pair 是从 $\theta^k$ sample 出来的没有关系。$\theta$ 可以 update 很多次，它跟 $\theta^k$ 变得不太一样也没有关系，你还是可以照样训练 $\theta$。
 
 ![](img/5.9.png)
 
-虽然表面上我们 learn 一个 Q-function，它只能拿来评估某一个 actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有了这个 Q-function，我们就可以决定要采取哪一个 action，我们就可以进行`策略改进(Policy Improvement)`。
-
-它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。 然后这个循环一直下去，你的 policy 就会越来越好。 
+在PPO 的paper 里面还有一个 `adaptive KL divergence`，这边会遇到一个问题就是 $\beta$  要设多少，它就跟那个regularization 一样。regularization 前面也要乘一个weight，所以这个 KL divergence 前面也要乘一个 weight，但 $\beta$  要设多少呢？所以有个动态调整 $\beta$ 的方法。在这个方法里面呢，你先设一个 KL divergence，你可以接受的最大值。然后假设你发现说你 optimize 完这个式子以后，KL divergence 的项太大，那就代表说后面这个 penalize 的 term 没有发挥作用，那就把 $\beta$ 调大。那另外你定一个 KL divergence 的最小值。如果发现 optimize 完上面这个式子以后，KL divergence 比最小值还要小，那代表后面这一项的效果太强了，你怕他只弄后面这一项，那 $\theta$ 跟 $\theta^k$ 都一样，这不是你要的，所以你这个时候你叫要减少 $\beta$。所以 $\beta$ 是可以动态调整的。这个叫做 adaptive KL penalty。
 
 ![](img/5.10.png)
-上图就是讲我们刚才讲的到底是什么。
 
-* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的 state s 而言，对同一个 state s 而言，$\pi$ 的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个policy。
-
-* 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？事实上这个 $\pi'$ 是什么？这个$\pi'$ 就是， 如果你根据以下的这个式子去决定你的action，
-
+如果你觉得算 KL divergence 很复杂。有一个PPO2。PPO2 要去 maximize 的 objective function 如下式所示，它的式子里面就没有 KL divergence 。
 $$
-\pi^{\prime}(s)=\arg \max _{a} Q^{\pi}(s, a)
+\begin{aligned}
+J_{P P O 2}^{\theta^{k}}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)} A^{\theta^{k}}\left(s_{t}, a_{t}\right),\right.\\
+&\left.\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{k}}\left(s_{t}, a_{t}\right)\right)
+\end{aligned}
+$$
+这个式子看起来有点复杂，但实际 implement 就很简单。我们来实际看一下说这个式子到底是什么意思。
+min 这个 operator 做的事情是第一项跟第二项里面选比较小的那个。第二项前面有个clip function，clip 这个function 的意思是说，在括号里面有3 项，如果第一项小于第二项的话，那就output $1-\varepsilon$ 。第一项如果大于第三项的话，那就output $1+\varepsilon$。 $\varepsilon$ 是一个 hyper parameter，你要tune 的，你可以设成 0.1 或 设 0.2 。
+假设这边设0.2 的话，如下式所示
+$$
+\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 0.8, 1.2\right)
 $$
 
-根据上式去决定你的action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比$\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个 state s，你把所有可能的 action a 都一一带入这个 Q-function，看看说那一个 a 可以让 Q-function 的 value 最大，那这一个 action，就是 $\pi'$ 会采取的 action。这边要注意一下，给定这个 state s，你的 policy $\pi$ 并不一定会采取 action a。我们是 给定某一个 state s 强制采取 action a，用 $\pi$ 继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。假设用这一个 $\pi'$ 在 state s 采取action a 跟 $\pi$ 所谓采取 action 是不一定会一样的。然后 $\pi'$ 所采取的 action 会让他得到比较大的 reward。
+如果$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$算出来小于0.8，那就当作0.8。如果算出来大于1.2，那就当作1.2。
 
-* 所以根本就没有一个 policy 叫做 $\pi'$，这个$\pi'$ 是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出$\pi'$。
-* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以 a 如果是continuous 的就会有问题，如果是discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，但这个是之后才会解决的。
+我们先看一下下面这项这个算出来到底是什么的东西。
+$$
+\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)
+$$
 
 ![](img/5.11.png)
 
-上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$  这个 Q-function 所决定出来的 $\pi'$，一定会比 $\pi$ 还要好。
+上图的横轴是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴是 clip function 实际的输出。
 
-假设有一个policy 叫做 $\pi'$，它是由 $Q^{\pi}$  决定的。我们要证对所有的 state s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。怎么证呢？我们先把$V^{\pi^{\prime}}(s)$写出来：
-$$
-V^{\pi}(s)=Q^{\pi}(s, \pi(s))
-$$
-假设在 state s 这个地方，你 follow $\pi$ 这个actor，它会采取的action，也就是$\pi(s)$，那你算出来的$Q^{\pi}(s, \pi(s))$ 会等于$V^{\pi}(s)$。In general 而言，$Q^{\pi}(s, \pi(s))$ 不见得等于$V^{\pi}(s)$ ，因为 action 不见得是$\pi(s)$。但如果这个 action 是 $\pi(s)$ 的话，$Q^{\pi}(s, \pi(s))$ 是等于$V^{\pi}(s)$的。
-
-
-$Q^{\pi}(s, \pi(s))$ 还满足如下的关系：
-$$
-Q^{\pi}(s, \pi(s)) \le \max _{a} Q^{\pi}(s, a)
-$$
-
-因为这边是所有action 里面可以让 Q 最大的那个action，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是$Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为$\pi'(s)$ output 的 a， 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
-$$
-\max _{a} Q^{\pi}(s, a)=Q^{\pi}\left(s, \pi^{\prime}(s)\right)
-$$
-
-于是：
-$$
-V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
-$$
-也就是说某一个 state，如果你按照policy $\pi$，一直做下去，你得到的 reward 一定会小于等于，在这个 state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
-
-那接下来你想要证的东西就是：
-$$
-Q^{\pi}\left(s, \pi^{\prime}(s) \right) \le V^{\pi'}(s)
-$$
-
-也就是说，只有一步之差，你会得到比较大的reward。但假设每步都是不一样的， 每步都是 follow $\pi'$ 而不是$\pi$ 的话，那你得到的reward 一定会更大。如果你要用数学式把它写出来的话，你可以这样写 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ 这个式子，它的意思就是说，我们在state $s_t$ 采取 action $a_t$，得到 reward $r_{t+1}$，然后跳到state $s_{t+1}$，即如下式所示：
-
-$$
-Q^{\pi}\left(s, \pi^{\prime}(s)\right)=E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) \mid s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
-$$
-这边有一个地方写得不太好，这边应该写成$r_t$ 跟之前的notation 比较一致，但这边写成了$r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在state $s_t$ 采取action $a_t$ 得到reward $r_{t+1}$， 有人会写成$r_t$，但意思其实都是一样的。在state s，按照$\pi'$ 采取某一个action $a_t$ ，得到 reward $r_{t+1}$，然后跳到state $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是state $s_{t+1}$，根据$\pi$ 这个actor 所估出来的value。这边要取一个期望值，因为在同样的state 采取同样的action，你得到的reward，还有会跳到的 state 不一定是一样， 所以这边需要取一个期望值。 
-
-接下来我们会得到如下的式子：
-$$
-\begin{array}{l}
-E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
-\leq E\left[r_{t+1}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
-\end{array}
-$$
-上式为什么成立呢？因为
-$$
-V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
-$$
-也就是
-$$
-V^{\pi}(s_{t+1}) \leq Q^{\pi}\left(s_{t+1}, \pi^{\prime}(s_{t+1})\right)
-$$
-
-也就是说，现在你一直follow $\pi$，跟某一步follow $\pi'$，接下来都follow $\pi$ 比起来，某一步follow $\pi'$ 得到的reward 是比较大的。
-
-接着我们得到下式：
-$$
-\begin{array}{l}
-E\left[r_{t+1}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
-=E\left[r_{t+1}+r_{t+2}+V^{\pi}\left(s_{t+2}\right) | \ldots\right]
-\end{array}
-$$
-
-因为
-$$
-Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) = r_{t+2}+V^{\pi}\left(s_{t+2}\right)
-$$
-
-然后你再代入
-
-$$
-V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
-$$
-
-一直算到底，算到episode 结束。那你就知道说
-$$
-V^{\pi}(s)\le V^{\pi'}(s)
-$$
-
-**从这边我们可以知道，你可以 estimate 某一个 policy 的 Q-function，接下来你就可以找到另外一个 policy  $\pi'$ 比原来的 policy 还要更好。**
-
-## Target Network
+* 如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 大于$1+\varepsilon$，输出就是$1+\varepsilon$。
+* 如果小于 $1-\varepsilon$， 它输出就是 $1-\varepsilon$。
+* 如果介于 $1+\varepsilon$ 跟 $1-\varepsilon$ 之间， 就是输入等于输出。
 
 ![](img/5.12.png)
 
-接下来讲一下在 DQN 里你一定会用到的 tip。第一个是 `target network`，什么意思呢？我们在 learn Q-function 的时候，也会用到 TD 的概念。那怎么用 TD？你现在收集到一个 data， 是说在state $s_t$，你采取action $a_t$ 以后，你得到reward $r_t$ ，然后跳到state $s_{t+1}$。然后根据这个Q-function，你会知道说
-$$
-\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) 
-=r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)
-$$
-
-所以你在 learn 的时候，你会说我们有 Q-function，input $s_t$, $a_t$ 得到的 value，跟 input $s_{t+1}$, $\pi (s_{t+1})$ 得到的 value 中间，我们希望它差了一个$r_t$， 这跟刚才讲的 TD 的概念是一样的。
-
-但是实际上在 learn 的时候，你会发现这样的一个function 并不好 learn，因为假设这是一个 regression problem，$\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 是 network 的 output，$r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$是 target，你会发现 target 是会动的。当然你要 implement 这样的 training，其实也没有问题，就是你在做 backpropagation 的时候， $Q^{\pi}$ 的参数会被 update，你会把两个 update 的结果加在一起。因为它们是同一个 model $Q^{\pi}$， 所以两个 update 的结果会加在一起。但这样会导致 training 变得不太稳定。因为假设你把 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 当作你model 的output， $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 当作 target 的话。你要去 fit 的 target 是一直在变的，这种一直在变的 target 的 training 是不太好 train 的。所以你会把其中一个 Q-network，通常是你会把右边这个 Q-network 固定住。也就是说你在 training 的时候，你只 update 左边这个 Q-network 的参数，而右边这个 Q-network  的参数会被固定住。因为右边的 Q-network 负责产生 target，所以叫做 `target network`。因为 target network 是固定的，所以你现在得到的 target  $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 的值也是固定的。因为 target network 是固定的，我们只调左边 network 的参数，它就变成是一个 regression problem。我们希望  model 的 output 的值跟目标越接近越好，你会 minimize 它的 mean square error。
-
-在实现的时候，你会把左边的 Q-network update 好几次以后，再去用 update 过的 Q-network 替换这个 target network 。但它们两个不要一起动，它们两个一起动的话， 结果会很容易坏掉。一开始这两个 network 是一样的，然后在 train 的时候，你会把右边的 Q-network fix 住。你在做 gradient decent 的时候，只调左边这个 network 的参数，那你可能update 100 次以后才把这个参数复制到右边的 network 去，把它盖过去。把它盖过去以后，你这个 target value 就变了。就好像说你本来在做一个 regression problem，那你 train 后把这个 regression problem 的 loss 压下去以后，接下来你把这边的参数把它 copy 过去以后，你的 target 就变掉了，接下来就要重新再 train。
-
-
-
-###  Intuition
+ $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 是绿色的线，$\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)$ 是蓝色的线。在绿色的线跟蓝色的线中间，我们要取一个最小的。假设前面乘上的这个 term A，它是大于0 的话，取最小的结果，就是红色的这一条线。
 
 ![](img/5.13.png)
 
-下面我们通过猫追老鼠的例子来直观地理解为什么要 fix target network。猫是 `Q estimation`，老鼠是 `Q target`。一开始的话，猫离老鼠很远，所以我们想让这个猫追上老鼠。
+如果 A 小于0 的话，取最小的以后，就得到红色的这一条线。
+这一个式子虽然看起来有点复杂，implement 起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的那个model， 跟你实际上 learn 的 model，在optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
+
+如果 A 大于 0，也就是某一个 state-action 的pair 是好的。那我们希望增加这个state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过$1+\varepsilon$  的话，就没有benefit 了。红色的线就是我们的objective function，我们希望objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$只要大过 $1+\varepsilon$，就没有benefit 了。
+
+所以今天在train 的时候，当$p_{\theta}(a_{t} | s_{t})$ 被 train 到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$大于 $1+\varepsilon$ 时，它就会停止。
+
+假设 $p_{\theta}(a_{t} | s_{t})$  比 $p_{\theta^k}(a_{t} | s_{t})$ 还要小，那我们的目标是要让 $p_{\theta}(a_{t} | s_{t})$ 越大越好。
+
+* 假设这个 advantage 是正的，我们希望$p_{\theta}(a_{t} | s_{t})$ 越大越好。假设这个 action 是好的，我们当然希望这个 action 被采取的概率越大越好。所以假设 $p_{\theta}(a_{t} | s_{t})$ 还比 $p_{\theta^k}(a_{t} | s_{t})$  小，那就尽量把它挪大，但只要大到$1+\varepsilon$ 就好。
+* 负的时候也是一样，如果某一个state-action pair 是不好的，我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比$p_{\theta^k}(a_{t} | s_{t})$  还大，那你就尽量把它压小，压到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$是$1-\epsilon$ 的时候就停了，就不要再压得更小。
+
+这样的好处就是， 你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要 implement 这个东西，很简单。
+
 
 ![](img/5.14.png)
-
-因为 Q target 也是跟模型参数相关的，所以每次优化后，Q target 也会动。这就导致一个问题，猫和老鼠都在动。
-
-![](img/5.15.png)
-然后它们就会在优化空间里面到处乱动，就会产生非常奇怪的优化轨迹，这就使得训练过程十分不稳定。所以我们可以固定 Q target，让老鼠动得不是那么频繁，可能让它每 5 步动一次，猫则是每一步都在动。如果老鼠每 5 次动一步的话，猫就有足够的时间来接近老鼠。然后它们之间的距离会随着优化过程越来越小，最后它们就可以拟合，拟合过后就可以得到一个最好的 Q-network。
-
-
-## Exploration
-
-![](img/5.16.png)第二个 tip 是`Exploration`。当我们使用 Q-function 的时候，policy 完全 depend on  Q-function。给定某一个 state，你就穷举所有的 a， 看哪个 a 可以让 Q value 最大，它就是采取的action。那其实这个跟 policy gradient 不一样，在做 policy gradient 的时候，output 其实是 stochastic 的。我们 output 一个action 的distribution，根据这个action 的distribution 去做sample， 所以在policy gradient 里面，你每次采取的action 是不一样的，是有随机性的。那像这种 Q-function， 如果你采取的action 总是固定的，会有什么问题呢？你会遇到的问题就是这不是一个好的收集 data 的方式。因为假设我们今天真的要估某一个state，你可以采取 action $a_{1}$, $a_{2}$, $a_{3}$。你要估测在某一个state 采取某一个action 会得到的Q value，你一定要在那一个 state 采取过那一个action，才估得出它的value。如果你没有在那个state 采取过那个action，你其实估不出那个value 的。当然如果是用 deep 的network，就你的 Q-function 其实是一个 network，这种情形可能会没有那么严重。但是 in general 而言，假设 Q-function 是一个 table，没有看过的  state-action pair，它就是估不出值来。Network 也是会有一样的问题就是， 只是没有那么严重。所以今天假设你在某一个state，action $a_{1}$, $a_{2}$, $a_{3}$ 你都没有采取过，那你估出来的 $Q(s,a_{1})$, $Q(s,a_{2})$, $Q(s,a_{3})$ 的 value 可能都是一样的，就都是一个初始值，比如说 0，即
-
-$$
-\begin{array}{l}
-Q(s, a_1)=0 \\
-Q(s, a_2)=0 \\
-Q(s, a_3)=0
-\end{array}
-$$
-
-但是假设你在state s，你 sample 过某一个action $a_{2}$ ，它得到的值是 positive 的 reward。那 $Q(s, a_2)$ 就会比其他的action 都要好。在采取action 的时候， 就看说谁的Q value 最大就采取谁，所以之后你永远都只会 sample 到 $a_{2}$，其他的action 就再也不会被做了，所以就会有问题。就好像说你进去一个餐厅吃饭，其实你都很难选。你今天点了某一个东西以后，假说点了某一样东西， 比如说椒麻鸡，你觉得还可以。接下来你每次去就都会点椒麻鸡，再也不会点别的东西了，那你就不知道说别的东西是不是会比椒麻鸡好吃，这个是一样的问题。
-
-如果你没有好的 exploration 的话， 你在training 的时候就会遇到这种问题。举一个实际的例子， 假设你今天是用 DQN 来玩比如说`slither.io`。在玩`slither.io` 你会有一个蛇，然后它在环境里面就走来走去， 然后就吃到星星，它就加分。假设这个游戏一开始，它采取往上走，然后就吃到那个星星，它就得到分数，它就知道说往上走是positive。接下来它就再也不会采取往上走以外的action 了，所以接下来就会变成每次游戏一开始，它就往上冲，然后就死掉，再也做不了别的事。所以今天需要有exploration 的机制，需要让 machine 知道说，虽然根据之前sample 的结果，$a_2$ 好像是不错的，但你至少偶尔也试一下$a_{1}$ 跟$a_{3}$，搞不好他们更好也说不定。
-
-这个问题其实就是`探索-利用窘境(Exploration-Exploitation dilemma)`问题。
-
-有两个方法解这个问题，一个是`Epsilon Greedy`。Epsilon Greedy 的意思是说，我们有$1-\varepsilon$ 的机率，通常$\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是90%，也就是90% 的机率，完全按照Q-function 来决定action。但是你有10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。也就是在最开始的时候。因为还不知道那个action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着training 的次数越来越多。已经比较确定说哪一个Q 是比较好的。你就会减少你的exploration，你会把 $\varepsilon$ 的值变小，主要根据Q-function 来决定你的action，比较少做random，这是Epsilon Greedy。
-
-还有一个方法叫做 `Boltzmann Exploration`，这个方法就比较像是 policy gradient。在 policy gradient 里面我们说network 的output 是一个 expected action space 上面的一个的 probability distribution。再根据 probability distribution 去做 sample。那其实你也可以根据 Q value 去定一个 probability distribution，假设某一个 action 的 Q value 越大，代表它越好，我们采取这个 action 的机率就越高。但是某一个 action 的 Q value 小，不代表我们不能try。所以我们有时候也要 try 那些 Q value 比较差的 action，怎么做呢？
-
-因为 Q value 是有正有负的，所以可以它弄成一个概率，你先取 exponential，再做 normalize。然后把 $\exp(Q(s,a))$ 做 normalize 的这个概率当作是你在决定 action 的时候 sample 的概率。在实现上，Q 是一个 network，所以你有点难知道， 在一开始的时候 network 的 output 到底会长怎么样子。假设你一开始没有任何的 training data，你的参数是随机的，那给定某一个 state s，不同的 a output 的值，可能就是差不多的，所以一开始 $Q(s,a)$ 应该会倾向于是 uniform。也就是在一开始的时候，你这 个 probability distribution 算出来，它可能是比较 uniform 的。
-
-## Experience Replay
-
-![](img/5.17.png)
-
-第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，Replay Buffer 又被称为 `Replay Memory`。Replay Buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
-
-这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的 $\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个 buffer 里面它其实装了很多不同的 policy 的 experiences。
-
-![](img/5.18.png)
-
-有了这个 buffer 以后，你是怎么 train 这个 Q 的 model 呢，怎么估 Q-function？你的做法是这样：你会 iterative 去 train 这个 Q-function，在每一个 iteration 里面，你从这个 buffer 里面，随机挑一个 batch 出来，就跟一般的 network training 一样，你从那个 training data set 里面，去挑一个 batch 出来。你去 sample 一个 batch 出来，里面有一把的 experiences，根据这把 experiences 去 update 你的 Q-function。就跟 TD learning 要有一个 target network 是一样的。你去 sample 一堆 batch，sample 一个 batch 的 data，sample 一堆 experiences，然后再去 update 你的 Q-function。
-
-当我们这么做的时候， 它变成了一个 `off-policy` 的做法。因为本来我们的 Q 是要观察 $\pi$ 的 experience，但实际上存在你的 replay buffer 里面的这些 experiences 不是通通来自于 $\pi$，有些是过去其他的 $\pi$ 所遗留下来的 experience。因为你不会拿某一个 $\pi$ 就把整个 buffer 装满，然后拿去测 Q-function，这个 $\pi$ 只是 sample 一些 data 塞到那个 buffer 里面去，然后接下来就让 Q 去 train。所以 Q 在 sample 的时候， 它会 sample 到过去的一些资料。
-
-这么做有两个好处。
-
-* 第一个好处，其实在做 reinforcement learning 的时候， 往往最花时间的 step 是在跟环境做互动，train network 反而是比较快的。因为你用 GPU train 其实很快， 真正花时间的往往是在跟环境做互动。用 replay buffer 可以减少跟环境做互动的次数，因为在做 training 的时候，你的 experience 不需要通通来自于某一个policy。一些过去的 policy 所得到的 experience 可以放在 buffer 里面被使用很多次，被反复的再利用，这样让你的 sample 到 experience 的利用是比较 efficient。
-
-* 第二个好处，在 train network 的时候，其实我们希望一个 batch 里面的 data 越 diverse 越好。如果你的 batch 里面的 data 都是同样性质的，你 train 下去是容易坏掉的。如果 batch 里面都是一样的 data，你 train 的时候，performance 会比较差。我们希望 batch data 越 diverse 越好。那如果 buffer 里面的那些 experience 通通来自于不同的 policy ，那你 sample 到的一个 batch 里面的 data 会是比较 diverse 。
-
-Q：我们明明是要观察 $\pi$ 的 value，里面混杂了一些不是 $\pi$ 的 experience ，这有没有关系？
-
-A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， 就算过去的$\pi$ 没有很像，其实也是没有关系的。主要的原因是因为， 我们并不是去sample 一个trajectory，我们只sample 了一笔experience，所以跟是不是 off-policy 这件事是没有关系的。就算是off-policy，就算是这些 experience 不是来自于 $\pi$，我们其实还是可以拿这些 experience 来估测 $Q^{\pi}(s,a)$。这件事有点难解释，不过你就记得说 Experience Replay 在理论上也是没有问题的。
-
-## DQN
-
-![](img/5.19.png)
-
-
-上图就是一般的 `Deep Q-network(DQN)` 的算法。
-
-这个算法是这样的。Initialize 的时候，你 initialize 2 个network，一个是 Q，一个是 $\hat{Q}$，其实 $\hat{Q}$ 就等于 Q。一开始这个 target Q-network，跟你原来的 Q-network 是一样的。在每一个 episode，你拿你的 actor 去跟环境做互动，在每一次互动的过程中，你都会得到一个 state $s_t$，那你会采取某一个action $a_t$。怎么知道采取哪一个action $a_t$ 呢？你就根据你现在的 Q-function。但是你要有 exploration 的机制。比如说你用 Boltzmann exploration 或是 Epsilon Greedy 的 exploration。那接下来你得到 reward $r_t$，然后跳到 state $s_{t+1}$。所以现在 collect 到一笔 data，这笔 data 是 ($s_t$, $a_t$ ,$r_t$, $s_{t+1}$)。这笔 data 就塞到你的 buffer 里面去。如果 buffer 满的话， 你就再把一些旧的资料丢掉。接下来你就从你的buffer 里面去 sample data，那你 sample 到的是 $(s_{i}, a_{i}, r_{i}, s_{i+1})$。这笔data 跟你刚放进去的不一定是同一笔，你可能抽到一个旧的。要注意的是，其实你 sample 出来不是一笔 data，你 sample 出来的是一个 batch 的 data，你 sample 一个batch 出来，sample 一把 experiences 出来。接下来就是计算你的 target。假设你 sample 出这么一笔 data。根据这笔 data 去算你的 target。你的 target 是什么呢？target 记得要用 target network $\hat{Q}$ 来算。Target 是：
-
-$$
-y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
-$$
-其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。我们给出 [DQN 的 PyTorch 实现](https://github.com/qfettes/DeepRL-Tutorials/blob/master/01.DQN.ipynb) 。
-
-Q: DQN 和 Q-learning 有什么不同？
-
-A: 整体来说，DQN 与 Q-learning 的目标价值以及价值的更新方式都非常相似，主要的不同点在于：
-
-* DQN 将 Q-learning 与深度学习结合，用深度网络来近似动作价值函数，而 Q-learning 则是采用表格存储；
-* DQN 采用了经验回放的训练方法，从历史数据中随机采样，而 Q-learning 直接采用下一个状态的数据进行学习。
-
-## References
-
-* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
+上图是 PPO 跟其它方法的比较。Actor-Critic 和 A2C+Trust Region 方法是actor-critic based 的方法。PPO 是紫色线的方法，这边每张图就是某一个RL 的任务，你会发现说在多数的cases 里面，PPO 都是不错的，不是最好的，就是第二好的。
 

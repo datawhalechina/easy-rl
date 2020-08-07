@@ -1,227 +1,306 @@
-# PPO
-## From On-policy to Off-policy
-在讲 PPO 之前，我们先讲一下 on-policy 和 off-policy 这两种 training 方法的区别。
-在 reinforcement learning 里面，我们要 learn 的就是一个agent。
-
-* 如果要 learn 的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy(同策略)`。 
-* 如果要 learn 的 agent 跟和环境互动的 agent 不是同一个的话， 那这个叫做`off-policy(异策略)`。
-
-比较拟人化的讲法是如果要学习的那个 agent，一边跟环境互动，一边做学习这个叫 on-policy。 如果它在旁边看别人玩，通过看别人玩来学习的话，这个叫做 off-policy。
-
-为什么我们会想要考虑 off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做 policy gradient 时，我们需要有一个 agent、一个 policy 和一个 actor。这个 actor 先去跟环境互动去搜集资料，搜集很多的 $\tau$，根据它搜集到的资料，会按照 policy gradient 的式子去 update policy 的参数。所以 policy gradient 是一个 on-policy 的 algorithm。
+# Policy Gradient
+##  Policy Gradient
 
 ![](img/4.1.png)
 
-PPO 是 policy gradient 的一个变形，它是现在 OpenAI default reinforcement learning 的 algorithm。
+在 reinforcement learning 中有 3 个components，一个`actor`，一个`environment`，一个`reward function`。
 
-$$
-\nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
-$$
+让机器玩 video game 时，
 
-问题是上面这个 update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做 expectation。一旦 update 了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前sample 出来的 data 就变的不能用了。所以 policy gradient 是一个会花很多时间来 sample data 的 algorithm，你会发现大多数时间都在 sample data，agent 去跟环境做互动以后，接下来就要 update 参数。你只能 update 参数一次。接下来你就要重新再去 collect data， 然后才能再次update 参数，这显然是非常花时间的。所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个policy， 另外一个actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的data 去训练 $\theta$，意味着说我们可以把$\theta'$  collect 到的data 用非常多次。我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔data 就好了。因为假设 $\theta$ 有能力学习另外一个actor $\theta'$ 所 sample 出来的 data 的话， 那$\theta'$  就只要sample 一次，也许sample 多一点的data， 让$\theta$ 去update 很多次，这样就会比较有效率。
+* actor 做的事情就是去操控游戏的摇杆， 比如说向左、向右、开火等操作；
+* environment 就是游戏的主机， 负责控制游戏的画面负责控制说，怪物要怎么移动， 你现在要看到什么画面等等；
+* reward function 就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到 20 分等等。
+
+同样的概念用在围棋上也是一样的，
+
+* actor 就是 alpha Go，它要决定下哪一个位置；
+* environment 就是对手；
+* reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。
+
+在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为。Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
+
 ![](img/4.2.png)
+**Policy 一般写成 $\pi$**。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**。Network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西就是游戏的画面。Machine 看到什么东西，会影响你现在 training 到底好不好 train。
 
-具体怎么做呢？这边就需要介绍 `important sampling` 的概念。假设你有一个function $f(x)$，你要计算从 p 这个 distribution sample x，再把 x 带到 f 里面，得到$f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
+举例来说，在玩游戏的时候， 也许你觉得游戏的画面，前后是相关的，也许你觉得说，你应该让你的 policy，看从游戏初始到现在这个时间点，所有画面的总和。你可能会觉得你要用到 RNN 来处理它，不过这样子，你会比较难处理。要让你的 machine，你的 policy 看到什么样的画面， 这个是你自己决定的。让你知道说给机器看到什么样的游戏画面，可能是比较有效的。Output 的就是今天机器要采取什么样的行为。
 
-现在有另外一个问题，我们没有办法从 p 这个 distribution 里面 sample data。假设我们不能从 p sample data，只能从另外一个 distribution q 去 sample data，q  可以是任何 distribution。我们不能够从 p 去sample data，但可以从 q 去 sample $x$。我们从 q 去 sample $x^i$ 的话就不能直接套下面的式子。
-$$
-E_{x \sim p}[f(x)] \approx \frac{1}{N} \sum_{i=1}^N f(x^i)
-$$
-因为上式是假设你的 $x$ 都是从 p sample 出来的。所以做一个修正，修正是这样子的。期望值$E_{x \sim p}[f(x)]$其实就是$\int f(x) p(x) dx$，我们对其做如下的变换：
-$$
-\int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]
-$$
-我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从q 里面 sample x，然后再去计算$f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去sample data，然后代入上式，你就可以计算从 p 这个distribution sample x 代入 f 以后所算出来的期望值。
+上图就是具体的例子，
 
-这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是$\frac{p(x)}{q(x)}$。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以 apply important sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
+* policy 就是一个 network；
+* input 就是游戏的画面，它通常是由 pixels 所组成的；
+* output 就是看看说有那些选项是你可以去执行的，output layer 就有几个 neurons。
+
+假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，actor 采取的行为就会不一样。
 
 ![](img/4.3.png)
+接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy 来决定一个 action。假设它现在决定的 action 是向右，它决定完 action 以后，它就会得到一个 reward ，代表它采取这个 action 以后得到的分数。
 
-Important sampling 有一些 issue。虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能够差太多。差太多的话，会有一些问题。什么样的问题呢？
+我们把一开始的初始画面，写作 $s_1$， 把第一次执行的动作叫做 $a_1$，把第一次执行动作完以后得到的 reward 叫做 $r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个的行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。然后这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
 
-$$
-E_{x \sim p}[f(x)]=E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
-$$
-虽然上式成立。但上式左边是$f(x)$ 的期望值，它的distribution 是 p，上式右边是$f(x) \frac{p(x)}{q(x)}$ 的期望值，它的distribution 是 q。如果不是算期望值，而是算 variance 的话。这两个variance 是不一样的。两个 random variable 的 mean 一样，并不代表它的 variance 一样。
+![](img/4.4.png)
+一场游戏叫做一个 `Episode(回合)` 或者 `Trial(试验)`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `Total reward`，我们称其为`Return(回报)`，用 R 来表示它。Actor 要想办法去 maximize 它可以得到的 reward。
 
-我们可以代一下方差的公式
+![](img/4.5.png)
+首先，`environment` 是一个`function`，游戏的主机也可以把它看作是一个 function，虽然它不一定是 neural network，可能是 rule-based 的规则，但你可以把它看作是一个 function。这个 function，一开始就先吐出一个 state，也就是游戏的画面，接下来你的 actor 看到这个游戏画面 $s_1$ 以后，它吐出 $a_1$，然后 environment 把 $a_1$ 当作它的输入，然后它再吐出 $s_2$，吐出新的游戏画面。Actor 看到新的游戏画面，再采取新的行为 $a_2$，然后 environment 再看到 $a_2$，再吐出 $s_3$。这个 process 会一直持续下去，直到 environment 觉得说应该要停止为止。
+
+在一场游戏里面，我们把 environment 输出的 $s$ 跟 actor 输出的行为 $a$，把这个 $s$ 跟 $a$ 全部串起来， 叫做一个 `Trajectory`，如下式所示。
 $$
-\operatorname{Var}_{x \sim p}[f(x)]=E_{x \sim p}\left[f(x)^{2}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
+\text { Trajectory } \tau=\left\{s_{1}, a_{1}, s_{2}, a_{2}, \cdots, s_{t}, a_{t}\right\}
 $$
+
+每一个 trajectory，你可以计算它发生的概率。假设现在 actor 的参数已经被给定了话，就是 $\theta$。根据 $\theta$，你其实可以计算某一个 trajectory 发生的概率，你可以计算某一个回合，某一个 episode 里面， 发生这样子状况的概率。
 
 $$
 \begin{aligned}
-\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right] &=E_{x \sim q}\left[\left(f(x) \frac{p(x)}{q(x)}\right)^{2}\right]-\left(E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]\right)^{2} \\
-&=E_{x \sim p}\left[f(x)^{2} \frac{p(x)}{q(x)}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
+p_{\theta}(\tau)
+&=p\left(s_{1}\right) p_{\theta}\left(a_{1} | s_{1}\right) p\left(s_{2} | s_{1}, a_{1}\right) p_{\theta}\left(a_{2} | s_{2}\right) p\left(s_{3} | s_{2}, a_{2}\right) \cdots \\
+&=p\left(s_{1}\right) \prod_{t=1}^{T} p_{\theta}\left(a_{t} | s_{t}\right) p\left(s_{t+1} | s_{t}, a_{t}\right)
 \end{aligned}
 $$
 
-$\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的差别在第一项是不同的， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的第一项多乘了$\frac{p(x)}{q(x)}$，如果$\frac{p(x)}{q(x)}$ 差距很大的话， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$的 variance 就会很大。所以虽然理论上它们的expectation 一样，也就是说，你只要对 p 这个distribution sample 够多次，q 这个distribution sample 够多，你得到的结果会是一样的。但是假设你sample 的次数不够多，因为它们的variance 差距是很大的，所以你就有可能得到非常大的差别。
+怎么算呢，如上式所示。在假设你 actor 的参数就是 $\theta$ 的情况下，某一个 trajectory $\tau$ 的概率就是这样算的，你先算 environment 输出 $s_1$ 的概率，再计算根据 $s_1$ 执行 $a_1$ 的概率，这是由你 policy 里面的 network 参数 $\theta$ 所决定的， 它是一个概率，因为你的 policy 的 network 的 output 是一个 distribution，actor 是根据这个 distribution 去做 sample，决定现在实际上要采取的 action是哪一个。接下来 environment 根据 $a_1$ 跟 $s_1$ 产生 $s_2$，因为 $s_2$ 跟$s_1$  还是有关系的，下一个游戏画面，跟前一个游戏画面通常还是有关系的，至少要是连续的， 所以给定前一个游戏画面 $s_1$ 和现在 actor 采取的行为 $a_1$，就会产生 $s_2$。
 
-![](img/4.4.png)
+这件事情可能是概率，也可能不是概率，这个取决于 environment，就是主机它内部设定是怎样。看今天这个主机在决定，要输出什么样的游戏画面的时候，有没有概率。因为如果没有概率的话，这个游戏的每次的行为都一样，你只要找到一条 path 就可以过关了，这样感觉是蛮无聊的 。所以游戏里面，通常是还是有一些概率的，你做同样的行为，给同样的前一个画面， 下次产生的画面不见得是一样的。Process 就反复继续下去，你就可以计算一个 trajectory $s_1$,$a_1$, $s_2$ , $a_2$ 出现的概率有多大。
 
-举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+**这个概率取决于两部分**， 
 
-接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边sample 到这些点，然后你去计算它们的$f(x) \frac{p(x)}{q(x)}$都是正的，所以你sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你sample 次数很少，你只能sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要sample 够多次，这件事情才会发生。但有可能sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
+* 一部分是 `environment 的行为`， environment 的 function 它内部的参数或内部的规则长什么样子。 $p(s_{t+1}|s_t,a_t)$这一项代表的是 environment， environment 这一项通常你是无法控制它的，因为那个是人家写好的，你不能控制它。
+* 另一部分是 `agent 的行为`。你能控制的是 $p_\theta(a_t|s_t)$。给定一个 $s_t$， actor 要采取什么样的 $a_t$ 会取决于你 actor 的参数 $\theta$， 所以这部分是 actor 可以自己控制的。随着 actor 的行为不同，每个同样的 trajectory， 它就会有不同的出现的概率。
 
-![](img/4.5.png)
-
-现在要做的事情就是把 importance sampling 用在 off-policy 的 case。把 on-policy training 的algorithm 改成 off-policy training 的 algorithm。怎么改呢，之前我们是拿 $\theta$ 这个policy 去跟环境做互动，sample 出trajectory $\tau$，然后计算$R(\tau) \nabla \log p_{\theta}(\tau)$。
-
-现在我们不用$\theta$ 去跟环境做互动，假设有另外一个 policy  $\theta'$，它就是另外一个actor。它的工作是他要去做demonstration，$\theta'$ 的工作是要去示范给$\theta$ 看。它去跟环境做互动，告诉 $\theta$ 说，它跟环境做互动会发生什么事。然后，借此来训练$\theta$。我们要训练的是$\theta$ ，$\theta'$  只是负责做 demo，负责跟环境做互动。
-
-我们现在的$\tau$ 是从 $\theta'$ sample 出来的，是拿 $\theta'$ 去跟环境做互动。所以sample 出来的 $\tau$ 是从 $\theta'$ sample 出来的，这两个distribution 不一样。但没有关系，假设你本来是从 p 做sample，但你发现你不能够从 p 做sample，所以我们不拿$\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面这边补上一个 importance weight。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个importance weight $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个 importance weight 就是某一个 trajectory $\tau$ 用 $\theta$ 算出来的概率除以这个 trajectory $\tau$，用$\theta'$ 算出来的概率。这一项是很重要的，因为今天你要learn 的是actor $\theta$ 和 $\theta'$ 是不太一样的。$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
-
-现在的data 不是从$\theta$ sample 出来，是从 $\theta'$ sample 出来的。从$\theta$ 换成$\theta'$ 有什么好处呢？因为现在跟环境做互动是$\theta'$ 而不是$\theta$。所以 sample 出来的东西跟 $\theta$ 本身是没有关系的。所以你就可以让 $\theta'$ 做互动 sample 一大堆的data，$\theta$ 可以update 参数很多次。然后一直到 $\theta$  train 到一定的程度，update 很多次以后，$\theta'$ 再重新去做sample，这就是on-policy 换成off-policy 的妙用。
 
 ![](img/4.6.png)
 
-实际在做 policy gradient 的时候，我们并不是给整个 trajectory $\tau$ 都一样的分数，而是每一个state-action 的pair 会分开来计算。实际上 update gradient 的时候，我们的式子是长这样子的。
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta}}\left[A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
-$$
 
-我们用 $\theta$ 这个actor 去sample 出$s_t$ 跟$a_t$，sample 出state 跟action 的pair，我们会计算这个state 跟action pair 它的advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在state $s_t$ 采取action $a_t$ 是好的，还是不好的。那接下来后面会乘上$\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果$A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
-
-那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在$s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把$s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
+在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的 $r$ 都加起来，我们就得到了 $R(\tau)$ ，代表某一个 trajectory $\tau$ 的 reward。在某一场游戏里面， 某一个 episode 里面，我们会得到 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable，R 其实是一个 random variable。 因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
 
 $$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{P_{\theta}\left(s_{t}, a_{t}\right)}{P_{\theta^{\prime}}\left(s_{t}, a_{t}\right)} A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
+\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)
 $$
-
-这边 $A^{\theta}(s_t,a_t)$ 有一个上标 $\theta$，$\theta$  代表说这个是 actor $\theta$ 跟环境互动的时候所计算出来的 A。但是实际上从 $\theta$ 换到 $\theta'$  的时候，$A^{\theta}(s_t,a_t)$ 应该改成 $A^{\theta'}(s_t,a_t)$，为什么？A 这一项是想要估测说现在在某一个 state 采取某一个 action，接下来会得到 accumulated reward 的值减掉base line 。你怎么估 A 这一项，你就会看在 state $s_t$，采取 action $a_t$，接下来会得到的reward 的总和，再减掉baseline。之前是 $\theta$ 在跟环境做互动，所以你观察到的是 $\theta$ 可以得到的reward。但现在是 $\theta'$  在跟环境做互动，所以你得到的这个advantage， 其实是根据 $\theta'$  所estimate 出来的advantage。但我们现在先不要管那么多， 我们就假设这两项可能是差不多的。
-
-那接下来，我们可以拆解 $p_{\theta}\left(s_{t}, a_{t}\right)$ 和 $p_{\theta'}\left(s_{t}, a_{t}\right)$，即
+这个期望值的算法如上式所示，穷举所有可能的 trajectory $\tau$， 每一个 trajectory $\tau$ 都有一个概率。比如 $\theta$ 是一个很强的 model， 那它都不会死。如果有一个 episode 很快就死掉了， 它的概率就很小；如果有一个 episode 都一直没有死， 那它的概率就很大。根据你的 $\theta$， 你可以算出某一个 trajectory $\tau$ 出现的概率，接下来你计算这个 $\tau$ 的 total reward 是多少。 Total reward weighted by 这个 $\tau$ 出现的概率，对所有的 $\tau$ 进行求和，就是期望值。给定一个参数，你会得到的期望值。
 $$
-\begin{aligned}
-p_{\theta}\left(s_{t}, a_{t}\right)&=p_{\theta}\left(a_{t}|s_{t}\right) p_{\theta}(s_t) \\
-p_{\theta'}\left(s_{t}, a_{t}\right)&=p_{\theta'}\left(a_{t}|s_{t}\right) p_{\theta'}(s_t) 
-\end{aligned}
+\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)=E_{\tau \sim p_{\theta}(\tau)}[R(\tau)]
 $$
-于是我们得到下式：
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} \frac{p_{\theta}\left(s_{t}\right)}{p_{\theta^{\prime}}\left(s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
-$$
-
-
-然后这边需要做一件事情是，假设 model 是 $\theta$ 的时候，你看到$s_t$ 的概率，跟 model 是$\theta'$  的时候，你看到$s_t$ 的概率是差不多的，即$p_{\theta}(s_t)=p_{\theta'}(s_t)$。因为它们是一样的，所以你可以把它删掉，即
-$$
-=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]  \quad(1)
-$$
-
-为什么可以假设它是差不多的。举例来说，会看到什么state 往往跟你会采取什么样的action 是没有太大的关系的。比如说你玩不同的 Atari 的游戏，其实你看到的游戏画面都是差不多的，所以也许不同的 $\theta$  对 $s_t$ 是没有影响的。但是有一个更直觉的理由就是这一项到时候真的要你算，你会算吗？因为想想看这项要怎么算，这一项你还要说我有一个参数$\theta$，然后拿$\theta$ 去跟环境做互动，算$s_t$ 出现的概率，这个你根本很难算。尤其是你如果 input 是image 的话， 同样的 $s_t$ 根本就不会出现第二次。你根本没有办法估这一项， 所以干脆就无视这个问题。
-
-但是 $p_{\theta}(a_t|s_t)$很好算。你手上有$\theta$ 这个参数，它就是个network。你就把$s_t$ 带进去，$s_t$ 就是游戏画面，你把游戏画面带进去，它就会告诉你某一个state 的 $a_t$ 概率是多少。我们其实有个 policy 的network，把 $s_t$ 带进去，它会告诉我们每一个 $a_t$ 的概率是多少。所以
-$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$ 这一项，你只要知道$\theta$ 和 $\theta'$ 的参数就可以算。
-
-现在我们得到一个新的objective function。
-
-$$
-J^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]
-$$
-
-
-式(1)是 gradient，其实我们可以从 gradient 去反推原来的 objective function。这边有一个公式
-
-$$
-\nabla f(x)=f(x) \nabla \log f(x)
-$$
-
-我们可以用这个公式来反推objective  function，要注意一点，对 $\theta$ 求梯度时，$p_{\theta^{\prime}}(a_{t} | s_{t})$ 和 $A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 都是常数。
-
-
-所以实际上，当我们apply importance sampling 的时候，要去optimize 的那一个objective function 就长这样子，我们把它写作$J^{\theta^{\prime}}(\theta)$。为什么写成$J^{\theta^{\prime}}(\theta)$ 呢，这个括号里面那个$\theta$ 代表我们要去optimize 的那个参数。$\theta'$  是说我们拿 $\theta'$  去做demonstration，就是现在真正在跟环境互动的是$\theta'$。因为 $\theta$ 不跟环境做互动，是 $\theta'$  在跟环境互动。
-
-然后你用$\theta'$  去跟环境做互动，sample 出$s_t$、$a_t$ 以后，你要去计算$s_t$ 跟$a_t$ 的advantage，然后你再去把它乘上$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$。$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$是好算的，$A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 可以从这个 sample 的结果里面去估测出来的，所以 $J^{\theta^{\prime}}(\theta)$ 是可以算的。实际上在 update 参数的时候，就是按照式(1) 来 update 参数。
-
-
-
-## PPO
+我们还可以写成上式那样，从 $p_{\theta}(\tau)$ 这个 distribution sample 一个 trajectory $\tau$，然后计算 $R(\tau)$ 的期望值，就是你的 expected reward。 我们要做的事情就是 maximize expected reward。
 
 ![](img/4.7.png)
+怎么 maximize expected reward 呢？我们用的是 `gradient ascent`，因为要让它越大越好，所以是 gradient ascent。Gradient ascent 在 update 参数的时候要加。要进行 gradient ascent，我们先要计算 expected reward $\bar{R}$ 的 gradient 。我们对 $\bar{R}$ 取一个 gradient，这里面只有 $p_{\theta}(\tau)$ 是跟 $\theta$ 有关，所以 gradient 就放在 $p_{\theta}(\tau)$ 这个地方。$R(\tau)$ 这个 reward function 不需要是 differentiable，我们也可以解接下来的问题。举例来说，如果是在 GAN 里面，$R(\tau)$ 其实是一个 discriminator，它就算是没有办法微分，也无所谓，你还是可以做接下来的运算。
 
-我们可以把 on-policy 换成 off-policy，但 importance sampling 有一个 issue，如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多的话，这两个 distribution 差太多的话，importance sampling 的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。它实际上做的事情就是这样，在 off-policy 的方法里要optimize 的是 $J^{\theta^{\prime}}(\theta)$。但是这个 objective function 又牵涉到 importance sampling。在做 importance sampling 的时候，$p_{\theta}\left(a_{t} | s_{t}\right)$ 不能跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$差太多。你做 demonstration 的 model 不能够跟真正的 model 差太多，差太多的话 importance sampling 的结果就会不好。我们在 training 的时候，多加一个 constrain。这个constrain 是 $\theta$  跟 $\theta'$  output 的 action 的 KL divergence，简单来说，这一项的意思就是要衡量说 $\theta$ 跟 $\theta'$  有多像。
+取 gradient之后，我们背一个公式，
+$$
+\nabla f(x)=f(x)\nabla \log f(x)
+$$
+我们可以对 $\nabla p_{\theta}(\tau)$ 使用这个公式，然后会得到 $\nabla p_{\theta}(\tau)=p_{\theta}(\tau)  \nabla \log p_{\theta}(\tau)$。
 
-然后我们希望在 training 的过程中，learn 出来的 $\theta$ 跟 $\theta'$  越像越好。因为如果 $\theta$ 跟 $\theta'$ 不像的话，最后的结果就会不好。所以在 PPO 里面有两个式子，一方面是 optimize 本来要 optimize 的东西，但再加一个 constrain。这个 constrain 就好像那个 regularization 的 term 一样，在做 machine learning 的时候不是有 L1/L2 的regularization。这一项也很像 regularization，这样 regularization 做的事情就是希望最后 learn 出来的 $\theta$ 不要跟 $\theta'$ 太不一样。
+接下来， 分子分母，上下同乘$p_{\theta}(\tau)$，然后我们可以得到下式：
+$$
+\frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)}=\log p_{\theta}(\tau)
+$$
 
-PPO 有一个前身叫做TRPO，TRPO 的式子如下式所示。
+ 然后如下式所示， 对 $\tau$ 进行求和，把 $R(\tau)$  和  $\log p_{\theta}(\tau)$ 这两项 weighted by $ p_{\theta}(\tau)$， 既然有 weighted by  $p_{\theta}(\tau)$，它们就可以被写成这个 expected 的形式。也就是你从 $p_{\theta}(\tau)$ 这个 distribution 里面 sample $\tau$ 出来， 去计算 $R(\tau)$ 乘上 $\nabla\log p_{\theta}(\tau)$，然后把它对所有可能的 $\tau$ 进行求和，就是这个 expected value 。
+
 $$
 \begin{aligned}
-J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] \\ \\
-\mathrm{KL}\left(\theta, \theta^{\prime}\right)<\delta
+\nabla \bar{R}_{\theta}&=\sum_{\tau} R(\tau) \nabla p_{\theta}(\tau)\\&=\sum_{\tau} R(\tau) p_{\theta}(\tau) \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)} \\&=
+\sum_{\tau} R(\tau) p_{\theta}(\tau) \nabla \log p_{\theta}(\tau) \\
+&=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
 \end{aligned}
 $$
 
-它与PPO不一样的地方 是 constrain 摆的位置不一样，PPO是直接把 constrain 放到你要 optimize 的那个式子里面，然后你就可以用 gradient ascent 的方法去 maximize 这个式子。但 TRPO 是把 KL divergence 当作constrain，它希望 $\theta$ 跟 $\theta'$ 的 KL divergence 小于一个$\delta$。如果你是用 gradient based optimization 时，有 constrain 是很难处理的。
+实际上这个 expected value 没有办法算，所以你是用 sample 的方式来 sample 一大堆的 $\tau$。你 sample $N$ 笔  $\tau$， 然后你去计算每一笔的这些 value，然后把它全部加起来，最后你就得到你的 gradient。你就可以去 update 你的参数，你就可以去 update 你的 agent，如下式所示。
+$$
+\begin{aligned}
+E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right] &\approx \frac{1}{N} \sum_{n=1}^{N} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(\tau^{n}\right) \\
+&=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+\end{aligned}
+$$
+注意 $p_{\theta}(\tau)$ 里面有两项，$p(s_{t+1}|s_t,a_t)$ 来自于 environment，$p_\theta(a_t|s_t)$ 是来自于 agent。 $p(s_{t+1}|s_t,a_t)$ 由环境决定从而与 $\theta$ 无关，因此 $\nabla \log p(s_{t+1}|s_t,a_t) =0 $。因此 $\nabla p_{\theta}(\tau)=
+\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$。
 
-PPO是很难处理的，因为它是把 KL divergence constrain 当做一个额外的 constrain，没有放 objective 里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用PPO 不要用TRPO。看文献上的结果是，PPO 跟TRPO 可能 performance 差不多，但 PPO 在实现上比 TRPO 容易的多。
+你可以非常直观的来理解这个部分，也就是在你 sample 到的 data 里面， 你 sample 到，在某一个 state $s_t$ 要执行某一个 action $a_t$， 这个 $s_t$ 跟 $a_t$ 它是在整个 trajectory $\tau$ 的里面的某一个 state and action 的 pair。
 
-KL divergence 到底指的是什么？这边我是直接把 KL divergence 当做一个 function，input 是 $\theta$ 跟 $\theta'$，但我的意思并不是说把 $\theta$ 或 $\theta'$  当做一个distribution，算这两个distribution 之间的距离，我不是这个意思。所谓的 $\theta$ 跟 $\theta'$  的距离并不是参数上的距离，而是 behavior 上的距离。
+*  假设你在 $s_t$ 执行 $a_t$，最后发现 $\tau$ 的 reward 是正的， 那你就要增加这一项的概率，你就要增加在 $s_t$ 执行 $a_t$ 的概率。
+*  反之，在 $s_t$ 执行 $a_t$ 会导致$\tau$  的 reward 变成负的， 你就要减少这一项的概率。
 
-假设你有一个model，有一个actor 它是$\theta$，你有另外一个actor 的参数是$\theta'$ ，所谓参数上的距离就是你算这两组参数有多像。我今天所讲的不是参数上的距离， 而是它们行为上的距离。就是你先带进去一个state s，它会对这个 action 的 space output 一个 distribution。假设你有 3 个actions，3 个可能的 actions 就 output 3 个值。那今天所指的 distance 是behavior distance。也就是说，给同样的 state 的时候，输出 action 之间的差距。这两个 actions 的 distribution 都是一个概率分布。所以就可以计算这两个概率分布的 KL divergence。把不同的 state output 的这两个 distribution 的KL divergence 平均起来才是我这边所指的两个 actor 间的 KL divergence。你可能说怎么不直接算这个 $\theta$ 或 $\theta'$ 之间的距离，甚至不要用KL divergence 算，L1 跟 L2 的 norm 也可以保证 $\theta$ 跟 $\theta'$ 很接近啊。在做reinforcement learning 的时候，之所以我们考虑的不是参数上的距离，而是 action 上的距离，是因为很有可能对 actor 来说，参数的变化跟 action 的变化不一定是完全一致的。有时候你参数小小变了一下，它可能 output 的行为就差很多。或是参数变很多，但 output 的行为可能没什么改变。**所以我们真正在意的是这个actor 它的行为上的差距，而不是它们参数上的差距。**所以在做PPO 的时候，所谓的 KL divergence 并不是参数的距离，而是action 的距离。
+
 
 ![](img/4.8.png)
+这个怎么实现呢？ 你用 gradient ascent 来 update 你的参数，你原来有一个参数 $\theta$ ，把你的 $\theta$  加上你的 gradient 这一项，那当然前面要有个 learning rate，learning rate 其实也是要调的，你可用 Adam、RMSProp 等方法对其进行调整。
 
-我们来看一下PPO1 的algorithm。它先initial 一个policy 的参数$\theta^0$。然后在每一个iteration 里面呢，你要用参数$\theta^k$，$\theta^k$ 就是你在前一个training 的iteration得到的actor 的参数，你用$\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的pair。
+我们可以套下面这个公式来把 gradient 计算出来: 
 
-然后你根据$\theta^k$ 互动的结果，估测一下$A^{\theta^{k}}\left(s_{t}, a_{t}\right)$。然后你就 apply PPO 的 optimization 的 formulation。但跟原来的policy gradient 不一样，原来的 policy gradient 只能 update 一次参数，update 完以后，你就要重新 sample data。但是现在不用，你拿 $\theta^k$ 去跟环境做互动，sample 到这组 data 以后，你可以让 $\theta$ update 很多次，想办法去 maximize objective function。这边 $\theta$ update 很多次没有关系，因为我们已经有做 importance sampling，所以这些experience，这些 state-action 的 pair 是从 $\theta^k$ sample 出来的没有关系。$\theta$ 可以 update 很多次，它跟 $\theta^k$ 变得不太一样也没有关系，你还是可以照样训练 $\theta$。
+$$
+\nabla \bar{R}_{\theta}=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)
+$$
+实际上，要套上面这个公式， 首先你要先收集一大堆的 s 跟 a 的 pair，你还要知道这些 s 跟 a 在跟环境互动的时候，你会得到多少的 reward。 这些资料怎么收集呢？你要拿你的 agent，它的参数是 $\theta$，去跟环境做互动， 也就是拿你已经 train 好的 agent 先去跟环境玩一下，先去跟那个游戏互动一下， 互动完以后，你就会得到一大堆游戏的纪录，你会记录说，今天先玩了第一场，在第一场游戏里面，我们在 state $s_1$ 采取 action $a_1$，在 state $s_2$ 采取 action $a_2$ 。
+
+玩游戏的时候是有随机性的，所以 agent 本身是有随机性的，在同样 state $s_1$，不是每次都会采取 $a_1$，所以你要记录下来。在 state $s_1^1$ 采取 $a_1^1$，在 state $s_2^1$ 采取 $a_2^1$。整场游戏结束以后，得到的分数是$R(\tau^1)$。你会 sample 到另外一笔 data，也就是另外一场游戏。在另外一场游戏里面，你在 state $s_1^2$ 采取 $a_1^2$，在 state $s_2^2$ 采取 $a_2^2$，然后你 sample 到的就是 $\tau^2$，得到的 reward 是 $R(\tau^2)$。
+
+你就可以把 sample 到的东西代到这个 gradient 的式子里面，把 gradient 算出来。也就是把这边的每一个 s 跟 a 的 pair 拿进来，算一下它的 log probability 。你计算一下在某一个 state 采取某一个 action 的 log probability，然后对它取 gradient，然后这个 gradient 前面会乘一个 weight，weight 就是这场游戏的 reward。 有了这些以后，你就会去 update 你的 model。
+
+Update 完你的 model 以后。你要重新去收集 data，再 update model。这边要注意一下，一般 policy gradient sample 的 data 就只会用一次。你把这些 data sample 起来，然后拿去 update 参数，这些 data 就丢掉了。接着再重新 sample data，才能够去 update 参数， 等一下我们会解决这个问题。
+
+
 
 ![](img/4.9.png)
 
-在PPO 的paper 里面还有一个 `adaptive KL divergence`，这边会遇到一个问题就是 $\beta$  要设多少，它就跟那个regularization 一样。regularization 前面也要乘一个weight，所以这个 KL divergence 前面也要乘一个 weight，但 $\beta$  要设多少呢？所以有个动态调整 $\beta$ 的方法。在这个方法里面呢，你先设一个 KL divergence，你可以接受的最大值。然后假设你发现说你 optimize 完这个式子以后，KL divergence 的项太大，那就代表说后面这个 penalize 的 term 没有发挥作用，那就把 $\beta$ 调大。那另外你定一个 KL divergence 的最小值。如果发现 optimize 完上面这个式子以后，KL divergence 比最小值还要小，那代表后面这一项的效果太强了，你怕他只弄后面这一项，那 $\theta$ 跟 $\theta^k$ 都一样，这不是你要的，所以你这个时候你叫要减少 $\beta$。所以 $\beta$ 是可以动态调整的。这个叫做 adaptive KL penalty。
+接下来讲一些实现细节。实现方法是这个样子，把它想成一个分类的问题，在 classification 里面就是 input 一个 image，然后 output 决定说是 10 个 class 里面的哪一个。在做 classification 时，我们要收集一堆 training data，要有 input 跟 output 的 pair。
+
+在实现的时候，你就把 state 当作是 classifier 的 input。 你就当在做 image classification 的 problem，只是现在的 class 不是说 image 里面有什么 objects。 现在的 class 是说，看到这张 image 我们要采取什么样的行为，每一个行为就是一个 class。比如说第一个 class 叫做向左，第二个 class 叫做向右，第三个 class 叫做开火。
+
+这些训练的数据从哪里来的呢？ 做分类的问题时，要有 input 和正确的 output。  这些训练数据是从 sampling 的 process 来的。假设在 sampling 的 process 里面，在某一个 state，你 sample 到你要采取 action a， 你就把这个 action a 当作是你的 ground truth。你在这个 state，你 sample 到要向左。 本来向左这件事概率不一定是最高， 因为你是 sample，它不一定概率最高。假设你 sample 到向左，在 training 的时候 你叫告诉 machine 说，调整 network 的参数， 如果看到这个 state，你就向左。在一般的 classification 的 problem 里面，其实你在 implement classification 的时候， 你的 objective function 都会写成 minimize cross entropy，其实 minimize cross entropy 就是 maximize log likelihood。
+
 
 ![](img/4.10.png)
 
-如果你觉得算 KL divergence 很复杂。有一个PPO2。PPO2 要去 maximize 的 objective function 如下式所示，它的式子里面就没有 KL divergence 。
+做 classification 的时候，objective function 就是 maximize 或 minimize 的对象， 因为我们现在是 maximize likelihood 所以其实是 maximize， 你要 maximize 的对象，如下式所示:
 $$
-\begin{aligned}
-J_{P P O 2}^{\theta^{k}}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)} A^{\theta^{k}}\left(s_{t}, a_{t}\right),\right.\\
-&\left.\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{k}}\left(s_{t}, a_{t}\right)\right)
-\end{aligned}
-$$
-这个式子看起来有点复杂，但实际 implement 就很简单。我们来实际看一下说这个式子到底是什么意思。
-min 这个 operator 做的事情是第一项跟第二项里面选比较小的那个。第二项前面有个clip function，clip 这个function 的意思是说，在括号里面有3 项，如果第一项小于第二项的话，那就output $1-\varepsilon$ 。第一项如果大于第三项的话，那就output $1+\varepsilon$。 $\varepsilon$ 是一个 hyper parameter，你要tune 的，你可以设成 0.1 或 设 0.2 。
-假设这边设0.2 的话，如下式所示
-$$
-\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 0.8, 1.2\right)
+\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 
-如果$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$算出来小于0.8，那就当作0.8。如果算出来大于1.2，那就当作1.2。
+像这种 loss function。你可在 TensorFlow 里 call 现成的 function，它就会自动帮你算。
+然后你就可以把 gradient 计算出来，这是一般的分类问题。RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 PyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
 
-我们先看一下下面这项这个算出来到底是什么的东西。
-$$
-\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)
-$$
+## Tips
+这边有一些在实现的时候，你也许用得上的 tip。
+### Tip 1: Add a Baseline
 
 ![](img/4.11.png)
 
-上图的横轴是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴是 clip function 实际的输出。
+第一个 tip 是 add 一个 baseline。add baseline 是什么意思呢？如果 given state s 采取 action a 会给你整场游戏正面的 reward，就要增加它的概率。如果 state s 执行 action a，整场游戏得到负的 reward，就要减少这一项的概率。
 
-* 如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 大于$1+\varepsilon$，输出就是$1+\varepsilon$。
-* 如果小于 $1-\varepsilon$， 它输出就是 $1-\varepsilon$。
-* 如果介于 $1+\varepsilon$ 跟 $1-\varepsilon$ 之间， 就是输入等于输出。
-
+但在很多游戏里面， reward 总是正的，就是说最低都是 0。比如说打乒乓球游戏， 你的分数就是介于 0 到 21 分之间，所以这个 R 总是正的。假设你直接套用这个式子， 在 training 的时候，告诉 model 说，不管是什么 action 你都应该要把它的概率提升。 在理想上，这么做并不一定会有问题。因为虽然说 R 总是正的，但它正的量总是有大有小，你在玩乒乓球那个游戏里面，得到的 reward 总是正的，但它是介于 0~21分之间，有时候你采取某些 action 可能是得到 0 分，采取某些 action 可能是得到 20 分。
 ![](img/4.12.png)
 
- $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 是绿色的线，$\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)$ 是蓝色的线。在绿色的线跟蓝色的线中间，我们要取一个最小的。假设前面乘上的这个 term A，它是大于0 的话，取最小的结果，就是红色的这一条线。
-
-![](img/4.13.png)
-
-如果 A 小于0 的话，取最小的以后，就得到红色的这一条线。
-这一个式子虽然看起来有点复杂，implement 起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的那个model， 跟你实际上 learn 的 model，在optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
-
-如果 A 大于 0，也就是某一个 state-action 的pair 是好的。那我们希望增加这个state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过$1+\varepsilon$  的话，就没有benefit 了。红色的线就是我们的objective function，我们希望objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$只要大过 $1+\varepsilon$，就没有benefit 了。
-
-所以今天在train 的时候，当$p_{\theta}(a_{t} | s_{t})$ 被 train 到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$大于 $1+\varepsilon$ 时，它就会停止。
-
-假设 $p_{\theta}(a_{t} | s_{t})$  比 $p_{\theta^k}(a_{t} | s_{t})$ 还要小，那我们的目标是要让 $p_{\theta}(a_{t} | s_{t})$ 越大越好。
-
-* 假设这个 advantage 是正的，我们希望$p_{\theta}(a_{t} | s_{t})$ 越大越好。假设这个 action 是好的，我们当然希望这个 action 被采取的概率越大越好。所以假设 $p_{\theta}(a_{t} | s_{t})$ 还比 $p_{\theta^k}(a_{t} | s_{t})$  小，那就尽量把它挪大，但只要大到$1+\varepsilon$ 就好。
-* 负的时候也是一样，如果某一个state-action pair 是不好的，我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比$p_{\theta^k}(a_{t} | s_{t})$  还大，那你就尽量把它压小，压到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$是$1-\epsilon$ 的时候就停了，就不要再压得更小。
-
-这样的好处就是， 你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要 implement 这个东西，很简单。
+假设你有 3 个 action a/b/c 可以执行，在某一个 state 有 3 个 action a/b/c可以执行。根据这个式子，你要把这 3 项的概率， log probability 都拉高。 但是它们前面 weight 的这个 R 是不一样的。 R 是有大有小的，weight 小的，它上升的就少，weight 多的，它上升的就大一点。 因为这个 log probability，它是一个概率，所以action a、b、c 的和要是 0。 所以上升少的，在做完 normalize 以后， 它其实就是下降的，上升的多的，才会上升。
 
 
-![](img/4.14.png)
-上图是 PPO 跟其它方法的比较。Actor-Critic 和 A2C+Trust Region 方法是actor-critic based 的方法。PPO 是紫色线的方法，这边每张图就是某一个RL 的任务，你会发现说在多数的cases 里面，PPO 都是不错的，不是最好的，就是第二好的。
+ ![1](img/4.13.png)
+
+
+这个是一个理想上的状况，但是实际上，我们是在做 sampling 就本来这边应该是一个 expectation， summation over 所有可能的 s 跟 a 的 pair。 但你真正在学的时候，当然不可能是这么做的，你只是 sample 了少量的 s 跟 a 的 pair 而已。 因为我们做的是 sampling，有一些 action 可能从来都没有 sample 到。在某一个 state1，虽然可以执行的 action 有 a/b/c 3 个，但你可能只 sample 到 action b，你可能只 sample 到 action c，你没有 sample 到 action a。但现在所有 action 的 reward 都是正的，所以根据这个式子，它的每一项的概率都应该要上升。你会遇到的问题是，因为 a 没有被 sample 到，其它 action 的概率如果都要上升，a 的概率就下降。 所以 a 不一定是一个不好的 action， 它只是没被 sample 到。但只是因为它没被 sample 到， 它的概率就会下降，这个显然是有问题的，要怎么解决这个问题呢？你会希望你的 reward 不要总是正的。
+
+![1.](img/4.14.png)
+
+为了解决 reward 总是正的这个问题，你可以把 reward 减掉一项叫做 b，这项 b 叫做 baseline。你减掉这项 b 以后，就可以让 $R(\tau^n)-b$ 这一项， 有正有负。 所以如果得到的 total reward $R(\tau^n)$ 大于 b 的话，就让它的概率上升。如果这个 total reward 小于 b，就算它是正的，正的很小也是不好的，你就要让这一项的概率下降。 如果$R(\tau^n)<b$  ， 你就要让这个 state 采取这个 action 的分数下降 。这个 b 怎么设呢？一个最简单的做法就是， 你把 $\tau^n$ 的值取 expectation， 算一下 $\tau^n$的平均值。
+$$
+b \approx E[R(\tau)]
+$$
+
+这是其中一种做法， 你可以想想看有没有其它的做法。
+
+ 所以在 implement training 的时候，你会不断地把 $R(\tau)$ 的分数记录下来 然后你会不断地去计算 $R(\tau)$ 的平均值， 你会把这个平均值，当作你的 b 来用。 这样就可以让你在 training 的时候， $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$ 乘上前面这一项， 是有正有负的，这个是第一个 tip。
+
+
+### Tip 2: Assign Suitable Credit
+
+第二个 tip：给每一个 action 合适的 credit。什么意思呢，如果我们看今天下面这个式子的话，
+$$
+\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(R\left(\tau^{n}\right)-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+$$
+我们原来会做的事情是，在某一个 state，假设你执行了某一个 action a，它得到的 reward ，它前面乘上的这一项 $R(\tau^n)-b$。
+
+只要在同一个 Episode 里面，在同一场游戏里面， 所有的 state 跟 a 的 pair，它都会 weighted by 同样的 reward term，这件事情显然是不公平的，因为在同一场游戏里面 也许有些 action 是好的，有些 action 是不好的。 假设整场游戏的结果是好的， 并不代表这个游戏里面每一个行为都是对的。若是整场游戏结果不好， 但不代表游戏里面的所有行为都是错的。所以我们希望可以给每一个不同的 action 前面都乘上不同的 weight。每一个 action 的不同 weight， 它反映了每一个 action 到底是好还是不好。 
+
+![](img/4.15.png)
+
+举个例子， 假设这个游戏都很短，只有 3~4 个互动， 在 $s_a$ 执行 $a_1$ 得到 5 分。在 $s_b$ 执行 $a_2$ 得到 0 分。在 $s_c$ 执行 $a_3$ 得到 -2 分。 整场游戏下来，你得到 +3 分，那你得到 +3 分 代表在 state $s_b$ 执行 action $a_2$ 是好的吗？并不见得代表 state $s_b$ 执行 $a_2$ 是好的。因为这个正的分数，主要来自于在 state $s_a$ 执行了 $a_1$，跟在 state $s_b$ 执行 $a_2$ 是没有关系的，也许在 state $s_b$ 执行 $a_2$ 反而是不好的， 因为它导致你接下来会进入 state $s_c$，执行 $a_3$ 被扣分，所以整场游戏得到的结果是好的， 并不代表每一个行为都是对的。
+
+![](img/4.16.png)
+
+如果按照我们刚才的讲法，整场游戏得到的分数是 3 分，那到时候在 training 的时候， 每一个 state 跟 action 的 pair，都会被乘上 +3。 在理想的状况下，这个问题，如果你 sample 够多就可以被解决。因为假设你 sample 够多，在 state $s_b$ 执行 $a_2$ 的这件事情，被 sample 到很多。就某一场游戏，在 state $s_b$ 执行 $a_2$，你会得到 +3 分。 但在另外一场游戏，在 state $s_b$ 执行 $a_2$，你却得到了 -7 分，为什么会得到 -7 分呢？ 因为在 state $s_b$ 执行 $a_2$ 之前， 你在 state $s_a$ 执行 $a_2$ 得到 -5 分，-5 分这件事可能也不是在 $s_b$ 执行 $a_2$ 的错，这两件事情，可能是没有关系的，因为它先发生了，这件事才发生，所以它们是没有关系的。
+
+在 state $s_b$ 执行 $a_2$ 可能造成的问题只有会在接下来 -2 分，而跟前面的 -5 分没有关系的。但是假设我们今天 sample 到这项的次数够多，把所有发生这件事情的情况的分数通通都集合起来， 那可能不是一个问题。但现在的问题就是，我们 sample 的次数是不够多的。在 sample 的次数不够多的情况下，你要给每一个 state 跟 action pair 合理的 credit，你要让大家知道它合理的 contribution。怎么给它一个合理的 contribution 呢？ 一个做法是计算这个 pair 的 reward 的时候，不把整场游戏得到的 reward 全部加起来，**只计算从这一个 action 执行以后所得到的 reward**。因为这场游戏在执行这个 action 之前发生的事情是跟执行这个 action 是没有关系的， 所以在执行这个 action 之前得到多少 reward 都不能算是这个 action 的功劳。跟这个 action 有关的东西， 只有在执行这个 action 以后发生的所有的 reward 把它加起来，才是这个 action 真正的 contribution。所以在这个例子里面，在 state $s_b$ 执行 $a_2$ 这件事情，也许它真正会导致你得到的分数应该是 -2 分而不是 +3 分，因为前面的 +5 分 并不是执行 $a_2$ 的功劳。实际上执行 $a_2$ 以后，到游戏结束前， 你只有被扣 2 分而已，所以它应该是 -2。那一样的道理，今天执行 $a_2$ 实际上不应该是扣 7 分，因为前面扣 5 分，跟在 $s_b$ 这个 state 执行 $a_2$ 是没有关系的。在 $s_b$ 这个 state 执行 $a_2$，只会让你被扣两分而已，所以也许在 $s_b$ 这个 state 执行 $a_2$， 你真正会导致的结果只有扣两分而已。如果要把它写成式子的话是什么样子呢？如下式所示。
+
+![](img/4.17.png)
+
+本来的 weight 是整场游戏的 reward 的总和。那现在改成从某个时间 $t$ 开始，假设这个 action 是在 t 这个时间点所执行的，从 $t$ 这个时间点，一直到游戏结束所有 reward 的总和，才真的代表这个 action 是好的还是不好的。 
+
+![](img/4.18.png)
+**接下来再更进一步，我们把未来的 reward 做一个 discount**，由此得到的回报被称为 `Discounted Return(折扣回报)`。为什么要把未来的 reward 做一个 discount 呢？因为虽然在某一个时间点，执行某一个 action，会影响接下来所有的结果，有可能在某一个时间点执行的 action，接下来得到的 reward 都是这个 action 的功劳。但在比较真实的情况下， 如果时间拖得越长，影响力就越小。 比如说在第二个时间点执行某一个 action， 那我在第三个时间点得到的 reward 可能是在第二个时间点执行某个 action 的功劳，但是在 100 个 timestamp 之后，又得到 reward，那可能就不是在第二个时间点执行某一个 action 得到的功劳。 所以我们实际上在做的时候，你会在 R 前面乘上一个 `discount factor`  $\gamma$， $\gamma \in [0,1] $ ，一般会设个 0.9 或 0.99，
+
+* $\gamma = 0$ : 只关心即时奖励； 
+* $\gamma = 1$ : 未来奖励等同于即时奖励。
+
+ 如果 time stamp $t'$ 越大，它前面就乘上越多次的 $\gamma$，就代表说现在在某一个 state $s_t$， 执行某一个 action $a_t$ 的时候，它真正的 credit 是在执行这个 action 之后所有 reward 的总和，而且你还要乘上 $\gamma$。
+
+举一个例子， 你就想成说，这是游戏的第 1、2、3、4 回合，那你在游戏的第二回合的某一个  $s_t$ 你执行 $a_t$，它真正的 credit 得到的分数应该是，假设你这边得到 +1 分 这边得到 +3 分，这边得到 -5 分，它的真正的 credit，应该是 1 加上一个 discount 的 credit 叫做 $\gamma$ 乘上 3，再加上 $\gamma^2$ 乘上 -5。
+
+如果大家可以接受这样子的话， 实际上就是这么 implement 的。这个 b 可以是 state-dependent 的，事实上 b 它通常是一个 network 估计出来的，它是一个 network 的 output。
+
+![](img/4.19.png)
+
+把 $R-b$ 这一项合起来，我们统称为` advantage function`， 用 `A` 来代表 advantage function。Advantage function 是 dependent on s and a，我们就是要计算的是在某一个 state s 采取某一个 action a 的时候，advantage function 有多大。
+
+在算 advantage function 时，你要计算$\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}$ ，你会需要有一个互动的结果。你会需要有一个 model 去跟环境做互动，你才知道接下来得到的 reward 会有多少。这个 advantage function 的上标是 $\theta$，$\theta$ 就是代表说是用 $\theta$ 这个 model 跟环境去做互动，然后你才计算出这一项。从时间 t 开始到游戏结束为止，所有 r 的加和减掉 b，这个就叫 advantage function。
+
+Advantage function 的意义就是，假设我们在某一个 state $s_t$ 执行某一个 action $a_t$，相较于其他可能的 action，它有多好。它在意的不是一个绝对的好，而是相对的好，即`相对优势(relative advantage)`。因为会减掉一个 b，减掉一个 baseline， 所以这个东西是相对的好，不是绝对的好。 $A^{\theta}\left(s_{t}, a_{t}\right)$ 通常可以是由一个 network estimate 出来的，这个 network 叫做 critic。 
+
+## REINFORCE
+
+![](img/4.20.png)
+
+蒙特卡洛可以理解为算法完成一个 episode 之后，再拿这一个 episode 的数据来去 learn 一下，做一次更新。因为我们已经拿到了一整条 episode 的数据的话，也能够拿到每一个 step 的那个 reward，那我们也可以很方便的去计算每个 step 的未来总收益，就是我们的期望，就是我们的回报 $G_t$ 。$G_t$是我们的未来总收益，$G_t$代表是从这个 step 后面我能拿到的收益之和是多少。$G_1$是说我从第一步开始，往后能够拿到多少的收益。$G_2$ 的话也是说我从第二步这里开始，我往后能够拿到一共拿到多少的收益。
+
+相比较蒙特卡洛还是一个 episode 更新一次这样子的方式，时序差分就是每个 step 都更新一下。我每走一步，我就更新下，这样的更新频率会更高一点。它拿的是 Q-function 来去近似地表示我的未来总收益 $G_t$。
+
+举个例子来解释时序差分强化学习和蒙特卡洛强化学习的区别，
+
+* 时序差分强化学习是指在不清楚马尔可夫状态转移概率的情况下，以采样的方式得到不完整的状态序列，估计某状态在该状态序列完整后可能得到的收益，并通过不断地采样持续更新价值。
+* 蒙特卡洛强化学习则需要经历完整的状态序列后，再来更新状态的真实价值。
+
+例如，你想获得开车去公司的时间，每天上班开车的经历就是一次采样。假设今天在路口 A 遇到了堵车，
+
+* 时序差分强化学习会在路口 A 就开始更新预计到达路口 B、路口 C $\cdots \cdots$, 以及到达公司的时间；
+* 而蒙特卡洛强化学习并不会立即更新时间，而是在到达公司后，再修改到达每个路口和公司的时间。
+
+时序差分强化学习能够在知道结果之前就开始学习，相比蒙特卡洛强化学习，其更快速、灵活。
+
+
+
+![](img/4.21.png)
+
+我们介绍下策略梯度最简单的也是最经典的一个算法 `REINFORCE`。REINFORCE 用的是回合更新的方式。它在代码上的处理上是先拿到每个 step 的 reward，然后计算每个 step 的未来总收益 $G_t$ 是多少，然后拿每个 $G_t$ 代入公式，去优化每一个 action 的输出。所以编写代码时会有这样一个函数，输入每个 step 拿到的 reward，然后把这些 reward 转成每一个 step 的未来总收益。因为未来总收益是这样计算的：
+$$
+\begin{aligned}
+G_{t} &=\sum_{k=t+1}^{T} \gamma^{k-t-1} r_{k} \\
+&=r_{t+1}+\gamma G_{t+1}
+\end{aligned}
+$$
+上一个 step 和下一个 step 的未来总收益可以有这样子的一个关系。所以在代码的计算上，我们就是从后往前推，一步一步地往前推，先算 $G_T$，然后往前推，一直算到 $G_1$ 。
+
+![](img/4.22.png)
+
+REINFORCE 代码主要看最后四行，先产生一个 episode 的数据，比如 $(s_1,a_1,G_1),(s_2,a_2,G_2),\cdots,(s_T,a_T,G_T)$。然后针对每个 action 来计算梯度。 在代码上计算时，我们要拿到神经网络的输出。神经网络会输出每个 action 对应的概率值，然后我们还可以拿到实际的 action，把它转成 one-hot 向量乘一下，我们可以拿到 $\ln \pi(A_t|S_t,\theta)$  。
+
+![](img/4.23.png)
+
+手写数字识别是很经典的一个多分类的问题，就是输入一张手写数字的图片，经过神经网络输出的是各个分类的一个概率。目的是希望输出的这个概率的分布尽可能地去贴近真实值的概率分布。因为真实值只有一个数字 9，可是你用这个 one-hot 向量的形式去给他编码的话，也可以理解为这个真实值也是一个概率分布，9 的概率就是1，其他的概率就是 0。神经的网络输出一开始可能会比较平均，通过不断的迭代训练优化之后，我会希望 9 输出的概率可以远高于其他数字输出的概率。
+
+![](img/4.24.png)
+
+如上图所示，就是提高 9 对应的概率，降低其他数字对应的概率。让神经网络输出的概率能够更贴近这个真实值的概率分布。那我们可以用交叉熵(Cross Entropy)来去表示两个概率分布之间的差距。
+
+![](img/4.25.png)
+
+我们看一下它的优化流程，就是怎么让这个输出去逼近这个真实值。它的优化流程就是将图片作为输入传给神经网络，然后神经网络会给这个图片属于哪一类数字，输出所有数字可能的概率。然后再计算这个交叉熵，就是神经网络的输出 $Y_i$ 和真实的标签值 $Y_i'$ 之间的距离 $-\sum Y_{i}^{\prime} \cdot \log \left(Y_{i}\right)$。我们希望尽可能地缩小这两个概率分布之间的差距，计算出来的 cross entropy 就可以作为这个 loss 函数传给神经网络里面的优化器去优化，去自动去做神经网络的参数更新。
+
+![](img/4.26.png)
+
+那类似的，policy gradient 预测每一个状态下面应该要输出的这个行动的概率，就是输入状态 $s_t$，然后输出动作的概率，比如 0.02，0.08，0.09。实际上输出给环境的动作是我随机选了一个 action，比如说我选了右这个 action。它的 one-hot 向量就是 0，0，1。我们把神经网络的输出和实际动作带入 cross entropy 的公式就可以求出输出的概率和实际的动作之间的差距。但这个实际的动作 $a_t$ 只是我们输出的真实的 action，它并不一定是正确的 action，它不能像那个手写数字识别一样作为一个正确的标签来去指导我的神经网络朝着正确的方向去更新。所以我们在这里会需要乘以一个奖励回报 $G_t$。这个奖励回报相当于是对这个真实 action 的评价，$G_t$ 具体越大，未来总收益越大，说明当前输出的这个真实的 action 就越好，那这个 loss 就越需要重视。如果 $G_t$ 越小，那就说明做这个 action $a_t$ 并没有那么的好，那我的 loss 的权重就要小一点。优化力度就小一点。通过这个和那个手写输入识别的一个对比，我们就知道为什么 loss 会构造成这个样子。
+
+![](img/4.27.png)
+
+实际上我们在计算这个 loss 的时候，我们要拿到那个 $\ln \pi(A_t|S_t,\theta)$。我就拿我实际执行的这个动作，先取个 one-hot 向量，然后再拿到神经网络预测的动作概率，这两个一相乘，我就可以拿到算法里面的那个  $\ln \pi(A_t|S_t,\theta)$。这个就是我们要构造的 loss。因为我们会拿到整个 episode 的所有的轨迹，所以我们可以对这个这一条整条轨迹里面的每个 action 都去计算一个 loss。把所有的 loss 加起来之后，我们再扔给那个 adam 的优化器去自动更新参数就好了。
+
+![](img/4.28.png)
+
+上图是 REINFORCE 的流程图。首先我们需要一个 policy model 来输出动作概率，输出动作概率后，我们用 sample 函数去得到一个具体的动作，然后跟环境交互过后，我们可以得到一整个 episode 的数据。拿到 episode 数据之后，我再去执行一下 learn() 函数，在 learn() 函数里面，我就可以拿这些数据去构造 loss function，扔给这个优化器去优化，去更新我的 policy model。
+
+## References
+
+* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
+* [神经网络与深度学习](https://nndl.github.io/)
+
+* [百面深度学习](https://book.douban.com/subject/35043939/)
+
 

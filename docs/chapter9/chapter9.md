@@ -1,81 +1,117 @@
-# Sparse Reward 
-实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到 reward 的情况下，对 agent 来说它的训练是非常困难的。举例来说，假设你今天要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样得好。所以，它最后什么都不会学到。如果环境中的 reward 非常的 sparse，reinforcement learning 的问题就会变得非常的困难。但是人类可以在非常 sparse 的 reward 上面去学习，我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么 reward 或是 penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
+# Actor-Critic
 
-怎么解决 sparse reward 的这件事情呢？我们等一下会讲三个方向。
-## Reward Shaping
+## Actor-Critic
+
 ![](img/9.1.png)
+在 `Actor-Critic` 里面，最知名的方法就是 `A3C(Asynchronous Advantage Actor-Critic)`。如果去掉前面这个 Asynchronous，只有 `Advantage Actor-Critic`，就叫做 `A2C`。如果前面加了 Asynchronous，变成 Asynchronous Advantage Actor-Critic，就变成 A3C。
 
-第一个方向叫做 `reward shaping`，reward shaping 的意思是说环境有一个固定的 reward，它是真正的 reward，但是我们为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些 reward 来引导我们的 agent。举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可 以take 两个 actions，一个action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到 reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在 100 个小时后，他可以得到 reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是 accumulated reward，但也许对小孩来说，他的 discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多 experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的 reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。Reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些 reward，它不是环境真正的 reward。在玩 Atari 游戏里面，真的 reward 是游戏主机给你的 reward，但你自己去设计一些 reward 好引导你的 machine，做你想要它做的事情。
+那我们复习一下 policy gradient，在 policy gradient，我们在 update policy 的参数 $\theta$ 的时候，我们是用了下面这个式子来算出我们的 gradient。
+$$
+\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+$$
+这个式子是在说，我们先让 agent 去跟环境互动一下，那我们可以计算出在某一个 state s，采取了某一个 action a 的概率  $p_{\theta}(a_t|s_t)$。接下来，我们去计算在某一个 state s 采取了某一个 action a 之后，到游戏结束为止，accumulated reward 有多大。我们把这些 reward 从时间 t 到时间 T 的 reward 通通加起来，并且会在前面乘一个 discount factor，可能设 0.9 或 0.99。我们会减掉一个 baseline b，减掉这个值 b 的目的，是希望括号这里面这一项是有正有负的。如果括号里面这一项是正的，我们就要增加在这个 state 采取这个 action 的机率；如果括号里面是负的，我们就要减少在这个 state 采取这个 action 的机率。
+
+我们把用 G 来表示 accumulated reward。但 G 这个值，其实是非常的 unstable 的。因为互动的 process 本身是有随机性的，所以在某一个 state s 采取某一个 action a，然后计算 accumulated reward，每次算出来的结果都是不一样的，所以 G 其实是一个 random variable。给同样的 state s，给同样的 action a，G 可能有一个固定的 distribution。但我们是采取 sample 的方式，我们在某一个 state s 采取某一个 action a，然后玩到底，我们看看得到多少的 reward，我们就把这个东西当作 G。把 G 想成是一个 random variable 的话，我们实际上是对这个 G 做一些 sample，然后拿这些 sample 的结果，去 update 我们的参数。但实际上在某一个 state s 采取某一个 action a，接下来会发生什么事，它本身是有随机性的。虽然说有个固定的 distribution，但它本身是有随机性的，而这个 random variable 的 variance 可能会非常大。你在同一个 state 采取同一个 action，你最后得到的结果可能会是天差地远的。假设我们可以 sample 足够的次数，在每次 update 参数之前，我们都可以 sample 足够的次数，那其实没有什么问题。但问题就是我们每次做 policy gradient，每次 update 参数之前都要做一些 sample，这个 sample 的次数其实是不可能太多的，我们只能够做非常少量的 sample。如果你正好 sample 到差的结果，比如说你 sample 到 G = 100，sample 到 G = -10，那显然你的结果会是很差的。
 
 ![](img/9.2.png)
 
-举例来说，这个例子是 Facebook 玩 VizDoom 的 agent。VizDoom 是一个第一人射击游戏，在这个射击游戏中，杀了敌人就得到 positive reward，被杀就得到 negative reward。他们设计了一些新的 reward，用新的 reward 来引导 agent 让他们做得更好，这不是游戏中真正的 reward。
+能不能让这整个 training process 变得比较 stable 一点，能不能够直接估测 G 这个 random variable 的期望值？我们在 state s 采取 action a 的时候，直接用一个 network 去估测在 state s 采取 action a 的时候，G 的期望值。如果这件事情是可行的，那之后 training 的时候，就用期望值来代替 sample 的值，这样会让 training 变得比较 stable。
 
-比如说掉血就扣 0.05 的分数，弹药减少就扣分，捡到补给包就加分，呆在原地就扣分，移动就加分。 活着会扣一个很小的分数，因为不这样做的话，machine 会只想活着，一直躲避敌人，这样会让 machine 好战一点。表格中的参数都是调出来的。
+怎么拿期望值代替 sample 的值呢？这边就需要引入 value based 的方法。value based 的方法就是 Q-learning。Q-learning 有两种 functions，有两种 critics。第一种 critic 我们写作 $V^{\pi}(s)$，它的意思是说，假设 actor 是 $\pi$，拿 $\pi$ 去跟环境做互动，当今天我们看到 state s 的时候，接下来 accumulated reward 的期望值有多少。还有一个 critic 叫做 $Q^{\pi}(s,a)$。$Q^{\pi}(s,a)$ 把 s 跟 a 当作 input，它的意思是说，在 state s 采取 action a，接下来都用 actor $\pi$ 来跟环境进行互动，accumulated reward 的期望值是多少。
 
-Reward shaping是有问题的，因为我们需要 domain knowledge，举例来说，机器人想要学会的事情是把蓝色的板子从这个柱子穿过去。机器人很难学会，我们可以做 Reward Shaping。一个貌似合理的说法是，蓝色的板子离柱子越近，reward 越大。但是 machine 靠近的方式会有问题，它会用蓝色的板子打柱子。而我们要把蓝色板子放在柱子上面去，才能把蓝色板子穿过柱子。 这种 reward shaping的方式是没有帮助的，那至于什么 reward shaping 有帮助，什么 reward shaping 没帮助，会变成一个 domain knowledge，你要去调的。
+$V^{\pi}$  input s，output 一个 scalar。$Q^{\pi}$  input s，然后它会给每一个 a 都 assign 一个 Q value。这个 estimate 的时候，你可以用  TD 也可以用 MC。用TD 比较稳，用 MC 比较精确。
 
-##  Curiosity
 ![](img/9.3.png)
 
-接下来就是介绍各种你可以自己加进去，in general 看起来是有用的 reward。举例来说，一个技术是给 machine 加上 curiosity，所以叫 `curiosity driven reward`。上图是我们之前讲 Actor-Critic 的时候看过的图。我们有一个 reward function，它给你某一个s tate，给你某一个 action，它就会评断说在这个 state 采取 这个action 得到多少的 reward。那我们当然希望 total reward 越大越好。在 curiosity driven 的这种技术里面，你会加上一个新的 reward function。这个新的 reward function 叫做 `ICM(intrinsic curiosity module)`，它就是要给机器加上好奇心。ICM 会吃 3 个东西，它会吃 state $s_1$、action $a_1$ 和 state $s_2$。根据$s_1$ 、$a_1$、 $a_2$，它会 output 另外一个 reward，我们这边叫做 $r_1^i$。对 machine 来说，total reward 并不是只有 r 而已，还有 $r^i$。它不是只有把所有的 r 都加起来，它还把所有 $r^i$ 加起来当作total reward。所以，它在跟环境互动的时候，它不是只希望 r 越大越好，它还同时希望 $r^i$ 越大越好，它希望从 ICM 的 module 里面得到的 reward 越大越好。ICM 就代表了一种curiosity。
+G 的 random variable 的期望值正好就是 Q ，即
+$$
+E\left[G_{t}^{n}\right]=Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}
+$$
 
+因为这个就是 Q 的定义。Q 的定义就是在某一个 state s，采取某一个 action a，假设 policy 就是 $\pi$ 的情况下会得到的 accumulated reward 的期望值有多大，而这个东西就是 G 的期望值。为什么会这样，因为这个就是 Q 的定义，Q-function 的定义。Accumulated reward 的期望值就是 G 的期望值。所以假设用期望值来代表 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}$ 这一项的话，把 Q-function 套在这里就结束了。那我们就可以 Actor 跟 Critic 这两个方法结合起来。
+
+有不同的方法来表示 baseline，但一个常见的做法是，你用 value function $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 来表示 baseline。Value function 的意思是说，假设 policy 是 $\pi$，在某一个 state s 一直 interact 到游戏结束。那你 expected 的 reward 有多大。 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 没有 involve action，然后 $ Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 有 involve action。其实 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会是 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}$ 的期望值，所以$Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会有正有负，所以 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项就会是有正有负的。
+
+所以我们就把 policy gradient 里面 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项换成了 $Q^{\pi_{\theta}\left(s_{t}^{n}, a_{t}^{n}\right)}-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$。
 
 ![](img/9.4.png)
 
-怎么设计这个 ICM ？这个是最原始的设计。这个设计是这样。curiosity module 就是 input 3 个东西，input 现在的 state，input 在这个 state 采取的 action，然后接 input 下一个 state $s_{t+1}$。接下来会 output 一个 reward $r^i_t$。那这个 $r^i_t$  是怎么算出来的呢？在 ICM 里面，你有一个 network，这个 network 会 take $a_t$ 跟$s_t$，然后去 output $\hat{s}_{t+1}$，也就是这个 network 根据 $a_t$ 和 $s_t$ 去 predict  $\hat{s}_{t+1}$ 。接下来再看说，这个 network 的预测  $\hat{s}_{t+1}$ 跟真实的情况 $s_{t+1}$ 像不像，越不像那得到的 reward 就越大。所以这个 reward $r_t^i$ 的意思是说，如果未来的 state 越难被预测的话，那得到的 reward 就越大。这就是鼓励 machine 去冒险，现在采取这个 action，未来会发生什么事越没有办法预测的话，这个 action 的 reward 就大。所以如果有这样子的 ICM，machine 就会倾向于采取一些风险比较大的 action，它想要去探索未知的世界，它想要去看看说，假设某一个 state 是它没有办法预测，它会特别去想要采取那个 state，这可以增加 machine exploration 的能力。
+如果你这么实现的话，有一个缺点是，你要 estimate 2 个 networks，而不是一个 network。你要 estimate Q-network，你也要 estimate V-network，你 estimate 估测不准的风险就变成两倍。所以我们何不只估测一个 network 就好了呢？事实上在这个 Actor-Critic 方法里面。你可以只估测 V 这个 network，你可以用 V 的值来表示 Q 的值，什么意思呢？$Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)$可以写成$r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)$的期望值，即
 
-这个 network 1 其实是另外 train 出来的。Training 的时候，这个network 1，你会给它 $a_t$、 $s_t$、 $s_{t+1}$，然后让这个network 1 去学说 given $a_t, s_t$，怎么 predict $\hat{s}_{t+1}$。Apply 到 agent 互动的时候，其实要把 ICM module fix 住。其实，这一整个想法里面是有一个问题的。这个问题是某一些 state它很难被预测并不代表它就是好的，它就应该要去被尝试的。举例来说，俄罗斯轮盘的结果也是没有办法预测的，并不代表说，人应该每天去玩俄罗斯轮盘这样子。所以只是鼓励 machine 去冒险是不够的，因为如果光是只有这个 network 的架构，machine 只知道说什么东西它无法预测。如果在某一个 state 采取某一个 action，它无法预测接下来结果，它就会采取那个action，但并不代表这样的结果一定是好的。举例来说，可能在某个游戏里面，背景会有风吹草动，会有树叶飘动。那也许树叶飘动这件事情，是很难被预测的，对 machine 来说它在某一个 state 什么都不做，看着树叶飘动，然后，发现这个树叶飘动是没有办法预测的，接下来它就会一直站在那边，看树叶飘动。所以说，光是有好奇心是不够的，还要让它知道说，什么事情是真正重要的。
+$$
+Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)=E\left[r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)\right]
+$$
+
+你在 state s 采取 action a，接下来你会得到 reward r，然后跳到 state, $s_{t+1}$，但是你会得到什么样的 reward r，跳到什么样的 state $s_{t+1}$，它本身是有随机性的。所以要把右边这个式子，取期望值它才会等于 Q-function。但我们现在把期望值这件事情去掉，即
+$$
+Q^{\pi}\left(s_{t}^{n}, a_{t}^{n}\right)=r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)
+$$
+
+我们就可以把 Q-function 用 r + V 取代掉，然后得到下式
+$$
+r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)
+$$
+把这个期望值去掉的好处就是你不需要再 estimate Q 了，你只需要 estimate V 就够了。你只要 estimate 一个 network 就够了，你不需要 estimate 2 个 network，你只需要 estimate 一个 network 就够了。但这样你就引入了一个随机的东西 r ，它是有随机性的，它是一个 random variable。但是这个 random variable，相较于刚才的 accumulated reward G 可能还好，因为它是某一个 step 会得到的 reward。而 G 是所有未来会得到的 reward 的总和。G variance 比较大，r 虽然也有一些 variance，但它的 variance 会比 G 要小。所以把原来 variance 比较大的 G 换成 variance 比较小的 r 也是合理的。如果你觉得把期望值拿掉不靠谱的话，那我就告诉你原始的 A3C paper 试了各式各样的方法，最后做出来就是这个最好这样。当然你可能说，搞不好 estimate Q 跟 V 也都 estimate 很好，那我告诉你就是做实验的时候，最后结果就是这个最好。所以后来大家都用这个。
 
 ![](img/9.5.png)
 
-怎么让 machine 知道说什么事情是真正重要的？你要加上另外一个 module，我们要 learn 一个`feature extractor`，黄色的格子代表 feature extractor，它是 input 一个 state，然后 output 一个feature vector 来代表这个state，那我们期待这个 feature extractor 可以把那种没有意义的画面，state 里面没有意义的东西把它过滤掉，比如说风吹草动、白云的飘动、树叶的飘动这种没有意义的东西直接把它过滤掉，
+因为 $r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)$ 叫做 `Advantage function`。所以这整个方法就叫 `Advantage Actor-Critic`。
 
-假设这个 feature extractor 真的可以把无关紧要的东西过滤掉以后，network 1 实际上做的事情是，给它一个 actor，给它一个state $s_t$ 的feature representation，让它预测 state $s_{t+1}$ 的feature representation。接下来我们再看说，这个预测的结果跟真正的 state $s_{t+1}$ 的 feature representation 像不像，越不像，reward 就越大。怎么 learn 这个 feature extractor 呢？让这个feature extractor 可以把无关紧要的事情滤掉呢？这边的 learn 法就是 learn 另外一个network 2。这个 network 2 是吃 $\phi(s_t)$、$\phi(s_{t+1})$ 这两个 vector 当做 input，然后接下来它要predict action a 是什么，然后它希望呢这个 action a 跟真正的 action a 越接近越好。这个network 2 会 output 一个 action，它output 说，从 state $s_t$ 跳到 state $s_{t+1}$，要采取哪一个 action 才能够做到，那希望这个 action 跟真正的 action 越接近越好。加上这个 network 2 的好处就是因为要用 $\phi(s_t)$、$\phi(s_{t+1})$  预测action。所以，今天我们抽出来的 feature 跟预测action 这件事情是有关的。所以风吹草动等与 machine 要采取的 action 无关的东西就会被滤掉，就不会被放在抽出来的 vector representation 里面。
-
-
-
-## Curriculum Learning
+整个流程是这样子的。我们有一个 $\pi$，有个初始的 actor 去跟环境做互动，先收集资料。在 policy gradient 方法里面收集资料以后，你就要拿去 update policy。但是在 actor-critic 方法里面，你不是直接拿那些资料去 update policy。你先拿这些资料去 estimate value function，你可以用 TD 或 MC 来 estimate value function 。接下来，你再 based on value function，套用下面这个式子去 update $\pi$。
+$$
+\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(r_{t}^{n}+V^{\pi}\left(s_{t+1}^{n}\right)-V^{\pi}\left(s_{t}^{n}\right)\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+$$
+然后你有了新的 $\pi$ 以后，再去跟环境互动，再收集新的资料，去 estimate value function。然后再用新的 value function 去 update policy，去 update actor。整个 actor-critic 的 algorithm 就是这么运作的。
 
 ![](img/9.6.png)
-接下来讲 `curriculum learning` ，curriculum learning 不是 reinforcement learning 所独有的概念。其实在 machine learning，尤其是 deep learning 里面，你都会用到 curriculum learning 的概念。举例来说，curriculum learning 的意思是说，你为机器的学习做规划，你给他喂 training data 的时候，是有顺序的，通常都是由简单到难。就好比说，假设你今天要交一个小朋友作微积分，他做错就打他一巴掌，这样他永远都不会做对，太难了。你要先教他九九乘法，然后才教他微积分。所以curriculum learning 的意思就是在教机器的时候，从简单的题目教到难的题目。就算不是 reinforcement learning，一般在 train deep network 的时候，你有时候也会这么做。举例来说，在 train RNN 的时候，已经有很多的文献都 report 说，你给机器先看短的 sequence，再慢慢给它长的 sequence，通常可以学得比较好。那用在reinforcement learning 里面，你就是要帮机器规划一下它的课程，从最简单的到最难的。 举例来说，在 Facebook 玩 VizDoom 的 agent 里面，Facebook 玩 VizDoom 的 agent 蛮强的。他们在参加这个 VizDoom 的比赛，机器的 VizDoom 比赛是得第一名的，他们是有为机器规划课程的。先从课程 0 一直上到课程 7。在这个课程里面，怪物的速度跟血量是不一样的。所以，在越进阶的课程里面，怪物的速度越快，然后他的血量越多。在 paper 里面也有讲说，如果直接上课程 7，machine 是学不起来的。你就是要从课程 0 一路玩上去，这样 machine 才学得起来。
 
-再举个例子，把蓝色的板子穿过柱子，怎么让机器一直从简单学到难呢？
+实现 Actor-Critic 的时候，有两个一定会用的 tip。
 
-如第一张图所示，也许一开始机器初始的时候，它的板子就已经在柱子上了。这个时候，机器要做的事情只有把蓝色的板子压下去，就结束了。这比较简单，它应该很快就学的会。它只有往上跟往下这两个选择嘛，往下就得到 reward，就结束了，他也不知道学的是什么。
+* 第一个 tip 是说，我们需要 estimate 两个 network，estimate V function，另外一个需要 estimate 的 network 是 policy 的 network，也就是你的 actor。 V-network input 一个 state，output 一个 scalar。然后 actor 这个 network，它是 input 一个 state，output 就是一个 action 的 distribution，假设你的 action 是 discrete，不是 continuous 的话，如果是 continuous 的话，它也是一样。如果是 continuous 的话，就只是 output 一个 continuous 的 vector。上图是举的是 discrete 的例子，但 continuous 的 case 其实也是一样的，input 一个 state，然后他决定你现在要 take 那一个 action。**这两个 network，actor 和 critic 的 input 都是 s，所以它们前面几个 layer，其实是可以 share 的。**尤其是假设你今天是玩 Atari 游戏，input 都是 image。那 input 那个 image 都非常复杂，image 很大，通常你前面都会用一些 CNN 来处理，把那些 image 抽象成 high level 的 information。把 pixel level 到 high level information 这件事情，其实对 actor 跟 critic 来说是可以共用的。所以通常你会让 actor 跟 critic 的前面几个 layer 是 shared，你会让 actor 跟 critic 的前面几个 layer 共用同一组参数。那这一组参数可能是 CNN。先把 input 的 pixel 变成比较 high level 的信息，然后再给 actor 去决定说它要采取什么样的行为，给这个 critic，给 value function 去计算 expected reward。
 
-如第二张图所示，这边就是把板子挪高一点，挪高一点，所以它有时候会很笨的往上拉，然后把板子拿出来了。如果它压板子学得会的话，拿板子也比较有机会学得会。假设它现在学的到说，只要板子接近柱子，它就可以把这个板子压下去的话。接下来，你再让它学更 general 的 case。
+* 第二个 tip 是我们一样需要 exploration 的机制。在做 Actor-Critic 的时候，有一个常见的 exploration 的方法是你会对你的 $\pi$ 的 output 的 distribution 下一个 constrain。这个 constrain 是希望这个 distribution 的 entropy 不要太小，希望这个 distribution 的 entropy 可以大一点，也就是希望不同的 action 它的被采用的机率，平均一点。这样在 testing 的时候，它才会多尝试各种不同的 action，才会把这个环境探索的比较好，才会得到比较好的结果。这个就是 Advantage Actor-Critic。
 
-如第三张图所示，一开始，让板子离柱子远一点。然后，板子放到柱子上面的时候，它就会知道把板子压下去，这个就是Curriculum Learning 的概念。当然 curriculum learning 有点 ad hoc(特别)，就是需要人去为机器设计它的课程。
-
+## A3C
 ![](img/9.7.png)
 
-有一个比较 general 的方法叫做 `Reverse Curriculum Generation`。你可以用一个比较通用的方法来帮机器设计课程，这个比较通用的方法是怎么样呢？假设你现在一开始有一个state $s_g$，这是你的gold state，也就是最后最理想的结果。如果拿刚才那个板子和柱子的实验作为例子的话，就把板子放到柱子里面，这样子叫做 gold state。你就已经完成了，或者你让机器去抓东西，你训练一个机器手臂抓东西，抓到东西以后叫做 gold state。接下来你根据你的 gold state 去找其他的 state，这些其他的 state 跟 gold state 是比较接近的。举例来说，如果是让机器抓东西的例子里面，你的机器手臂可能还没有抓到东西。假设这些跟 gold state 很近的 state 叫做 $s_1$。你的机械手臂还没有抓到东西，但它离 gold state 很近，那这个叫做$s_1$。至于什么叫做近，这是 case dependent，你要根据你的 task 来 design 说怎么从 $s_g$ sample 出 $s_1$。如果是机械手臂的例子，可能就比较好想。其他例子可能就比较难想。接下来呢，你再从这些 $s_1$ 开始做互动，看它能不能够达到gold state $s_g$，那每一个state，你跟环境做互动的时候，你都会得到一个reward R。
+什么是 A3C 呢？Reinforcement learning 有一个问题就是它很慢。那怎么增加训练的速度呢？这个可以讲到火影忍者就是有一次鸣人说，他想要在一周之内打败晓，所以要加快修行的速度，他老师就教他一个方法，这个方法是说你只要用影分身进行同样修行。那两个一起修行的话呢？经验值累积的速度就会变成2倍，所以，鸣人就开了 1000 个影分身，开始修行了。这个其实就是 Asynchronous(异步的) Advantage Actor-Critic，也就是 A3C 这个方法的精神。
 
 ![](img/9.8.png)
 
-接下来，我们把 reward 特别极端的 case 去掉，reward 特别极端的 case 的意思就是说那些 case 太简单或是太难了。如果 reward 很大，代表说这个 case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的 reward。如果 reward 太小，代表这个 case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。那当然什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的 case 去 sample 出更多的 state。就假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是 Curriculum learning，就是你要为机器规划它学习的顺序。而 reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse。  
+A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就是一个影分身。那最后这些影分身会把所有的经验，通通集合在一起。首先你如果没有很多个 CPU，可能也是不好实现的，你可以 implement A2C 就好。
 
-## Hierarchical RL
+这个 A3C 是怎么运作的呢？A3C 是这样子，一开始有一个 global network。那我们刚才有讲过说，其实 policy network 跟 value network 是 tie 在一起的，它们的前几个 layer 会被 tie 一起。我们有一个 global network，它们有包含 policy 的部分和 value 的部分。假设它的参数就是 $\theta_1$，你会开很多个 worker。每一个 worker 就用一张 CPU 去跑，比如你就开 8 个 worker ，那你至少 8 张 CPU。第一个 worker 就把 global network 的参数 copy 过来，每一个 worker 工作前都会global network 的参数 copy 过来。接下来你就去跟环境做互动，每一个 actor 去跟环境做互动的时候，为了要 collect 到比较 diverse 的 data，所以举例来说如果是走迷宫的话，可能每一个 actor 起始的位置都会不一样，这样它们才能够收集到比较多样性的 data。每一个 actor 就自己跟环境做互动，互动完之后，你就会计算出 gradient。那计算出 gradient 以后，你要拿 gradient 去 update 你的参数。你就计算一下你的 gradient，然后用你的 gradient 去 update global network 的参数。就是这个 worker 算出 gradient 以后，就把 gradient 传回给中央的控制中心。然后中央的控制中心，就会拿这个 gradient 去 update 原来的参数。但是要注意一下，所有的 actor 都是平行跑的，就每一个 actor 就是各做各的，互相之间就不要管彼此。所以每个人都是去要了一个参数以后，做完就把参数传回去。所以当第一个 worker 做完想要把参数传回去的时候，本来它要的参数是 $\theta_1$，等它要把 gradient 传回去的时候。可能别人已经把原来的参数覆盖掉，变成 $\theta_2$了。但是没有关系，它一样会把这个 gradient 就覆盖过去就是了。Asynchronous actor-critic 就是这么做的，这个就是 A3C。
 
+ ## Pathwise Derivative Policy Gradient
 ![](img/9.9.png)
 
-那最后一个 tip 叫做 `Hierarchical Reinforcement learning`，分层的 reinforcement learning。
-所谓分层的Reinforcement learning 是说，我们有好几个 agent。然后，有一些agent 负责比较high level 的东西，它负责订目标，然后它订完目标以后，再分配给其他的 agent，去把它执行完成。这样的想法其实也是很合理的。因为我们知道说，我们人在一生之中，并不是时时刻刻都在做决定。举例来说，假设你想要写一篇paper，你会说就我先想个梗这样子，然后想完梗以后，你还要跑个实验。跑完实验以后，你还要写。写完以后呢，你还要这个去发表。每一个动作下面又还会再细分，比如说怎么跑实验呢？你要先 collect data，collect 完data 以后，你要再 label，你要弄一个network，然后又 train 不起来，要 train 很多次。然后重新 design network 架构好几次，最后才把network train 起来。
+讲完 A3C 之后，我们要讲另外一个方法叫做 `Pathwise Derivative Policy Gradient`，这个方法很神奇，它可以想成是 Q-learning 解 continuous action 的一种特别的方法。那它也可以想成是一种特别的 Actor-Critic 的方法。
+ 用棋灵王来比喻的话，阿光是一个 actor，佐为是一个 critic。阿光落某一子以后呢，如果佐为是一般的 Actor-Critic，他会告诉他说这时候不应该下小马步飞，他会告诉你，你现在采取的这一步算出来的 value 到底是好还是不好，但这样就结束了，他只告诉你说好还是不好。因为一般的这个 Actor-Critic 里面那个 critic 就是 input state 或 input state 跟 action 的 pair，然后给你一个 value 就结束了。所以对 actor 来说，它只知道它做的这个行为到底是好还是不好。但如果是在pathwise derivative policy gradient 里面，这个 critic 会直接告诉 actor 说采取什么样的 action 才是好的。所以今天佐为不只是告诉阿光说，这个时候不要下小马步飞，同时还告诉阿光说这个时候应该要下大马步飞，所以这个就是Pathwise Derivative Policy Gradient 中的 critic。critic 会直接告诉 actor 做什么样的 action 才可以得到比较大的 value。
 
-所以，我们要完成一个很大的 task 的时候，我们并不是从非常底层的那些 action 开始想起，我们其实是有个 plan。我们先想说，如果要完成这个最大的任务，那接下来要拆解成哪些小任务。每一个小任务要再怎么拆解成小小的任务。举例来说，叫你直接写一本书可能很困难，但叫你先把一本书拆成好几个章节，每个章节拆成好几段，每一段又拆成好几个句子，每一个句子又拆成好几个词汇，这样你可能就比较写得出来，这个就是分层的 Reinforcement learning 的概念。
-
-这边是举一个例子，就是假设校长、教授和研究生通通都是 agent。那今天假设我们的reward 就是只要进入百大就可以得到 reward。假设进入百大的话，校长就要提出愿景告诉其他的agent 说，现在你要达到什么样的目标。那校长的愿景可能就是说教授每年都要发三篇期刊。然后接下来这些agent 都是有分层的，所以上面的 agent，他的动作就是提出愿景这样。那他把他的愿景传给下一层的agent，下一层的 agent 就把这个愿景吃下去。如果他下面还有其他人的话，它就会提出新的愿景。比如说，校长要教授发期刊，但其实教授自己也是不做实验的。所以，教授也只能够叫下面的研究生做实验。所以教授就提出愿景，就做出实验的规划，然后研究生才是真的去执行这个实验的人。然后，真的把实验做出来，最后大家就可以得到reward。那现在是这样子的，在 learn 的时候，其实每一个 agent 都会 learn。那他们的整体的目标就是要达到最后的reward。那前面的这些 agent，他提出来的 actions 就是愿景这样。你如果是玩游戏的话，他提出来的就是，我现在想要产生这样的游戏画面。但是，假设他提出来的愿景是下面的 agent 达不到的，那就会被讨厌。举例来说，教授对研究生都一直逼迫研究生做一些很困难的实验，研究生都做不出来的话，研究生就会跑掉，所以他就会得到一个penalty。所以如果今天下层的 agent 没有办法达到上层 agent 所提出来的 goal 的话，上层的 agent 就会被讨厌，它就会得到一个 negative reward。所以他要避免提出那些愿景是底下的agent 所做不到的。那每一个agent 都是把上层的 agent 所提出来的愿景当作输入，然后决定他自己要产生什么输出。
-
-但是你知道说，就算你看到上面的的愿景说，叫你做这一件事情。你最后也不一定能做成这一件事情。假设本来教授目标是要写期刊，但是不知道怎么回事，他就要变成一个YouTuber。这个paper 里面的 solution，我觉得非常有趣。给大家做一个参考，这其实本来的目标是要写期刊，但却变成 YouTuber，那怎么办呢? 把原来的愿景改成变成 YouTuber 就行了，在paper 里面就是这么做的，为什么这么做呢? 因为虽然本来的愿景是要写期刊，但是后来变成YouTuber，难道这些动作都浪费了吗? 不是，这些动作是没有被浪费的。我们就假设说，本来的愿景其实就是要成为YouTuber，那你就知道成为 YouTuber 要怎做了。这个是分层 RL，是可以做得起来的 tip。
+从 Q-learning 的观点来看，Q-learning 的一个问题是你没有办法在用 Q-learning 的时候，考虑 continuous vector。其实也不是完全没办法，就是比较麻烦，比较没有 general solution，我们怎么解这个 optimization problem 呢？我们用一个 actor 来解这个 optimization 的 problem。本来在 Q-learning 里面，如果是一个 continuous action，我们要解这个 optimization problem。但是现在这个 optimization problem 由 actor 来解，我们假设 actor 就是一个 solver，这个 solver 的工作就是给你 state, s，然后它就去解解告诉我们说，哪一个 action 可以给我们最大的 Q value，这是从另外一个观点来看 pathwise derivative policy gradient 这件事情。这个说法，你有没有觉得非常的熟悉呢？我们在讲 GAN 的时候，不是也讲过一个说法。我们 learn 一个 discriminator，它是要 evaluate 东西好不好，discriminator 要自己生成东西，非常的困难，那怎么办？因为要解一个 arg max 的 problem 非常的困难，所以用 generator 来生，所以今天的概念其实是一样的。Q 就是那个 discriminator，要根据这个 discriminator 决定 action 非常困难，怎么办？另外 learn 一个 network 来解这个 optimization problem，这个东西就是 actor。所以，两个不同的观点是同一件事，从两个不同的观点来看，一个观点是说，我们可以对原来的 Q-learning 加以改进，怎么改进呢？我们 learn 一个 actor 来决定 action 以解决 arg max 不好解的问题。或是另外一个观点是，原来的 actor-critic 的问题是 critic 并没有给 actor 足够的信息，它只告诉它好或不好，没有告诉它说什么样叫好，那现在有新的方法可以直接告诉 actor 说，什么样叫做好。
 
 ![](img/9.10.png)
 
+那我们讲一下它的 algorithm。假设我们 learn 了一个 Q-function，Q-function 就是 input s 跟 a，output 就是 $Q^{\pi}(s,a)$。那接下来，我们要 learn 一个 actor，这个 actor 的工作就是解这个 arg max 的 problem。这个 actor 的工作就是 input 一个 state s，希望可以 output 一个 action a。这个 action a 被丢到 Q-function 以后，它可以让 $Q^{\pi}(s,a)$ 的值越大越好。那实际上在 train 的时候，你其实就是把 Q 跟 actor 接起来变成一个比较大的 network。Q 是一个 network，input s 跟 a，output 一个 value。Actor 在 training 的时候，它要做的事情就是 input s，output a。把 a 丢到 Q 里面，希望 output 的值越大越好。在 train 的时候会把 Q 跟 actor 接起来，当作是一个大的 network。然后你会 fix 住 Q 的参数，只去调 actor 的参数，就用 gradient ascent 的方法去 maximize Q 的 output。这就是一个 GAN，这就是 conditional GAN。Q 就是 discriminator，但在 reinforcement learning 就是 critic，actor 在 GAN 里面就是 generator，其实它们就是同一件事情。
 
-上图是真实的例子。实际上呢，这里面就做了一些比较简单的游戏，这个是走迷宫，蓝色是 agent，蓝色的 agent 要走到黄色的目标。这边也是，这个单摆要碰到黄色的球。那愿景是什么呢？
+![](img/9.11.png)
 
-在这个 task 里面，它只有两个 agent ，下层的一个 agent 负责决定说要怎么走，上层的 agent 就负责提出愿景。虽然，实际上你可以用很多层，但 paper 就用了两层。
+我们来看一下这个 pathwise derivative policy gradient 的算法。一开始你会有一个 actor $\pi$，它去跟环境互动，然后，你可能会要它去 estimate Q value。estimate 完 Q value 以后，你就把 Q value 固定，只去 learn 一个 actor。假设这个 Q 估得是很准的，它知道在某一个 state 采取什么样的 action，会真的得到很大的 value。接下来就 learn 这个 actor，actor 在 given s 的时候，它采取了 a，可以让最后 Q-function 算出来的 value 越大越好。你用这个 criteria 去 update 你的 actor $\pi$。然后有新的 $\pi$ 再去跟环境做互动，再 estimate Q，再得到新的 $\pi$ 去 maximize Q 的 output。本来在 Q-learning 里面，你用得上的技巧，在这边也几乎都用得上，比如说 replay buffer、exploration 等等。
 
-走迷宫的例子是说粉红色的这个点代表的就是愿景。上层这个 agent，它告诉蓝色的这个 agent 说，你现在的第一个目标是先走到这个地方，蓝色的 agent 走到以后，再说你的新的目标是走到这里。蓝色的 agent 再走到以后，新的目标在这里。接下来又跑到这边，最后希望蓝色的 agent 就可以走到黄色的这个位置。
+![](img/9.12.png)
 
-单摆的例子也一样，就是粉红色的这个点代表的是上层的 agent 所提出来的愿景，所以这个agent 先摆到这边，接下来，新的愿景又跑到这边，所以它又摆到这里。然后，新的愿景又跑到上面。然后又摆到上面，最后就走到黄色的位置了。这个就是 hierarchical 的 Reinforcement Learning。
+上图是原来 Q-learning 的 algorithm。你有一个 Q-function Q，你有另外一个 target 的 Q-function 叫做 $\hat{Q}$。然后在每一次 training，在每一个 episode 的每一个 timestamp 里面，你会看到一个 state $s_t$，你会 take 某一个 action $a_{t}$。至于 take 哪一个 action 是由 Q-function 所决定的，因为解一个 arg max 的 problem。如果是 discrete 的话没有问题，你就看说哪一个 a 可以让 Q 的 value 最大，就 take 哪一个 action。那你需要加一些 exploration，这样 performance 才会好。你会得到 reward $r_t$，跳到新的 state $s_{t+1}$。你会把 $s_t$, $a_{t}$, $r_t$, $s_{t+1}$ 塞到你的 buffer 里面去。你会从你的 buffer 里面 sample 一个 batch 的 data，这个 batch data 里面，可能某一笔是 $s_i, a_i, r_i, s_{i+1}$。接下来你会算一个 target，这个 target 叫做$y$ ，$y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)$。然后怎么 learn 你的 Q 呢？你希望 $Q(s_i,a_i)$ 跟 y 越接近越好，这是一个 regression 的 problem，最后每 C 个 step，你要把用 Q 替代 $\hat{Q}$ 。
+
+![](img/9.13.png)
+
+ 接下来我们把它改成 Pathwise Derivative Policy Gradient，这边就是只要做四个改变就好。
+
+* 第一个改变是，你要把 Q 换成 $\pi$，本来是用 Q 来决定在 state $s_t$ 产生那一个 action, $a_{t}$ 现在是直接用 $\pi$ 。我们不用再解 arg max 的 problem 了，我们直接 learn 了一个 actor。这个 actor input $s_t$ 就会告诉我们应该采取哪一个 $a_{t}$。所以本来 input $s_t$，采取哪一个 $a_t$，是 Q 决定的。在 Pathwise Derivative Policy Gradient 里面，我们会直接用 $\pi$ 来决定，这是第一个改变。
+* 第二个改变是，本来这个地方是要计算在 $s_{i+1}$，根据你的 policy 采取某一个 action a 会得到多少的 Q value。那你会采取让 $\hat{Q}$ 最大的那个 action a。那现在因为我们其实不好解这个 arg max 的 problem，所以 arg max problem，其实现在就是由 policy $\pi$ 来解了，所以我们就直接把 $s_{i+1}$ 代到 policy $\pi$ 里面，你就会知道说  given $s_{i+1}$ ，哪一个 action 会给我们最大的 Q value，那你在这边就会 take 那一个 action。在 Q-function 里面，有两个 Q network，一个是真正的 Q network，另外一个是 target Q network。那实际上你在 implement 这个 algorithm 的时候，你也会有两个 actor，你会有一个真正要 learn 的 actor $\pi$，你会有一个 target actor $\hat{\pi}$ 。这个原理就跟为什么要有 target Q network 一样，我们在算 target value 的时候，我们并不希望它一直的变动，所以我们会有一个 target 的 actor 和一个 target 的 Q-function，它们平常的参数就是固定住的，这样可以让你的这个 target 的 value 不会一直地变化。所以本来到底是要用哪一个 action a，你会看说哪一个 action a 可以让 $\hat{Q}$  最大。但现在因为哪一个 action a 可以让 $\hat{Q}$ 最大这件事情已经被用那个 policy 取代掉了，所以我们要知道哪一个 action a 可以让 $\hat{Q}$ 最大，就直接把那个 state 带到 $\hat{\pi}$ 里面，看它得到哪一个 a，就用那一个 a，那一个 a 就是会让 $\hat{Q}(s,a)$ 的值最大的那个 a 。其实跟原来的这个 Q-learning 也是没什么不同，只是原来你要解 arg max 的地方，通通都用 policy 取代掉了，那这个是第二个不同。
+* 第三个不同就是之前只要 learn Q，现在你多 learn 一个 $\pi$，那 learn $\pi$ 的时候的方向是什么呢？learn $\pi$ 的目的，就是为了 maximize Q-function，希望你得到的这个 actor，它可以让你的 Q-function output 越大越好，这个跟 learn GAN 里面的 generator 的概念。其实是一样的。
+* 第四个 step，就跟原来的 Q-function 一样。你要把 target 的 Q network 取代掉，你现在也要把 target policy 取代掉。
+
+## Connection with GAN
+![](img/9.14.png)
+
+其实 GAN 跟 Actor-Critic 的方法是非常类似的。这边就不细讲，你可以去找到一篇 paper 叫做 `Connecting Generative Adversarial Network and Actor-Critic Methods`。知道 GAN 跟 Actor-Critic 非常像有什么帮助呢？一个很大的帮助就是 GAN 跟 Actor-Critic 都是以难 train 而闻名的。所以在文献上就会收集各式各样的方法，告诉你说怎么样可以把 GAN train 起来。怎么样可以把 Actor-Critic train 起来。但是因为做 GAN 跟 Actor-Critic 的人是两群人，所以这篇 paper 里面就列出说在 GAN 上面有哪些技术是有人做过的，在 Actor-Critic 上面，有哪些技术是有人做过的。也许在 GAN 上面有试过的技术，你可以试着 apply 在 Actor-Critic 上，在 Actor-Critic 上面做过的技术，你可以试着 apply 在 GAN 上面，看看是否 work。

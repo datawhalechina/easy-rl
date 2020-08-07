@@ -3,8 +3,8 @@
 
 ## 使用说明
 * 第 3 章到第 10 章为李宏毅《深度强化学习》课程的部分；
-* 第 1 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
-* 第 2 章和第 11 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
+* 第 1 章和第 2 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
+* 第 3 章和第 12 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
 
 ## 笔记在线阅读地址
 在线阅读地址：https://datawhalechina.github.io/leedeeprl-notes/
@@ -14,17 +14,17 @@
 
 ## 目录
 - [P1 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1)
-- [P2 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)
-- [P3 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3)
-- [P4 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)
-- [P5 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5)
-- [P6 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)
-- [P7 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7)
-- [P8 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8)
-- [P9 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9)
-- [P10 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10)
-- [P11 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11)
-
+- [P2 马尔科夫决策过程 (MDP)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)
+- [P3 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3)
+- [P4 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)
+- [P5 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5)
+- [P6 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)
+- [P7 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7)
+- [P8 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8)
+- [P9 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9)
+- [P10 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10)
+- [P11 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11)
+- [P12 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12)
 
 ## 主要贡献者
 

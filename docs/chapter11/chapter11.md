@@ -1,81 +1,100 @@
-# DDPG
-
-## 离散动作 vs. 连续动作
-
+# Imitation Learning 
 ![](img/11.1.png)
-离散动作与连续动作是相对的概念，一个是可数的，一个是不可数的。 在 CartPole 环境中，可以有向左推小车、向右推小车两个动作。在 Frozen Lake 环境中，小乌龟可以有上下左右四个动作。在 Atari 的 Pong 游戏中，游戏有6个按键的动作可以输出。
+`Imitation learning` 讨论的问题是，假设我们连 reward 都没有，那要怎么办呢？Imitation learning 又叫做 `learning from demonstration(示范学习)` ，`apprenticeship learning(学徒学习)`，`learning by watching(观察学习)`。在 Imitation learning 里面，你有一些 expert 的 demonstration，那 machine 也可以跟环境互动，但它没有办法从环境里面得到任何的 reward，它只能看着 expert 的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的 reward。举例来说，如果是棋类游戏或者是电玩，你有非常明确的 reward。但是其实多数的任务，都是没有 reward 的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的 reward。所以很多 task 是根本就没有办法给出 reward 的。
 
-但在实际情况中，经常会碰到连续动作空间的情况，也就是输出的动作是不可数的。比如说推小车力的大小， 选择下一时刻方向盘的转动角度或者四轴飞行器的四个螺旋桨给的电压的大小等等。
+虽然没有办法给出 reward，但是收集 expert 的 demonstration 是可以做到的。举例来说，在自动驾驶汽车里面，虽然你没有办法给出自动驾驶汽车的 reward，但你可以收集很多人类开车的纪录。在 chat-bot 里面，你可能没有办法定义什么叫做好的对话，什么叫做不好的对话。但是收集很多人的对话当作范例，这一件事情也是可行的。所以 imitation learning 的使用性非常高。假设你不知道该怎么定义 reward，你就可以收集到 expert 的 demonstration，你可以收集到一些范例的话，你可以收集到一些很厉害的 agent，比如说人跟环境实际上的互动的话，那你就可以考虑 imitation learning 这个技术。在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者又叫做 `Inverse Optimal Control`。
 
+##  Behavior Cloning
 ![](img/11.2.png)
 
-对于这些连续的动作控制空间，Q-learning、DQN 等算法是没有办法处理的。那我们怎么输出连续的动作呢，这个时候，万能的神经网络又出现了。在上面这个离散动作的场景下，比如说我输出上下或是停止这几个动作。有几个动作，神经网络就输出几个概率值。我们用 $\pi_\theta(a_t|s_t)$ 来表示这个随机性的策略。
-
-然后在连续的动作场景下，比如说我要输出这个机器人手臂弯曲的角度，这样子的一个动作，我们就输出一个具体的浮点数。我们用 $\mu_{\theta}(s_t)$ 来代表这个确定性的策略。
-
-我们再解释一下随机性策略跟确定性策略。
-
-* 对随机性的策略来说，我们输入某一个状态 s，采取某一个 action 的可能性并不是百分之百，而是有一个概率 P 的，就好像抽奖一样，根据概率随机抽取一个动作。
-* 而对于确定性的策略来说，它没有概率的影响。当神经网络的参数固定下来了之后，输入同样的state，必然输出同样的 action，这就是确定性的策略。
+其实 `Behavior Cloning` 跟 supervised learning 是一模一样的。我们以自动驾驶汽车为例，你可以收集到人开自动驾驶汽车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了，这个就叫做 Behavior Cloning。Expert 做什么，机器就做一模一样的事，怎么让机器学会跟 expert 一模一样的行为呢？就把它当作一个 supervised learning 的问题，你去收集很多行车纪录器。然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取action $a_1$，人在state $s_2$ 会采取action $a_2$。人在state, $s_3$ 会采取action $a_3$。接下来，你就learn 一个 network。这个 network 就是你的 actor，他input $s_i$ 的时候，你就希望他的output 是$a_i$，就这样结束了。它就是一个的 supervised learning 的problem。
 
 ![](img/11.3.png)
 
-* 要输出离散动作的话，我们就是加一层 softmax 层来确保说所有的输出是动作概率，而且所有的动作概率加和为 1。
-* 要输出连续的动作的话，一般我们可以在输出层这里加一层 tanh。tanh 的图像的像右边这样子，它的作用就是可以把输出限制到 [-1,1] 之间。我们拿到这个输出后，就可以根据实际动作的一个范围再做一下缩放，然后再输出给环境。比如神经网络输出一个浮点数是 2.8，然后经过 tanh 之后，它就可以被限制在 [-1,1] 之间，它输出 0.99。然后假设说小车的一个速度的那个动作范围是 [-2,2] 之间，那我们就按比例从 [-1,1] 扩放到 [-2,2]，0.99 乘 2，最终输出的就是1.98，作为小车的速度或者说推小车的力输出给环境。
-
-## DDPG
+Behavior Cloning 虽然非常简单，但它的问题是如果你只收集expert 的资料，你可能看过的 observation 会是非常 limited。举例来说，假设你要 learn 一部自动驾驶汽车，自动驾驶汽车就是要过这个弯道。如果是 expert 的话，他就是把车顺着这个红线就开过去了。但假设你的 agent 很笨，他今天开着开着，就开到撞墙了，他永远不知道撞墙这种状况要怎么处理，为什么？因为 training data 里面从来没有撞过墙，所以他根本就不知道撞墙这一种 case 要怎么处理。或是打电玩，电玩也是一样，让人去玩 Mario，那 expert 可能非常强，他从来不会跳不上水管，所以机器根本不知道跳不上水管时要怎么处理。人从来不会跳不上水管，但是机器如果跳不上水管时，就不知道要怎么处理。所以光是做Behavior Cloning 是不够的。只观察 expert 的行为是不够的，需要一个招数，这个招数叫作`Dataset Aggregation`。
 
 ![](img/11.4.png)
 
-在连续控制领域，比较经典的强化学习算法就是 `DDPG(Deep Deterministic Policy Gradient)`。DDPG 的特点可以从它的名字当中拆解出来，拆解成 Deep、Deterministic 和 Policy Gradient。
+我们会希望收集更多样性的 data，而不是只收集 expert 所看到的 observation。我们会希望能够收集 expert 在各种极端的情况下，他会采取什么样的行为。以自动驾驶汽车为例的话，假设一开始，你的actor 叫作 $\pi_1$，你让 $\pi_1$去开这个车。但车上坐了一个 expert。这个 expert 会不断地告诉machine 说，如果在这个情境里面，我会怎么样开。所以 $\pi_1$ 自己开自己的，但是expert 会不断地表示他的想法。比如说，在这个时候，expert 可能说那就往前走。这个时候，expert 可能就会说往右转。但 $\pi_1$ 是不管 expert 的指令的，所以他会继续去撞墙。虽然 expert 说往右转，但是不管他怎么下指令都是没有用的。$\pi_1$ 会自己做自己的事情，因为我们要做的记录的是说，今天expert 在 $\pi_1$ 看到这种observation 的情况下，他会做什么样的反应。这个方法显然是有一些问题的，因为每次你开一次自动驾驶汽车都会牺牲一个人。那你用这个方法，你牺牲一个expert 以后，你就会得到说，人类在这样子的 state 下，在快要撞墙的时候，会采取什么样的反应。再把这个data 拿去train 新的 $\pi_2$。这个process 就反复继续下去，这个方法就叫做`Dataset Aggregation`。
 
-* Deep 是因为用了神经网络。
-* Deterministic 表示 DDPG 输出的是一个确定性的动作，可以用于连续动作的一个环境。
 
-* Policy Gradient 代表的是它用到的是策略网络。REINFORCE 算法每隔一个 episode 就更新一次，但 DDPG 网络是每个 step 都会更新一次 policy 网络，也就是说它是一个单步更新的 policy 网络。
 
-DDPG 是 DQN 的一个扩展的版本。在 DDPG 的训练中，它借鉴了 DQN 的技巧：目标网络和经验回放。经验回放这一块跟 DQN 是一样的。但是 target network 这一块的更新跟 DQN 有点不一样。
 ![](img/11.5.png)
-提出 DDPG 是为了让 DQN 可以扩展到连续的动作空间，就是我们刚才提到的小车速度、角度和电压的电流量这样的连续值。所以 DDPG 直接在 DQN 基础上加了一个策略网络，就是蓝色的这个，用来直接输出动作值。所以 DDPG 需要一边学习 Q网络，一边学习策略网络。Q网络的参数用 $w$ 来表示。策略网络的参数用 $\theta$ 来表示。我们称这样的结构为 `Actor-Critic` 的结构。
+
+Behavior Cloning 还有一个 issue 是说，机器会完全 copy expert 的行为，不管 expert 的行为是否有道理，就算没有道理，没有什么用的，这是expert 本身的习惯，机器也会硬把它记下来。如果机器确实可以记住所有 expert 的行为，那也许还好，为什么呢？因为如果 expert 这么做，有些行为是多余的。但是没有问题，假设机器的行为可以完全仿造 expert 行为，那也就算了，那他是跟 expert 一样得好，只是做一些多余的事。但问题就是它是一个 machine，它是一个 network，network 的capacity 是有限的。就算给 network training data，它在training data 上得到的正确率往往也不是100%，他有些事情是学不起来的。这个时候，什么该学，什么不该学就变得很重要。
+
+举例来说，在学习中文的时候，你的老师，他有语音，他也有行为，他也有知识，但其实只有语音部分是重要的，知识的部分是不重要的。也许 machine 只能够学一件事，也许他就只学到了语音，那没有问题。如果他只学到了手势，这样子就有问题了。所以让机器学习什么东西是需要 copy，什么东西是不需要 copy，这件事情是重要的。而单纯的 Behavior Cloning 就没有把这件事情学进来，因为机器只是复制 expert 所有的行为而已，它不知道哪些行为是重要，是对接下来有影响的，哪些行为是不重要的，是对接下来是没有影响的。
+
 
 ![](img/11.6.png)
-通俗的去解释一下这个 Actor-Critic 的结构，策略网络扮演的就是 actor 的角色，它负责对外展示输出，输出舞蹈动作。Q网络就是评论家(critic)，它会在每一个 step 都对 actor 输出的动作做一个评估，打一个分，估计一下它做一次的 action 未来能有多少收益，也就是去估计这个 actor 输出的这个 action 的 Q值大概是多少，即 $Q_w(s,a)$。 Actor 就需要根据舞台目前的状态来做出一个 action。
 
-评论家就是评委，它需要根据舞台现在的状态和演员输出的 action 这两个值对 actor 刚刚的表现去打一个分数 $Q_w(s,a)$。所以 actor 就是要根据评委的打分来调整自己的策略。也就是更新 actor 的神经网络参数 $\theta$， 争取下次可以做得更好。而 critic 就是要根据观众的反馈，也就是环境的反馈 reward 来调整自己的打分策略，也就是要更新 critic 的神经网络的参数 $w$ ，它的目标是要让每一场表演都获得观众尽可能多的欢呼声跟掌声，也就是要最大化未来的总收益。其实最开始训练的时候，这两个神经网络参数是随机的。所以 critic 最开始是随机打分的，然后 actor 也跟着乱来，就随机表演，随机输出动作。但是由于我们有环境反馈的 reward 存在，所以 critic 的评分会越来越准确，也会评判的那个 actor 的表现会越来越好。既然 actor 是一个神经网络，是我们希望训练好的这个策略网络，那我们就需要计算梯度来去更新优化它里面的参数 $\theta$ 。简单的说，我们希望调整 actor 的网络参数，使得评委打分尽可能得高。注意，这里的 actor 是不管观众的，它只关注评委，它就是迎合评委的打分，打的这个 $Q_w(s,a)$ 而已。
+Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候，training data 跟 testing data 是 mismatch 的。我们可以用 Dataset Aggregation 的方法来缓解这个问题。这个问题是，在 training 跟 testing 的时候，data distribution 其实是不一样的。因为在 reinforcement learning 里面，action 会影响到接下来所看到的 state。我们是先有 state $s_1$，然后采取 action $a_1$，action $a_1$ 其实会决定接下来你看到什么样的 state $s_2$。所以在 reinforcement learning 里面有一个很重要的特征，就是你采取了 action 会影响你接下来所看到的 state。如果做了Behavior Cloning 的话，我们只能观察到 expert 的一堆 state 跟 action 的pair。然后我们希望可以 learn 一个 $\pi^*$，我们希望 $\pi^*$ 跟 $\hat{\pi}$ 越接近越好。如果 $\pi^*$ 可以跟 $\hat{\pi}$ 一模一样的话，你 training 的时候看到的 state 跟 testing 的时候所看到的 state 会是一样的。因为虽然 action 会影响我们看到的 state，但假设两个 policy 一模一样， 在同一个 state 都会采取同样的 action，那你接下来所看到的 state 都会是一样的。但问题就是你很难让你的 learn 出来的 policy 跟expert 的 policy 一模一样。Expert 可是一个人，network 要跟人一模一样，感觉很难吧。
+
+如果你的 $\pi^*$ 跟 $\hat{\pi}$ 有一点误差。这个误差在一般 supervised learning problem 里面，每一个 example 都是 independent 的，也许还好。但对 reinforcement learning 的 problem 来说，你可能在某个地方就是失之毫厘，差之千里。可能在某个地方，也许 machine 没有办法完全复制 expert 的行为，它只复制了一点点，差了一点点，也许最后得到的结果就会差很多这样。所以 Behavior Cloning 并不能够完全解决 Imatation learning 这件事情。所以就有另外一个比较好的做法叫做 `Inverse Reinforcement Learning`。
+
+
+##  Inverse RL
 
 ![](img/11.7.png)
+为什么叫 Inverse Reinforcement Learning，因为原来的 Reinforcement Learning 里面，有一个环境和一个 reward function。根据环境和 reward function，通过 Reinforcement Learning 这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。但 Inverse Reinforcement Learning 刚好是相反的，你没有 reward function，你只有一堆 expert 的 demonstration。但你还是有环境的。IRL 的做法是说假设我们现在有一堆 expert 的demonstration，我们用 $\hat{\tau}$ 来代表expert 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自动驾驶汽车的话，就是人开自动驾驶汽车的纪录。这一边就是 expert 的 demonstration，每一个 $\tau$ 是一个 trajectory。
 
-接下来就是类似 DQN。DQN 的最佳策略是想要学出一个很好的 Q网络。 学好这个网络之后，我们希望选取的那个动作使你的 Q值最大。DDPG 的目的也是为了求解让 Q值最大的那个 action。Actor 只是为了迎合评委的打分而已，所以用来优化策略网络的梯度就是要最大化这个 Q 值，所以构造的 loss 函数就是让 Q 取一个负号。我们写代码的时候要做的就是把这个 loss 函数扔到优化器里面，它就会自动最小化 loss，也就是最大化这个 Q。然后这里注意，除了策略网络要做优化，DDPG 还有一个 Q网络也要优化。评委一开始其实也不知道怎么评分，它也是在一步一步的学习当中，慢慢地去给出准确的打分。那我们优化 Q网络的方法其实跟 DQN 优化 Q网络的方法是一模一样的。我们用真实的 reward $r$ 和下一步的 Q 即 Q' 来去拟合未来的收益也就是 Q_target。
 
-然后让 Q网络的输出去逼近这个 Q_target。所以构造的 loss function 就是直接求这两个值的均方差。构造好loss 后，之后我们就扔进去那个优化器，让它自动去最小化 loss 就好了。
+把所有 expert demonstration 收集起来，然后，使用Inverse Reinforcement Learning 这个技术。使用 Inverse Reinforcement Learning 技术的时候，机器是可以跟环境互动的。但他得不到reward。他的 reward 必须要从 expert 那边推出来，有了环境和 expert demonstration 以后，去反推出 reward function 长什么样子。之前 reinforcement learning 是由 reward function 反推出什么样的 action、actor 是最好的。Inverse Reinforcement Learning 是反过来，我们有expert 的demonstration，我们相信他是不错的，我就反推说，expert 是因为什么样的 reward function 才会采取这些行为。你有了reward function 以后，接下来，你就可以套用一般的 reinforcement learning 的方法去找出 optimal actor。所以 Inverse Reinforcement Learning 是先找出 reward function，找出 reward function 以后，再去用 Reinforcement Learning 找出 optimal actor。
+
+把这个 reward function learn 出来，相较于原来的 Reinforcement Learning 有什么样好处。一个可能的好处是也许 reward function 是比较简单的。也许，虽然这个 expert 的行为非常复杂，但也许简单的 reward function 就可以导致非常复杂的行为。一个例子就是也许人类本身的 reward function 就只有活着这样，每多活一秒，你就加一分。但人类有非常复杂的行为，但是这些复杂的行为，都只是围绕着要从这个 reward function 里面得到分数而已。有时候很简单的 reward function 也许可以推导出非常复杂的行为。
 
 ![](img/11.8.png)
 
-那我们把两个网络的 loss function 就可以构造出来。我们可以看到策略网络的 loss function 是一个复合函数。我们把那个 $a = \mu_\theta(s)$ 代进去，最终策略网络要优化的是策略网络的参数  $\theta$ 。
+Inverse Reinforcement Learning 实际上是怎么做的呢？首先，我们有一个 expert $\hat{\pi}$，这个 expert 去跟环境互动，给我们很多 $\hat{\tau_1}$ 到 $\hat{\tau_n}$。如果是玩游戏的话，就让某一个电玩高手，去玩 n 场游戏。把 n 场游戏的 state 跟 action 的 sequence 都记录下来。接下来，你有一个actor $\pi$，一开始actor 很烂，这个 actor 也去跟环境互动。他也去玩了n 场游戏，他也有 n 场游戏的纪录。接下来，我们要反推出 reward function。怎么推出 reward function 呢？**原则就是 expert 永远是最棒的，是先射箭，再画靶的概念。**
 
-Q 网络要优化的是那个 Q 的输出 $Q_w(s,a)$ 和那个 Q_target 之间的一个均方差。但是 Q网络的优化存在一个和 DQN 一模一样的问题就是它后面的这个 Q_target 是不稳定的。这个在之前的 DQN 有讲过。后面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是不稳定的。因为 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是一个预估的值。为了稳定这个 Q_target。DDPG 分别给 Q网络和策略网络都搭建了 target network，专门就是为了用来稳定这个 Q_target。
+Expert 去玩一玩游戏，得到这一些游戏的纪录，你的 actor 也去玩一玩游戏，得到这些游戏的纪录。接下来，你要定一个 reward function，这个 reward function 的原则就是 expert 得到的分数要比 actor 得到的分数高，先射箭，再画靶。所以我们就 learn 出一个 reward function。你就找出一个 reward function。这个 reward function 会使 expert 所得到的 reward 大过于 actor 所得到的reward。你有了新的 reward function 以后，就可以套用一般 Reinforcement Learning 的方法去learn 一个actor，这个actor 会针对 reward function 去 maximize 他的reward。他也会采取一大堆的action。但是，今天这个 actor 虽然可以 maximize 这个 reward function，采取一大堆的行为，得到一大堆游戏的纪录。
+
+但接下来，我们就改 reward function。这个 actor 就会很生气，它已经可以在这个reward function 得到高分。但是他得到高分以后，我们就改 reward function，仍然让 expert 可以得到比 actor 更高的分数。这个就是 `Inverse Reinforcement learning`。有了新的 reward function 以后，根据这个新的 reward function，你就可以得到新的 actor，新的 actor 再去跟环境做一下互动，他跟环境做互动以后， 你又会重新定义你的 reward function，让 expert 得到的 reward 比 actor 大。
+
+怎么让 expert 得到的 reward 大过 actor 呢？其实你在 learning 的时候，你可以很简单地做一件事就是，reward function 也许就是 neural network。这个 neural network 就是吃一个 $\tau$，output 就是应该要给这个 $\tau$ 多少的分数。或者说，你假设觉得 input 整个$\tau$ 太难了。因为$\tau$ 是 s 和 a 的一个很强的sequence。也许他就是 input 一个 s 和 a 的 pair，然后 output 一个real number。把整个 sequence，整个$\tau$ 会得到的 real number 都加起来就得到 $R(\tau)$。在training 的时候，对于 $\left\{\hat{\tau}_{1}, \hat{\tau}_{2}, \cdots, \hat{\tau}_{N}\right\}$，我们希望它 output 的 R 越大越好。对于 $\left\{\tau_{1}, \tau_{2}, \cdots, \tau_{N}\right\}$，我们就希望它 R 的值越小越好。
+
+什么叫做一个最好的 reward function。最后你 learn 出来的 reward function 应该就是 expert 和 actor 在这个 reward function 都会得到一样高的分数。最终你的 reward function 没有办法分辨出谁应该会得到比较高的分数。
+
+通常在 train 的时候，你会 iterative 的去做。那今天的状况是这样，最早的 Inverse Reinforcement Learning 对 reward function 有些限制，他是假设 reward function 是 linear 的。如果reward function 是 linear 的话，你可以 prove 这个algorithm 会 converge。但是如果不是 linear 的，你就没有办法 prove 说它会 converge。你有没有觉得这个东西，看起来还挺熟悉呢？其实你只要把他换个名字，说 actor 就是 generator，然后说 reward function 就是discriminator，它就是GAN。所以它会不会收敛这个问题就等于是问说 GAN 会不会收敛。如果你已经实现过，你会知道不一定会收敛。但除非你对 R 下一个非常严格的限制，如果你的 R 是一个 general 的network 的话，你就会有很大的麻烦。
 
 
-target Q 网络就为了来计算 Q_target 里面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$。然后 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$  里面的需要的 next action $a'$  就是通过 target_P 网络来去输出，即 $a^{\prime}=\mu_{\bar{\theta}}\left(s^{\prime}\right)$。
+![](img/11.9.png)
 
-为了区分前面的 Q网络和策略网络以及后面的 target_Q 网络和 target_p 策略网络。前面的网络的参数是 $w$，后面的网络的参数是 $\bar{w}$。这就是为什么我们去看一些 DDPG 的文章，会发现 DDPG 会有四个网络。策略网络的 target 网络 和 Q网络的 target 网络就是颜色比较深的这两个。它只是为了让计算 Q_target 的时候能够更稳定一点而已。因为这两个网络也是固定一段时间的参数之后再跟评估网络同步一下最新的参数。
+那怎么说它像是一个GAN，我们来跟GAN 比较一下。GAN 里面，你有一堆很好的图。然后你有一个generator，一开始他根本不知道要产生什么样的图，他就乱画。然后你有一个discriminator，discriminator 的工作就是给画的图打分，expert 画的图就是高分，generator 画的图就是低分。你有discriminator 以后，generator 会想办法去骗过 discriminator。Generator 会希望 discriminator 也会给它画的图高分。整个 process 跟 Inverse Reinforcement Learning 是一模一样的。
 
-这里面训练需要用到的数据就是 $s,a,r,s'$。我们只需要用到这四个数据，我们就用 Replay Memory 把这些数据存起来，然后再 sample 进来训练就好了。这个经验回放的技巧跟 DQN 是一模一样的。注意，因为 DDPG 使用了经验回放这个技巧，所以 DDPG 是一个 `off-policy` 的算法。
-
-## Exploration vs. Exploitation
-DDPG 通过 off-policy 的方式来训练一个确定性策略。因为策略是确定的，如果 agent 使用同策略来探索，在一开始的时候，它会很可能不会尝试足够多的 action 来找到有用的学习信号。为了让 DDPG 的策略更好地探索，我们在训练的时候给它们的 action 加了噪音。DDPG 的原作者推荐使用时间相关的 [OU noise](https://en.wikipedia.org/wiki/Ornstein–Uhlenbeck_process)，但最近的结果表明不相关的、均值为 0 的 Gaussian noise 的效果非常好。由于后者更简单，因此我们更喜欢使用它。为了便于获得更高质量的训练数据，你可以在训练过程中把噪声变小。
-
-在测试的时候，为了查看策略利用它学到的东西的表现，我们不会在 action 中加噪音。
-
-## References
-
-* [百度强化学习课](https://aistudio.baidu.com/aistudio/education/lessonvideo/460292)
-
-* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/algorithms/ddpg.html#)
-
-  
+* 画的图就是 expert 的 demonstration。generator 就是actor，generator 画很多图，actor 会去跟环境互动，产生很多 trajectory。这些 trajectory 跟环境互动的记录，游戏的纪录其实就是等于 GAN 里面的这些图。
+* 然后你 learn 一个reward function。Reward function 就是 discriminator。Rewards function 要给 expert 的 demonstration 高分，给 actor 互动的结果低分。
+* 接下来，actor 会想办法，从这个已经 learn 出来的 reward function 里面得到高分，然后 iterative 地去循环。跟GAN 其实是一模一样的，我们只是换个说法来而已。
 
 
 
+![](img/11.10.png)
 
+IRL 有很多的application，举例来说，可以用开来自动驾驶汽车。然后，有人用这个技术来学开自动驾驶汽车的不同风格，每个人在开车的时候，其实你会有不同风格。举例来说，能不能够压到线，能不能够倒退，要不要遵守交通规则等等。每个人的风格是不同的，然后用 Inverse Reinforcement Learning 可以让自动驾驶汽车学会各种不同的开车风格。
+
+![](img/11.11.png)
+
+上图是文献上真实的例子，在这个例子里面， Inverse Reinforcement Learning 有一个有趣的地方,通常你不需要太多的 training data，因为 training data 往往都是个位数。因为 Inverse Reinforcement Learning 只是一种 demonstration，只是一种范例，实际上机器可以去跟环境互动非常多次。所以在 Inverse Reinforcement Learning 的文献， 往往会看到说只用几笔 data 就训练出一些有趣的结果。
+
+比如说，在这个例子里面是要让自动驾驶汽车学会在停车场里面停。这边的demonstration 是这样，蓝色是终点，自动驾驶汽车要开到蓝色终点停车。给机器只看一行的四个 demonstration，然后让他去学怎么样开车，最后他就可以学出，在红色的终点位置，如果他要停车的话，他会这样开。今天给机器看不同的demonstration，最后他学出来开车的风格就会不太一样。举例来说，上图第二行是不守规矩的开车方式，因为他会开到道路之外，这边，他会穿过其他的车，然后从这边开进去。所以机器就会学到说，不一定要走在道路上，他可以走非道路的地方。上图第三行是倒退来停车，机器也会学会说，他可以倒退，
+
+![](img/11.12.png)
+
+这种技术也可以拿来训练机器人。你可以让机器人，做一些你想要他做的动作，过去如果你要训练机器人，做你想要他做的动作，其实是比较麻烦的。怎么麻烦呢？过去如果你要操控机器的手臂，你要花很多力气去写 program 才让机器做一件很简单的事看。假设你有 Imitation Learning 的技术，你可以让人做一下示范，然后机器就跟着人的示范来进行学习，比如学会摆盘子，拉着机器人的手去摆盘子，机器自己动。让机器学会倒水，人只教他20 次，杯子每次放的位置不太一样。用这种方法来教机械手臂。
+
+## Third Person lmitation Learning
+![](img/11.13.png)
+
+其实还有很多相关的研究，举例来说，你在教机械手臂的时候，要注意就是也许机器看到的视野跟人看到的视野是不太一样的。在刚才那个例子里面，人跟机器的动作是一样的。但是在未来的世界里面，也许机器是看着人的行为学的。刚才是人拉着，假设你要让机器学会打高尔夫球，在刚才的例子里面就是人拉着机器人手臂去打高尔夫球，但是在未来有没有可能机器就是看着人打高尔夫球，他自己就学会打高尔夫球了呢？但这个时候，要注意的事情是机器的视野跟他真正去采取这个行为的时候的视野是不一样的。机器必须了解到当他是第三人的视角的时候，看到另外一个人在打高尔夫球，跟他实际上自己去打高尔夫球的时候，看到的视野显然是不一样的。但他怎么把他是第三人的时间所观察到的经验把它 generalize 到他是第一人称视角的时候所采取的行为，这就需要用到`Third Person Imitation Learning`的技术。
+
+![](img/11.14.png)
+
+这个怎么做呢？它的技术其实也是不只是用到 Imitation Learning，他用到了 `Domain-Adversarial Training`。我们在讲 Domain-Adversarial Training 的时候，我们有讲说这也是一个GAN 的技术。那我们希望今天有一个 extractor，有两个不同 domain 的image，通过 feature extractor 以后，没有办法分辨出他来自哪一个 domain。其实第一人称视角和第三人称视角，Imitation Learning 用的技术其实也是一样的，希望 learn 一个 Feature Extractor，机器在第三人称的时候跟他在第一人称的时候看到的视野其实是一样的，就是把最重要的东西抽出来就好了。 
+
+## Recap: Sentence Generation & Chat-bot
+![](img/11.15.png)
+
+在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 Imitation Learning。机器在 imitate 人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给他看唐诗三百首。人类写的文字其实就是 expert 的 demonstration。每一个词汇其实就是一个 action。今天，你让机器做Sentence Generation 的时候其实就是在 imitate expert 的trajectory。Chat-bot 也是一样，在Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是 expert 的 demonstration。
+
+如果我们今天单纯用 maximum likelihood 这个技术来 maximize 会得到 likelihood，这个其实就是behavior cloning。我们今天做 behavior cloning 就是看到一个 state，接下来预测我们会得到什么样的 action。看到一个state，然后有一个 ground truth 告诉机器说什么样的 action 是最好的。在做 likelihood 的时候也是一样，given sentence 已经产生的部分。接下来 machine 要 predict 说接下来要写哪一个word 才是最好的。所以，其实 maximum likelihood 在做Sequence generation 的时候，它对应到 Imitation Learning 里面就是 behavior cloning。只有 maximum likelihood 是不够的，我们想要用 Sequence GAN，其实 Sequence GAN 就是对应到 Inverse Reinforcement Learning，Inverse Reinforcement Learning 就是一种 GAN 的技术。你把 Inverse Reinforcement Learning 的技术放在 Sentence generation，放到 Chat-bot 里面，其实就是 Sequence GAN 跟它的种种的变形。
 

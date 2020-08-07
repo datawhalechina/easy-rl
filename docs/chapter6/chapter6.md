@@ -1,111 +1,341 @@
-# Tips of Q-learning
-## Double DQN
+# Q-learning
+
+## State Value Function
+
 ![](img/6.1.png)
 
-接下来要讲的是 train Q-learning 的一些 tip。第一个 tip 是做 `Double DQN`。那为什么要有 Double DQN 呢？因为在实现上，你会发现 Q value 往往是被高估的。上图来自于 Double DQN 的原始 paper，它想要显示的结果就是 Q value 往往是被高估的。这边有 4 个不同的小游戏，横轴是 training 的时间，红色锯齿状一直在变的线就是 Q-function 对不同的 state estimate 出来的平均 Q value，有很多不同的 state，每个 state 你都 sample 一下，然后算它们的 Q value，把它们平均起来。红色这一条线，它在training 的过程中会改变，但它是不断上升的，为什么它不断上升，因为 Q-function 是 depend on 你的 policy 的。learn 的过程中你的 policy 越来越强，所以你得到 Q  value 会越来越大。在同一个state， 你得到 expected reward 会越来越大，所以 general 而言，这个值都是上升的，但这是 Q-network 估测出来的值。
+Q-learning 是 `value-based` 的方法。在 value based 的方法里面，我们 learn 的不是 policy，我们要 learn 的是一个 `critic`。Critic 并不直接采取行为，它想要做的事情是评价现在的行为有多好或是有多不好。假设有一个 actor $\pi$ ，critic 的工作就是来评价这个 actor 的 policy $\pi$  好还是不好，即 `Policy Evaluation(策略评估)`。
 
-接下来你真地去算它，那怎么真地去算？你有那个policy，然后真的去玩那个游戏。就玩很多次，玩个一百万次。然后就去真地估说，在某一个 state， 你会得到的 Q value 到底有多少。你会得到说在某一个 state，采取某一个 action。你接下来会得到 accumulated reward 是多少。你会发现估测出来的值是远比实际的值大。在每一个游戏都是这样，都大很多。所以今天要 propose Double DQN 的方法，它可以让估测的值跟实际的值是比较接近的。我们先看它的结果，蓝色的锯齿状的线是Double DQN 的 Q-network 所估测出来的Q value，蓝色的无锯齿状的线是真正的Q value，你会发现它们是比较接近的。 用 network 估测出来的就不用管它，比较没有参考价值。用 Double DQN 得出来真正的 accumulated reward，在这 3 个case 都是比原来的DQN 高的，代表 Double DQN learn 出来那个 policy 比较强。所以它实际上得到的reward 是比较大的。虽然一般的 DQN 的 Q-network 高估了自己会得到的reward，但实际上它得到的 reward 是比较低的。
+> 注：李宏毅深度强化学习课程提到的 Q-learning，其实是 DQN。
+>
+> DQN 是指基于深度学习的 Q-learning 算法，主要结合了`价值函数近似(Value Function Approximation)`与神经网络技术，并采用了目标网络和经历回放的方法进行网络的训练。
+>
+> 在 Q-learning 中，我们使用表格来存储每个状态 s 下采取动作 a 获得的奖励，即状态-动作值函数 $Q(s,a)$。然而，这种方法在状态量巨大甚至是连续的任务中，会遇到维度灾难问题，往往是不可行的。因此，DQN 采用了价值函数近似的表示方法。
+
+举例来说，有一种 critic 叫做 `state value function`。State value function 的意思就是说，假设 actor 叫做 $\pi$，拿 $\pi$  跟环境去做互动。假设 $\pi$  看到了某一个state s，如果在玩 Atari 游戏的话，state s 是某一个画面，看到某一个画面的时候，接下来一直玩到游戏结束，累积的 reward 的期望值有多大。所以 $V^{\pi}$ 是一个function，这个 function input 一个 state，然后它会 output 一个 scalar。这个 scalar 代表说，$\pi$ 这个 actor 看到 state s 的时候，接下来预期到游戏结束的时候，它可以得到多大的 value。
+
+举个例子，假设你是玩 space invader 的话，
+
+* 左边这个 state s，这一个游戏画面，你的 $V^{\pi}(s)$  也许会很大，因为还有很多的怪可以杀， 所以你会得到很大的分数。一直到游戏结束的时候，你仍然有很多的分数可以吃。
+* 右边那个case，也许你得到的 $V^{\pi}(s)$ 就很小，因为剩下的怪也不多了，并且红色的防护罩已经消失了，所以可能很快就会死掉。所以接下来得到预期的 reward，就不会太大。
+
+这边需要强调的一个点是说，当你在讲这一个 critic 的时候，critic 都是绑一个 actor 的，critic 没有办法去凭空去 evaluate 一个 state 的好坏，它所 evaluate 的东西是在给定某一个 state 的时候， 假设接下来互动的 actor 是 $\pi$，那我会得到多少 reward。因为就算是给同样的 state，你接下来的 $\pi$ 不一样，你得到的 reward 也是不一样的。举例来说，在左边那个case，虽然假设是一个正常的 $\pi$，它可以杀很多怪，那假设他是一个很弱的 $\pi$，它就站在原地不动，然后马上就被射死了，那你得到的 V 还是很小。所以 critic output 值有多大，其实是取决于两件事：state 和 actor。所以你的 critic 其实都要绑一个 actor，它是在衡量某一个 actor 的好坏，而不是 generally 衡量一个 state 的好坏。这边要强调一下，critic output 是跟 actor 有关的，state value 其实是 depend on 你的 actor。当你的 actor 变的时候，state value function 的output 其实也是会跟着改变的。
+
+### State-value Function Bellman Equation
+
+记策略 $\pi $ 的状态值函数为 $V^{\pi}(s_t)$ ，它表示在状态 $s_t$ 下带来的累积奖励 $G_t$ 的期望，具体公式为：
+$$
+\begin{aligned} V ^ { \pi } \left( s _ { t }  \right) & = \mathbb { E } \left[ G _ { t } \mid s _ { t }  \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma r _ { t + 1 } + \gamma ^ { 2 } r _ { t + 2 } + \cdots \mid s _ { t }  \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma \left( r _ { t + 1 } + \gamma r _ { t + 2 } + \cdots \right) \mid s _ { t }  \right] \\ 
+&= \mathbb{E}[r_t|s_t]+ \gamma\mathbb{E}[r_{t+1}+\gamma r_{t+2}+\cdots|s_t] \\
+& =\mathbb{E}[r_t|s_t]+ \gamma\mathbb{E}[G_{t+1}|s_t]
+\\& = \mathbb { E } \left[ r _ { t } + \gamma V ^ { \pi } \left( s _ { t + 1 }  \right) \mid s _ { t} \right] \end{aligned}
+$$
+
+上式是 State-value Function 的 Bellman Equation。
+
+### State Value Function Estimation
 
 ![](img/6.2.png)
 
-Q: 为什么 Q value 总是被高估了呢？
+怎么衡量这个 state value function  $V^{\pi}(s)$ 呢？有两种不同的做法。一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让 actor 去跟环境做互动，给 critic 看。然后，critic 就统计说，actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward 会有多大。但是实际上，你不可能把所有的state 通通都扫过。如果你是玩 Atari 游戏的话，你的 state 是 image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个 network。对一个 network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个 value 的值。
 
-A: 因为实际上在做的时候，是要让左边这个式子跟右边这个 target 越接近越好。那你会发现说，target 的值很容易一不小心就被设得太高。因为在算这个 target 的时候，我们实际上在做的事情是看哪一个a 可以得到最大的Q value，就把它加上去，就变成我们的target。所以假设有某一个 action 得到的值是被高估的。
-
-举例来说， 现在有 4 个 actions，本来其实它们得到的值都是差不多的，它们得到的reward 都是差不多的。但是在estimate 的时候，那毕竟是个network。所以estimate 的时候是有误差的。所以假设今天是第一个action它被高估了，假设绿色的东西代表是被高估的量，它被高估了，那这个target 就会选这个action。然后就会选这个高估的Q value来加上$r_t$，来当作你的target。如果第4 个action 被高估了，那就会选第4 个action 来加上$r_t$ 来当作你的target value。所以你总是会选那个Q value 被高估的，你总是会选那个reward 被高估的action 当作这个max 的结果去加上$r_t$ 当作你的target。所以你的target 总是太大。
+怎么训练这个 network 呢？因为如果在state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果 input 是 state $s_a$，正确的 output 应该是$G_a$。如果 input state $s_b$，正确的output 应该是value $G_b$。所以在 training 的时候， 它就是一个 `regression problem`。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟 $G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把 network train 下去，就结束了。这是第一个方法，MC based 的方法。
 
 ![](img/6.3.png)
-Q: 怎么解决这target 总是太大的问题呢？
 
-A: 在 Double DQN 里面，选 action 的 Q-function 跟算 value 的 Q-function，不是同一个。在原来的DQN 里面，你穷举所有的 a，把每一个a 都带进去， 看哪一个 a 可以给你的 Q value 最高，那你就把那个 Q value 加上$r_t$。但是在 Double DQN 里面，你有两个 Q-network，第一个 Q-network，决定哪一个 action 的 Q value 最大，你用第一个 Q-network 去带入所有的 a，去看看哪一个Q value 最大。然后你决定你的action 以后，你的 Q value 是用 $Q'$ 算出来的，这样子有什么好处呢？为什么这样就可以避免 over estimate 的问题呢？因为今天假设我们有两个 Q-function，假设第一个Q-function 它高估了它现在选出来的action a，那没关系，只要第二个Q-function $Q'$ 没有高估这个action a 的值，那你算出来的，就还是正常的值。假设反过来是 $Q'$ 高估了某一个action 的值，那也没差， 因为反正只要前面这个Q 不要选那个action 出来就没事了。这个就是 Double DQN 神奇的地方。
+第二个方法是`Temporal-difference(时序差分)` 的方法， `即 TD based ` 的方法。在 MC based 的方法中，每次我们都要算 accumulated reward，也就是从某一个 state $s_a$ 一直玩到游戏结束的时候，得到的所有 reward 的总和。所以你要 apply MC based 的 approach，你必须至少把这个游戏玩到结束。但有些游戏非常的长，你要玩到游戏结束才能够 update network，花的时间太长了。因此我们会采用 TD based 的方法。TD based 的方法不需要把游戏玩到底，只要在游戏的某一个情况，某一个 state $s_t$ 的时候，采取 action $a_t$ 得到 reward $r_t$ ，跳到 state $s_{t+1}$，就可以 apply TD 的方法。
 
-Q: 哪来 Q  跟 $Q'$ 呢？哪来两个 network 呢？
+怎么 apply TD 的方法呢？这边是基于以下这个式子：
+$$
+V^{\pi}\left(s_{t}\right)=V^{\pi}\left(s_{t+1}\right)+r_{t}
+$$
 
-A: 在实现上，你有两个 Q-network， 一个是 target 的 Q-network，一个是真正你会 update 的 Q-network。所以在 Double DQN 里面，你的实现方法会是拿你会 update 参数的那个 Q-network 去选action，然后你拿target 的network，那个固定住不动的network 去算value。而 Double DQN 相较于原来的 DQN 的更改是最少的，它几乎没有增加任何的运算量，连新的network 都不用，因为你原来就有两个network 了。你唯一要做的事情只有，本来你在找最大的a 的时候，你在决定这个a 要放哪一个的时候，你是用$Q'$ 来算，你是用target network 来算，现在改成用另外一个会 update 的 Q-network 来算。
+假设我们现在用的是某一个 policy $\pi$，在 state $s_t$，它会采取 action $a_t$，给我们 reward $r_t$ ，接下来进入$s_{t+1}$ 。state $s_{t+1}$ 的 value 跟 state $s_t$ 的 value，它们的中间差了一项 $r_t$。因为你把 $s_{t+1}$ 得到的 value 加上得到的 reward $r_t$ 就会等于 $s_t$ 得到的 value。有了这个式子以后，你在 training 的时候，你并不是直接去估测 V，而是希望你得到的结果 V 可以满足这个式子。也就是说你会是这样 train 的，你把 $s_t$ 丢到 network 里面，因为 $s_t$ 丢到 network 里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的 value network 里面会得到$V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减 $V^{\pi}(s_{t+1})$ 的值应该是 $r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，train 下去，update V 的参数，你就可以把 V function learn 出来。
 
-假如你今天只选一个tip 的话，正常人都是 implement Double DQN，因为很容易实现。
-
-## Dueling DQN
 ![](img/6.4.png)
-第二个 tip 是 `Dueling DQN`。其实 Dueling DQN 也蛮好做的，相较于原来的DQN。它唯一的差别是改了network 的架构，Dueling DQN 唯一做的事情是改network 的架构。Q-network 就是input state，output 就是每一个action 的Q value。dueling DQN 唯一做的事情，是改了network 的架构，其它的算法，你都不要去动它。
 
-Q: Dueling DQN 是怎么改了network 的架构呢？
+MC 跟 TD 有什么样的差别呢？**MC 最大的问题就是 variance 很大**。因为我们在玩游戏的时候，它本身是有随机性的。所以你可以把 $G_a$ 看成一个 random 的 variable。因为你每次同样走到 $s_a$ 的时候，最后你得到的 $G_a$ 其实是不一样的。你看到同样的state $s_a$，最后玩到游戏结束的时候，因为游戏本身是有随机性的，玩游戏的 model 搞不好也有随机性，所以你每次得到的 $G_a$ 是不一样的，每一次得到$G_a$ 的差别其实会很大。为什么它会很大呢？因为 $G_a$ 其实是很多个不同的 step 的 reward 的和。假设你每一个step 都会得到一个reward，$G_a$ 是从 state $s_a$  开始，一直玩到游戏结束，每一个timestamp reward 的和。
 
-A: 本来的DQN 就是直接output Q value 的值。现在这个dueling 的DQN，就是下面这个network 的架构。它不直接output Q value 的值，它分成两条path 去运算，第一个path，它算出一个scalar，这个scalar 我们叫做$V(s)$。因为它跟input s 是有关系，所以叫做$V(s)$，$V(s)$ 是一个scalar。下面这个会output 一个vector，这个vector 叫做$A(s,a)$。下面这个vector，它是每一个action 都有一个value。然后你再把这两个东西加起来，就得到你的Q value。
+举例来说，我在右上角就列一个式子是说，
+
+$$
+\operatorname{Var}[k X]=k^{2} \operatorname{Var}[X]
+$$
+Var 就是指 variance。 
+通过这个式子，我们知道 $G_a$ 的 variance  相较于某一个 state 的 reward，它会是比较大的，$G_a$ 的variance 是比较大的。
+
+如果用 TD 的话，你是要去 minimize 这样的一个式子：
 
 ![](img/6.5.png)
 
-Q: 这么改有什么好处？
-
-A : 那我们假设说，原来的$Q(s,a)$ 就是一个table。我们假设 state 是discrete 的，实际上state 不是discrete 的。那为了说明方便，我们假设就是只有4 个不同的state，只有3 个不同的action，所以$Q(s,a)$ 你可以看作是一个table。
-
-我们知道：
-$$
-Q(s,a) = V(s) + A(s,a)
-$$
-
-其中
-
-* $V(s)$ 是对不同的state 它都有一个值。 
-* $A(s,a)$ 它是对不同的state，不同的action都有一个值。
-
-你把这个 V 的值加到 A 的每一个 column 就会得到Q 的值。把 2+1，2+(-1)，2+0，就得到 3，1，2，以此类推。
-
-如上图所示，假设说你在train network 的时候，target 是希望这一个值变成 4，这一个值变成 0。但是你实际上能更改的并不是Q 的值，你的network 更改的是V 跟A 的值。根据network 的参数，V 跟A 的值output 以后，就直接把它们加起来，所以其实不是更动Q 的值。然后在learn network 的时候，假设你希望这边的值，这个3 增加1 变成 4，这个-1 增加1 变成 0。最后你在train network 的时候，network 可能会说，我们就不要动这个 A 的值，就动 V 的值，把 V 的值从0 变成 1。把0 变成1 有什么好处呢？你会发现说，本来你只想动这两个东西的值，那你会发现说，这个第三个值也动了，-2 变成 -1。所以有可能说你在某一个state，你明明只sample 到这2 个action，你没sample 到第三个action，但是你其实也可以更改第三个action 的Q value。这样的好处就是你不需要把所有的 state-action pair 都sample 过，你可以用比较efficient 的方式去 estimate Q value 出来。因为有时候你update 的时候，不一定是update 下面这个table。而是只update 了$V(s)$，但update $V(s)$ 的时候，只要一改所有的值就会跟着改。这是一个比较有效率的方法，去使用你的data，这个是Dueling DQN 可以带给我们的好处。
-
-那可是接下来有人就会问说会不会最后learn 出来的结果是说，反正machine 就学到 V 永远都是 0，然后反正A 就等于 Q，那你就没有得到任何 Dueling DQN 可以带给你的好处， 就变成跟原来的DQN 一模一样。为了避免这个问题，实际上你要给 A 一些constrain，让update A 其实比较麻烦，让network 倾向于会想要去用V 来解问题。
-
-举例来说，你可以看原始的文献，它有不同的constrain 。那一个最直觉的constrain 是你必须要让这个A 的每一个column 的和都是 0，所以看我这边举的例子，我的column 的和都是 0。那如果这边column 的和都是 0，这边这个V 的值，你就可以想成是上面 Q 的每一个column 的平均值。这个平均值，加上这些值才会变成是Q 的value。所以今天假设你发现说你在update 参数的时候，你是要让整个row 一起被update。你就不会想要update 这边，因为你不会想要update Ａ这个matrix。因为 A 这个matrix 的每一个column 的和都要是 0，所以你没有办法说，让这边的值，通通都+1，这件事是做不到的。因为它的constrain 就是你的和永远都是要 0。所以不可以都+1，这时候就会强迫network 去update V 的值，然后让你可以用比较有效率的方法，去使用你的data。
+在这中间会有随机性的是 r。因为计算你在 $s_t$ 采取同一个 action，你得到的 reward 也不一定是一样的，所以 r 是一个 random variable。但这个 random variable 的 variance 会比 $G_a$ 还要小，因为 $G_a$ 是很多 r 合起来，这边只是某一个 r  而已。$G_a$ 的 variance 会比较大，r  的 variance 会比较小。但是这边你会遇到的**一个问题是你这个 V 不一定估得准**。假设你的这个 V 估得是不准的，那你 apply 这个式子 learn 出来的结果，其实也会是不准的。所以 MC 跟 TD各有优劣。**今天其实 TD 的方法是比较常见的，MC 的方法其实是比较少用的。**
 
 ![](img/6.6.png)
+上图是讲 TD 跟 MC 的差异。假设有某一个 critic，它去观察某一个 policy $\pi$  跟环境互动的 8 个 episode 的结果。有一个actor $\pi$ 跟环境互动了8 次，得到了8 次玩游戏的结果。接下来这个 critic 去估测 state 的 value。
 
-实现时，你要给这个 A 一个 constrain。举个例子，假设你有 3 个actions，然后在这边 output 的 vector 是7 3 2，你在把这个 A 跟这个 V 加起来之前，先加一个normalization，就好像做那个layer normalization 一样。加一个normalization，这个normalization 做的事情就是把 7+3+2 加起来等于 12，12/3 = 4。然后把这边通通减掉 4，变成 3, -1, 2。再把 3, -1, 2 加上 1.0，得到最后的Q value。这个normalization 的 step 就是 network 的其中一部分，在train 的时候，你从这边也是一路 back propagate 回来的，只是 normalization 是没有参数的，它只是一个normalization 的operation。把它可以放到network 里面，跟network 的其他部分 jointly trained，这样 A 就会有比较大的 constrain。这样network 就会给它一些benefit， 倾向于去update V 的值，这个是Dueling DQN。
+* 我们看看 $s_b$ 的 value 是多少。$s_b$ 这个state 在 8 场游戏里面都有经历过，其中有6 场得到 reward 1，有两场得到 reward 0，所以如果你是要算期望值的话，就看到 state $s_b$ 以后得到的 reward，一直到游戏结束的时候得到的 accumulated reward 期望值是 3/4。
+* 但 $s_a$ 期望的 reward 到底应该是多少呢？这边其实有两个可能的答案：一个是 0，一个是 3/4。为什么有两个可能的答案呢？这取决于你用MC 还是TD。用 MC 跟用 TD 算出来的结果是不一样的。
 
+假如你用 MC 的话，你会发现这个$s_a$ 就出现一次，看到$s_a$ 这个state，接下来 accumulated reward 就是 0。所以今天 $s_a$ expected reward 就是 0。
 
-## Prioritized Experience Replay
+但 TD 在计算的时候，它要update 下面这个式子。
+$$
+V^{\pi}\left(s_{a}\right)=V^{\pi}\left(s_{b}\right)+r
+$$
+
+因为我们在 state $s_a$ 得到 reward r=0 以后，跳到 state $s_b$。所以 state $s_b$ 的 reward 会等于 state $s_b$ 的 reward 加上在state $s_a$ 跳到 state $s_b$ 的时候可能得到的 reward r。而这个得到的 reward r 的值是 0，$s_b$ expected reward 是3/4，那$s_a$ 的reward 应该是3/4。
+
+用 MC 跟 TD 估出来的结果，其实很有可能是不一样的。就算 critic 观察到一样的 training data，它最后估出来的结果。也不见得会是一样。那为什么会这样呢？你可能问说，那一个比较对呢？其实就都对。
+
+因为在第一个 trajectory， $s_a$ 得到 reward 0 以后，再跳到 $s_b$ 也得到 reward 0。这边有两个可能。
+
+* 一个可能是$s_a$，它就是一个带 sign 的 state，所以只要看到 $s_a$ 以后，$s_b$ 就会拿不到reward，有可能$s_a$ 其实影响了$s_b$。如果是用 MC 的算法的话，它会把 $s_a$ 影响 $s_b$ 这件事考虑进去。所以看到 $s_a$ 以后，接下来 $s_b$ 就得不到 reward，所以看到$s_a$ 以后，期望的reward 是 0。
+
+* 另一个可能是，看到$s_a$ 以后， $s_b$ 的 reward 是0 这件事只是一个巧合，就并不是 $s_a$ 所造成，而是因为说 $s_b$ 有时候就是会得到 reward 0，这只是单纯运气的问题。其实平常 $s_b$ 会得到 reward 期望值是 3/4，跟 $s_a$ 是完全没有关系的。所以假设 $s_a$ 之后会跳到 $s_b$，那其实得到的 reward 按照 TD 来算应该是 3/4。
+
+所以不同的方法考虑了不同的假设，运算结果不同。
+
+## State-action Value Function
 
 ![](img/6.7.png)
-有一个技巧叫做 `Prioritized Experience Replay`。Prioritized Experience Replay 是什么意思呢？
 
-我们原来在 sample data 去 train 你的 Q-network 的时候，你是 uniformly 从 experience buffer 里面去 sample data。那这样不见得是最好的， 因为也许有一些 data 比较重要。假设有一些 data，你之前有 sample 过。你发现这些 data 的 TD error 特别大（TD error 就是 network 的 output 跟 target 之间的差距），那这些 data 代表说你在 train network 的时候， 你是比较 train 不好的。那既然比较 train 不好， 那你就应该给它比较大的概率被 sample 到，即给它 `priority`。这样在 training 的时候才会多考虑那些 train 不好的 training data。实际上在做 prioritized experience replay 的时候，你不仅会更改 sampling 的 process，你还会因为更改了 sampling 的 process，更改 update 参数的方法。所以 prioritized experience replay 不仅改变了 sample data 的 distribution，还改变了 training process。
-## Balance between MC and TD
+还有另外一种critic，这种critic 叫做 `Q-function`。它又叫做`state-action value function`。
+
+* state value function 的 input 是一个 state，它是根据 state 去计算出，看到这个state 以后的 expected accumulated reward 是多少。
+* state-action value function 的 input 是一个 state 跟 action 的 pair，它的意思是说，在某一个 state 采取某一个action，假设我们都使用 actor $\pi$ ，得到的 accumulated reward 的期望值有多大。
+
+Q-function 有一个需要注意的问题是，这个 actor $\pi$，在看到 state s 的时候，它采取的 action 不一定是 a。Q-function 假设在 state s 强制采取 action a。不管你现在考虑的这个 actor $\pi$， 它会不会采取 action a，这不重要。在state s 强制采取 action a。接下来都用 actor $\pi$ 继续玩下去，就只有在 state s，我们才强制一定要采取 action a，接下来就进入自动模式，让actor $\pi$ 继续玩下去，得到的 expected reward 才是$Q^{\pi}(s,a)$ 。
+
+Q-function 有两种写法：
+
+* input 是 state 跟action，output 就是一个 scalar；
+* input  是一个 state s，output 就是好几个 value。
+
+假设 action 是 discrete 的，action 就只有3 个可能，往左往右或是开火。那这个 Q-function output 的3 个 values 就分别代表 a 是向左的时候的 Q value，a 是向右的时候的Q value，还有 a 是开火的时候的 Q value。
+
+那你要注意的事情是，上图右边的 function 只有discrete action 才能够使用。如果 action 是无法穷举的，你只能够用上图左边这个式子，不能够用右边这个式子。
 
 ![](img/6.8.png)
-另外一个可以做的方法是，你可以balance MC 跟TD。MC 跟 TD 的方法各自有各自的优劣。我们怎么在MC 跟TD 里面取得一个平衡呢？我们的做法是这样，在TD 里面，在某一个state $s_t$采取某一个action $a_t$ 得到 reward $r_t$，接下来跳到那一个state $s_{t+1}$。但是我们可以不要只存一个step 的data，我们存 N 个step 的data。
 
-我们记录在$s_t$ 采取$a_t$，得到$r_t$，会跳到什么样$s_t$。一直纪录到在第N 个step 以后，在$s_{t+N}$采取$a_{t+N}$得到 reward $r_{t+N}$，跳到$s_{t+N+1}$的这个经验，通通把它存下来。实际上你今天在做update 的时候， 在做你 Q-network learning 的时候，你的learning 的方法会是这样，你learning 的时候，要让 $Q(s_t,a_t)$ 跟你的target value 越接近越好。$\hat{Q}$ 所计算的不是$s_{t+1}$，而是$s_{t+N+1}$的。你会把 N 个step 以后的state 丢进来，去计算 N 个step 以后，你会得到的reward。要算 target value 的话，要再加上multi-step 的reward $\sum_{t^{\prime}=t}^{t+N} r_{t^{\prime}}$ ，multi-step 的 reward 是从时间 t 一直到 t+N 的 N 个reward 的和。然后希望你的 $Q(s_t,a_t)$ 和 target value 越接近越好。
+上图是文献上的结果，你去 estimate Q-function 的话，看到的结果可能会像是这个样子。这是什么意思呢？它说假设我们有 3 个 actions，3 个 actions 就是原地不动、向上、向下。
 
-你会发现说这个方法就是 MC 跟 TD 的结合。因此它就有 MC 的好处跟坏处，也有 TD 的好处跟坏处。如果看它的这个好处的话，因为我们现在 sample 了比较多的step，之前是只sample 了一个step， 所以某一个step 得到的data 是real 的，接下来都是Q value 估测出来的。现在sample 比较多step，sample N 个step 才估测value，所以估测的部分所造成的影响就会比小。当然它的坏处就跟MC 的坏处一样，因为你的 r 比较多项，你把 N 项的 r 加起来，你的variance 就会比较大。但是你可以去调这个N 的值，去在variance 跟不精确的 Q 之间取得一个平衡。N 就是一个hyper parameter，你要调这个N 到底是多少，你是要多 sample 三步，还是多 sample 五步。
+* 假设是在第一个state，不管是采取哪个action，最后到游戏结束的时候，得到的 expected reward 其实都差不多。因为球在这个地方，就算是你向下，接下来你其实应该还来的急救，所以今天不管是采取哪一个action，就差不了太多。
 
-## Noisy Net
+* 假设在第二个state，这个乒乓球它已经反弹到很接近边缘的地方，这个时候你采取向上，你才能得到positive 的reward，才接的到球。如果你是站在原地不动或向下的话，接下来你都会miss 掉这个球。你得到的reward 就会是负的。
+
+* 假设在第三个state，球很近了，所以就要向上。
+
+* 假设在第四个state，球被反弹回去，这时候采取那个action就都没有差了。
+
+这个是 state-action value 的一个例子。
+
 ![](img/6.9.png)
-有一个技术是要improve 这个exploration 这件事，我们之前讲的Epsilon Greedy 这样的 exploration 是在action 的space 上面加noise，但是有另外一个更好的方法叫做`Noisy Net`，它是在参数的space 上面加noise。Noisy Net 的意思是说，每一次在一个episode 开始的时候，在你要跟环境互动的时候，你就把你的Q-function 拿出来，Q-function 里面其实就是一个network ，就变成你把那个network 拿出来，在network 的每一个参数上面加上一个Gaussian noise。那你就把原来的Q-function 变成$\tilde{Q}$ 。因为$\hat{Q}$ 已经用过，$\hat{Q}$ 是那个target network，我们用 $\tilde{Q}$  来代表一个`Noisy Q-function`。我们把每一个参数都可能都加上一个Gaussian noise，就得到一个新的network 叫做$\tilde{Q}$。这边要注意在每个episode 开始的时候，开始跟环境互动之前，我们就 sample network。接下来你就会用这个固定住的 noisy network 去玩这个游戏，直到游戏结束，你才重新再去sample 新的noise。OpenAI  跟 Deep mind 又在同时间 propose 一模一样的方法，通通都publish 在ICLR 2018，两篇paper 的方法就是一样的。不一样的地方是，他们用不同的方法，去加noise。OpenAI 加的方法好像比较简单，他就直接加一个 Gaussian noise 就结束了，就你把每一个参数，每一个weight都加一个Gaussian noise 就结束了。Deep mind 做比较复杂，他们的noise 是由一组参数控制的，也就是说 network 可以自己决定说它那个noise 要加多大，但是概念就是一样的。总之就是把你的Q-function的里面的那个network 加上一些noise，把它变得有点不一样，跟原来的Q-function 不一样，然后拿去跟环境做互动。两篇paper 里面都有强调说，你这个参数虽然会加noise，但在同一个episode 里面你的参数就是固定的，你是在换episode， 玩第二场新的游戏的时候，你才会重新sample noise，在同一场游戏里面就是同一个noisy  Q-network 在玩那一场游戏，这件事非常重要。为什么这件事非常重要呢？因为这是导致了Noisy Net 跟原来的Epsilon Greedy 或其它在action 做sample 方法的本质上的差异。
+
+虽然表面上我们 learn 一个 Q-function，它只能拿来评估某一个 actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有了这个 Q-function，我们就可以决定要采取哪一个 action，我们就可以进行`策略改进(Policy Improvement)`。
+
+它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。 然后这个循环一直下去，你的 policy 就会越来越好。 
 
 ![](img/6.10.png)
+上图就是讲我们刚才讲的到底是什么。
 
-有什么样本质上的差异呢？在原来sample 的方法，比如说Epsilon Greedy 里面，就算是给同样的state，你的agent 采取的action 也不一定是一样的。因为你是用sample 决定的，given 同一个state，要根据 Q-function 的network，你会得到一个action，你 sample 到random，你会采取另外一个action。所以 given 同样的state，如果你今天是用Epsilon Greedy 的方法，它得到的 action 是不一样的。但实际上你的policy 并不是这样运作的啊。在一个真实世界的policy，给同样的state，他应该会有同样的回应。而不是给同样的state，它其实有时候吃 Q-function，然后有时候又是随机的，所以这是一个不正常的action，是在真实的情况下不会出现的action。但是如果你是在Q-function 上面去加noise 的话， 就不会有这个情形。因为如果你今天在Q-function 上加 noise，在Q-function 的network 的参数上加noise，那在整个互动的过程中，在同一个episode 里面，它的network 的参数总是固定的，所以看到同样的state，或是相似的state，就会采取同样的action，那这个是比较正常的。在paper 里面有说，这个叫做 `state-dependent exploration`，也就是说你虽然会做 explore 这件事， 但是你的explore 是跟state 有关系的，看到同样的state， 你就会采取同样的exploration 的方式，而 noisy 的 action 只是随机乱试。但如果你是在参数下加noise，那在同一个episode 里面，里面你的参数是固定的。那你就是有系统地在尝试，每次会试说，在某一个state，我都向左试试看。然后再下一次在玩这个同样游戏的时候，看到同样的state，你就说我再向右试试看，你是有系统地在explore 这个环境。
+* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的 state s 而言，对同一个 state s 而言，$\pi$ 的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个policy。
 
-## Distributional Q-function
+* 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？事实上这个 $\pi'$ 是什么？这个$\pi'$ 就是， 如果你根据以下的这个式子去决定你的action，
+
+$$
+\pi^{\prime}(s)=\arg \max _{a} Q^{\pi}(s, a)
+$$
+
+根据上式去决定你的action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比$\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个 state s，你把所有可能的 action a 都一一带入这个 Q-function，看看说那一个 a 可以让 Q-function 的 value 最大，那这一个 action，就是 $\pi'$ 会采取的 action。这边要注意一下，给定这个 state s，你的 policy $\pi$ 并不一定会采取 action a。我们是 给定某一个 state s 强制采取 action a，用 $\pi$ 继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。假设用这一个 $\pi'$ 在 state s 采取action a 跟 $\pi$ 所谓采取 action 是不一定会一样的。然后 $\pi'$ 所采取的 action 会让他得到比较大的 reward。
+
+* 所以根本就没有一个 policy 叫做 $\pi'$，这个$\pi'$ 是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出$\pi'$。
+* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以 a 如果是continuous 的就会有问题，如果是discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，但这个是之后才会解决的。
+
 ![](img/6.11.png)
 
-还有一个技巧叫做 Distributional Q-function。我们不讲它的细节，只告诉你大致的概念。Distributional Q-function 还蛮有道理的， 但是它没有红起来。你就发现说没有太多人真的在实现的时候用这个技术，可能一个原因就是它不好实现。它的意思是什么？Q-function 到底是什么意思啊，Q-function 是 accumulated reward 的期望值，所以我们算出来的这个Q value 其实是一个期望值。因为环境是有随机性的，在某一个state 采取某一个action 的时候，我们把所有的reward 玩到游戏结束的时候所有的 reward 进行一个统计，你其实得到的是一个distribution。也许在reward 得到0 的机率很高，在-10 的概率比较低，在+10 的概率比较低，但是它是一个distribution。我们对这一个distribution 算它的mean才是这个Q value，我们算出来是 expected accumulated reward。所以这accumulated reward 是一个distribution，对它取expectation，对它取mean，你得到了Q value。但不同的distribution，它们其实可以有同样的mean。也许真正的distribution 是右边的distribution，它算出来的 mean 跟左边的 distribution 算出来的mean 其实是一样的，但它们背后所代表的distribution 其实是不一样的。假设我们只用一个 expected 的 Q value 来代表整个reward 的话，其实可能会丢失一些 information，你没有办法 model reward 的distribution。
+上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$  这个 Q-function 所决定出来的 $\pi'$，一定会比 $\pi$ 还要好。
+
+假设有一个policy 叫做 $\pi'$，它是由 $Q^{\pi}$  决定的。我们要证对所有的 state s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。怎么证呢？我们先把$V^{\pi^{\prime}}(s)$写出来：
+$$
+V^{\pi}(s)=Q^{\pi}(s, \pi(s))
+$$
+假设在 state s 这个地方，你 follow $\pi$ 这个actor，它会采取的action，也就是$\pi(s)$，那你算出来的$Q^{\pi}(s, \pi(s))$ 会等于$V^{\pi}(s)$。In general 而言，$Q^{\pi}(s, \pi(s))$ 不见得等于$V^{\pi}(s)$ ，因为 action 不见得是$\pi(s)$。但如果这个 action 是 $\pi(s)$ 的话，$Q^{\pi}(s, \pi(s))$ 是等于$V^{\pi}(s)$的。
+
+
+$Q^{\pi}(s, \pi(s))$ 还满足如下的关系：
+$$
+Q^{\pi}(s, \pi(s)) \le \max _{a} Q^{\pi}(s, a)
+$$
+
+因为这边是所有action 里面可以让 Q 最大的那个action，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是$Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为$\pi'(s)$ output 的 a， 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
+$$
+\max _{a} Q^{\pi}(s, a)=Q^{\pi}\left(s, \pi^{\prime}(s)\right)
+$$
+
+于是：
+$$
+V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
+$$
+也就是说某一个 state，如果你按照policy $\pi$，一直做下去，你得到的 reward 一定会小于等于，在这个 state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
+
+那接下来你想要证的东西就是：
+$$
+Q^{\pi}\left(s, \pi^{\prime}(s) \right) \le V^{\pi'}(s)
+$$
+
+也就是说，只有一步之差，你会得到比较大的reward。但假设每步都是不一样的， 每步都是 follow $\pi'$ 而不是$\pi$ 的话，那你得到的reward 一定会更大。如果你要用数学式把它写出来的话，你可以这样写 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ 这个式子，它的意思就是说，我们在state $s_t$ 采取 action $a_t$，得到 reward $r_{t+1}$，然后跳到state $s_{t+1}$，即如下式所示：
+
+$$
+Q^{\pi}\left(s, \pi^{\prime}(s)\right)=E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) \mid s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
+$$
+这边有一个地方写得不太好，这边应该写成$r_t$ 跟之前的notation 比较一致，但这边写成了$r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在state $s_t$ 采取action $a_t$ 得到reward $r_{t+1}$， 有人会写成$r_t$，但意思其实都是一样的。在state s，按照$\pi'$ 采取某一个action $a_t$ ，得到 reward $r_{t+1}$，然后跳到state $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是state $s_{t+1}$，根据$\pi$ 这个actor 所估出来的value。这边要取一个期望值，因为在同样的state 采取同样的action，你得到的reward，还有会跳到的 state 不一定是一样， 所以这边需要取一个期望值。 
+
+接下来我们会得到如下的式子：
+$$
+\begin{array}{l}
+E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+\leq E\left[r_{t+1}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
+\end{array}
+$$
+上式为什么成立呢？因为
+$$
+V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
+$$
+也就是
+$$
+V^{\pi}(s_{t+1}) \leq Q^{\pi}\left(s_{t+1}, \pi^{\prime}(s_{t+1})\right)
+$$
+
+也就是说，现在你一直follow $\pi$，跟某一步follow $\pi'$，接下来都follow $\pi$ 比起来，某一步follow $\pi'$ 得到的reward 是比较大的。
+
+接着我们得到下式：
+$$
+\begin{array}{l}
+E\left[r_{t+1}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+=E\left[r_{t+1}+r_{t+2}+V^{\pi}\left(s_{t+2}\right) | \ldots\right]
+\end{array}
+$$
+
+因为
+$$
+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) = r_{t+2}+V^{\pi}\left(s_{t+2}\right)
+$$
+
+然后你再代入
+
+$$
+V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
+$$
+
+一直算到底，算到episode 结束。那你就知道说
+$$
+V^{\pi}(s)\le V^{\pi'}(s)
+$$
+
+**从这边我们可以知道，你可以 estimate 某一个 policy 的 Q-function，接下来你就可以找到另外一个 policy  $\pi'$ 比原来的 policy 还要更好。**
+
+## Target Network
 
 ![](img/6.12.png)
 
-Distributional Q-function 它想要做的事情是model distribution，怎么做呢？在原来的 Q-function 里面，假设你只能够采取 $a_1$, $a_2$, $a_3$, 3 个actions，那你就是input 一个state，output 3 个values。3 个values 分别代表3 个actions 的Q value，但是这个 Q value 是一个distribution 的期望值。所以 Distributional Q-function 的想法就是何不直接output 那个 distribution。但是要直接output 一个distribution 也不知道怎么做嘛。实际上的做法是说， 假设 distribution 的值就分布在某一个 range 里面，比如说-10 到10，那把-10 到10 中间拆成一个一个的bin，拆成一个一个的长条图。举例来说，在这个例子里面，每一个action 的 reward 的space 就拆成 5 个bin。假设reward 可以拆成5 个bin 的话，今天你的Q-function 的output 是要预测说，你在某一个 state，采取某一个action，你得到的reward，落在某一个bin 里面的概率。所以其实这边的概率的和，这些绿色的bar 的和应该是 1，它的高度代表说，在某一个state，采取某一个action 的时候，它落在某一个bin 的机率。这边绿色的代表action 1，红色的代表action 2，蓝色的代表action 3。所以今天你就可以真的用Q-function 去 estimate $a_1$ 的distribution，$a_2$ 的distribution，$a_3$ 的distribution。那实际上在做testing 的时候， 我们还是要选某一个action去执行嘛，那选哪一个action 呢？实际上在做的时候，还是选这个mean 最大的那个action 去执行。但假设我们今天可以 model distribution 的话，除了选mean 最大的以外，也许在未来你可以有更多其他的运用。举例来说，你可以考虑它的distribution 长什么样子。若distribution variance 很大，代表说采取这个action 虽然mean 可能平均而言很不错，但也许风险很高，你可以train一个network 它是可以规避风险的。就在 2 个action mean 都差不多的情况下，也许可以选一个风险比较小的 action 来执行，这是 Distributional Q-function 的好处。关于怎么train 这样的 Q-network  的细节，我们就不讲，你只要记得说  Q-network 有办法output 一个distribution 就对了。我们可以不只是估测得到的期望reward mean 的值。我们其实是可以估测一个distribution 的。
+接下来讲一下在 DQN 里你一定会用到的 tip。第一个是 `target network`，什么意思呢？我们在 learn Q-function 的时候，也会用到 TD 的概念。那怎么用 TD？你现在收集到一个 data， 是说在state $s_t$，你采取action $a_t$ 以后，你得到reward $r_t$ ，然后跳到state $s_{t+1}$。然后根据这个Q-function，你会知道说
+$$
+\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) 
+=r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)
+$$
 
-## Rainbow
+所以你在 learn 的时候，你会说我们有 Q-function，input $s_t$, $a_t$ 得到的 value，跟 input $s_{t+1}$, $\pi (s_{t+1})$ 得到的 value 中间，我们希望它差了一个$r_t$， 这跟刚才讲的 TD 的概念是一样的。
+
+但是实际上在 learn 的时候，你会发现这样的一个function 并不好 learn，因为假设这是一个 regression problem，$\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 是 network 的 output，$r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$是 target，你会发现 target 是会动的。当然你要 implement 这样的 training，其实也没有问题，就是你在做 backpropagation 的时候， $Q^{\pi}$ 的参数会被 update，你会把两个 update 的结果加在一起。因为它们是同一个 model $Q^{\pi}$， 所以两个 update 的结果会加在一起。但这样会导致 training 变得不太稳定。因为假设你把 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 当作你model 的output， $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 当作 target 的话。你要去 fit 的 target 是一直在变的，这种一直在变的 target 的 training 是不太好 train 的。所以你会把其中一个 Q-network，通常是你会把右边这个 Q-network 固定住。也就是说你在 training 的时候，你只 update 左边这个 Q-network 的参数，而右边这个 Q-network  的参数会被固定住。因为右边的 Q-network 负责产生 target，所以叫做 `target network`。因为 target network 是固定的，所以你现在得到的 target  $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 的值也是固定的。因为 target network 是固定的，我们只调左边 network 的参数，它就变成是一个 regression problem。我们希望  model 的 output 的值跟目标越接近越好，你会 minimize 它的 mean square error。
+
+在实现的时候，你会把左边的 Q-network update 好几次以后，再去用 update 过的 Q-network 替换这个 target network 。但它们两个不要一起动，它们两个一起动的话， 结果会很容易坏掉。一开始这两个 network 是一样的，然后在 train 的时候，你会把右边的 Q-network fix 住。你在做 gradient decent 的时候，只调左边这个 network 的参数，那你可能update 100 次以后才把这个参数复制到右边的 network 去，把它盖过去。把它盖过去以后，你这个 target value 就变了。就好像说你本来在做一个 regression problem，那你 train 后把这个 regression problem 的 loss 压下去以后，接下来你把这边的参数把它 copy 过去以后，你的 target 就变掉了，接下来就要重新再 train。
+
+
+
+###  Intuition
 
 ![](img/6.13.png)
 
-最后一个技巧叫做 rainbow 。Rainbow 就是把刚才所有的方法都综合起来就变成 rainbow 。因为刚才每一个方法，就是有一种自己的颜色，把所有的颜色通通都合起来，就变成rainbow，它把原来的DQN 也算是一种方法，故有 7 色。
-
-那我们来看看这些不同的方法。横轴是 training process，纵轴是玩了10 几个 Atari 小游戏的平均的分数的和，但它取的是median 的分数，为什么是取 median 不是直接取平均呢？因为它说每一个小游戏的分数，其实差很多。如果你取平均的话，到时候某几个游戏就dominate 你的结果，所以它取median 的值。
-
-如果你是一般的DQN，就灰色这一条线，就没有很强。那如果是你换noisy DQN，就强很多。如果这边每一个单一颜色的线是代表说只用某一个方法，那紫色这一条线是DDQN(Double DQN)，DDQN 还蛮有效的。然后 Prioritized DDQN、Dueling DDQN 和 Distributional DQN 都蛮强的，它们都差不多很强的。A3C 其实是 Actor-Critic 的方法。单纯的 A3C 看起来是比DQN 强的。这边怎么没有 multi-step 的方法，multi-step 的方法就是 balance TD 跟MC，我猜是因为 A3C 本身内部就有做 multi-step 的方法，所以他可能觉得说有 implement A3C 就算是有 implement multi-step 的方法。所以可以把这个 A3C 的结果想成是 multi-step 方法的结果。其实这些方法他们本身之间是没有冲突的，所以全部都用上去就变成七彩的一个方法，就叫做rainbow，然后它很高。
+下面我们通过猫追老鼠的例子来直观地理解为什么要 fix target network。猫是 `Q estimation`，老鼠是 `Q target`。一开始的话，猫离老鼠很远，所以我们想让这个猫追上老鼠。
 
 ![](img/6.14.png)
 
-上图是说，在rainbow 这个方法里面， 如果我们每次拿掉其中一个技术，到底差多少。因为现在是把所有的方法都加在一起，发现说进步很多，但会不会有些方法其实是没用的。所以看看说， 每一个方法哪些方法特别有用，哪些方法特别没用。这边的虚线就是拿掉某一种方法以后的结果，你会发现说，黄色的虚线，拿掉 multi-step 掉很多。Rainbow 是彩色这一条，拿掉 multi-step 会掉下来。拿掉 Prioritized  Experience Replay 后也马上就掉下来。拿掉这个distribution，它也掉下来。
+因为 Q target 也是跟模型参数相关的，所以每次优化后，Q target 也会动。这就导致一个问题，猫和老鼠都在动。
 
-这边有一个有趣的地方是说，在开始的时候，distribution 训练的方法跟其他方法速度差不多。但是如果你拿掉distribution 的时候，你的训练不会变慢，但是 performance 最后会收敛在比较差的地方。拿掉 Noisy Net 后performance 也是差一点。拿掉Dueling 也是差一点。拿掉 Double 没什么差，所以看来全部合在一起的时候，Double 是比较没有影响的。其实在paper 里面有给一个make sense 的解释，其实当你有用 Distributional DQN的 时候，本质上就不会over estimate 你的reward。我们是为了避免over estimate reward 才加了Double DQN。那在paper 里面有讲说，如果有做 Distributional DQN，就比较不会有over estimate 的结果。 事实上他有真的算了一下发现说，其实多数的状况是 under estimate reward 的，所以会变成Double DQN 没有用。那为什么做 Distributional DQN，不会over estimate reward，反而会under estimate reward 呢？因为这个 distributional DQN 的 output 的是一个distribution 的range，output 的 range 不可能是无限宽的，你一定是设一个range， 比如说我最大output range 就是从-10 到10。假设今天得到的reward 超过10 怎么办？是100 怎么办，就当作没看到这件事。所以 reward 很极端的值，很大的值其实是会被丢掉的， 所以用 Distributional DQN 的时候，你不会有over estimate 的现象，反而会 under estimate。
+![](img/6.15.png)
+然后它们就会在优化空间里面到处乱动，就会产生非常奇怪的优化轨迹，这就使得训练过程十分不稳定。所以我们可以固定 Q target，让老鼠动得不是那么频繁，可能让它每 5 步动一次，猫则是每一步都在动。如果老鼠每 5 次动一步的话，猫就有足够的时间来接近老鼠。然后它们之间的距离会随着优化过程越来越小，最后它们就可以拟合，拟合过后就可以得到一个最好的 Q-network。
+
+
+## Exploration
+
+![](img/6.16.png)第二个 tip 是`Exploration`。当我们使用 Q-function 的时候，policy 完全 depend on  Q-function。给定某一个 state，你就穷举所有的 a， 看哪个 a 可以让 Q value 最大，它就是采取的action。那其实这个跟 policy gradient 不一样，在做 policy gradient 的时候，output 其实是 stochastic 的。我们 output 一个action 的distribution，根据这个action 的distribution 去做sample， 所以在policy gradient 里面，你每次采取的action 是不一样的，是有随机性的。那像这种 Q-function， 如果你采取的action 总是固定的，会有什么问题呢？你会遇到的问题就是这不是一个好的收集 data 的方式。因为假设我们今天真的要估某一个state，你可以采取 action $a_{1}$, $a_{2}$, $a_{3}$。你要估测在某一个state 采取某一个action 会得到的Q value，你一定要在那一个 state 采取过那一个action，才估得出它的value。如果你没有在那个state 采取过那个action，你其实估不出那个value 的。当然如果是用 deep 的network，就你的 Q-function 其实是一个 network，这种情形可能会没有那么严重。但是 in general 而言，假设 Q-function 是一个 table，没有看过的  state-action pair，它就是估不出值来。Network 也是会有一样的问题就是， 只是没有那么严重。所以今天假设你在某一个state，action $a_{1}$, $a_{2}$, $a_{3}$ 你都没有采取过，那你估出来的 $Q(s,a_{1})$, $Q(s,a_{2})$, $Q(s,a_{3})$ 的 value 可能都是一样的，就都是一个初始值，比如说 0，即
+
+$$
+\begin{array}{l}
+Q(s, a_1)=0 \\
+Q(s, a_2)=0 \\
+Q(s, a_3)=0
+\end{array}
+$$
+
+但是假设你在state s，你 sample 过某一个action $a_{2}$ ，它得到的值是 positive 的 reward。那 $Q(s, a_2)$ 就会比其他的action 都要好。在采取action 的时候， 就看说谁的Q value 最大就采取谁，所以之后你永远都只会 sample 到 $a_{2}$，其他的action 就再也不会被做了，所以就会有问题。就好像说你进去一个餐厅吃饭，其实你都很难选。你今天点了某一个东西以后，假说点了某一样东西， 比如说椒麻鸡，你觉得还可以。接下来你每次去就都会点椒麻鸡，再也不会点别的东西了，那你就不知道说别的东西是不是会比椒麻鸡好吃，这个是一样的问题。
+
+如果你没有好的 exploration 的话， 你在training 的时候就会遇到这种问题。举一个实际的例子， 假设你今天是用 DQN 来玩比如说`slither.io`。在玩`slither.io` 你会有一个蛇，然后它在环境里面就走来走去， 然后就吃到星星，它就加分。假设这个游戏一开始，它采取往上走，然后就吃到那个星星，它就得到分数，它就知道说往上走是positive。接下来它就再也不会采取往上走以外的action 了，所以接下来就会变成每次游戏一开始，它就往上冲，然后就死掉，再也做不了别的事。所以今天需要有exploration 的机制，需要让 machine 知道说，虽然根据之前sample 的结果，$a_2$ 好像是不错的，但你至少偶尔也试一下$a_{1}$ 跟$a_{3}$，搞不好他们更好也说不定。
+
+这个问题其实就是`探索-利用窘境(Exploration-Exploitation dilemma)`问题。
+
+有两个方法解这个问题，一个是`Epsilon Greedy`。Epsilon Greedy 的意思是说，我们有$1-\varepsilon$ 的机率，通常$\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是90%，也就是90% 的机率，完全按照Q-function 来决定action。但是你有10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。也就是在最开始的时候。因为还不知道那个action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着training 的次数越来越多。已经比较确定说哪一个Q 是比较好的。你就会减少你的exploration，你会把 $\varepsilon$ 的值变小，主要根据Q-function 来决定你的action，比较少做random，这是Epsilon Greedy。
+
+还有一个方法叫做 `Boltzmann Exploration`，这个方法就比较像是 policy gradient。在 policy gradient 里面我们说network 的output 是一个 expected action space 上面的一个的 probability distribution。再根据 probability distribution 去做 sample。那其实你也可以根据 Q value 去定一个 probability distribution，假设某一个 action 的 Q value 越大，代表它越好，我们采取这个 action 的机率就越高。但是某一个 action 的 Q value 小，不代表我们不能try。所以我们有时候也要 try 那些 Q value 比较差的 action，怎么做呢？
+
+因为 Q value 是有正有负的，所以可以它弄成一个概率，你先取 exponential，再做 normalize。然后把 $\exp(Q(s,a))$ 做 normalize 的这个概率当作是你在决定 action 的时候 sample 的概率。在实现上，Q 是一个 network，所以你有点难知道， 在一开始的时候 network 的 output 到底会长怎么样子。假设你一开始没有任何的 training data，你的参数是随机的，那给定某一个 state s，不同的 a output 的值，可能就是差不多的，所以一开始 $Q(s,a)$ 应该会倾向于是 uniform。也就是在一开始的时候，你这 个 probability distribution 算出来，它可能是比较 uniform 的。
+
+## Experience Replay
+
+![](img/6.17.png)
+
+第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，Replay Buffer 又被称为 `Replay Memory`。Replay Buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
+
+这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的 $\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个 buffer 里面它其实装了很多不同的 policy 的 experiences。
+
+![](img/6.18.png)
+
+有了这个 buffer 以后，你是怎么 train 这个 Q 的 model 呢，怎么估 Q-function？你的做法是这样：你会 iterative 去 train 这个 Q-function，在每一个 iteration 里面，你从这个 buffer 里面，随机挑一个 batch 出来，就跟一般的 network training 一样，你从那个 training data set 里面，去挑一个 batch 出来。你去 sample 一个 batch 出来，里面有一把的 experiences，根据这把 experiences 去 update 你的 Q-function。就跟 TD learning 要有一个 target network 是一样的。你去 sample 一堆 batch，sample 一个 batch 的 data，sample 一堆 experiences，然后再去 update 你的 Q-function。
+
+当我们这么做的时候， 它变成了一个 `off-policy` 的做法。因为本来我们的 Q 是要观察 $\pi$ 的 experience，但实际上存在你的 replay buffer 里面的这些 experiences 不是通通来自于 $\pi$，有些是过去其他的 $\pi$ 所遗留下来的 experience。因为你不会拿某一个 $\pi$ 就把整个 buffer 装满，然后拿去测 Q-function，这个 $\pi$ 只是 sample 一些 data 塞到那个 buffer 里面去，然后接下来就让 Q 去 train。所以 Q 在 sample 的时候， 它会 sample 到过去的一些资料。
+
+这么做有两个好处。
+
+* 第一个好处，其实在做 reinforcement learning 的时候， 往往最花时间的 step 是在跟环境做互动，train network 反而是比较快的。因为你用 GPU train 其实很快， 真正花时间的往往是在跟环境做互动。用 replay buffer 可以减少跟环境做互动的次数，因为在做 training 的时候，你的 experience 不需要通通来自于某一个policy。一些过去的 policy 所得到的 experience 可以放在 buffer 里面被使用很多次，被反复的再利用，这样让你的 sample 到 experience 的利用是比较 efficient。
+
+* 第二个好处，在 train network 的时候，其实我们希望一个 batch 里面的 data 越 diverse 越好。如果你的 batch 里面的 data 都是同样性质的，你 train 下去是容易坏掉的。如果 batch 里面都是一样的 data，你 train 的时候，performance 会比较差。我们希望 batch data 越 diverse 越好。那如果 buffer 里面的那些 experience 通通来自于不同的 policy ，那你 sample 到的一个 batch 里面的 data 会是比较 diverse 。
+
+Q：我们明明是要观察 $\pi$ 的 value，里面混杂了一些不是 $\pi$ 的 experience ，这有没有关系？
+
+A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， 就算过去的$\pi$ 没有很像，其实也是没有关系的。主要的原因是因为， 我们并不是去sample 一个trajectory，我们只sample 了一笔experience，所以跟是不是 off-policy 这件事是没有关系的。就算是off-policy，就算是这些 experience 不是来自于 $\pi$，我们其实还是可以拿这些 experience 来估测 $Q^{\pi}(s,a)$。这件事有点难解释，不过你就记得说 Experience Replay 在理论上也是没有问题的。
+
+## DQN
+
+![](img/6.19.png)
+
+
+上图就是一般的 `Deep Q-network(DQN)` 的算法。
+
+这个算法是这样的。Initialize 的时候，你 initialize 2 个network，一个是 Q，一个是 $\hat{Q}$，其实 $\hat{Q}$ 就等于 Q。一开始这个 target Q-network，跟你原来的 Q-network 是一样的。在每一个 episode，你拿你的 actor 去跟环境做互动，在每一次互动的过程中，你都会得到一个 state $s_t$，那你会采取某一个action $a_t$。怎么知道采取哪一个action $a_t$ 呢？你就根据你现在的 Q-function。但是你要有 exploration 的机制。比如说你用 Boltzmann exploration 或是 Epsilon Greedy 的 exploration。那接下来你得到 reward $r_t$，然后跳到 state $s_{t+1}$。所以现在 collect 到一笔 data，这笔 data 是 ($s_t$, $a_t$ ,$r_t$, $s_{t+1}$)。这笔 data 就塞到你的 buffer 里面去。如果 buffer 满的话， 你就再把一些旧的资料丢掉。接下来你就从你的buffer 里面去 sample data，那你 sample 到的是 $(s_{i}, a_{i}, r_{i}, s_{i+1})$。这笔data 跟你刚放进去的不一定是同一笔，你可能抽到一个旧的。要注意的是，其实你 sample 出来不是一笔 data，你 sample 出来的是一个 batch 的 data，你 sample 一个batch 出来，sample 一把 experiences 出来。接下来就是计算你的 target。假设你 sample 出这么一笔 data。根据这笔 data 去算你的 target。你的 target 是什么呢？target 记得要用 target network $\hat{Q}$ 来算。Target 是：
+
+$$
+y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
+$$
+其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。我们给出 [DQN 的 PyTorch 实现](https://github.com/qfettes/DeepRL-Tutorials/blob/master/01.DQN.ipynb) 。
+
+Q: DQN 和 Q-learning 有什么不同？
+
+A: 整体来说，DQN 与 Q-learning 的目标价值以及价值的更新方式都非常相似，主要的不同点在于：
+
+* DQN 将 Q-learning 与深度学习结合，用深度网络来近似动作价值函数，而 Q-learning 则是采用表格存储；
+* DQN 采用了经验回放的训练方法，从历史数据中随机采样，而 Q-learning 直接采用下一个状态的数据进行学习。
+
+## References
+
+* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
+

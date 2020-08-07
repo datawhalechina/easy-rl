@@ -1,303 +1,246 @@
-# Policy Gradient
-##  Policy Gradient
+# 表格型方法
+
+这节课我们通过最简单的`表格型的方法`来讲解如何使用 value-based 方法去求解强化学习。
+
+## Sarsa
+
+### MDP
 
 ![](img/3.1.png)
 
-在 reinforcement learning 中有 3 个components，一个`actor`，一个`environment`，一个`reward function`。
+强化学习的三个重要的要素：状态、动作和奖励。强化学习智能体跟环境是一步一步交互的，就是我先观察一下状态，然后再输入动作。再观察一下状态，再输出动作，拿到这些 reward 。它是一个跟时间相关的一个序列决策的问题。
 
-让机器玩 video game 时，
+举个例子，在 $t-1$ 时刻，我看到了熊对我招手，那我下意识的可能输出的动作就是赶紧跑路。熊看到了有人跑了，可能就觉得发现猎物，开始发动攻击。而在 $t$ 时刻的话，我如果选择装死的动作，可能熊咬了咬我那个摔了几下就发现就觉得挺无趣的，可能会走开。这个时候，我再跑路的话可能就跑路成功了，就是这样子的一个序列决策的过程。
 
-* actor 做的事情就是去操控游戏的摇杆， 比如说向左、向右、开火等操作；
-* environment 就是游戏的主机， 负责控制游戏的画面负责控制说，怪物要怎么移动， 你现在要看到什么画面等等；
-* reward function 就是当你做什么事情，发生什么状况的时候，你可以得到多少分数， 比如说杀一只怪兽得到 20 分等等。
+当然在输出每一个动作之前，其实你都是可以选择不同的动作。比如说在 $t$ 时刻，我选择跑路的时候，熊已经追上来了，如果说 $t$ 时刻，我没有选择装死，而我是选择跑路的话，这个时候熊已经追上了，那这个时候，其实我有两种情况转移到不同的状态去，就我有一定的概率可以逃跑成功，也有很大的概率我会逃跑失败。那我们就用状态转移概率 $p\left[s_{t+1}, r_{t} \mid s_{t}, a_{t}\right]$ 来表述说在 $s_t$ 的状态选择了 $a_t$ 的动作的时候，转移到 $s_{t+1}$ ，而且拿到  $r_t$ 的概率是多少。
 
-同样的概念用在围棋上也是一样的，
+这样子的一个状态转移概率是具有`马尔可夫性质(Markov Property)`的(系统下一时刻的状态仅由当前时刻的状态决定，不依赖于以往任何状态)。因为这个状态转移概率，它是下一时刻的状态是取决于当前的状态，它和之前的 $s_{t-1}$ 和 $s_{t-2}$  都没有什么关系。然后再加上说这个过程也取决于智能体跟环境交互的这个$a_t$ ，所以有一个决策的一个过程在里面。我们就称这样的一个过程为`马尔可夫决策过程(Markov Decision Process, MDP)`。
 
-* actor 就是 alpha Go，它要决定下哪一个位置；
-* environment 就是对手；
-* reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。
 
-在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为。Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
+MDP 就是序列决策这样一个经典的表达方式。MDP 也是强化学习里面一个非常基本的学习框架。状态、动作、状态转移概率和奖励 $(S,A,P,R)$，这四个合集就构成了强化学习 MDP 的四元组，后面也可能会再加个衰减因子构成五元组。
+
 
 ![](img/3.2.png)
-**Policy 一般写成 $\pi$**。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**。Network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西就是游戏的画面。Machine 看到什么东西，会影响你现在 training 到底好不好 train。
 
-举例来说，在玩游戏的时候， 也许你觉得游戏的画面，前后是相关的，也许你觉得说，你应该让你的 policy，看从游戏初始到现在这个时间点，所有画面的总和。你可能会觉得你要用到 RNN 来处理它，不过这样子，你会比较难处理。要让你的 machine，你的 policy 看到什么样的画面， 这个是你自己决定的。让你知道说给机器看到什么样的游戏画面，可能是比较有效的。Output 的就是今天机器要采取什么样的行为。
 
-上图就是具体的例子，
 
-* policy 就是一个 network；
-* input 就是游戏的画面，它通常是由 pixels 所组成的；
-* output 就是看看说有那些选项是你可以去执行的，output layer 就有几个 neurons。
 
-假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，actor 采取的行为就会不一样。
+我们把这些可能的动作和可能的状态转移的关系画成这样子的一个树状图。它们之间的关系就是一个从 $s_t$ 到 $a_t$ ，再到 $s_{t+1}$ ，再到 $a_{t+1}$，再到 $s_{t+2}$ 这样子的一个过程。
+
+我们去跟环境交互，我们只能走完整的一条通路。这里面产生了一系列的一个决策的过程，就是我们跟环境交互产生了一个经验。然后我们会使用 P 函数和 R 函数来去描述环境。P 函数就是状态转移的概率，R 函数就是 Reward function。P 函数实际上反映的是环境的一个随机性。比方说，在熊发怒的情况下，我如果选择装死，假设熊看到人装死就一定会走的话，我们就称在这里面的这个状态转移概率就是百分之百。但如果说在熊发怒的情况下，我选择跑路而导致说我有可能跑成功以及跑失败，出现这两种情况。那我们就可以用概率去表达一下说转移到其中一种情况的概率大概 10%，另外一种情况的概率大概是 90% 会跑失败。**如果我们知道这些状态转移概率和奖励函数的话，我们就说这个环境是已知的，因为我们是用这两个函数去描述环境的。**如果是已知的话，我们其实可以用动态规划去计算说，我如果要逃脱熊，那么能够逃脱熊概率最大的最优策略是什么。很多强化学习的经典的算法都是 model-free 的，就是环境是未知的这样子的一个情况下，我们强化学习怎么去解决。
 
 ![](img/3.3.png)
-接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy 来决定一个 action。假设它现在决定的 action 是向右，它决定完 action 以后，它就会得到一个 reward ，代表它采取这个 action 以后得到的分数。
+因为现实世界中人类第一次遇到熊之前，我们根本不知道我们能不能跑得过熊。所以刚刚那个10%、90%的概率也就是虚构出来的概率，熊到底在什么时候会往什么方向去转变的话，我们经常是不知道的。我们是处在一个未知的环境里的，也就是这一系列的决策的 P 函数和 R 函数是未知的。这就是 model-based 跟 model-free 的一个最大的区别。强化学习就是可以用来解决用完全未知的和随机的环境。
 
-我们把一开始的初始画面，写作 $s_1$， 把第一次执行的动作叫做 $a_1$，把第一次执行动作完以后得到的 reward 叫做 $r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个的行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。然后这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
+强化学习要像人类一样去学习了，人类学习的话就是一条路一条路的去尝试一下，先走一条路，我看看结果到底是什么。多试几次，只要能活命的，我们其实可以慢慢的了解哪个状态会更好。我们用价值函数 $V(s)$ 来代表这个状态是好的还是坏的。然后用这个 Q 函数来判断说在什么状态下做什么动作能够拿到最大奖励，我们用 Q 函数来表示这个状态-动作值。
 
 ![](img/3.4.png)
-一场游戏叫做一个 `Episode(回合)` 或者 `Trial(试验)`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `Total reward`，我们称其为`Return(回报)`，用 R 来表示它。Actor 要想办法去 maximize 它可以得到的 reward。
 
-![](img/3.5.png)
-首先，`environment` 是一个`function`，游戏的主机也可以把它看作是一个 function，虽然它不一定是 neural network，可能是 rule-based 的规则，但你可以把它看作是一个 function。这个 function，一开始就先吐出一个 state，也就是游戏的画面，接下来你的 actor 看到这个游戏画面 $s_1$ 以后，它吐出 $a_1$，然后 environment 把 $a_1$ 当作它的输入，然后它再吐出 $s_2$，吐出新的游戏画面。Actor 看到新的游戏画面，再采取新的行为 $a_2$，然后 environment 再看到 $a_2$，再吐出 $s_3$。这个 process 会一直持续下去，直到 environment 觉得说应该要停止为止。
+接下来就会介绍 Q 函数。在经过多次尝试和那个熊打交道之后，人类就可以对熊的不同的状态去做出判断，我们可以用状态动作价值的来表达说在某个状态下，为什么动作 1 会比动作 2 好。因为动作 1 的价值比动作 2 要高。这个价值就叫 Q 函数。如果说这个 Q 表格是一张已经训练好的表格的话，那这一张表格就像是我们的一本生活手册。我们就知道在熊发怒的时候，装死的价值会高一点。在熊离开的时候，我们可能偷偷逃跑的会比较容易获救。这张表格里面 Q 函数的物理意义就是我选择了这个动作之后我最后面能不能成功，就是我需要去计算我在这个状态下，我选择了这个动作，后续能够一共拿到多少总收益。如果我可以预估未来的总收益的大小，我们当然知道在当前的这个状态下选择哪个动作，价值更高。我选择某个动作是因为我未来一共可以拿到的那个价值会更高一点。所以强化学习它的目标导向性很强，环境给了这个 reward 是一个非常重要的反馈，它就是根据环境的 reward 的反馈来去做选择。
 
-在一场游戏里面，我们把 environment 输出的 $s$ 跟 actor 输出的行为 $a$，把这个 $s$ 跟 $a$ 全部串起来， 叫做一个 `Trajectory`，如下式所示。
-$$
-\text { Trajectory } \tau=\left\{s_{1}, a_{1}, s_{2}, a_{2}, \cdots, s_{t}, a_{t}\right\}
-$$
+![](img/3.5.png)未来的总收益是一个什么样的概念，为什么可以用这个来评价当前这个动作是好是坏。举个例子，假设说一辆车在路上，当前是红灯，我们直接走的那个收益就很低，因为违反交通规则，这是就是当前的单步收益。可是如果我们这是一辆救护车，我们正在运送病人，把病人快速送达医院的收益非常的高，而且越快你的收益越大。很可能是我们这个时候应该要闯红灯，因为未来的远期收益太高了。这也是为什么说强化学习需要去学习远期的收益，因为现实世界当中这个奖励往往是延迟的，是有delay 的。
 
-每一个 trajectory，你可以计算它发生的概率。假设现在 actor 的参数已经被给定了话，就是 $\theta$。根据 $\theta$，你其实可以计算某一个 trajectory 发生的概率，你可以计算某一个回合，某一个 episode 里面， 发生这样子状况的概率。
-
-$$
-\begin{aligned}
-p_{\theta}(\tau)
-&=p\left(s_{1}\right) p_{\theta}\left(a_{1} | s_{1}\right) p\left(s_{2} | s_{1}, a_{1}\right) p_{\theta}\left(a_{2} | s_{2}\right) p\left(s_{3} | s_{2}, a_{2}\right) \cdots \\
-&=p\left(s_{1}\right) \prod_{t=1}^{T} p_{\theta}\left(a_{t} | s_{t}\right) p\left(s_{t+1} | s_{t}, a_{t}\right)
-\end{aligned}
-$$
-
-怎么算呢，如上式所示。在假设你 actor 的参数就是 $\theta$ 的情况下，某一个 trajectory $\tau$ 的概率就是这样算的，你先算 environment 输出 $s_1$ 的概率，再计算根据 $s_1$ 执行 $a_1$ 的概率，这是由你 policy 里面的 network 参数 $\theta$ 所决定的， 它是一个概率，因为你的 policy 的 network 的 output 是一个 distribution，actor 是根据这个 distribution 去做 sample，决定现在实际上要采取的 action是哪一个。接下来 environment 根据 $a_1$ 跟 $s_1$ 产生 $s_2$，因为 $s_2$ 跟$s_1$  还是有关系的，下一个游戏画面，跟前一个游戏画面通常还是有关系的，至少要是连续的， 所以给定前一个游戏画面 $s_1$ 和现在 actor 采取的行为 $a_1$，就会产生 $s_2$。
-
-这件事情可能是概率，也可能不是概率，这个取决于 environment，就是主机它内部设定是怎样。看今天这个主机在决定，要输出什么样的游戏画面的时候，有没有概率。因为如果没有概率的话，这个游戏的每次的行为都一样，你只要找到一条 path 就可以过关了，这样感觉是蛮无聊的 。所以游戏里面，通常是还是有一些概率的，你做同样的行为，给同样的前一个画面， 下次产生的画面不见得是一样的。Process 就反复继续下去，你就可以计算一个 trajectory $s_1$,$a_1$, $s_2$ , $a_2$ 出现的概率有多大。
-
-**这个概率取决于两部分**， 
-
-* 一部分是 `environment 的行为`， environment 的 function 它内部的参数或内部的规则长什么样子。 $p(s_{t+1}|s_t,a_t)$这一项代表的是 environment， environment 这一项通常你是无法控制它的，因为那个是人家写好的，你不能控制它。
-* 另一部分是 `agent 的行为`。你能控制的是 $p_\theta(a_t|s_t)$。给定一个 $s_t$， actor 要采取什么样的 $a_t$ 会取决于你 actor 的参数 $\theta$， 所以这部分是 actor 可以自己控制的。随着 actor 的行为不同，每个同样的 trajectory， 它就会有不同的出现的概率。
-
+所以我们一般会从当前状态开始，后续有可能会收到所有收益加起来计算。当前动作的 Q 的价值，让 Q 的价值可以真正的代表当前这个状态动作的真正的价值。
 
 ![](img/3.6.png)
 
 
-在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的 $r$ 都加起来，我们就得到了 $R(\tau)$ ，代表某一个 trajectory $\tau$ 的 reward。在某一场游戏里面， 某一个 episode 里面，我们会得到 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable，R 其实是一个 random variable。 因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
-
-$$
-\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)
-$$
-这个期望值的算法如上式所示，穷举所有可能的 trajectory $\tau$， 每一个 trajectory $\tau$ 都有一个概率。比如 $\theta$ 是一个很强的 model， 那它都不会死。如果有一个 episode 很快就死掉了， 它的概率就很小；如果有一个 episode 都一直没有死， 那它的概率就很大。根据你的 $\theta$， 你可以算出某一个 trajectory $\tau$ 出现的概率，接下来你计算这个 $\tau$ 的 total reward 是多少。 Total reward weighted by 这个 $\tau$ 出现的概率，对所有的 $\tau$ 进行求和，就是期望值。给定一个参数，你会得到的期望值。
-$$
-\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)=E_{\tau \sim p_{\theta}(\tau)}[R(\tau)]
-$$
-我们还可以写成上式那样，从 $p_{\theta}(\tau)$ 这个 distribution sample 一个 trajectory $\tau$，然后计算 $R(\tau)$ 的期望值，就是你的 expected reward。 我们要做的事情就是 maximize expected reward。
+但有的时候你把目光放得太长远不好，因为如果说事情很快就结束的话，你考虑到最后一步的收益无可厚非，。如果说是一个持续的没有尽头的任务，即`持续式任务(Continuing Task)`。你把所有未来的收益全部相加，作为当前的状态价值就很不合理。股票的例子就很典型了，我们要关注的是累积的收益。可是如果说十年之后才有一次大涨大跌，你要把十年后的收益也作为当前动作的考虑因素，显然我们不会这么做。那我们会怎么办呢，就有句俗话说得好，就对远一点的东西呢，我们就当做近视就不需要看得太清楚，我们就可以适当引入这个衰减因子 $\gamma$ 来去计算这个未来总收益。$\gamma \in [0,1]$ 。越往后 $\gamma^n$ 就会越小，也就是说越后面的收益对当前价值的影响就会越小。
 
 ![](img/3.7.png)
-怎么 maximize expected reward 呢？我们用的是 `gradient ascent`，因为要让它越大越好，所以是 gradient ascent。Gradient ascent 在 update 参数的时候要加。要进行 gradient ascent，我们先要计算 expected reward $\bar{R}$ 的 gradient 。我们对 $\bar{R}$ 取一个 gradient，这里面只有 $p_{\theta}(\tau)$ 是跟 $\theta$ 有关，所以 gradient 就放在 $p_{\theta}(\tau)$ 这个地方。$R(\tau)$ 这个 reward function 不需要是 differentiable，我们也可以解接下来的问题。举例来说，如果是在 GAN 里面，$R(\tau)$ 其实是一个 discriminator，它就算是没有办法微分，也无所谓，你还是可以做接下来的运算。
-
-取 gradient之后，我们背一个公式，
-$$
-\nabla f(x)=f(x)\nabla \log f(x)
-$$
-我们可以对 $\nabla p_{\theta}(\tau)$ 使用这个公式，然后会得到 $\nabla p_{\theta}(\tau)=p_{\theta}(\tau)  \nabla \log p_{\theta}(\tau)$。
-
-接下来， 分子分母，上下同乘$p_{\theta}(\tau)$，然后我们可以得到下式：
-$$
-\frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)}=\log p_{\theta}(\tau)
-$$
-
- 然后如下式所示， 对 $\tau$ 进行求和，把 $R(\tau)$  和  $\log p_{\theta}(\tau)$ 这两项 weighted by $ p_{\theta}(\tau)$， 既然有 weighted by  $p_{\theta}(\tau)$，它们就可以被写成这个 expected 的形式。也就是你从 $p_{\theta}(\tau)$ 这个 distribution 里面 sample $\tau$ 出来， 去计算 $R(\tau)$ 乘上 $\nabla\log p_{\theta}(\tau)$，然后把它对所有可能的 $\tau$ 进行求和，就是这个 expected value 。
-
-$$
-\begin{aligned}
-\nabla \bar{R}_{\theta}&=\sum_{\tau} R(\tau) \nabla p_{\theta}(\tau)\\&=\sum_{\tau} R(\tau) p_{\theta}(\tau) \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)} \\&=
-\sum_{\tau} R(\tau) p_{\theta}(\tau) \nabla \log p_{\theta}(\tau) \\
-&=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
-\end{aligned}
-$$
-
-实际上这个 expected value 没有办法算，所以你是用 sample 的方式来 sample 一大堆的 $\tau$。你 sample $N$ 笔  $\tau$， 然后你去计算每一笔的这些 value，然后把它全部加起来，最后你就得到你的 gradient。你就可以去 update 你的参数，你就可以去 update 你的 agent，如下式所示。
-$$
-\begin{aligned}
-E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right] &\approx \frac{1}{N} \sum_{n=1}^{N} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(\tau^{n}\right) \\
-&=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
-\end{aligned}
-$$
-注意 $p_{\theta}(\tau)$ 里面有两项，$p(s_{t+1}|s_t,a_t)$ 来自于 environment，$p_\theta(a_t|s_t)$ 是来自于 agent。 $p(s_{t+1}|s_t,a_t)$ 由环境决定从而与 $\theta$ 无关，因此 $\nabla \log p(s_{t+1}|s_t,a_t) =0 $。因此 $\nabla p_{\theta}(\tau)=
-\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$。
-
-你可以非常直观的来理解这个部分，也就是在你 sample 到的 data 里面， 你 sample 到，在某一个 state $s_t$ 要执行某一个 action $a_t$， 这个 $s_t$ 跟 $a_t$ 它是在整个 trajectory $\tau$ 的里面的某一个 state and action 的 pair。
-
-*  假设你在 $s_t$ 执行 $a_t$，最后发现 $\tau$ 的 reward 是正的， 那你就要增加这一项的概率，你就要增加在 $s_t$ 执行 $a_t$ 的概率。
-*  反之，在 $s_t$ 执行 $a_t$ 会导致$\tau$  的 reward 变成负的， 你就要减少这一项的概率。
 
 
+举个具体的例子来看看这些计算出来的是什么效果。这是一个悬崖问题。这个问题是需要智能体从出发点 S 出发，然后到达目的地 G，同时避免掉进悬崖(cliff)，掉进悬崖的话就会有负一百分的惩罚，但游戏不会结束，它会被直接拖回起点，游戏继续。为了到达目的地的话，我们可以沿着蓝线和红线走。
 
 ![](img/3.8.png)
-这个怎么实现呢？ 你用 gradient ascent 来 update 你的参数，你原来有一个参数 $\theta$ ，把你的 $\theta$  加上你的 gradient 这一项，那当然前面要有个 learning rate，learning rate 其实也是要调的，你可用 Adam、RMSProp 等方法对其进行调整。
 
-我们可以套下面这个公式来把 gradient 计算出来: 
+在这个环境当中，我们去怎么去计算状态动作价值，就是未来的总收益的话。假设我走一条路，然后这条路的话，我从这个状态出发，在这里选择是向上，这里选择向右，选择向右。
 
+如果 $\gamma = 0$，然后用这个公式去计算的话，它相当于考虑的就是一个单步的收益。我们可以认为它是一个目光短浅的一个计算的方法。
+
+但 $\gamma = 1$ 的话，那就等于是说把后续所有的收益可能都全部加起来。在这里悬崖问题，你每走一步都会拿到一个 -1 分的 reward。只有到了终点之后，它才会停止。如果说 $\gamma =1 $的话，我们用这个公式去计算，就这里是 -1。然后这里的话，未来的总收益就是 $-1+-1=-2$ 。
+
+如果让 $\gamma = 0.6$ 的话，就是目光没有放得那么的长远，计算出来是这个样子的。
+
+
+利用 $G_{t}=R_{t+1}+\gamma G_{t+1}$ 这个公式从后往前推。
 $$
-\nabla \bar{R}_{\theta}=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)
+\begin{array}{l}
+G_{7}=R+\gamma G_{8}=-1+0.6 *(-2.176)=-2.3056 \approx-2.3 \\
+G_{8}=R+\gamma G_{9}=-1+0.6 *(-1.96)=-2.176 \approx-2.18 \\
+G_{9}=R+\gamma G_{10}=-1+0.6 *(-1.6)=-1.96 \\
+G_{10}=R+\gamma G_{11}=-1+0.6 *(-1)=-1.6 \\
+G_{12}=R+\gamma G_{13}=-1+0.6 * 0=-1 \\
+G_{13}=0
+\end{array}
 $$
-实际上，要套上面这个公式， 首先你要先收集一大堆的 s 跟 a 的 pair，你还要知道这些 s 跟 a 在跟环境互动的时候，你会得到多少的 reward。 这些资料怎么收集呢？你要拿你的 agent，它的参数是 $\theta$，去跟环境做互动， 也就是拿你已经 train 好的 agent 先去跟环境玩一下，先去跟那个游戏互动一下， 互动完以后，你就会得到一大堆游戏的纪录，你会记录说，今天先玩了第一场，在第一场游戏里面，我们在 state $s_1$ 采取 action $a_1$，在 state $s_2$ 采取 action $a_2$ 。
-
-玩游戏的时候是有随机性的，所以 agent 本身是有随机性的，在同样 state $s_1$，不是每次都会采取 $a_1$，所以你要记录下来。在 state $s_1^1$ 采取 $a_1^1$，在 state $s_2^1$ 采取 $a_2^1$。整场游戏结束以后，得到的分数是$R(\tau^1)$。你会 sample 到另外一笔 data，也就是另外一场游戏。在另外一场游戏里面，你在 state $s_1^2$ 采取 $a_1^2$，在 state $s_2^2$ 采取 $a_2^2$，然后你 sample 到的就是 $\tau^2$，得到的 reward 是 $R(\tau^2)$。
-
-你就可以把 sample 到的东西代到这个 gradient 的式子里面，把 gradient 算出来。也就是把这边的每一个 s 跟 a 的 pair 拿进来，算一下它的 log probability 。你计算一下在某一个 state 采取某一个 action 的 log probability，然后对它取 gradient，然后这个 gradient 前面会乘一个 weight，weight 就是这场游戏的 reward。 有了这些以后，你就会去 update 你的 model。
-
-Update 完你的 model 以后。你要重新去收集 data，再 update model。这边要注意一下，一般 policy gradient sample 的 data 就只会用一次。你把这些 data sample 起来，然后拿去 update 参数，这些 data 就丢掉了。接着再重新 sample data，才能够去 update 参数， 等一下我们会解决这个问题。
 
 
+这里的计算是我们选择了一条路，走完这条路径上每一个状态动作的价值，我们可以看一下右下角这个图，如果说我走的不是这条路，我走的是这一条路，那我算出来那个状态动作价值的 Q 值可能是这样。那我们就知道，当小乌龟在 -12 这个点的时候，往右边走是 -11，往上走是 -15。它自然就知道往右走的价值更大，小乌龟就会往右走
 
 ![](img/3.9.png)
+最后我们要求解的就是类似于这样子的一张 Q 表格。就是它的行数是所有的状态数量，一般可以用坐标来表示表示格子的状态，也可以用 1、2、3、4、5、6、7 来表示不同的位置。Q 表格一共四列的话就代表说是上下左右四个动作。最开始这张 Q 表格会全部初始化为零，然后在 agent 不断地去和环境交互得到不同的轨迹，当交互的次数足够多的时候，我们就可以估算出每一个状态下，每个行动的平均总收益去更新这个 Q  表格。怎么去更新 Q 表格就是我们接下来要引入的强化学习的强化概念。
 
-接下来讲一些实现细节。实现方法是这个样子，把它想成一个分类的问题，在 classification 里面就是 input 一个 image，然后 output 决定说是 10 个 class 里面的哪一个。在做 classification 时，我们要收集一堆 training data，要有 input 跟 output 的 pair。
-
-在实现的时候，你就把 state 当作是 classifier 的 input。 你就当在做 image classification 的 problem，只是现在的 class 不是说 image 里面有什么 objects。 现在的 class 是说，看到这张 image 我们要采取什么样的行为，每一个行为就是一个 class。比如说第一个 class 叫做向左，第二个 class 叫做向右，第三个 class 叫做开火。
-
-这些训练的数据从哪里来的呢？ 做分类的问题时，要有 input 和正确的 output。  这些训练数据是从 sampling 的 process 来的。假设在 sampling 的 process 里面，在某一个 state，你 sample 到你要采取 action a， 你就把这个 action a 当作是你的 ground truth。你在这个 state，你 sample 到要向左。 本来向左这件事概率不一定是最高， 因为你是 sample，它不一定概率最高。假设你 sample 到向左，在 training 的时候 你叫告诉 machine 说，调整 network 的参数， 如果看到这个 state，你就向左。在一般的 classification 的 problem 里面，其实你在 implement classification 的时候， 你的 objective function 都会写成 minimize cross entropy，其实 minimize cross entropy 就是 maximize log likelihood。
-
+强化概念的就是我们可以用下一个状态的价值来更新当前状态的价值。其实就是强化学习里面有一个bootstrap(自助)的概念。在强化学习里面，你可以每走一步更新一下 Q 表格，然后用下一个状态的 Q 值来更新这个状态的 Q 值。
 
 ![](img/3.10.png)
 
-做 classification 的时候，objective function 就是 maximize 或 minimize 的对象， 因为我们现在是 maximize likelihood 所以其实是 maximize， 你要 maximize 的对象，如下式所示:
-$$
-\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
-$$
-
-像这种 loss function。你可在 TensorFlow 里 call 现成的 function，它就会自动帮你算。
-然后你就可以把 gradient 计算出来，这是一般的分类问题。RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 PyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
-
-## Tips
-这边有一些在实现的时候，你也许用得上的 tip。
-### Tip 1: Add a Baseline
+这种单步更新的方法叫做`时序差分`的更新方法。为了让大家更好理解强化学习里面时序差分的这种更新方法。我这里就找了一下它的的物理意义。我们先理解一下巴普洛夫的条件反射实验了。这个实验讲的是什么呢？就是小狗对盆里面的食物，它会产生无条件刺激分泌唾液。一开始小狗对于铃声这种中性刺激是没有反应的。可是我们把这个铃声和这个食物结合起来，每次先给它响一下铃，再给它喂食物。多次重复之后，当铃声响起的时候，小狗也会开始流口水。盆里的肉可以认为是强化学习里面最后面的那个延迟的 reward。声音的刺激可以认为是有 reward 的那个状态之前的一个状态。多次重复实验之后，最后的这个 reward 会强化小狗对于这个声音的条件反射，它会让小狗知道说这个声音代表着有食物，这个声音对于小狗来说也就有了价值，它听到这个声音也会也会流口水。
 
 ![](img/3.11.png)
 
-第一个 tip 是 add 一个 baseline。add baseline 是什么意思呢？如果 given state s 采取 action a 会给你整场游戏正面的 reward，就要增加它的概率。如果 state s 执行 action a，整场游戏得到负的 reward，就要减少这一项的概率。
+巴普洛夫效应揭示的是中性刺激(铃声)跟无条件刺激(食物)紧紧挨着反复出现的时候，条件刺激也可以引起无条件刺激引起的唾液分泌，然后形成这个条件刺激。这种中性刺激跟无条件刺激在时间上面的结合，我们就称之为强化。 强化的次数越多，条件反射就会越巩固。小狗原本不觉得铃声有价值的，经过强化之后，小狗就会慢慢地意识到铃声也是有价值的，它可能带来带来食物。更重要是一种条件反射巩固之后，我们再用另外一种新的刺激和条件反射去结合，还可以形成第二级条件反射，同样还可以形成第三级条件反射。在人的身上是可以建立多级的条件反射的。举个例子，比如说一般我们遇到熊都是这样一个顺序，看到树上有熊瓜，然后看到熊之后，突然熊发怒，扑过来了。经历这个过程之后，我们可能最开始看到熊才会瑟瑟发抖，后面就是看到树上有熊爪就已经有害怕的感觉了。也就说在不断的重复试验之后，下一个状态的价值，它是可以不断地去强化影响上一个状态的价值的。
 
-但在很多游戏里面， reward 总是正的，就是说最低都是 0。比如说打乒乓球游戏， 你的分数就是介于 0 到 21 分之间，所以这个 R 总是正的。假设你直接套用这个式子， 在 training 的时候，告诉 model 说，不管是什么 action 你都应该要把它的概率提升。 在理想上，这么做并不一定会有问题。因为虽然说 R 总是正的，但它正的量总是有大有小，你在玩乒乓球那个游戏里面，得到的 reward 总是正的，但它是介于 0~21分之间，有时候你采取某些 action 可能是得到 0 分，采取某些 action 可能是得到 20 分。
 ![](img/3.12.png)
 
-假设你有 3 个 action a/b/c 可以执行，在某一个 state 有 3 个 action a/b/c可以执行。根据这个式子，你要把这 3 项的概率， log probability 都拉高。 但是它们前面 weight 的这个 R 是不一样的。 R 是有大有小的，weight 小的，它上升的就少，weight 多的，它上升的就大一点。 因为这个 log probability，它是一个概率，所以action a、b、c 的和要是 0。 所以上升少的，在做完 normalize 以后， 它其实就是下降的，上升的多的，才会上升。
+为了让大家更加直观感受下一个状态影响上一个状态效果，这里推荐斯坦福大学的一个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。这个网站模拟了就是这种单步更新的过程中，所有格子的一个状态价值的变化过程。我们可以看到格子里面有几个 -1的 reward。只有一个 +1 reward 的那个格子。
 
+![](img/3.13.png)
 
- ![1](img/3.13.png)
+玩起来是这样的，先初始化一下，然后开始时序差分的更新过程。训练的过程中你会看到这个小黄球在不断地试错。但探索当中会先迅速地发现有 reward 的地方。最开始的时候，只是这些有 reward 的格子 才有价值，当不断地重复走这些路线的时候，这些有价值的格子，它可以去慢慢地影响它附近的格子的价值。反复训练之后，有 reward 的这些格子周围的格子的状态就会慢慢的被强化，然后强化就是当它收敛到最后一个最优的状态了，就是把这些价值最终收敛到一个最优的情况之后，那个小黄球就会自动地知道，就是我一直往价值高的地方走，我就能够走到能够拿到 reward 的地方。
 
+### Temporal Difference
 
-这个是一个理想上的状况，但是实际上，我们是在做 sampling 就本来这边应该是一个 expectation， summation over 所有可能的 s 跟 a 的 pair。 但你真正在学的时候，当然不可能是这么做的，你只是 sample 了少量的 s 跟 a 的 pair 而已。 因为我们做的是 sampling，有一些 action 可能从来都没有 sample 到。在某一个 state1，虽然可以执行的 action 有 a/b/c 3 个，但你可能只 sample 到 action b，你可能只 sample 到 action c，你没有 sample 到 action a。但现在所有 action 的 reward 都是正的，所以根据这个式子，它的每一项的概率都应该要上升。你会遇到的问题是，因为 a 没有被 sample 到，其它 action 的概率如果都要上升，a 的概率就下降。 所以 a 不一定是一个不好的 action， 它只是没被 sample 到。但只是因为它没被 sample 到， 它的概率就会下降，这个显然是有问题的，要怎么解决这个问题呢？你会希望你的 reward 不要总是正的。
+![](img/3.14.png)
 
-![1.](img/3.14.png)
+这种强化方式其实在数学上面一行公式就表达出来了。这种更新的方式叫做`时序差分(Temporal Difference)`。这个公式就是说可以拿下一步的 Q 值 $Q(S_{t+_1},A_{t+1})$ 来更新我这一步的 Q 值 $Q(S_t,A_t)$ 。
 
-为了解决 reward 总是正的这个问题，你可以把 reward 减掉一项叫做 b，这项 b 叫做 baseline。你减掉这项 b 以后，就可以让 $R(\tau^n)-b$ 这一项， 有正有负。 所以如果得到的 total reward $R(\tau^n)$ 大于 b 的话，就让它的概率上升。如果这个 total reward 小于 b，就算它是正的，正的很小也是不好的，你就要让这一项的概率下降。 如果$R(\tau^n)<b$  ， 你就要让这个 state 采取这个 action 的分数下降 。这个 b 怎么设呢？一个最简单的做法就是， 你把 $\tau^n$ 的值取 expectation， 算一下 $\tau^n$的平均值。
+为了理解这个公式，如图所示，我们先把 $R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 当作是一个目标值，就是 $Q(S_t,A_t)$ 想要去逼近的一个目标值。我们想要计算的就是这个 $Q(S_t,A_t)$ 。因为最开始 Q 值都是随机初始化或者是初始化为零。它需要不断的去逼近它理想中真实的Q 值，我们就叫 target 。Target 就是未来收益的总和大概有多少，而且是带衰减的那个。
+
+我们用 $G_t$ 来表示未来收益总和(return)，我们对 return 做一下简单的数学变化，可以知道 
 $$
-b \approx E[R(\tau)]
+G_t = R_{t+1}+ \gamma G_{t+1}
 $$
 
-这是其中一种做法， 你可以想想看有没有其它的做法。
 
- 所以在 implement training 的时候，你会不断地把 $R(\tau)$ 的分数记录下来 然后你会不断地去计算 $R(\tau)$ 的平均值， 你会把这个平均值，当作你的 b 来用。 这样就可以让你在 training 的时候， $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$ 乘上前面这一项， 是有正有负的，这个是第一个 tip。
+也就是说，我们拿 $Q(S_t,A_t)$ 来逼近这个 $G_t$ , 那 $Q(S_{t+1},A_{t+1})$ 其实就是近似这个 $G_{t+1}$ ，那我们可以把 $G_{t+1}$  放到这个目标值这里。$Q(S_t,A_t)$  就是要逼近这个目标值。我们用软更新的方式来逼近。
 
+软更新的方式就是 $\alpha$ ，每次我只更新一点点。这个 $\alpha$ 有点类似于像学习率一样的东西。最终的话，Q 值都是可以慢慢地逼近到真实的 target 值的。这样我们的更新公式只需要用到当前时刻的 $S_{t},A_t$  ，然后还有拿到的 $R_{t+1}, S_{t+1}，A_{t+1}$ 。
 
-### Tip 2: Assign Suitable Credit
-
-第二个 tip：给每一个 action 合适的 credit。什么意思呢，如果我们看今天下面这个式子的话，
-$$
-\nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(R\left(\tau^{n}\right)-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
-$$
-我们原来会做的事情是，在某一个 state，假设你执行了某一个 action a，它得到的 reward ，它前面乘上的这一项 $R(\tau^n)-b$。
-
-只要在同一个 Episode 里面，在同一场游戏里面， 所有的 state 跟 a 的 pair，它都会 weighted by 同样的 reward term，这件事情显然是不公平的，因为在同一场游戏里面 也许有些 action 是好的，有些 action 是不好的。 假设整场游戏的结果是好的， 并不代表这个游戏里面每一个行为都是对的。若是整场游戏结果不好， 但不代表游戏里面的所有行为都是错的。所以我们希望可以给每一个不同的 action 前面都乘上不同的 weight。每一个 action 的不同 weight， 它反映了每一个 action 到底是好还是不好。 
+该算法由于每次更新值函数需要知道前一步的状态(state)，前一步的动作(action)、奖励(reward)、当前状态(state)、将要执行的动作(action)，即 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ 这几个值 ，由此得名 `Sarsa` 算法。因为它走了一步之后，拿到了 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ 之后，就可以做一次更新。
 
 ![](img/3.15.png)
 
-举个例子， 假设这个游戏都很短，只有 3~4 个互动， 在 $s_a$ 执行 $a_1$ 得到 5 分。在 $s_b$ 执行 $a_2$ 得到 0 分。在 $s_c$ 执行 $a_3$ 得到 -2 分。 整场游戏下来，你得到 +3 分，那你得到 +3 分 代表在 state $s_b$ 执行 action $a_2$ 是好的吗？并不见得代表 state $s_b$ 执行 $a_2$ 是好的。因为这个正的分数，主要来自于在 state $s_a$ 执行了 $a_1$，跟在 state $s_b$ 执行 $a_2$ 是没有关系的，也许在 state $s_b$ 执行 $a_2$ 反而是不好的， 因为它导致你接下来会进入 state $s_c$，执行 $a_3$ 被扣分，所以整场游戏得到的结果是好的， 并不代表每一个行为都是对的。
+我们看看用代码去怎么去实现。了解单步更新的一个基本公式之后，代码实现就很简单了。这个是环境，这个是 agent 。我们每次跟环境交互一次之后呢，就可以 learn 一下。我们向环境输出 action，
 
-![](img/3.16.png)
+然后从环境当中拿到那 state 和 reward。Agent 主要实现两个方法，一个就是根据 Q 表格去选择动作，输出 action。另外一个就是拿到 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$  这几个值去更新我们的 Q 表格。
 
-如果按照我们刚才的讲法，整场游戏得到的分数是 3 分，那到时候在 training 的时候， 每一个 state 跟 action 的 pair，都会被乘上 +3。 在理想的状况下，这个问题，如果你 sample 够多就可以被解决。因为假设你 sample 够多，在 state $s_b$ 执行 $a_2$ 的这件事情，被 sample 到很多。就某一场游戏，在 state $s_b$ 执行 $a_2$，你会得到 +3 分。 但在另外一场游戏，在 state $s_b$ 执行 $a_2$，你却得到了 -7 分，为什么会得到 -7 分呢？ 因为在 state $s_b$ 执行 $a_2$ 之前， 你在 state $s_a$ 执行 $a_2$ 得到 -5 分，-5 分这件事可能也不是在 $s_b$ 执行 $a_2$ 的错，这两件事情，可能是没有关系的，因为它先发生了，这件事才发生，所以它们是没有关系的。
+![](img/3.16.png)我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值来更新这一步的 Q 值，不断地强化每一个 Q。这边我们给出 [Sarsa 的 Python 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Sarsa)。
 
-在 state $s_b$ 执行 $a_2$ 可能造成的问题只有会在接下来 -2 分，而跟前面的 -5 分没有关系的。但是假设我们今天 sample 到这项的次数够多，把所有发生这件事情的情况的分数通通都集合起来， 那可能不是一个问题。但现在的问题就是，我们 sample 的次数是不够多的。在 sample 的次数不够多的情况下，你要给每一个 state 跟 action pair 合理的 credit，你要让大家知道它合理的 contribution。怎么给它一个合理的 contribution 呢？ 一个做法是计算这个 pair 的 reward 的时候，不把整场游戏得到的 reward 全部加起来，**只计算从这一个 action 执行以后所得到的 reward**。因为这场游戏在执行这个 action 之前发生的事情是跟执行这个 action 是没有关系的， 所以在执行这个 action 之前得到多少 reward 都不能算是这个 action 的功劳。跟这个 action 有关的东西， 只有在执行这个 action 以后发生的所有的 reward 把它加起来，才是这个 action 真正的 contribution。所以在这个例子里面，在 state $s_b$ 执行 $a_2$ 这件事情，也许它真正会导致你得到的分数应该是 -2 分而不是 +3 分，因为前面的 +5 分 并不是执行 $a_2$ 的功劳。实际上执行 $a_2$ 以后，到游戏结束前， 你只有被扣 2 分而已，所以它应该是 -2。那一样的道理，今天执行 $a_2$ 实际上不应该是扣 7 分，因为前面扣 5 分，跟在 $s_b$ 这个 state 执行 $a_2$ 是没有关系的。在 $s_b$ 这个 state 执行 $a_2$，只会让你被扣两分而已，所以也许在 $s_b$ 这个 state 执行 $a_2$， 你真正会导致的结果只有扣两分而已。如果要把它写成式子的话是什么样子呢？如下式所示。
+## Sarsa(λ) 
+
+Sarsa 属于单步更新法，也就是说每执行一个动作，就会更新一次价值和策略。如果不进行单步更新，而是采取 $n$ 步更新或者回合更新，即在执行 $n$ 步之后再来更新价值和策略，这样就得到了 $n$ 步 Sarsa。具体来说，对于 Sarsa，在 $t$ 时刻其价值的计算公式为
+$$
+q_{t}=r_{t}+\gamma Q\left(s_{t+1}, a_{t+1}\right)
+$$
+而对于 $n$ 步 Sarsa，它的 $n$ 步 Q 收获为
+$$
+q_{t}^{(n)}=r_{t}+\gamma r_{t+1}+\cdots+\gamma^{n-1} r_{t+n-1}+\gamma^{n} Q\left(s_{t+n}, a_{t+n}\right)
+$$
+如果给 $q_t^{(n)}$ 加上衰减因子 $\lambda$ 并进行求和，即可得到 Sarsa($\lambda$) 的 Q 收获：
+$$
+q_{t}^{\lambda}=(1-\lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_{t}^{(n)}
+$$
+因此，$n$ 步 Sarsa($\lambda$)的更新策略可以表示为
+$$
+Q\left(s_{t}, a_{t}\right) \leftarrow Q\left(s_{t}, a_{t}\right)+\alpha\left(q_{t}^{\lambda}-Q\left(s_{t}, a_{t}\right)\right)
+$$
+总的来说，Sarsa 和 Sarsa($\lambda$) 的差别主要体现在价值的更新上。
+
+
+
+## Q-learning
 
 ![](img/3.17.png)
 
-本来的 weight 是整场游戏的 reward 的总和。那现在改成从某个时间 $t$ 开始，假设这个 action 是在 t 这个时间点所执行的，从 $t$ 这个时间点，一直到游戏结束所有 reward 的总和，才真的代表这个 action 是好的还是不好的。 
+Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略。它直接拿下一步会执行的 action 来去优化 Q 表格，所以 on-policy 在学习的过程中，只存在一种策略，它用一种策略去做 action 的选取，也用一种策略去做优化。所以 Sarsa 知道它下一步的动作有可能会跑到悬崖那边去，所以它就会在优化它自己的策略的时候，会尽可能的离悬崖远一点。这样子就会保证说，它下一步哪怕是有随机动作，它也还是在安全区域内。
+
+而 off-policy 在学习的过程中，有两种不同的策略。第一个策略是我们希望学到一个最佳的目标策略，另外一个策略是探索环境的策略，它可以大胆地去探索到所有可能的轨迹，然后喂给这个目标策略去学习。而且喂给目标策略的数据中并不需要 $a_{t+1}$ ，而 Sarsa 是有 $a_{t+1}$ 的。比如说目标策略优化时候，Q-learning 才不管你下一步去往哪里探索，会不会掉悬崖，我就只选我收益最大一个最优的策略。探索环境的策略，我们叫做 `behavior policy(行为策略)`，它像是一个战士，可以在环境里面探索所有的动作和轨迹和经验，然后把这些经验的交给目标策略去学习。`Target policy(目标策略)`就像是在后方指挥战术的一个军师，它可以根据自己的经验来学习最优的策略，不需要去和环境交互。
 
 ![](img/3.18.png)
-**接下来再更进一步，我们把未来的 reward 做一个 discount**，由此得到的回报被称为 `Discounted Return(折扣回报)`。为什么要把未来的 reward 做一个 discount 呢？因为虽然在某一个时间点，执行某一个 action，会影响接下来所有的结果，有可能在某一个时间点执行的 action，接下来得到的 reward 都是这个 action 的功劳。但在比较真实的情况下， 如果时间拖得越长，影响力就越小。 比如说在第二个时间点执行某一个 action， 那我在第三个时间点得到的 reward 可能是在第二个时间点执行某个 action 的功劳，但是在 100 个 timestamp 之后，又得到 reward，那可能就不是在第二个时间点执行某一个 action 得到的功劳。 所以我们实际上在做的时候，你会在 R 前面乘上一个 `discount factor`  $\gamma$， $\gamma \in [0,1] $ ，一般会设个 0.9 或 0.99，
 
-* $\gamma = 0$ : 只关心即时奖励； 
-* $\gamma = 1$ : 未来奖励等同于即时奖励。
+ 我们通过对比的方式来去理解 `Q-learning`。Q-learning 是 off-policy 的时序差分学习方法，Sarsa 是 on-policy 的时序差分学习方法。
 
- 如果 time stamp $t'$ 越大，它前面就乘上越多次的 $\gamma$，就代表说现在在某一个 state $s_t$， 执行某一个 action $a_t$ 的时候，它真正的 credit 是在执行这个 action 之后所有 reward 的总和，而且你还要乘上 $\gamma$。
+* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action 。这个 action 有可能是 $\varepsilon$-greddy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作。但是就是它实实在在执行了的那个动作。
 
-举一个例子， 你就想成说，这是游戏的第 1、2、3、4 回合，那你在游戏的第二回合的某一个  $s_t$ 你执行 $a_t$，它真正的 credit 得到的分数应该是，假设你这边得到 +1 分 这边得到 +3 分，这边得到 -5 分，它的真正的 credit，应该是 1 加上一个 discount 的 credit 叫做 $\gamma$ 乘上 3，再加上 $\gamma^2$ 乘上 -5。
+* 但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a')$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。Q-learning 默认的 action 不是通过 behavior policy 来选取的，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入 A'，即 $a_{t+1}$  的值。
 
-如果大家可以接受这样子的话， 实际上就是这么 implement 的。这个 b 可以是 state-dependent 的，事实上 b 它通常是一个 network 估计出来的，它是一个 network 的 output。
+在Q-learning 中，Q函数的估计方法为
+$$
+Q(s, a) \leftarrow Q(s, a)+\alpha\left(r+\gamma \max _{a^{\prime}} Q\left(s^{\prime}, a^{\prime}\right)-Q(s, a)\right)
+$$
+相当于让 $Q(s,a)$ 直接去估计最优状态值函数 $Q^*(s,a)$。
+
+> 事实上，Q-learning 算法被提出的时间更早，Sarsa 算法是 Q-learning 算法的改进。
+
 
 ![](img/3.19.png)
 
-把 $R-b$ 这一项合起来，我们统称为` advantage function`， 用 `A` 来代表 advantage function。Advantage function 是 dependent on s and a，我们就是要计算的是在某一个 state s 采取某一个 action a 的时候，advantage function 有多大。
+Sarsa 和 Q-learning 的更新公式都是一样的，区别只在 target 计算的这一部分，
 
-在算 advantage function 时，你要计算$\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}$ ，你会需要有一个互动的结果。你会需要有一个 model 去跟环境做互动，你才知道接下来得到的 reward 会有多少。这个 advantage function 的上标是 $\theta$，$\theta$ 就是代表说是用 $\theta$ 这个 model 跟环境去做互动，然后你才计算出这一项。从时间 t 开始到游戏结束为止，所有 r 的加和减掉 b，这个就叫 advantage function。
+* Sarsa 是 $R_{t+1}+\gamma Q(S_{t+1}, A_{t+1})$  ；
+* Q-learning 是$R_{t+1}+\gamma  \underset{a}{\max} Q\left(S_{t+1}, a\right)$ 。
 
-Advantage function 的意义就是，假设我们在某一个 state $s_t$ 执行某一个 action $a_t$，相较于其他可能的 action，它有多好。它在意的不是一个绝对的好，而是相对的好，即`相对优势(relative advantage)`。因为会减掉一个 b，减掉一个 baseline， 所以这个东西是相对的好，不是绝对的好。 $A^{\theta}\left(s_{t}, a_{t}\right)$ 通常可以是由一个 network estimate 出来的，这个 network 叫做 critic。 
+Sarsa 实际上都是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 $Q(S_{t+1},A_{t+1})$ 去更新原本的 Q 值 $Q(S_t,A_t)$。 但是 Q-learning 并不需要知道，我实际上选择哪一个 action ，它默认下一个动作就是 Q 最大的那个动作。Q-learning 知道实际上 behavior policy 可能会有 10% 的概率去选择别的动作，但是 Q-learning 并不担心受到探索的影响，它默认了就按照最优的策略来去优化我的目标策略，所以它可以更大胆地去寻找最优的路径，它其实会表现的比 Sarsa 大胆非常多。
 
-## REINFORCE
+然后 Q-learning 的这个逐步的一个拆解的话，跟 Sarsa 唯一一点不一样就是我并不需要提前知道我 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action A'，它只需要前面四个 $(S,A,R,S')$也就可以了，这一点就是跟 Sarsa 有一个很明显的区别。这边我们给出[ Q-learning 的 Python实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Q-learning)。
+
+### Q-function Bellman Equation
+
+记策略 $\pi $ 的状态-动作值函数为 $Q^{\pi}(s_t,a_t)$，它表示在状态 $s_t$ 下，执行动作 $a_t$ 会带来的累积奖励 $G_t$ 的期望，具体公式为：
+$$
+\begin{aligned} Q ^ { \pi } \left( s _ { t } , a _ { t } \right) & = \mathbb { E } \left[ G _ { t } \mid s _ { t } , a _ { t } \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma r _ { t + 1 } + \gamma ^ { 2 } r _ { t + 2 } + \cdots \mid s _ { t } , a _ { t } \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma \left( r _ { t + 1 } + \gamma r _ { t + 2 } + \cdots \right) \mid s _ { t } , a _ { t } \right]  
+\\ & =\mathbb { E } [ r _ { t }|s_t,a_t] + \gamma \mathbb{E}[r_{t+1}+ \gamma r_{t+2}+\cdots|s_t,a_t] \\
+& = \mathbb{E}[ r _ { t }|s_t,a_t]+ \gamma \mathbb{E}[G_{t+1}|s_t,a_t]
+\\ &= \mathbb { E } \left[ r _ { t } + \gamma Q ^ { \pi } \left( s _ { t + 1 } , a _ { t + 1 } \right) \mid s _ { t } , a _ { t } \right] \end{aligned}
+$$
+上式是 MDP 中 Q-function 的 Bellman 方程的基本形式。累积奖励 $G_t$ 的计算，不仅考虑当下 $t$  时刻的动作 $a_t$  的奖励 $r_t$，还会累积计算对之后決策带来的影响（公式中的 $\gamma$ 是后续奖励的衰减因子）。从上式可以看出，当前状态的动作价值 $Q^{\pi}(s_t,a_t)$ ，与当前动作的奖励 $r_t$  以及下一状态的动作价值 $Q^{\pi}(s_{t+1},a_{t+1})$ 有关，因此，状态-动作值函数的计算可以通过动态规划算法来实现。
+
+>Bellman Equation 就是当前状态与未来状态的迭代关系，表示当前状态的值函数可以通过下个状态的值函数来计算。Bellman Equation 因其提出者、动态规划创始人 Richard Bellman 而得名 ，也 叫作“动态规划方程”。
+
+从另一方面考虑，在计算 $t$ 时刻的动作价值  $Q^{\pi}(s_t,a_t)$ 时，需要知道在 $t$、$t+1$、$t+2 \cdots \cdots$ 时刻的奖励，这样就不仅需要知道某一状态的所有可能出现的后续状态以及对应的奖励值，还要进行全宽度的回溯来更新状态的价值。这种方法无法在状态转移函数未知或者大规模问题中使用。因此，Q-learning 采用了浅层的时序差分采样学习，在计算累积奖励时，基于当前策略 $\pi$  预测接下来发生的 $n$ 步动作（$n$ 可以取 1 到 $+\infty$）并计算其奖励值。
+
+具体来说，假设在状态 $s_t$ 下选择了动作 $a_t$，并得到了奖励 $r_t$ ，此时状态转移到 $s_{t+1}$，如果在此状态下根据同样的策略选择了动作 $a_{t+1}$ ，则 $Q^{\pi}(s_t,a_t)$ 可以表示为
+$$
+Q^{\pi}\left(s_{t}, a_{t}\right)=\mathbb{E}_{s_{t+1}, a_{t+1}}\left[r_{t}+\gamma Q^{\pi}\left(s_{t+1}, a_{t+1}\right) \mid s_{t}, a_{t}\right]
+$$
+
+Q-learning 算法在使用过程中，可以根据获得的累积奖励来选择策略，累积奖励的期望值越高，价值也就越大，智能体越倾向于选择这个动作。因此，最优策略 $\pi^*$ 对应的状态-动作值函数 $Q^*(s_t,a_t)$ 满足如下关系式：
+
+$$
+Q^{*}\left(s_{t}, a_{t}\right)=\max _{\pi} Q^{\pi}\left(s_{t}, a_{t}\right)=\mathbb{E}_{s_{t+1}}\left[r_{t}+\gamma \max _{a_{t+1}} Q\left(s_{t+1}, a_{t+1}\right) \mid s_{t}, a_{t}\right]
+$$
+
+Q-learning 算法在学习过程中会不断地更新 Q 值，但它并没有直接采用上式中的项进行更新，而是采用类似于梯度下降法的更新方式，即状态  $s_t$ 下的动作价值 $Q^*(s_t,a_t)$ 会朝着状态 $s_{t+1}$ 下的动作价值  $r_{t}+\gamma \max _{a_{t+1}} Q^{*}\left(s_{t+1}, a_{t+1}\right)$ 做一定比例的更新：
+$$
+\begin{aligned}
+Q^{*}\left(s_{t}, a_{t}\right) \leftarrow Q^{*}\left(s_{t}, a_{t}\right)+\alpha\left(r_{t}+\gamma \max _{a_{t+1}} Q^{*}\left(s_{t+1}, a_{t+1}\right)-Q^{*}\left(s_{t}, a_{t}\right)\right)
+\end{aligned}
+$$
+其中 $\alpha$ 是更新比例(学习速率)。这种渐进式的更新方式，可以减少策略估计造成的影响，并且最终会收敛至最优策略。
 
 ![](img/3.20.png)
 
-给大家区分一下什么是蒙特卡洛跟时序差分。形象去理解的话，蒙特卡洛可以简单的理解为算法完成一个 episode 之后，再拿这一个 episode 的数据来去 learn 一下，做一次更新。因为我们已经拿到了一整条 episode 的数据的话，也能够拿到每一个 step 的那个 reward，那我们也可以很方便的去计算每个 step 的未来总收益，就是我们的期望，就是我们的回报 $G_t$ 。$G_t$是我们的未来总收益，$G_t$代表是从这个 step 后面我能拿到的收益之和是多少。$G_1$是说我从第一步开始，往后能够拿到多少的收益。$G_2$ 的话也是说我从第二步这里开始，我往后能够拿到一共拿到多少的收益。
+下面讲一下 on-policy 和 off-policy 的区别。
 
-相比较蒙特卡洛还是一个 episode 更新一次这样子的方式，时序差分就是每个 step 都更新一下。我每走一步，我就更新下，这样的更新频率会更高一点。它拿的是 Q-function 来去近似地表示我的未来总收益 $G_t$。
+* Sarsa 就是一个典型的 on-policy 策略，它只用一个 $\pi$ ，为了兼顾探索和利用，所以它训练的时候会显得有点胆小怕事。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点了，也还是在安全区域内不不至于跳进悬崖。
 
-举个例子来解释时序差分强化学习和蒙特卡洛强化学习的区别，
-
-* 时序差分强化学习是指在不清楚马尔可夫状态转移概率的情况下，以采样的方式得到不完整的状态序列，估计某状态在该状态序列完整后可能得到的收益，并通过不断地采样持续更新价值。
-* 蒙特卡洛强化学习则需要经历完整的状态序列后，再来更新状态的真实价值。
-
-例如，你想获得开车去公司的时间，每天上班开车的经历就是一次采样。假设今天在路口 A 遇到了堵车，
-
-* 时序差分强化学习会在路口 A 就开始更新预计到达路口 B、路口 C $\cdots \cdots$, 以及到达公司的时间；
-* 而蒙特卡洛强化学习并不会立即更新时间，而是在到达公司后，再修改到达每个路口和公司的时间。
-
-时序差分强化学习能够在知道结果之前就开始学习，相比蒙特卡洛强化学习，其更快速、灵活。
-
-
+* Q-learning 是一个比较典型的 off-policy 的策略，它有目标策略 target policy，一般用 $\pi$ 来表示。然后还有行为策略 behavior policy，用 $\mu$ 来表示。它分离了目标策略跟行为策略。Q-learning 就可以大胆地用 behavior policy 去探索得到的经验轨迹来去优化我的目标策略。这样子我更有可能去探索到最优的策略。
+* 比较 Q-learning 和 Sarsa 的更新公式可以发现，Sarsa 并没有选取最大值的 max 操作。因此，Q-learning 是一个非常激进的算法，希望每一步都获得最大的利益；而 Sarsa 则相对非常保守，会选择一条相对安全的迭代路线。
 
 ![](img/3.21.png)
 
-我们介绍下策略梯度最简单的也是最经典的一个算法 `REINFORCE`。REINFORCE 用的是回合更新的方式。它在代码上的处理上是先拿到每个 step 的 reward，然后计算每个 step 的未来总收益 $G_t$ 是多少，然后拿每个 $G_t$ 代入公式，去优化每一个 action 的输出。所以编写代码时会有这样一个函数，输入每个 step 拿到的 reward，然后把这些 reward 转成每一个 step 的未来总收益。因为未来总收益是这样计算的：
-$$
-\begin{aligned}
-G_{t} &=\sum_{k=t+1}^{T} \gamma^{k-t-1} r_{k} \\
-&=r_{t+1}+\gamma G_{t+1}
-\end{aligned}
-$$
-上一个 step 和下一个 step 的未来总收益可以有这样子的一个关系。所以在代码的计算上，我们就是从后往前推，一步一步地往前推，先算 $G_T$，然后往前推，一直算到 $G_1$ 。
+总结如上图所示。
 
-![](img/3.22.png)
 
-REINFORCE 代码主要看最后四行，先产生一个 episode 的数据，比如 $(s_1,a_1,G_1),(s_2,a_2,G_2),\cdots,(s_T,a_T,G_T)$。然后针对每个 action 来计算梯度。 在代码上计算时，我们要拿到神经网络的输出。神经网络会输出每个 action 对应的概率值，然后我们还可以拿到实际的 action，把它转成 one-hot 向量乘一下，我们可以拿到 $\ln \pi(A_t|S_t,\theta)$  。
-
-![](img/3.23.png)
-
-手写数字识别的项目是很经典的一个多分类的问题，就是我们输入一张手写数字的图片，经过神经网络输出的是各个分类的一个概率。目的是希望我输出的这个概率的分布尽可能地去贴近真实值的概率分布。因为真实值只有一个数字 9，可是你用这个 one-hot 向量的形式去给他编码的话，也可以理解为这个真实值也是一个概率分布，9 的概率就是1，其他的概率就是 0。神经的网络输出一开始可能会比较平均，通过不断的迭代训练优化之后，我会希望 9 输出的概率可以远高于其他数字输出的概率。
-
-![](img/3.24.png)
-
-如上图所示，就是提高 9 对应的概率，降低其他数字对应的概率。让神经网络输出的概率能够更贴近这个真实值的概率分布。那我们可以用交叉熵(Cross Entropy)来去表示两个概率分布之间的差距。
-
-![](img/3.25.png)
-
-我们看一下它的优化流程，就是怎么让这个输出去逼近这个真实值。它的优化流程就是将图片作为输入传给神经网络，然后神经网络会给这个图片属于哪一类数字，输出所有数字可能的概率。然后再计算这个交叉熵，就是神经网络的输出 $Y_i$ 和真实的标签值 $Y_i'$ 之间的距离 $-\sum Y_{i}^{\prime} \cdot \log \left(Y_{i}\right)$。我们希望尽可能地缩小这两个概率分布之间的差距，计算出来的 cross entropy 就可以作为这个 loss 函数传给神经网络里面的优化器去优化，去自动去做神经网络的参数更新。
-
-![](img/3.26.png)
-
-那类似的，policy gradient 预测每一个状态下面应该要输出的这个行动的概率，就是输入状态 $s_t$，然后输出动作的概率，比如 0.02，0.08，0.09。实际上输出给环境的动作是我随机选了一个 action，比如说我选了右这个 action。它的 one-hot 向量就是 0，0，1。我们把神经网络的输出和实际动作带入 cross entropy 的公式就可以求出输出的概率和实际的动作之间的差距。但这个实际的动作 $a_t$ 只是我们输出的真实的 action，它并不一定是正确的 action，它不能像那个手写数字识别一样作为一个正确的标签来去指导我的神经网络朝着正确的方向去更新。所以我们在这里会需要乘以一个奖励回报 $G_t$。这个奖励回报相当于是对这个真实 action 的评价，$G_t$ 具体越大，未来总收益越大，说明当前输出的这个真实的 action 就越好，那这个 loss 就越需要重视。如果 $G_t$ 越小，那就说明做这个 action $a_t$ 并没有那么的好，那我的 loss 的权重就要小一点。优化力度就小一点。通过这个和那个手写输入识别的一个对比，我们就知道为什么 loss 会构造成这个样子。
-
-![](img/3.27.png)
-
-实际上我们在计算这个 loss 的时候，我们要拿到那个 $\ln \pi(A_t|S_t,\theta)$。我就拿我实际执行的这个动作，先取个 one-hot 向量，然后再拿到神经网络预测的动作概率，这两个一相乘，我就可以拿到算法里面的那个  $\ln \pi(A_t|S_t,\theta)$。这个就是我们要构造的 loss。因为我们会拿到整个 episode 的所有的轨迹，所以我们可以对这个这一条整条轨迹里面的每个 action 都去计算一个 loss。把所有的 loss 加起来之后，我们再扔给那个 adam 的优化器去自动更新参数就好了。
-
-![](img/3.28.png)
-
-上图是 REINFORCE 的流程图。首先我们需要一个 policy model 来输出动作概率，输出动作概率后，我们用 sample 函数去得到一个具体的动作，然后跟环境交互过后，我们可以得到一整个 episode 的数据。拿到 episode 数据之后，我再去执行一下 learn() 函数，在 learn() 函数里面，我就可以拿这些数据去构造 loss function，扔给这个优化器去优化，去更新我的 policy model。
 
 ## References
 
-* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
+* [百面深度学习](https://book.douban.com/subject/35043939/)
+
 * [神经网络与深度学习](https://nndl.github.io/)
+
+
+
+
 
