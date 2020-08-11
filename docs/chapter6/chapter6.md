@@ -326,7 +326,7 @@ A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， �
 $$
 y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
 $$
-其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。我们给出 [DQN 的 PyTorch 实现](https://github.com/qfettes/DeepRL-Tutorials/blob/master/01.DQN.ipynb) 。
+其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。我们给出 [DQN 的 PyTorch 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/dqn) 。
 
 Q: DQN 和 Q-learning 有什么不同？
 
