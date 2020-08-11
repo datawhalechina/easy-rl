@@ -66,7 +66,7 @@
 
 ![](img/2.13.png)
 
-Bellman Equation 定义了状态之间迭代关系。假设我们现在有一个马尔可夫转移矩阵是右边这个样子。然后 Bellman Equation 描述的就是当前状态到未来状态的一个转移。假设我们当前是在 $s_1$， 那么它只可能去到三个未来的状态：它有 0.1 的概率留在它当前这个位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 的状态，所以我们要把这个转移乘以它未来的状态的价值，再加上它的 immediate reward 就会得到它当前状态的价值。所以 Bellman Equation 定义的就是当前状态跟未来状态的一个迭代的关系。
+Bellman Equation 定义了状态之间的迭代关系。假设我们现在有一个马尔可夫转移矩阵是右边这个样子。然后 Bellman Equation 描述的就是当前状态到未来状态的一个转移。假设我们当前是在 $s_1$， 那么它只可能去到三个未来的状态：它有 0.1 的概率留在它当前这个位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 的状态，所以我们要把这个转移乘以它未来的状态的价值，再加上它的 immediate reward 就会得到它当前状态的价值。所以 Bellman Equation 定义的就是当前状态跟未来状态的一个迭代的关系。
 
 ![](img/2.14.png)
 
@@ -114,9 +114,9 @@ Policy 定义了在某一个状态应该采取什么样的行为，当我们知�
 
 ![](img/2.22.png)
 
-顺着马尔可夫决策过程的定义，我们可以把 state-value function，就是在马尔可夫决策过程里面的价值函数也进行一个定义，它的定义是跟马尔可夫奖励过程是类似的，但是这里我们的一个期望 expectation over policy，就是这个期望是基于这个你采取的这个 policy ，就当你的 policy 决定过后，让我们通过对这个 policy 进行采样，然后我们可以得到一个期望。那么就可以计算出它的这个价值函数。这里我们另外引入了一个 `Q 函数(action-value function)`。
+顺着马尔可夫决策过程的定义，我们可以把 state-value function，就是在马尔可夫决策过程里面的价值函数也进行一个定义，它的定义是跟马尔可夫奖励过程是类似的，但是这里 expectation over policy，就是这个期望是基于这个你采取的这个 policy ，就当你的 policy 决定过后，让我们通过对这个 policy 进行采样，然后我们可以得到一个期望。那么就可以计算出它的这个价值函数。这里我们另外引入了一个 `Q 函数(action-value function)`。
 
-这个 Q 函数定义的是某一个状态某一个行为，然后它有可能得到的这个 return 的一个期望，这里期望其实也是 over 这个 policy function。所以你需要对这个 policy function 进行一个加和。然后最后得到它的这个价值。第三步，这里导出了价值函数跟 Q 函数之间的一个关系。价值函数跟 Q 函数的关系，就是直接对价值函数中的行为函数进行加和，就可以得到这个价值。
+这个 Q 函数定义的是某一个状态某一个行为，然后它有可能得到的这个 return 的一个期望，这里期望其实也是 over policy function。所以你需要对这个 policy function 进行一个加和，然后最后得到它的这个价值。第三步，这里导出了价值函数跟 Q 函数之间的一个关系。价值函数跟 Q 函数的关系，就是直接对价值函数中的行为函数进行加和，就可以得到这个价值。
 
 ![](img/2.23.png)
 
@@ -148,7 +148,7 @@ Bellman Expectation Equation 定义了你当前状态跟未来状态之间的一
 
 ![](img/2.29.png)
 
-这里我们看一看这个例子怎么做 policy evaluation，怎么在这个决策过程里面计算它每一个状态的价值。现在我们假设环境里面它有两种行为，就是往左走跟往右走的行为。然后我们这里 reward 的定义。因为其实这个现在的奖励函数应该是关于行为以及状态两个变量的一个函数，但我们这里就说，对于所有行为不管你采取什么行为，然后你只要是到达状态一了，然后都有 5 的奖励。只要你到达状态 $s_7$ 了，你就有 10 的奖励，然后中间没有任何奖励。那么假设我们现在采取的一个策略，这个策略我们说我们不管在任何状态，我们采取的策略都是往左走，我们也这里假设我们的价值这个折扣因子是零，那么直接就可以得到对于这样一个 deterministic policy，那么最后估算出的价值函数是是一致的。怎么得到这个结果，其实我们可以直接在去 run 这个 iterative Equation，就把这个 Bellman Expectation Equation 拿到这个里面来，然后不停地迭代，最后它会收敛。收敛过后，然后它的值就是它每一个状态的价值。
+这里我们看一看这个例子怎么做 policy evaluation，怎么在这个决策过程里面计算它每一个状态的价值。假设环境里面它有两种行为，就是往左走跟往右走的行为。然后我们这里 reward 的定义。因为其实这个现在的奖励函数应该是关于行为以及状态两个变量的一个函数，但我们这里就说，对于所有行为不管你采取什么行为，然后你只要是到达状态一了，然后都有 5 的奖励。只要你到达状态 $s_7$ 了，你就有 10 的奖励，然后中间没有任何奖励。那么假设我们现在采取的一个策略，这个策略我们说我们不管在任何状态，我们采取的策略都是往左走，我们也这里假设我们的价值这个折扣因子是零，那么直接就可以得到对于这样一个 deterministic policy，那么最后估算出的价值函数是是一致的。怎么得到这个结果，其实我们可以直接在去 run 这个 iterative Equation，就把这个 Bellman Expectation Equation 拿到这个里面来，然后不停地迭代，最后它会收敛。收敛过后，然后它的值就是它每一个状态的价值。
 
 ![](img/2.30.png)
 
@@ -248,7 +248,7 @@ Policy evaluation 是说我们给定一个 MDP 以及给定一个 policy，然�
 
 最佳的价值函数到达过后，这个 Bellman Optimlity Equation 就会满足。我们满足过后，就有这个 max 操作，当我们取最大的这个 action 的时候对应的那个值就是当前那个状态的最佳的价值函数。
 
-我们可以把第一个等式插入到第二个等式里面去，然后就会得到这个Q函数之间的这个转移。它下一步这个状态我们取了这个 max 这个值过后，就会也跟它下一个最佳的这个状态等价。
+我们可以把第一个等式插入到第二个等式里面去，然后就会得到这个 Q 函数之间的这个转移。它下一步这个状态我们取了这个 max 这个值过后，就会也跟它下一个最佳的这个状态等价。
 
 Q-learning 是基于 Bellman Optimality Equation 来进行的，当取它最大的这个状态的时候，它会满足下面这个等式：
 $$
@@ -258,7 +258,7 @@ $$
 
 ![](img/2.50.png)
 
-Value iteration 说的是我们把  Bellman Optimality Equation 当成一个 update rule 来进行，之前我们是说上面这个等式只有当整个状态已经到达最佳状态的时候，然后才满足。但是我们这里可以把它转换成一个 backup 的等式。 Backup 就是说一个迭代的一个等式，我们不停地去迭代 Bellman Optimality Equation，就希望能不停的迭代，到了最后，它能逐渐趋向于最佳的策略，所以这也是 value iteration 这个算法的精髓。就是我们去为了得到最佳的这个 $v^*$ ，对于每个状态它的 $v^*$ 这个值，我们直接把这个 Bellman Optimality Equation 进行迭代，迭代了很多次，之后它就会收敛。
+Value iteration 说的是我们把  Bellman Optimality Equation 当成一个 update rule 来进行，之前我们是说上面这个等式只有当整个状态已经到达最佳状态的时候，然后才满足。但是我们这里可以把它转换成一个 backup 的等式。 Backup 就是说一个迭代的一个等式，我们不停地去迭代 Bellman Optimality Equation，就希望能不停地迭代，到了最后，它能逐渐趋向于最佳的策略，所以这也是 value iteration 这个算法的精髓。就是我们去为了得到最佳的这个 $v^*$ ，对于每个状态它的 $v^*$ 这个值，我们直接把这个 Bellman Optimality Equation 进行迭代，迭代了很多次，之后它就会收敛。
 
 ![](img/2.51.png)
 
@@ -272,7 +272,7 @@ Value iteration 这个算法目的是为了得到一个最佳的一个策略。�
 
 ![](img/2.54.png)
 
-我们这里在可以来看一个 Demo，MDP 控制的过程。让我们首先来看这个 policy iteration。之前我给大家看的这个例子，它们在每个状态都是采取固定的随机策略，就到每个状态都是都是 0.25 的概率往上往下往左往右，这里并没有策略的改变。但是我们现在想做 policy iteration，就是想每个状态都进行改变。Policy iteration 的过程是一个迭代过程。
+我们这里在可以来看一个 Demo，MDP 控制的过程。首先来看这个 policy iteration。之前我给大家看的这个例子，它们在每个状态都是采取固定的随机策略，就到每个状态都是都是 0.25 的概率往上往下往左往右，这里并没有策略的改变。但是我们现在想做 policy iteration，就是想每个状态都进行改变。Policy iteration 的过程是一个迭代过程。
 
 ![](img/2.55.png)
 
@@ -321,5 +321,10 @@ Value iteration 这个算法目的是为了得到一个最佳的一个策略。�
 
 ![](img/2.65.png)
 
-这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，然后我们这里其实采取了不同的这个 Bellman Equation。如果是一个 prediction 的问题，就是说 policy evaluation  的问题，那么是直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。对于这个control，如果我们的算法是 policy  iteration 的话，那我们这里是直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，然后再去优化它的策略，然后不停迭代，然后这里用到的只是 Bellman Expectation Equation。如果我们这里采取的算法是 value iteration，那么我们这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
+这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，然后我们这里其实采取了不同的这个 Bellman Equation。
+
+* 如果是一个 prediction 的问题，就是说 policy evaluation  的问题，那么是直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。
+* 对于 control，
+  * 如果我们的算法是 policy  iteration 的话，那我们这里是直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，然后再去优化它的策略，然后不停迭代，然后这里用到的只是 Bellman Expectation Equation。
+  * 如果我们这里采取的算法是 value iteration，那么我们这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
 

@@ -127,28 +127,6 @@ $$
 
 ![](img/3.16.png)我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值来更新这一步的 Q 值，不断地强化每一个 Q。这边我们给出 [Sarsa 的 Python 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Sarsa)。
 
-## Sarsa(λ) 
-
-Sarsa 属于单步更新法，也就是说每执行一个动作，就会更新一次价值和策略。如果不进行单步更新，而是采取 $n$ 步更新或者回合更新，即在执行 $n$ 步之后再来更新价值和策略，这样就得到了 $n$ 步 Sarsa。具体来说，对于 Sarsa，在 $t$ 时刻其价值的计算公式为
-$$
-q_{t}=r_{t}+\gamma Q\left(s_{t+1}, a_{t+1}\right)
-$$
-而对于 $n$ 步 Sarsa，它的 $n$ 步 Q 收获为
-$$
-q_{t}^{(n)}=r_{t}+\gamma r_{t+1}+\cdots+\gamma^{n-1} r_{t+n-1}+\gamma^{n} Q\left(s_{t+n}, a_{t+n}\right)
-$$
-如果给 $q_t^{(n)}$ 加上衰减因子 $\lambda$ 并进行求和，即可得到 Sarsa($\lambda$) 的 Q 收获：
-$$
-q_{t}^{\lambda}=(1-\lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_{t}^{(n)}
-$$
-因此，$n$ 步 Sarsa($\lambda$)的更新策略可以表示为
-$$
-Q\left(s_{t}, a_{t}\right) \leftarrow Q\left(s_{t}, a_{t}\right)+\alpha\left(q_{t}^{\lambda}-Q\left(s_{t}, a_{t}\right)\right)
-$$
-总的来说，Sarsa 和 Sarsa($\lambda$) 的差别主要体现在价值的更新上。
-
-
-
 ## Q-learning
 
 ![](img/3.17.png)
