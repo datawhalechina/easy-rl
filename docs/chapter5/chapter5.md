@@ -1,7 +1,7 @@
 # PPO
 ## From On-policy to Off-policy
 在讲 PPO 之前，我们先讲一下 on-policy 和 off-policy 这两种 training 方法的区别。
-在 reinforcement learning 里面，我们要 learn 的就是一个agent。
+在 reinforcement learning 里面，我们要 learn 的就是一个 agent。
 
 * 如果要 learn 的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy(同策略)`。 
 * 如果要 learn 的 agent 跟和环境互动的 agent 不是同一个的话， 那这个叫做`off-policy(异策略)`。
