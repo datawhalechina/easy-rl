@@ -148,9 +148,9 @@ Policy 定义了在某一个状态应该采取什么样的行为，当我们知�
 
 ![](img/2.26.png)
 
-同样对于 Q 函数，我们也可以进行这样的一个推导，就我们现在的根节点是这个 Q 函数的一个节点。这个 Q 函数是对于黑色的这个节点。我们下一时刻的这个 Q 函数是叶子节点，有四个黑色结点。那么我们这里也有两个加和。
+同样对于 Q 函数，我们也可以进行这样的一个推导，就现在的根节点是这个 Q 函数的一个节点。这个 Q 函数是对于黑色的这个节点。我们下一时刻的这个 Q 函数是叶子节点，有四个黑色结点。那么我们这里也有两个加和。
 
-第一层加和是我们先把这个叶子节点从黑节点推到这个白色的这个节点，进了它的这个状态，就当我们到达某一个状态过后，这个白色极点，然后再进行一个加和，这样就把它重新推回到当前节点的一个 Q 函数，所以这个等式就决定了未来 Q 函数跟当前 Q 函数之间的这个关联。
+第一层加和是先把这个叶子节点从黑节点推到这个白色的这个节点，进了它的这个状态，就当我们到达某一个状态过后，这个白色极点，然后再进行一个加和，这样就把它重新推回到当前节点的一个 Q 函数，所以这个等式就决定了未来 Q 函数跟当前 Q 函数之间的这个关联。
 
 ![](img/2.27.png)
 
@@ -164,7 +164,7 @@ MDP，你其实可以把它想象成一个摆渡的人在这个船上面，她�
 
 我们再看下 policy evaluation 的例子，怎么在这个决策过程里面计算它每一个状态的价值。假设环境里面有两种行为：往左走和往右走。
 
-现在的奖励函数应该是关于行为以及状态两个变量的一个函数。但我们这里就说，不管你采取什么行为，只要到达状态一，就有 5 的奖励。只要你到达状态 $s_7$ 了，就有 10 的奖励，中间没有任何奖励。假设我们现在采取的一个策略，这个策略是说不管在任何状态，我们采取的策略都是往左走，这里假设价值折扣因子是零，那么对于这样一个 deterministic policy，最后估算出的价值函数是一致的。怎么得到这个结果，我们可以直接在去 run 这个 iterative equation，就把这个 Bellman Expectation Equation 拿到这个里面来，然后不停地迭代，最后它会收敛。收敛过后，它的值就是它每一个状态的价值。
+现在的奖励函数应该是关于行为以及状态两个变量的一个函数。但我们这里就说，不管你采取什么行为，只要到达状态一，就有 5 的奖励。只要你到达状态 $s_7$ 了，就有 10 的奖励，中间没有任何奖励。假设我们现在采取的一个策略，这个策略是说不管在任何状态，我们采取的策略都是往左走，这里假设价值折扣因子是零，那么对于 deterministic policy，最后估算出的价值函数是一致的。怎么得到这个结果，我们可以直接在去 run 这个 iterative equation，就把这个 Bellman Expectation Equation 拿到这个里面来，然后不停地迭代，最后它会收敛。收敛过后，它的值就是它每一个状态的价值。
 
 ![](img/2.30.png)
 
@@ -329,7 +329,7 @@ Value iteration 算法的目的是为了得到一个最佳的策略。一个解�
 
 ![](img/2.63.png)
 
-这个 Demo 里面是一个代码，就是为了解一个叫 `FrozenLake` 的一个例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个 probability。
+这个 Demo 里面是一个代码，就是为了解一个叫 `FrozenLake` 的例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个 probability。
 
 ![](img/2.64.png)
 
@@ -341,10 +341,10 @@ Value iteration 算法的目的是为了得到一个最佳的策略。一个解�
 
 ![](img/2.65.png)
 
-这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，然后我们这里其实采取了不同的这个 Bellman Equation。
+这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，我们其实采取了不同的这个 Bellman Equation。
 
-* 如果是一个 prediction 的问题，就是说 policy evaluation  的问题，那么是直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。
+* 如果是一个 prediction 的问题，即 policy evaluation  的问题，那就直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。
 * 对于 control，
-  * 如果我们的算法是 policy  iteration 的话，那我们这里是直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，然后再去优化它的策略，然后不停迭代，然后这里用到的只是 Bellman Expectation Equation。
+  * 如果我们的算法是 policy  iteration 的话，那这里是直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，然后再去优化它的策略，然后不停迭代，然后这里用到的只是 Bellman Expectation Equation。
   * 如果我们这里采取的算法是 value iteration，那么我们这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
 
