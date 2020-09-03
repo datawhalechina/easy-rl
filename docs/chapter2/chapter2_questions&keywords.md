@@ -2,10 +2,10 @@
 
 #### 1 关键词
 
-- **马尔可夫性质(Markov Property)**：如果某一个过程未来的转移跟过去是独立的，即只取决于现在，那么其满足马尔可夫性质。换句话说，一个状态的下一个状态只取决于它当前状态，而跟它当前状态之前的状态都没有关系。
-- **马尔可夫链(Markov Chain)**：概率论和数理统计中具有马尔可夫性质（Markov property）且存在于离散的指数集（index set）和状态空间（state space）内的随机过程（stochastic process）。
-- **状态转移矩阵(State Transition Matrix)**：状态转移矩阵类似于一个 conditional probability，当我们知道当前我们在 $s_t$ 这个状态过后，到达下面所有状态的一个概念，它每一行其实描述了是从一个节点到达所有其它节点的概率。
-- **马尔可夫奖励过程(Markov Reward Process, MRP)**：即马尔可夫链再加上了一个奖励函数。在 MRP之中，转移矩阵跟它的这个状态都是跟马尔可夫链一样的，多了一个奖励函数(reward function)。奖励函数是一个期望，它说当你到达某一个状态的时候，可以获得多大的奖励。
+- **马尔可夫性质(Markov Property):** 如果某一个过程未来的转移跟过去是独立的，即只取决于现在，那么其满足马尔可夫性质。换句话说，一个状态的下一个状态只取决于它当前状态，而跟它当前状态之前的状态都没有关系。
+- **马尔可夫链(Markov Chain):** 概率论和数理统计中具有马尔可夫性质（Markov property）且存在于离散的指数集（index set）和状态空间（state space）内的随机过程（stochastic process）。
+- **状态转移矩阵(State Transition Matrix):** 状态转移矩阵类似于一个 conditional probability，当我们知道当前我们在 $s_t$ 这个状态过后，到达下面所有状态的一个概念，它每一行其实描述了是从一个节点到达所有其它节点的概率。
+- **马尔可夫奖励过程(Markov Reward Process, MRP)：** 即马尔可夫链再加上了一个奖励函数。在 MRP之中，转移矩阵跟它的这个状态都是跟马尔可夫链一样的，多了一个奖励函数(reward function)。奖励函数是一个期望，它说当你到达某一个状态的时候，可以获得多大的奖励。
 - **horizon:** 定义了同一个 episode 或者是整个一个轨迹的长度，它是由有限个步数决定的。
 - **return:** 把奖励进行折扣(discounted)，然后获得的对应的收益。
 - **Bellman Equation（贝尔曼等式）:** 定义了当前状态与未来状态的迭代关系，表示当前状态的值函数可以通过下个状态的值函数来计算。Bellman Equation 因其提出者、动态规划创始人 Richard Bellman 而得名 ，同时也被叫作“动态规划方程”。$V(s)=R(S)+ \gamma \sum_{s' \in S}P(s'|s)V(s')$ ，特别地，矩阵形式：$V=R+\gamma PV$。
