@@ -15,26 +15,28 @@
 ## 课程在线观看地址
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
 
-## 目录
-- [P1 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1)
-- [P2 马尔科夫决策过程 (MDP)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)
-- [P3 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3)
-- [P4 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)
-- [P5 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5)
-- [P6 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)
-- [P7 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7)
-- [P8 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8)
-- [P9 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9)
-- [P10 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10)
-- [P11 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11)
-- [P12 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12)
-
+## 内容导航
+| 章节 | 习题 | 项目 |
+|------|------|------|
+|[第一章 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1) |   [第一章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1_questions&keywords)   |      |
+|[第二章 马尔科夫决策过程 (MDP)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)      |   [第二章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2_questions&keywords)    |      |
+|[第三章 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3) |   [第三章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3_questions&keywords)    |      |
+|[第四章 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4) |   [第四章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4_questions&keywords)    |      |
+|[第五章 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5) |    [第五章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5_questions&keywords)   |      |
+| [第六章 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)|     |      |
+|[第七章 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7) |      |      |
+|[第八章 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8) |       |      |
+|[第九章 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) |       |      |
+|[第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) |      |      |
+|[第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) |      |      |
+|[第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) |      |      |
 ## 主要贡献者
 
 | 作者 | 贡献 |
 |------|------|
-|   [@qiwang067](https://github.com/qiwang067)   |   撰写笔记、传统 RL 代码   |
-|  [@JohnJim0816](https://github.com/JohnJim0816)    |   DRL 代码   |
+|   [@qiwang067](https://github.com/qiwang067)   | 教程设计 |
+|   [@yyysjz1997](https://github.com/yyysjz1997)   |   习题设计   |
+|  [@JohnJim0816](https://github.com/JohnJim0816)    |  项目设计|
 
 ## 关注我们
 
