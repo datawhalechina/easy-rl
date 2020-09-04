@@ -335,16 +335,16 @@ Value iteration 算法的目的是为了得到一个最佳的策略。一个解�
 
 我们再来对比下 policy iteration 和 value iteration，这两个算法都是为了解 MDP 的控制问题。
 
-* Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。它很清楚的把这个过程分成了两步，就首先对于当前已经搜索到的策略函数，然后对它进行一个估值，得到估值过后，把 Q 函数算出来，我们进一步进行改进。
+* Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。它很清楚地把这个过程分成了两步，就首先对于当前已经搜索到的策略函数，然后对它进行一个估值，得到估值过后，把 Q 函数算出来，我们进一步进行改进。
 
 *  但对于 value iteration 的话，它是直接把 Bellman Optimality Equation 拿进来，然后直接去寻找最佳的 value function，没有 policy function 在这里面，当我们把这个 optimal value function 算出来过后，那我们可以在最后再执行一步这个提取过程，最佳策略提取过程。这样就可以把它的最佳策略抽取过来。
 
 ![](img/2.65.png)
 
-这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，我们其实采取了不同的这个 Bellman Equation。
+这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，我们其实采取了不同的 Bellman Equation。
 
 * 如果是一个 prediction 的问题，即 policy evaluation  的问题，那就直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。
 * 对于 control，
-  * 如果我们的算法是 policy  iteration 的话，那这里是直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，然后再去优化它的策略，然后不停迭代，然后这里用到的只是 Bellman Expectation Equation。
-  * 如果我们这里采取的算法是 value iteration，那么我们这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
+  * 如果采取的算法是 policy  iteration，那这里直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，再去优化它的策略，然后不停迭代。这里用到的只是 Bellman Expectation Equation。
+  * 如果采取的算法是 value iteration，那么这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
 
