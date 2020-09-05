@@ -17,20 +17,22 @@
 * environment 就是对手；
 * reward function 就是按照围棋的规则， 赢就是得一分，输就是负一分等等。
 
-在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个policy 决定了actor 的行为。Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
+在 reinforcement learning 里面，environment 跟 reward function 不是你可以控制的，environment 跟 reward function 是在开始学习之前，就已经事先给定的。你唯一能做的事情是调整 actor 里面的 policy，使得 actor 可以得到最大的 reward。Actor 里面会有一个 policy， 这个 policy 决定了 actor 的行为。Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。
 
 ![](img/4.2.png)
-**Policy 一般写成 $\pi$**。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**。Network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。Network 的 input 就是现在 machine 看到的东西，如果让 machine 打电玩的话， 那 machine 看到的东西就是游戏的画面。Machine 看到什么东西，会影响你现在 training 到底好不好 train。
 
-举例来说，在玩游戏的时候， 也许你觉得游戏的画面，前后是相关的，也许你觉得说，你应该让你的 policy，看从游戏初始到现在这个时间点，所有画面的总和。你可能会觉得你要用到 RNN 来处理它，不过这样子，你会比较难处理。要让你的 machine，你的 policy 看到什么样的画面， 这个是你自己决定的。让你知道说给机器看到什么样的游戏画面，可能是比较有效的。Output 的就是今天机器要采取什么样的行为。
+* Policy 一般写成 $\pi$。假设你是用 deep learning 的技术来做 reinforcement learning 的话，**policy 就是一个 network**。Network 里面就有一堆参数， 我们用 $\theta$ 来代表 $\pi$ 的参数。
+
+* **Network 的 input 就是现在 machine 看到的东西**，如果让 machine 打电玩的话，machine 看到的东西就是游戏的画面。Machine 看到什么东西，会影响你现在 training 到底好不好 train。举例来说，在玩游戏的时候， 也许你觉得游戏的画面，前后是相关的，也许你觉得说，你应该让你的 policy，看从游戏初始到现在这个时间点，所有画面的总和。你可能会觉得你要用到 RNN 来处理它，不过这样子会比较难处理。要让你的 machine，你的 policy 看到什么样的画面， 这个是你自己决定的。让你知道说给机器看到什么样的游戏画面，可能是比较有效的。
+* **Output 的就是机器要采取什么样的行为。**
 
 上图就是具体的例子，
 
 * policy 就是一个 network；
 * input 就是游戏的画面，它通常是由 pixels 所组成的；
-* output 就是看看说有那些选项是你可以去执行的，output layer 就有几个 neurons。
+* output 就是看看说有哪些选项是你可以去执行的，output layer 就有几个 neurons。
 
-假设你现在可以做的行为就是有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，actor 采取的行为就会不一样。
+假设你现在可以做的行为有 3 个，output layer 就是有 3 个 neurons。每个 neuron 对应到一个可以采取的行为。Input 一个东西后，network 就会给每一个可以采取的行为一个分数。接下来，你把这个分数当作是概率。 actor 就是看这个概率的分布，根据这个机率的分布，决定它要采取的行为。比如说 70% 会走 left，20% 走 right，10% 开火等等。概率分布不同，actor 采取的行为就会不一样。
 
 ![](img/4.3.png)
 接下来用一个例子来说明 actor 是怎么样跟环境互动的。 首先 actor 会看到一个游戏画面，我们用 $s_1$ 来表示这个游戏画面，它代表游戏初始的画面。接下来 actor 看到这个游戏的初始画面以后，根据它内部的 network，根据它内部的 policy 来决定一个 action。假设它现在决定的 action 是向右，它决定完 action 以后，它就会得到一个 reward ，代表它采取这个 action 以后得到的分数。
