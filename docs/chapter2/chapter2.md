@@ -104,7 +104,7 @@ $$
 
 比如说我们要算 $s_4$ 状态的一个价值，就可以从 $s_4$ 状态开始，随机产生很多轨迹，就产生很多小船，然后扔到这个转移矩阵里面去，然后它就会随波逐流，产生轨迹。每个轨迹，我们可以算到它的这个 return 。那么每个轨迹都会得到一个 return，让我们得到大量的 return 。比如说一百个、一千个的 return ，然后直接取一个平均，那么就可以等价于它现在 $s_4$ 这个价值。因为 $s_4$ 的价值 $V(s_4)$  定义了你未来可能得到多少的奖励。这就是蒙特卡罗采样的方法。
 
-![](img/2.17.png)我们也可以用这个动态规划的办法，就通过这种一直去迭代它的 Bellman Equation，让它最后收敛，我们就可以得到它的一个状态。所以在这里算法二就是一个迭代的算法，通过这个 bootstraping 的办法，然后去不停地迭代这个 Bellman Equation。当这个最后更新的状态跟你上一个状态变化并不大的时候，这个更新就可以停止。那么我们就可以输出最新的 $V'(s)$ 作为它当前的状态。所以这里就是利用到了 Bellman Equation，就把 Bellman Equation 变成一个 Bellman Update，这样就可以得到它的一个价值。
+![](img/2.17.png)我们也可以用这个动态规划的办法，就通过这种一直去迭代它的 Bellman Equation，让它最后收敛，我们就可以得到它的一个状态。所以在这里算法二就是一个迭代的算法，通过 bootstraping 的办法，然后去不停地迭代这个 Bellman Equation。当这个最后更新的状态跟你上一个状态变化并不大的时候，这个更新就可以停止，我们就可以输出最新的 $V'(s)$ 作为它当前的状态。所以这里就是利用到了 Bellman Equation，就把 Bellman Equation 变成一个 Bellman Update，这样就可以得到它的一个价值。
 
 ## Markov Decision Process(MDP)
 
@@ -306,7 +306,7 @@ Value iteration 算法的目的是为了得到一个最佳的策略。一个解�
 
 ![](img/2.56.png)
 
-现在进行 policy improvement，按 policy update。按这个 policy update 过后，你可以发现有些格子里面的这个 policy 已经产生变化。比如说对于中间这个-1的这个状态，它的最佳策略是往下走。当你到达这个状态后，你应该往下，这样就会得到最佳的这个值。让旁边这个绿色旁边的这个方块，它的策略也改变了，它现在选取的最佳策略是往左走，在当前状态的时候，最佳策略应该是往左走才对。
+现在进行 policy improvement，按 policy update。按这个 policy update 过后，你可以发现有些格子里面的 policy 已经产生变化。比如说对于中间这个 -1 的这个状态，它的最佳策略是往下走。当你到达这个状态后，你应该往下，这样就会得到最佳的这个值。绿色旁边的这个方块的策略也改变了，它现在选取的最佳策略是往左走，在当前状态的时候，最佳策略应该是往左走。
 
 ![](img/2.57.png)
 
@@ -351,6 +351,6 @@ Value iteration 算法的目的是为了得到一个最佳的策略。一个解�
 
 * 如果是一个 prediction 的问题，即 policy evaluation  的问题，那就直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。
 * 对于 control，
-  * 如果采取的算法是 policy  iteration，那这里直接是用的 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，再去优化它的策略，然后不停迭代。这里用到的只是 Bellman Expectation Equation。
-  * 如果采取的算法是 value iteration，那么这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
+  * 如果采取的算法是 policy  iteration，那这里用的是 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，再去优化它的策略，然后不停迭代。这里用到的只是 Bellman Expectation Equation。
+  * 如果采取的算法是 value iteration，那这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
 
