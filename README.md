@@ -10,7 +10,7 @@
 
 
 ## 笔记在线阅读地址(内容实时更新)
-在线阅读地址：https://datawhalechina.github.io/leedeeprl-notes/
+地址：https://datawhalechina.github.io/leedeeprl-notes/
 
 ## 课程在线观看地址
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
