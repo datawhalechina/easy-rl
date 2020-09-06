@@ -17,6 +17,7 @@
 - [第十章 稀疏奖励](chapter10/chapter10)
 - [第十一章 模仿学习](chapter11/chapter11)
 - [第十二章 深度确定性策略梯度 (DDPG) 算法](chapter12/chapter12)
+- [项目三](chapter12/project3)
 
 
 
