@@ -26,7 +26,7 @@
 |[第九章 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) |       |      |
 |[第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) |      |      |
 |[第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) |      |      |
-|[第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | | [项目三 使用Policy-Based方法实现Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
+|[第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
 ## 主要贡献者
 
 | 作者 | 贡献 |
