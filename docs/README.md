@@ -21,7 +21,7 @@
 |[第四章 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4) |   [第四章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4_questions&keywords)    |      |
 |[第五章 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5) |    [第五章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5_questions&keywords)   |      |
 | [第六章 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)|   [第六章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6_questions&keywords)  |      |
-|[第七章 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7) |      |      |
+|[第七章 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7) |   [第七章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7_questions&keywords)   |      |
 |[第八章 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8) |       |      |
 |[第九章 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) |       |      |
 |[第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) |      |      |
