@@ -1,6 +1,6 @@
-## Chapter2  马尔可夫决策过程（MDP）
+# Chapter2  马尔可夫决策过程（MDP）
 
-#### 1 关键词
+## 1 Keywords
 
 - **马尔可夫性质(Markov Property):** 如果某一个过程未来的转移跟过去是独立的，即只取决于现在，那么其满足马尔可夫性质。换句话说，一个状态的下一个状态只取决于它当前状态，而跟它当前状态之前的状态都没有关系。
 - **马尔可夫链(Markov Chain):** 概率论和数理统计中具有马尔可夫性质（Markov property）且存在于离散的指数集（index set）和状态空间（state space）内的随机过程（stochastic process）。
@@ -16,7 +16,7 @@
 - **MDP中的control问题：** 寻找一个最佳的一个策略，它的 input 就是MDP，输出是通过去寻找它的最佳策略，然后同时输出它的最佳价值函数(optimal value function)以及它的这个最佳策略(optimal policy)。其可以通过动态规划方法（Iterative Algorithm）解决。
 - **最佳价值函数(Optimal Value Function)：**我们去搜索一种 policy $\pi$ ，然后我们会得到每个状态它的状态值最大的一个情况，$v^*$ 就是到达每一个状态，它的值的极大化情况。在这种极大化情况上面，我们得到的策略就可以说它是最佳策略(optimal policy)。optimal policy 使得每个状态，它的状态函数都取得最大值。所以当我们说某一个 MDP 的环境被解了过后，就是说我们可以得到一个 optimal value function，然后我们就说它被解了。
 
-#### 2 思考题
+## 2 Questions
 
 - 为什么在马尔可夫奖励过程（MRP）中需要有**discounted factor**?
 
