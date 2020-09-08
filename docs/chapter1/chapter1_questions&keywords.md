@@ -1,6 +1,6 @@
-## Chapter1  强化学习概述
+# Chapter1  强化学习概述
 
-#### 1 关键词
+## 1 Keywords
 
 - **强化学习（Reinforcement Learning）**：Agent可以在与复杂且不确定的Environment进行交互时，尝试使所获得的Reward最大化的计算算法。
 - **Action**: Environment接收到的Agent当前状态的输出。
@@ -17,7 +17,7 @@
 - **model-based（有模型结构）**：Agent通过学习状态的转移来采取措施。
 - **model-free（无模型结构）**：Agent没有去直接估计状态的转移，也没有得到Environment的具体转移变量。它通过学习 value function 和 policy function 进行决策。
 
-#### 2 思考题
+## 2 Questions
 
 - 强化学习的基本结构是什么？
 
