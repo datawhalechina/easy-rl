@@ -1,6 +1,6 @@
-## Chapter7 Q-learning-Double DQN
+# Chapter7 Q-learning-Double DQN
 
-#### 1 关键词
+## 1 Keywords
 
 - **Double DQN：** 在Double DQN中存在有两个 Q-network，首先，第一个 Q-network，决定的是哪一个 action 的 Q value 最大，从而决定了你的action。另一方面， Q value 是用 $Q'$ 算出来的，这样就可以避免 over estimate 的问题。具体来说，假设我们有两个 Q-function，假设第一个Q-function 它高估了它现在选出来的action a，那没关系，只要第二个Q-function $Q'$ 没有高估这个action a 的值，那你算出来的，就还是正常的值。
 - **Dueling DQN：** 将原来的DQN的计算过程分为**两个path**。对于第一个path，会计算一个于input state有关的一个标量 $V(s)$；对于第二个path，会计算出一个vector $A(s,a)$ ，其对应每一个action。最后的网络是将两个path的结果相加，得到我们最终需要的Q value。用一个公式表示也就是 $Q(s,a)=V(s)+A(s,a)$ 。 
@@ -9,7 +9,7 @@
 - **Distributional Q-function：** 对于DQN进行model distribution。将最终的网络的output的每一类别的action再进行distribution。
 - **Rainbow：** 也就是将我们这两节内容所有的七个tips综合起来的方法，7个方法分别包括：DQN、DDQN、Prioritized DDQN、Dueling DDQN、A3C、Distributional DQN、Noisy DQN，进而考察每一个方法的贡献度或者是否对于与环境的交互式正反馈的。
 
-#### 2 思考题
+## 2 Questions
 
 - 为什么传统的DQN的效果并不好？参考公式 $Q(s_t ,a_t)=r_t+\max_{a}Q(s_{t+1},a)$ 
 
