@@ -1,6 +1,6 @@
-## Chapter4 梯度策略 
+# Chapter4 梯度策略 
 
-#### 1 关键词
+## 1 Keywords
 
 - **policy（策略）：** 每一个actor中会有对应的策略，这个策略决定了actor的行为。具体来说，Policy 就是给一个外界的输入，然后它会输出 actor 现在应该要执行的行为。**一般地，我们将policy写成 $\pi$ 。**
 - **Return（回报）：** 一个回合（Episode）或者试验（Trial）所得到的所有的reward的总和，也被人们称为Total reward。**一般地，我们用 $R$ 来表示它。**
@@ -9,7 +9,7 @@
 - **Expected reward：** $\bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)=E_{\tau \sim p_{\theta}(\tau)}[R(\tau)]$。
 - **Reinforce：** 基于策略梯度的强化学习的经典算法，其采用回合更新的模式。
 
-#### 2 思考题
+## 2 Questions
 
 - 如果我们想让机器人自己玩video game, 那么强化学习中三个组成（actor、environment、reward function）部分具体分别是什么？
 
