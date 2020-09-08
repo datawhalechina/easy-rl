@@ -1,6 +1,6 @@
-## Chapter6 Q-learning-State Value Function
+# Chapter6 Q-learning-State Value Function
 
-#### 1 关键词
+## 1 Keywords
 
 - **DQN(Deep Q-Network)：**  基于深度学习的Q-learning算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经历回放（Experience Replay）的方法进行网络的训练。
 - **State-value Function：** 本质是一种critic。其输入为actor某一时刻的state，对应的输出为一个标量，即当actor在对应的state时，预期的到过程结束时间段中获得的value的数值。
@@ -11,7 +11,7 @@
 - **Exploration：**  在我们使用Q-function的时候，我们的policy完全取决于Q-function，有可能导致出现对应的action是固定的某几个数值的情况，而不像policy gradient中的output为随机的，我们再从随机的distribution中sample选择action。这样会导致我们继续训练的input的值一样，从而”加重“output的固定性，导致整个模型的表达能力的急剧下降，这也就是`探索-利用窘境(Exploration-Exploitation dilemma)`问题。所以我们使用`Epsilon Greedy`和 `Boltzmann Exploration`等Exploration方法进行优化。
 - **Experience Replay（经验回放）：**  其会构建一个Replay Buffer（Replay Memory），用来保存许多data，每一个data的形式如下：在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$，然后跳到 state $s_{t+1}$。我们使用 $\pi$ 去跟环境互动很多次，把收集到的数据都放到这个 replay buffer 中。当我们的buffer”装满“后，就会自动删去最早进入buffer的data。在训练时，对于每一轮迭代都有相对应的batch（与我们训练普通的Network一样通过sample得到），然后用这个batch中的data去update我们的Q-function。综上，Q-function再sample和训练的时候，会用到过去的经验数据，所以这里称这个方法为Experience Replay，其也是DQN中比较重要的tip。
 
-#### 2 思考题
+## 2 Questions
 
 - 为什么在DQN中采用价值函数近似（Value Function Approximation）的表示方法？
 
