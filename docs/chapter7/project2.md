@@ -1,6 +1,6 @@
 # 使用DQN实现CartPole-v0
 
-推荐使用Double-DQN去解决，即建立两个初始参数相同的全链接网络target_net，和policy_net。
+推荐使用Double-DQN去解决，即建立两个初始参数相同的全连接网络target_net，和policy_net。
 
 ## CartPole-v0
 
