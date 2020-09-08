@@ -1,13 +1,13 @@
-## Chapter5 Proximal Policy Optimization(PPO) 
+# Chapter5 Proximal Policy Optimization(PPO) 
 
-#### 1 关键词
+## 1 Keywords
 
 - **on-policy(同策略)：** 要learn的agent和环境互动的agent是同一个时，对应的policy。
 - **off-policy(异策略)：** 要learn的agent和环境互动的agent不是同一个时，对应的policy。
 - **important sampling（重要性采样）：** 使用另外一种数据分布，来逼近所求分布的一种方法，在强化学习中通常和蒙特卡罗方法结合使用，公式如下：$\int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]=E_{x \sim p}[f(x)]$  我们在已知 $q$ 的分布后，可以使用上述公式计算出从 $p$ 这个distribution sample x 代入 $f$ 以后所算出来的期望值。
 - **Proximal Policy Optimization (PPO)：** 避免在使用important sampling时由于在 $\theta$ 下的 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 在  $\theta '$  下的 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多，导致important sampling结果偏差较大而采取的算法。具体来说就是在training的过程中增加一个constrain，这个constrain对应着 $\theta$  跟 $\theta'$  output 的 action 的 KL divergence，来衡量 $\theta$  与 $\theta'$ 的相似程度。
 
-#### 2 思考题
+## 2 Questions
 
 - 基于on-policy的policy gradient有什么可改进之处？或者说其效率较低的原因在于？
 
