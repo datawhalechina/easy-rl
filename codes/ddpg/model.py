@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-10 15:03:59
 @LastEditor: John
-@LastEditTime: 2020-06-14 11:42:45
+LastEditTime: 2020-08-22 19:09:54
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -20,11 +20,12 @@ class Critic(nn.Module):
         self.linear1 = nn.Linear(n_obs + n_actions, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
         self.linear3 = nn.Linear(hidden_size, 1)
-    
+        # 随机初始化为较小的值
         self.linear3.weight.data.uniform_(-init_w, init_w)
         self.linear3.bias.data.uniform_(-init_w, init_w)
         
     def forward(self, state, action):
+        # 按维数1拼接
         x = torch.cat([state, action], 1)
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
@@ -47,10 +48,3 @@ class Actor(nn.Module):
         x = F.tanh(self.linear3(x))
         return x
     
-    def select_action(self, state):
-        
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        state  = torch.FloatTensor(state).unsqueeze(0).to(device)
-        # print(state)
-        action = self.forward(state)
-        return action.detach().cpu().numpy()[0, 0]
