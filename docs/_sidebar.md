@@ -14,6 +14,7 @@
 - [第七章 Q 学习 (进阶技巧)](chapter7/chapter7)
 - [第七章习题](chapter7/chapter7_questions&keywords)
 - [第八章 Q 学习 (连续动作)](chapter8/chapter8)
+- [第八章习题](chapter8/chapter8_questions&keywords)
 - [第九章 演员-评论员算法](chapter9/chapter9)
 - [第十章 稀疏奖励](chapter10/chapter10)
 - [第十一章 模仿学习](chapter11/chapter11)
