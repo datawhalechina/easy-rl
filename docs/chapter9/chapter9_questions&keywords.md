@@ -1,13 +1,13 @@
-## Chapter9 Actor-Critic
+# Chapter9 Actor-Critic
 
-#### 1 关键词
+## 1 关键词
 
 - **A2C：** Advantage Actor-Critic的缩写，一种Actor-Critic方法。
 
 - **A3C：** Asynchronous（异步的）Advantage Actor-Critic的缩写，一种改进的Actor-Critic方法，通过异步的操作，进行RL模型训练的加速。
 -  **Pathwise Derivative Policy Gradient：** 其为使用 Q-learning 解 continuous action 的方法，也是一种 Actor-Critic 方法。其会对于actor提供value最大的action，而不仅仅是提供某一个action的好坏程度。
 
-#### 2 思考题
+## 2 思考题
 
 - 整个Advantage actor-critic（A2C）算法的工作流程是怎样的？
 
