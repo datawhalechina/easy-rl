@@ -24,7 +24,7 @@ $$
 
 ![](img/5.2.png)
 
-具体怎么做呢？这边就需要介绍 `important sampling` 的概念。假设你有一个 function $f(x)$，你要计算从 p 这个 distribution sample $x$，再把 $x$ 带到 $f$ 里面，得到 $f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些 data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
+具体怎么做呢？这边就需要介绍 `importance sampling` 的概念。假设你有一个 function $f(x)$，你要计算从 p 这个 distribution sample $x$，再把 $x$ 带到 $f$ 里面，得到 $f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些 data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
 
 现在有另外一个问题，我们没有办法从 p 这个 distribution 里面 sample data。假设我们不能从 p sample data，只能从另外一个 distribution q 去 sample data，q  可以是任何 distribution。我们不能够从 p 去 sample data，但可以从 q 去 sample $x$。我们从 q 去 sample $x^i$ 的话就不能直接套下面的式子。
 $$
@@ -34,18 +34,18 @@ $$
 $$
 \int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]
 $$
-我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从 q 里面 sample x，然后再去计算$f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去 sample data，然后代入上式，你就可以计算从 p 这个 distribution sample x 代入 f 以后所算出来的期望值。
+我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从 q 里面 sample x，然后再去计算 $f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去 sample data，然后代入上式，你就可以计算从 p 这个 distribution sample $x$ 代入 $f$ 以后所算出来的期望值。
 
-这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是 $\frac{p(x)}{q(x)}$。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以 apply important sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
+这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔 data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是 $\frac{p(x)}{q(x)}$。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以 apply importance sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
 
 ![](img/5.3.png)
 
-Important sampling 有一些 issue。虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能差太多。差太多的话，会有一些问题。什么样的问题呢？
+Importance sampling 有一些 issue。虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能差太多。差太多的话，会有一些问题。什么样的问题呢？
 
 $$
 E_{x \sim p}[f(x)]=E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
 $$
-虽然上式成立。但上式左边是 $f(x)$ 的期望值，它的 distribution 是 p，上式右边是 $f(x) \frac{p(x)}{q(x)}$ 的期望值，它的distribution 是 q。如果不是算期望值，而是算 variance 的话。这两个 variance 是不一样的。两个 random variable 的 mean 一样，并不代表它的 variance 一样。
+虽然上式成立。但上式左边是 $f(x)$ 的期望值，它的 distribution 是 p，上式右边是 $f(x) \frac{p(x)}{q(x)}$ 的期望值，它的 distribution 是 q。如果不是算期望值，而是算 variance 的话。这两个 variance 是不一样的。两个 random variable 的 mean 一样，并不代表它的 variance 一样。
 
 我们可以代一下方差的公式：
 $$
@@ -216,7 +216,7 @@ $$
 ![](img/5.13.png)
 
 如果 A 小于0 的话，取最小的以后，就得到红色的这一条线。
-这一个式子虽然看起来有点复杂，implement 起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的那个model， 跟你实际上 learn 的 model，在optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
+这一个式子虽然看起来有点复杂，实现起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的那个model， 跟你实际上 learn 的 model，在 optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
 
 如果 A 大于 0，也就是某一个 state-action 的pair 是好的。那我们希望增加这个 state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过 $1+\varepsilon$  的话，就没有 benefit 了。红色的线就是我们的 objective function，我们希望 objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$只要大过 $1+\varepsilon$，就没有 benefit 了。
 
