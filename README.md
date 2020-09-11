@@ -28,7 +28,7 @@
 |[第八章 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8) | [第八章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8_questions&keywords)      |      |
 |[第九章 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) |   [第九章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9_questions&keywords)     |      |
 |[第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) |   [第十章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10_questions&keywords)    |      |
-|[第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) |      |      |
+|[第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) |   [第十一章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords)   |      |
 |[第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) |      | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
 ## 主要贡献者
 
