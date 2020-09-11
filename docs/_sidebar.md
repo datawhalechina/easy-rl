@@ -23,6 +23,7 @@
 - [第十一章 模仿学习](chapter11/chapter11)
 - [第十一章习题](chapter11/chapter11_questions&keywords)
 - [第十二章 深度确定性策略梯度 (DDPG) 算法](chapter12/chapter12)
+- [第十二章习题](chapter12/chapter12_questions&keywords)
 - [项目三 使用 Policy-Based 方法实现 Pendulum-v0](chapter12/project3)
 
 
