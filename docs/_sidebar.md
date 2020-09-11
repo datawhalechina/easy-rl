@@ -17,6 +17,7 @@
 - [第八章 Q 学习 (连续动作)](chapter8/chapter8)
 - [第八章习题](chapter8/chapter8_questions&keywords)
 - [第九章 演员-评论员算法](chapter9/chapter9)
+- [第九章习题](chapter9/chapter9_questions&keywords)
 - [第十章 稀疏奖励](chapter10/chapter10)
 - [第十一章 模仿学习](chapter11/chapter11)
 - [第十二章 深度确定性策略梯度 (DDPG) 算法](chapter12/chapter12)
