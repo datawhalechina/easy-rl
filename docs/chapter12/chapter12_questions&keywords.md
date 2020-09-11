@@ -1,10 +1,10 @@
-## Chapter12 DDPG
+# Chapter12 DDPG
 
-#### 1 关键词
+## 1 关键词
 
 - **DDPG(Deep Deterministic Policy Gradient)：** 在连续控制领域经典的RL算法，是DQN在处理连续动作空间的一个扩充。具体地，从命名就可以看出，Deep是使用了神经网络；Deterministic 表示 DDPG 输出的是一个确定性的动作，可以用于连续动作的一个环境；Policy Gradient 代表的是它用到的是策略网络，并且每个 step 都会更新一次 policy 网络，也就是说它是一个单步更新的 policy 网络。其与DQN都有目标网络和经验回放的技巧，在经验回放部分是一致的，在目标网络的更新有些许不同。
 
-#### 2 思考题
+## 2 思考题
 
 - 请解释随机性策略和确定性策略。
 
