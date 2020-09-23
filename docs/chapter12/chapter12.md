@@ -61,7 +61,7 @@ target Q 网络就为了来计算 Q_target 里面的 $Q_{\bar{w}}\left(s^{\prime
 
 为了区分前面的 Q网络和策略网络以及后面的 target_Q 网络和 target_p 策略网络。前面的网络的参数是 $w$，后面的网络的参数是 $\bar{w}$。这就是为什么我们去看一些 DDPG 的文章，会发现 DDPG 会有四个网络。策略网络的 target 网络 和 Q 网络的 target 网络就是颜色比较深的这两个，它只是为了让计算 Q_target 的时候能够更稳定一点而已。因为这两个网络也是固定一段时间的参数之后再跟评估网络同步一下最新的参数。
 
-这里面训练需要用到的数据就是 $s,a,r,s'$。我们只需要用到这四个数据，我们就用 Replay Memory 把这些数据存起来，然后再 sample 进来训练就好了。这个经验回放的技巧跟 DQN 是一模一样的。注意，因为 DDPG 使用了经验回放这个技巧，所以 DDPG 是一个 `off-policy` 的算法。这边我们给出 [DDPG 的 PyTorch 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/ddpg)。
+这里面训练需要用到的数据就是 $s,a,r,s'$。我们只需要用到这四个数据，我们就用 Replay Memory 把这些数据存起来，然后再 sample 进来训练就好了。这个经验回放的技巧跟 DQN 是一模一样的。注意，因为 DDPG 使用了经验回放这个技巧，所以 DDPG 是一个 `off-policy` 的算法。
 
 ## Exploration vs. Exploitation
 DDPG 通过 off-policy 的方式来训练一个确定性策略。因为策略是确定的，如果 agent 使用同策略来探索，在一开始的时候，它会很可能不会尝试足够多的 action 来找到有用的学习信号。为了让 DDPG 的策略更好地探索，我们在训练的时候给它们的 action 加了噪音。DDPG 的原作者推荐使用时间相关的 [OU noise](https://en.wikipedia.org/wiki/Ornstein–Uhlenbeck_process)，但最近的结果表明不相关的、均值为 0 的 Gaussian noise 的效果非常好。由于后者更简单，因此我们更喜欢使用它。为了便于获得更高质量的训练数据，你可以在训练过程中把噪声变小。
