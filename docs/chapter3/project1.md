@@ -1,4 +1,4 @@
-# 贪吃蛇
+# 使用 Q-learning 实现贪吃蛇
 
 贪吃蛇是一个起源于1976年的街机游戏 Blockade，玩家控制蛇上下左右吃到食物并将身体增长，吃到食物后移动速度逐渐加快，直到碰到墙体或者蛇的身体算游戏结束。
 
@@ -37,7 +37,5 @@
 ## 任务要求
 
 设计一个Q-learning agent用于学习snake游戏，并绘制reward以及滑动平均后的reward随episode的变化曲线图并记录超参数写成报告。
-
-
 
 [参考代码](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/snake)
