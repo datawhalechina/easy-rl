@@ -36,7 +36,7 @@
 
 ## 任务要求
 
-设计一个Q网络用于学习snake游戏，并绘制reward以及滑动平均后的reward随episode的变化曲线图并记录超参数写成报告。
+设计一个Q-learning agent用于学习snake游戏，并绘制reward以及滑动平均后的reward随episode的变化曲线图并记录超参数写成报告。
 
 
 
