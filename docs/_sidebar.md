@@ -5,7 +5,7 @@
 - [第二章习题](chapter2/chapter2_questions&keywords)
 - [第三章 表格型方法](chapter3/chapter3)
 - [第三章习题](chapter3/chapter3_questions&keywords)
-- [项目一 贪吃蛇](chapter3/project1)
+- [项目一 使用 Q-learning 实现贪吃蛇](chapter3/project1)
 - [第四章 策略梯度](chapter4/chapter4)
 - [第四章习题](chapter4/chapter4_questions&keywords)
 - [第五章 近端策略优化 (PPO) 算法](chapter5/chapter5)
