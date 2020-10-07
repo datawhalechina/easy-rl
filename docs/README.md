@@ -2,7 +2,7 @@
 李宏毅老师的《深度强化学习》是强化学习领域经典的中文视频之一。李老师幽默风趣的上课风格让晦涩难懂的强化学习理论变得轻松易懂，他会通过很多有趣的例子来讲解强化学习理论。比如老师经常会用玩 Atari 游戏的例子来讲解强化学习算法。此外，为了课程的完整性，我们整理了周博磊老师的《强化学习纲要》以及李科浇老师的《百度强化学习》的部分内容作为补充。对于想入门强化学习又想看中文讲解的人来说绝对是非常推荐的。
 
 ## 使用说明
-* 第 3 章到第 10 章为李宏毅《深度强化学习》课程的部分；
+* 第 4 章到第 11 章为[李宏毅《深度强化学习》](http://speech.ee.ntu.edu.tw/~tlkagk/courses_MLDS18.html)的部分；
 * 第 1 章和第 2 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
 * 第 3 章和第 12 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
 
@@ -13,20 +13,20 @@
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
 
 ## 内容导航
-| 章节 | 习题 | 项目 |
-|------|------|------|
-|[第一章 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1) |   [第一章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1_questions&keywords)   |      |
-|[第二章 马尔科夫决策过程 (MDP)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2)      |   [第二章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2_questions&keywords)    |      |
-|[第三章 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3) |   [第三章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3_questions&keywords)    |      |
-|[第四章 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4) |   [第四章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4_questions&keywords)    |      |
-|[第五章 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5) |    [第五章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5_questions&keywords)   |      |
-| [第六章 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6)|   [第六章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6_questions&keywords)  |      |
-|[第七章 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7) |   [第七章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7_questions&keywords)   | [项目二 使用 DQN 实现 CartPole-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/project2) |
-|[第八章 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8) |   [第八章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8_questions&keywords)    |      |
-|[第九章 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) |    [第九章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9_questions&keywords)   |      |
-|[第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) |   [第十章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10_questions&keywords)    |      |
-|[第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) |   [第十一章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords)   |      |
-|[第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | [第十二章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
+| 章节                                                         | 习题                                                         | 项目                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [第一章 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1) | [第一章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1_questions&keywords) |                                                              |
+| [第二章 马尔科夫决策过程 (MDP)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2) | [第二章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2_questions&keywords) |                                                              |
+| [第三章 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3) | [第三章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3_questions&keywords) | [项目一 使用 Q-learning 实现贪吃蛇](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/project1) |
+| [第四章 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4) | [第四章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4_questions&keywords) |                                                              |
+| [第五章 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5) | [第五章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5_questions&keywords) |                                                              |
+| [第六章 Q 学习 (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6) | [第六章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6_questions&keywords) |                                                              |
+| [第七章 Q 学习 (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7) | [第七章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7_questions&keywords) | [项目二 使用 DQN 实现 CartPole-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/project2) |
+| [第八章 Q 学习 (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8) | [第八章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8_questions&keywords) |                                                              |
+| [第九章 演员-评论员算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) | [第九章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9_questions&keywords) |                                                              |
+| [第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) | [第十章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10_questions&keywords) |                                                              |
+| [第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) | [第十一章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords) |                                                              |
+| [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | [第十二章习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
 ## 主要贡献者
 
 | 作者 | 贡献 |

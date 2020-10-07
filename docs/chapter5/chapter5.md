@@ -12,13 +12,15 @@
 
 ![](img/5.1.png)
 
-PPO 是 policy gradient 的一个变形，它是现在 OpenAI default reinforcement learning 的 algorithm。
+PPO 是 policy gradient 的一个变形，它是现在 OpenAI 默认的 reinforcement learning 的 algorithm。
 
 $$
 \nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
 $$
 
-问题是上面这个 update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做 expectation。一旦 update 了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前 sample 出来的 data 就变的不能用了。所以 policy gradient 是一个会花很多时间来 sample data 的 algorithm，你会发现大多数时间都在 sample data，agent 去跟环境做互动以后，接下来就要 update 参数。你只能 update 参数一次。接下来你就要重新再去 collect data， 然后才能再次update 参数，这显然是非常花时间的。所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个 policy， 另外一个 actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的 data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的 data 去训练 $\theta$，意味着说我们可以把 $\theta'$  collect 到的data 用非常多次。我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔 data 就好了。因为假设 $\theta$ 有能力学习另外一个 actor $\theta'$ 所 sample 出来的 data 的话， 那 $\theta'$  就只要sample 一次，也许s ample 多一点的data， 让 $\theta$ 去 update 很多次，这样就会比较有效率。
+问题是上面这个 update 的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所 sample 出来的 trajectory $\tau$ 做 expectation。一旦 update 了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前 sample 出来的 data 就变的不能用了。所以 policy gradient 是一个会花很多时间来 sample data 的 algorithm，你会发现大多数时间都在 sample data，agent 去跟环境做互动以后，接下来就要 update 参数。你只能 update 参数一次。接下来你就要重新再去 collect data， 然后才能再次update 参数。
+
+这显然是非常花时间的，所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个 policy， 另外一个 actor $\theta'$  去跟环境做互动。用 $\theta'$  collect 到的 data 去训练 $\theta$。假设我们可以用 $\theta'$  collect 到的 data 去训练 $\theta$，意味着说我们可以把 $\theta'$  collect 到的 data 用非常多次，我们可以执行 gradient ascent 好几次，我们可以 update 参数好几次， 都只要用同一笔 data 就好了。因为假设 $\theta$ 有能力学习另外一个 actor $\theta'$ 所 sample 出来的 data 的话， 那 $\theta'$  就只要 sample 一次，也许 sample 多一点的 data， 让 $\theta$ 去 update 很多次，这样就会比较有效率。
 
 ### Importance Sampling
 
@@ -63,9 +65,9 @@ $\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(
 
 ![](img/5.4.png)
 
-举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个 distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
 
-接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你sample 的点不够的话，那你可能都只 sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边 sample 到这些点，然后你去计算它们的 $f(x) \frac{p(x)}{q(x)}$都是正的，所以你 sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你 sample 次数很少，你只能 sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要 sample 够多次，这件事情才会发生。但有可能 sample 不够，$E_{x \sim p}[f(x)]$跟$E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$就有可能有很大的差距。这就是 importance sampling 的问题。
+接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你 sample 的点不够的话，那你可能都只 sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边 sample 到这些点，然后你去计算它们的 $f(x) \frac{p(x)}{q(x)}$ 都是正的，所以你 sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你 sample 次数很少，你只能 sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要 sample 够多次，这件事情才会发生。但有可能 sample 不够，$E_{x \sim p}[f(x)]$ 跟 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 就有可能有很大的差距。这就是 importance sampling 的问题。
 
 ![](img/5.5.png)
 
@@ -73,7 +75,7 @@ $\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(
 
 现在我们不用 $\theta$ 去跟环境做互动，假设有另外一个 policy  $\theta'$，它就是另外一个actor。它的工作是他要去做demonstration，$\theta'$ 的工作是要去示范给$\theta$ 看。它去跟环境做互动，告诉 $\theta$ 说，它跟环境做互动会发生什么事。然后，借此来训练$\theta$。我们要训练的是 $\theta$ ，$\theta'$  只是负责做 demo，负责跟环境做互动。
 
-我们现在的 $\tau$ 是从 $\theta'$ sample 出来的，是拿 $\theta'$ 去跟环境做互动。所以 sample 出来的 $\tau$ 是从 $\theta'$ sample 出来的，这两个distribution 不一样。但没有关系，假设你本来是从 p 做 sample，但你发现你不能够从 p 做sample，所以我们不拿$\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面这边补上一个 importance weight。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个importance weight $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个 importance weight 就是某一个 trajectory $\tau$ 用 $\theta$ 算出来的概率除以这个 trajectory $\tau$，用 $\theta'$ 算出来的概率。这一项是很重要的，因为今天你要 learn 的是 actor $\theta$ 和 $\theta'$ 是不太一样的。$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
+我们现在的 $\tau$ 是从 $\theta'$ sample 出来的，是拿 $\theta'$ 去跟环境做互动。所以 sample 出来的 $\tau$ 是从 $\theta'$ sample 出来的，这两个distribution 不一样。但没有关系，假设你本来是从 p 做 sample，但你发现你不能够从 p 做sample，所以我们不拿$\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面这边补上一个 importance weight。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个 importance weight $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个 importance weight 就是某一个 trajectory $\tau$ 用 $\theta$ 算出来的概率除以这个 trajectory $\tau$，用 $\theta'$ 算出来的概率。这一项是很重要的，因为今天你要 learn 的是 actor $\theta$ 和 $\theta'$ 是不太一样的。$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
 
 Q: 现在的 data 是从 $\theta'$ sample 出来的，从 $\theta$ 换成 $\theta'$ 有什么好处呢？
 
@@ -86,9 +88,9 @@ $$
 =E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta}}\left[A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
 $$
 
-我们用 $\theta$ 这个 actor 去 sample 出 $s_t$ 跟 $a_t$，sample 出 state 跟 action 的 pair，我们会计算这个 state 跟 action pair 它的 advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在 state $s_t$ 采取 action $a_t$ 是好的，还是不好的。那接下来后面会乘上$\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果$A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
+我们用 $\theta$ 这个 actor 去 sample 出 $s_t$ 跟 $a_t$，sample 出 state 跟 action 的 pair，我们会计算这个 state 跟 action pair 它的 advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在 state $s_t$ 采取 action $a_t$ 是好的，还是不好的。那接下来后面会乘上 $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果 $A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
 
-那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在$s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的 model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把 $s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
+那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在 $s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的 model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把 $s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
 
 $$
 =E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{P_{\theta}\left(s_{t}, a_{t}\right)}{P_{\theta^{\prime}}\left(s_{t}, a_{t}\right)} A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
@@ -118,7 +120,7 @@ $$
 
 但是 $p_{\theta}(a_t|s_t)$很好算。你手上有 $\theta$ 这个参数，它就是个 network。你就把$s_t$ 带进去，$s_t$ 就是游戏画面，你把游戏画面带进去，它就会告诉你某一个 state 的 $a_t$ 概率是多少。我们其实有个  policy 的 network，把 $s_t$ 带进去，它会告诉我们每一个 $a_t$ 的概率是多少。所以 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$ 这一项，你只要知道$\theta$ 和 $\theta'$ 的参数就可以算。
 
-现在我们得到一个新的objective function。
+现在我们得到一个新的 objective function。
 
 $$
 J^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right]
@@ -137,8 +139,6 @@ $$
 所以实际上，当我们 apply importance sampling 的时候，要去 optimize 的那一个 objective function 就长这样子，我们把它写作 $J^{\theta^{\prime}}(\theta)$。为什么写成 $J^{\theta^{\prime}}(\theta)$ 呢，这个括号里面那个 $\theta$ 代表我们要去 optimize 的那个参数。$\theta'$  是说我们拿 $\theta'$  去做 demonstration，就是现在真正在跟环境互动的是 $\theta'$。因为 $\theta$ 不跟环境做互动，是 $\theta'$  在跟环境互动。
 
 然后你用 $\theta'$  去跟环境做互动，sample 出 $s_t$、$a_t$ 以后，你要去计算 $s_t$ 跟 $a_t$ 的 advantage，然后你再去把它乘上 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$。$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)}$ 是好算的，$A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)$ 可以从这个 sample 的结果里面去估测出来的，所以 $J^{\theta^{\prime}}(\theta)$ 是可以算的。实际上在 update 参数的时候，就是按照式(1) 来 update 参数。
-
-
 
 ## PPO
 
@@ -168,13 +168,18 @@ A: 这边我是直接把 KL divergence 当做一个 function，input 是 $\theta
 
 ![](img/5.8.png)
 
-我们来看一下 `PPO1` 的 algorithm。它先 initial 一个 policy 的参数$\theta^0$。然后在每一个 iteration 里面呢，你要用参数$\theta^k$，$\theta^k$ 就是你在前一个 training 的 iteration得到的 actor 的参数，你用 $\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的pair。
+我们来看一下 `PPO1` 的 algorithm。它先 initial 一个 policy 的参数 $\theta^0$。然后在每一个 iteration 里面呢，你要用参数 $\theta^k$，$\theta^k$ 就是你在前一个 training 的 iteration得到的 actor 的参数，你用 $\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的pair。
 
 然后你根据 $\theta^k$ 互动的结果，估测一下$A^{\theta^{k}}\left(s_{t}, a_{t}\right)$。然后你就 apply PPO 的 optimization 的 formulation。但跟原来的policy gradient 不一样，原来的 policy gradient 只能 update 一次参数，update 完以后，你就要重新 sample data。但是现在不用，你拿 $\theta^k$ 去跟环境做互动，sample 到这组 data 以后，你可以让 $\theta$ update 很多次，想办法去 maximize objective function。这边 $\theta$ update 很多次没有关系，因为我们已经有做 importance sampling，所以这些experience，这些 state-action 的 pair 是从 $\theta^k$ sample 出来的没有关系。$\theta$ 可以 update 很多次，它跟 $\theta^k$ 变得不太一样也没有关系，你还是可以照样训练 $\theta$。
 
 ![](img/5.9.png)
 
-在 PPO 的 paper 里面还有一个 `adaptive KL divergence`，这边会遇到一个问题就是 $\beta$  要设多少，它就跟那个regularization 一样。regularization 前面也要乘一个weight，所以这个 KL divergence 前面也要乘一个 weight，但 $\beta$  要设多少呢？所以有个动态调整 $\beta$ 的方法。在这个方法里面呢，你先设一个 KL divergence，你可以接受的最大值。然后假设你发现说你 optimize 完这个式子以后，KL divergence 的项太大，那就代表说后面这个 penalize 的 term 没有发挥作用，那就把 $\beta$ 调大。那另外你定一个 KL divergence 的最小值。如果发现 optimize 完上面这个式子以后，KL divergence 比最小值还要小，那代表后面这一项的效果太强了，你怕他只弄后面这一项，那 $\theta$ 跟 $\theta^k$ 都一样，这不是你要的，所以你这个时候你叫要减少 $\beta$。所以 $\beta$ 是可以动态调整的。这个叫做 `adaptive KL penalty`。
+在 PPO 的 paper 里面还有一个 `adaptive KL divergence`。这边会遇到一个问题就是 $\beta$  要设多少，它就跟那个regularization 一样。regularization 前面也要乘一个 weight，所以这个 KL divergence 前面也要乘一个 weight，但 $\beta$  要设多少呢？所以有个动态调整 $\beta$ 的方法。
+
+* 在这个方法里面呢，你先设一个 KL divergence，你可以接受的最大值。然后假设你发现说你 optimize 完这个式子以后，KL divergence 的项太大，那就代表说后面这个 penalize 的 term 没有发挥作用，那就把 $\beta$ 调大。
+* 那另外你定一个 KL divergence 的最小值。如果发现 optimize 完上面这个式子以后，KL divergence 比最小值还要小，那代表后面这一项的效果太强了，你怕他只弄后面这一项，那 $\theta$ 跟 $\theta^k$ 都一样，这不是你要的，所以你这个时候你叫要减少 $\beta$。
+
+所以 $\beta$ 是可以动态调整的。这个叫做 `adaptive KL penalty`。
 
 ![](img/5.10.png)
 
@@ -216,7 +221,7 @@ $$
 ![](img/5.13.png)
 
 如果 A 小于0 的话，取最小的以后，就得到红色的这一条线。
-这一个式子虽然看起来有点复杂，实现起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的那个model， 跟你实际上 learn 的 model，在 optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
+这一个式子虽然看起来有点复杂，实现起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的 model， 跟你实际上 learn 的 model，在 optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
 
 如果 A 大于 0，也就是某一个 state-action 的pair 是好的。那我们希望增加这个 state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过 $1+\varepsilon$  的话，就没有 benefit 了。红色的线就是我们的 objective function，我们希望 objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$只要大过 $1+\varepsilon$，就没有 benefit 了。
 
@@ -227,7 +232,7 @@ $$
 * 假设这个 advantage 是正的，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。假设这个 action 是好的，我们当然希望这个 action 被采取的概率越大越好。所以假设 $p_{\theta}(a_{t} | s_{t})$ 还比 $p_{\theta^k}(a_{t} | s_{t})$  小，那就尽量把它挪大，但只要大到 $1+\varepsilon$ 就好。
 * 负的时候也是一样，如果某一个 state-action pair 是不好的，我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比$p_{\theta^k}(a_{t} | s_{t})$  还大，那你就尽量把它压小，压到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$是$1-\epsilon$ 的时候就停了，就不要再压得更小。
 
-这样的好处就是， 你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要 implement 这个东西，很简单。
+这样的好处就是， 你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要实现这个东西，很简单。
 
 ![](img/5.14.png)
 上图是 PPO 跟其它方法的比较。Actor-Critic 和 A2C+Trust Region 方法是 actor-critic based 的方法。PPO 是紫色线的方法，这边每张图就是某一个 RL 的任务，你会发现说在多数的 cases 里面，PPO 都是不错的，不是最好的，就是第二好的。

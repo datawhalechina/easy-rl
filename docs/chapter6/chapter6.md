@@ -39,7 +39,7 @@ $$
 
 怎么衡量这个 state value function  $V^{\pi}(s)$ 呢？有两种不同的做法。一个是用` Monte-Carlo(MC) based` 的方法。MC based 的方法就是让 actor 去跟环境做互动，你要看 actor 好不好， 你就让 actor 去跟环境做互动，给 critic 看。然后，critic 就统计说，actor 如果看到 state $s_a$，接下来 accumulated reward 会有多大。如果它看到 state $s_b$，接下来accumulated reward 会有多大。但是实际上，你不可能把所有的state 通通都扫过。如果你是玩 Atari 游戏的话，你的 state 是 image ，你没有办法把所有的state 通通扫过。所以实际上我们的 $V^{\pi}(s)$ 是一个 network。对一个 network 来说，就算是 input state 是从来都没有看过的，它也可以想办法估测一个 value 的值。
 
-怎么训练这个 network 呢？因为如果在state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果 input 是 state $s_a$，正确的 output 应该是$G_a$。如果 input state $s_b$，正确的output 应该是value $G_b$。所以在 training 的时候， 它就是一个 `regression problem`。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟 $G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把 network train 下去，就结束了。这是第一个方法，MC based 的方法。
+怎么训练这个 network 呢？因为如果在 state $s_a$，接下来的 accumulated reward 就是 $G_a$。也就是说，对这个 value function 来说，如果 input 是 state $s_a$，正确的 output 应该是$G_a$。如果 input state $s_b$，正确的 output 应该是value $G_b$。所以在 training 的时候， 它就是一个 `regression problem`。Network 的 output 就是一个 value，你希望在 input $s_a$ 的时候，output value 跟 $G_a$ 越近越好，input $s_b$ 的时候，output value 跟 $G_b$ 越近越好。接下来把 network train 下去，就结束了。这是第一个方法，MC based 的方法。
 
 ![](img/6.3.png)
 
@@ -50,7 +50,7 @@ $$
 V^{\pi}\left(s_{t}\right)=V^{\pi}\left(s_{t+1}\right)+r_{t}
 $$
 
-假设我们现在用的是某一个 policy $\pi$，在 state $s_t$，它会采取 action $a_t$，给我们 reward $r_t$ ，接下来进入$s_{t+1}$ 。state $s_{t+1}$ 的 value 跟 state $s_t$ 的 value，它们的中间差了一项 $r_t$。因为你把 $s_{t+1}$ 得到的 value 加上得到的 reward $r_t$ 就会等于 $s_t$ 得到的 value。有了这个式子以后，你在 training 的时候，你并不是直接去估测 V，而是希望你得到的结果 V 可以满足这个式子。也就是说你会是这样 train 的，你把 $s_t$ 丢到 network 里面，因为 $s_t$ 丢到 network 里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的 value network 里面会得到$V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减 $V^{\pi}(s_{t+1})$ 的值应该是 $r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，train 下去，update V 的参数，你就可以把 V function learn 出来。
+假设我们现在用的是某一个 policy $\pi$，在 state $s_t$，它会采取 action $a_t$，给我们 reward $r_t$ ，接下来进入 $s_{t+1}$ 。state $s_{t+1}$ 的 value 跟 state $s_t$ 的 value，它们的中间差了一项 $r_t$。因为你把 $s_{t+1}$ 得到的 value 加上得到的 reward $r_t$ 就会等于 $s_t$ 得到的 value。有了这个式子以后，你在 training 的时候，你并不是直接去估测 V，而是希望你得到的结果 V 可以满足这个式子。也就是说你会是这样 train 的，你把 $s_t$ 丢到 network 里面，因为 $s_t$ 丢到 network 里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的 value network 里面会得到$V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减 $V^{\pi}(s_{t+1})$ 的值应该是 $r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，train 下去，update V 的参数，你就可以把 V function learn 出来。
 
 ![](img/6.4.png)
 
@@ -119,37 +119,37 @@ Q-function 有两种写法：
 
 上图是文献上的结果，你去 estimate Q-function 的话，看到的结果可能会像是这个样子。这是什么意思呢？它说假设我们有 3 个 actions，3 个 actions 就是原地不动、向上、向下。
 
-* 假设是在第一个state，不管是采取哪个action，最后到游戏结束的时候，得到的 expected reward 其实都差不多。因为球在这个地方，就算是你向下，接下来你其实应该还来的急救，所以今天不管是采取哪一个action，就差不了太多。
+* 假设是在第一个 state，不管是采取哪个 action，最后到游戏结束的时候，得到的 expected reward 其实都差不多。因为球在这个地方，就算是你向下，接下来你其实应该还来的急救，所以今天不管是采取哪一个action，就差不了太多。
 
-* 假设在第二个state，这个乒乓球它已经反弹到很接近边缘的地方，这个时候你采取向上，你才能得到positive 的reward，才接的到球。如果你是站在原地不动或向下的话，接下来你都会miss 掉这个球。你得到的reward 就会是负的。
+* 假设在第二个s tate，这个乒乓球它已经反弹到很接近边缘的地方，这个时候你采取向上，你才能得到 positive reward，才接的到球。如果你是站在原地不动或向下的话，接下来你都会 miss 掉这个球。你得到的 reward 就会是负的。
 
-* 假设在第三个state，球很近了，所以就要向上。
+* 假设在第三个 state，球很近了，所以就要向上。
 
-* 假设在第四个state，球被反弹回去，这时候采取那个action就都没有差了。
+* 假设在第四个 state，球被反弹回去，这时候采取哪个 action 就都没有差了。
 
-这个是 state-action value 的一个例子。
+这是 state-action value 的一个例子。
 
 ![](img/6.9.png)
 
 虽然表面上我们 learn 一个 Q-function，它只能拿来评估某一个 actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有了这个 Q-function，我们就可以决定要采取哪一个 action，我们就可以进行`策略改进(Policy Improvement)`。
 
-它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。 然后这个循环一直下去，你的 policy 就会越来越好。 
+它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 这个actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个 policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。这样一直循环下去，policy 就会越来越好。 
 
 ![](img/6.10.png)
 上图就是讲我们刚才讲的到底是什么。
 
-* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的 state s 而言，对同一个 state s 而言，$\pi$ 的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个policy。
+* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的 state s 而言，对同一个 state s 而言，$\pi$  的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个 state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个 policy。
 
-* 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？事实上这个 $\pi'$ 是什么？这个$\pi'$ 就是， 如果你根据以下的这个式子去决定你的action，
+* 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？如果你根据以下的这个式子去决定你的 action，
 
 $$
 \pi^{\prime}(s)=\arg \max _{a} Q^{\pi}(s, a)
 $$
 
-根据上式去决定你的action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比$\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个 state s，你把所有可能的 action a 都一一带入这个 Q-function，看看说那一个 a 可以让 Q-function 的 value 最大，那这一个 action，就是 $\pi'$ 会采取的 action。这边要注意一下，给定这个 state s，你的 policy $\pi$ 并不一定会采取 action a。我们是 给定某一个 state s 强制采取 action a，用 $\pi$ 继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。假设用这一个 $\pi'$ 在 state s 采取action a 跟 $\pi$ 所谓采取 action 是不一定会一样的。然后 $\pi'$ 所采取的 action 会让他得到比较大的 reward。
+根据上式去决定你的 action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比 $\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个 state s，你把所有可能的 action a 都一一带入这个 Q-function，看看说那一个 a 可以让 Q-function 的 value 最大，那这个 action 就是 $\pi'$ 会采取的 action。这边要注意一下，给定这个 state s，你的 policy $\pi$  并不一定会采取 action a，我们是给定某一个 state s 强制采取 action a，用 $\pi$ 继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。用这一个 $\pi'$ 在 state s 采取 action a 跟 $\pi$ 采取的 action 是不一定会一样的。然后 $\pi'$ 所采取的 action 会让它得到比较大的 reward。
 
-* 所以根本就没有一个 policy 叫做 $\pi'$，这个$\pi'$ 是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出$\pi'$。
-* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以 a 如果是continuous 的就会有问题，如果是discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，但这个是之后才会解决的。
+* 所以根本就没有一个 policy 叫做 $\pi'$，这个 $\pi'$ 是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出 $\pi'$。
+* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以 a 如果是 continuous 的就会有问题，如果是 discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，这个之后会解决。
 
 ![](img/6.11.png)
 
@@ -167,7 +167,7 @@ $$
 Q^{\pi}(s, \pi(s)) \le \max _{a} Q^{\pi}(s, a)
 $$
 
-因为这边是所有action 里面可以让 Q 最大的那个action，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是$Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为$\pi'(s)$ output 的 a， 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
+因为这边是所有action 里面可以让 Q 最大的那个action，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是$Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为 $\pi'(s)$ output 的 a， 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
 $$
 \max _{a} Q^{\pi}(s, a)=Q^{\pi}\left(s, \pi^{\prime}(s)\right)
 $$
@@ -176,19 +176,19 @@ $$
 $$
 V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
 $$
-也就是说某一个 state，如果你按照policy $\pi$，一直做下去，你得到的 reward 一定会小于等于，在这个 state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
+也就是说某一个 state，如果你按照 policy $\pi$，一直做下去，你得到的 reward 一定会小于等于，在这个 state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在 state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
 
-那接下来你想要证的东西就是：
+那接下来你想要证下面的式子：
 $$
 Q^{\pi}\left(s, \pi^{\prime}(s) \right) \le V^{\pi'}(s)
 $$
 
-也就是说，只有一步之差，你会得到比较大的reward。但假设每步都是不一样的， 每步都是 follow $\pi'$ 而不是$\pi$ 的话，那你得到的reward 一定会更大。如果你要用数学式把它写出来的话，你可以这样写 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ 这个式子，它的意思就是说，我们在state $s_t$ 采取 action $a_t$，得到 reward $r_{t+1}$，然后跳到state $s_{t+1}$，即如下式所示：
+也就是说，只有一步之差，你会得到比较大的 reward。但假设每步都是不一样的，每步都是 follow $\pi'$ 而不是 $\pi$ 的话，那你得到的 reward 一定会更大。如果你要用数学式把它写出来的话，你可以这样写 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ 这个式子，它的意思就是说，我们在 state $s_t$ 采取 action $a_t$，得到 reward $r_{t+1}$，然后跳到 state $s_{t+1}$，即如下式所示：
 
 $$
 Q^{\pi}\left(s, \pi^{\prime}(s)\right)=E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) \mid s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
 $$
-这边有一个地方写得不太好，这边应该写成$r_t$ 跟之前的notation 比较一致，但这边写成了$r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在state $s_t$ 采取action $a_t$ 得到reward $r_{t+1}$， 有人会写成$r_t$，但意思其实都是一样的。在state s，按照$\pi'$ 采取某一个action $a_t$ ，得到 reward $r_{t+1}$，然后跳到state $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是state $s_{t+1}$，根据$\pi$ 这个actor 所估出来的value。这边要取一个期望值，因为在同样的state 采取同样的action，你得到的reward，还有会跳到的 state 不一定是一样， 所以这边需要取一个期望值。 
+这边有一个地方写得不太好，这边应该写成 $r_t$ 跟之前的记号比较一致，但这边写成了 $r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在 state $s_t$ 采取 action $a_t$ 得到 reward $r_{t+1}$， 有人会写成 $r_t$，但意思其实都是一样的。在 state s，按照 $\pi'$ 采取某一个 action $a_t$ ，得到 reward $r_{t+1}$，然后跳到 state $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是 state $s_{t+1}$，根据 $\pi$ 这个 actor 所估出来的 value。因为在同样的 state 采取同样的 action，你得到的 reward，还有会跳到的 state 不一定是一样， 所以这边需要取一个期望值。 
 
 接下来我们会得到如下的式子：
 $$
@@ -206,7 +206,7 @@ $$
 V^{\pi}(s_{t+1}) \leq Q^{\pi}\left(s_{t+1}, \pi^{\prime}(s_{t+1})\right)
 $$
 
-也就是说，现在你一直follow $\pi$，跟某一步follow $\pi'$，接下来都follow $\pi$ 比起来，某一步follow $\pi'$ 得到的reward 是比较大的。
+也就是说，现在你一直 follow $\pi$，跟某一步 follow $\pi'$，接下来都 follow $\pi$ 比起来，某一步 follow $\pi'$ 得到的 reward 是比较大的。
 
 接着我们得到下式：
 $$
@@ -294,7 +294,7 @@ $$
 
 ![](img/6.17.png)
 
-第三个tip是`Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，Replay Buffer 又被称为 `Replay Memory`。Replay Buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
+第三个tip是 `Experience Replay(经验回放)`。 Experience Replay 会构建一个 `Replay Buffer`，Replay Buffer 又被称为 `Replay Memory`。Replay Buffer 是说现在会有某一个 policy $\pi$ 去跟环境做互动，然后它会去收集 data。我们会把所有的 data 放到一个buffer 里面，buffer 里面就存了很多data。比如说 buffer 是 5 万，这样它里面可以存 5 万笔资料，每一笔资料就是记得说，我们之前在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$。然后跳到 state $s_{t+1}$。那你用 $\pi$ 去跟环境互动很多次，把收集到的资料都放到这个 replay buffer 里面。
 
 这边要注意是 replay buffer 里面的 experience 可能是来自于不同的 policy，你每次拿 $\pi$ 去跟环境互动的时候，你可能只互动 10000 次，然后接下来你就更新你的 $\pi$ 了。但是这个 buffer 里面可以放 5 万笔资料，所以 5 万笔资料可能是来自于不同的 policy。Buffer 只有在它装满的时候，才会把旧的资料丢掉。所以这个 buffer 里面它其实装了很多不同的 policy 的 experiences。
 
@@ -326,7 +326,7 @@ A：没关系。这并不是因为过去的 $\pi$ 跟现在的 $\pi$ 很像， �
 $$
 y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)
 $$
-其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。我们给出 [DQN 的 PyTorch 实现](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/dqn) 。
+其中 a 就是让 $\hat{Q}$ 的值最大的 a。因为我们在 state $s_{i+1}$会采取的action a，其实就是那个可以让 Q value 的值最大的那一个 a。接下来我们要update Q 的值，那就把它当作一个 regression problem。希望$Q(s_i,a_i)$  跟你的target 越接近越好。然后假设已经 update 了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$ 设成 Q，这就是 DQN。
 
 Q: DQN 和 Q-learning 有什么不同？
 
