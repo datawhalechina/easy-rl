@@ -88,7 +88,7 @@ $$
 \begin{aligned}
 V(s)&=\mathbb{E}\left[G_{t} \mid s_{t}=s\right]\\
 &=\mathbb{E}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\ldots \mid s_{t}=s\right]  \\
-&=\mathbb{E}\left[R_{t+1}+\gamma \mathbb{E}\left[R_{t+2}+\gamma R_{t+3}+\gamma^{2} R_{t+4}+\ldots\right] \mid s_{t}=s\right]\\
+&=\mathbb{E}\left[R_{t+1}|s_t=s\right] +\gamma \mathbb{E}\left[R_{t+2}+\gamma R_{t+3}+\gamma^{2} R_{t+4}+\ldots \mid s_{t}=s\right]\\
 &=R(s)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s\right) V\left(s^{\prime}\right)
 \end{aligned}
 $$
