@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2020-08-22 15:44:31
+LastEditTime: 2020-10-07 17:32:18
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -30,7 +30,7 @@ class DQN:
         self.n_actions = n_actions  # 总的动作个数
         self.device = device  # 设备，cpu或gpu等
         self.gamma = gamma
-        # e-greedy策略相关参数
+        # e-greedy 策略相关参数
         self.epsilon = 0
         self.epsilon_start = epsilon_start
         self.epsilon_end = epsilon_end

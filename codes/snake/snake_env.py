@@ -99,11 +99,13 @@ class SnakeEnv:
         self.render = True
             
 class Snake:
+    ''' 定义贪吃蛇的类
+    '''
     def __init__(self, snake_head_x, snake_head_y, food_x, food_y):
-        self.init_snake_head_x = snake_head_x
-        self.init_snake_head_y = snake_head_y
-        self.init_food_x = food_x
-        self.init_food_y = food_y
+        # 初始化蛇头的位置
+        self.init_snake_head_x, self.init_snake_head_y = snake_head_x, snake_head_y
+        # 初始化食物的位置
+        self.init_food_x, self.init_food_y = food_x, food_y
         self.reset()
 
     def reset(self):
