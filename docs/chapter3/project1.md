@@ -4,7 +4,7 @@
 
 悬崖寻路问题（CliffWalking）是指在一个4 x 12的网格中，智能体以网格的左下角位置为起点，以网格的下角位置为终点，目标是移动智能体到达终点位置，智能体每次可以在上、下、左、右这4个方向中移动一步，每移动一步会得到-1单位的奖励。
 
-<img src="../../codes/Q-learning/assets/image-20201007211441036.png" alt="image-20201007211441036" style="zoom:50%;" />
+![](assets/cliffwalking_1.png)
 
 如图，红色部分表示悬崖，数字代表智能体能够观测到的位置信息，即observation，总共会有0-47等48个不同的值，智能体再移动中会有以下限制：
 
@@ -16,11 +16,9 @@
 
 实际的仿真界面如下：
 
-<img src="../../codes/Q-learning/assets/image-20201007211858925.png" alt="image-20201007211858925" style="zoom:50%;" />
+![](assets/cliffwalking_2.png)
 
 **由于从起点到终点最少需要13步，每步得到-1的reward，因此最佳训练算法下，每个episode下reward总和应该为-13**。
-
-
 
 ## RL基本训练接口
 
