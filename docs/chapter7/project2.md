@@ -54,7 +54,23 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 训练并绘制reward以及滑动平均后的reward随epiosde的变化曲线图并记录超参数写成报告，图示如下：
 
-![p2](img/p2.png)
+![rewards_train](assets/rewards_train.png)
+
+![moving_average_rewards_train](assets/moving_average_rewards_train.png)
+
+![steps_train](assets/steps_train.png)
+
+同时也可以绘制测试(eval)模型时的曲线：
+
+![rewards_eval](assets/rewards_eval.png)()
+
+![moving_average_rewards_eval](assets/moving_average_rewards_eval.png)
+
+![steps_eval](assets/steps_eval.png)
+
+也可以[tensorboard](https://pytorch.org/docs/stable/tensorboard.html)查看结果，如下：
+
+![image-20201015221032985](assets/image-20201015221032985.png)
 
 ### 代码清单
 
@@ -66,6 +82,6 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 **memory.py**：保存Replay Buffer
 
-**plot.py**：保存相关绘制函数
+**plot.py**：保存相关绘制函数，可选
 
 [参考代码](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/dqn)

@@ -53,7 +53,23 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 训练并绘制reward以及滑动平均后的reward随epiosde的变化曲线图并记录超参数写成报告，图示如下：
 
-![moving_average_rewards](img/moving_average_rewards-8929361.png)
+![rewards_train](assets/rewards_train.png)
+
+![moving_average_rewards_train](assets/moving_average_rewards_train.png)
+
+![steps_train](assets/steps_train.png)
+
+同时也可以绘制测试(eval)模型时的曲线：
+
+![rewards_eval](assets/rewards_eval.png)
+
+![moving_average_rewards_eval](assets/moving_average_rewards_eval.png)
+
+![steps_eval](assets/steps_eval.png)
+
+也可以[tensorboard](https://pytorch.org/docs/stable/tensorboard.html)查看结果，如下：
+
+![image-20201015221602396](assets/image-20201015221602396.png)
 
 ### 注意
 
