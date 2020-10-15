@@ -5,14 +5,12 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2020-10-07 17:32:18
+LastEditTime: 2020-10-15 21:56:21
 @Discription: 
 @Environment: python 3.7.7
 '''
 '''off-policy
 '''
-
-
 
 
 import torch
@@ -30,7 +28,7 @@ class DQN:
         self.n_actions = n_actions  # 总的动作个数
         self.device = device  # 设备，cpu或gpu等
         self.gamma = gamma
-        # e-greedy 策略相关参数
+        # e-greedy策略相关参数
         self.epsilon = 0
         self.epsilon_start = epsilon_start
         self.epsilon_end = epsilon_end
@@ -46,32 +44,41 @@ class DQN:
         self.loss = 0
         self.memory = ReplayBuffer(memory_capacity)
 
-    def select_action(self, state):
+    def choose_action(self, state, train=True):
         '''选择动作
-        Args:
-            state [array]: [description]
-        Returns:
-            action [array]: [description]
         '''
-        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            math.exp(-1. * self.actions_count / self.epsilon_decay)
-        self.actions_count += 1
-        if random.random() > self.epsilon:
+        if train:
+            self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+                math.exp(-1. * self.actions_count / self.epsilon_decay)
+            self.actions_count += 1
+            if random.random() > self.epsilon:
+                with torch.no_grad():
+                    # 先转为张量便于丢给神经网络,state元素数据原本为float64
+                    # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
+                    state = torch.tensor(
+                        [state], device=self.device, dtype=torch.float32)
+                    # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
+                    q_value = self.policy_net(state)
+                    # tensor.max(1)返回每行的最大值以及对应的下标，
+                    # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
+                    # 所以tensor.max(1)[1]返回最大值对应的下标，即action
+                    action = q_value.max(1)[1].item()  
+            else:
+                action = random.randrange(self.n_actions)
+            return action
+        else: 
             with torch.no_grad():
-                # 先转为张量便于丢给神经网络,state元素数据原本为float64
-                # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
-                state = torch.tensor(
-                    [state], device=self.device, dtype=torch.float32)
-                # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
-                q_value = self.policy_net(state)
-                # tensor.max(1)返回每行的最大值以及对应的下标，
-                # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
-                # 所以tensor.max(1)[1]返回最大值对应的下标，即action
-                action = q_value.max(1)[1].item()  
-        else:
-            action = random.randrange(self.n_actions)
-        return action
-
+                    # 先转为张量便于丢给神经网络,state元素数据原本为float64
+                    # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
+                    state = torch.tensor(
+                        [state], device='cpu', dtype=torch.float32)
+                    # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
+                    q_value = self.target_net(state)
+                    # tensor.max(1)返回每行的最大值以及对应的下标，
+                    # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
+                    # 所以tensor.max(1)[1]返回最大值对应的下标，即action
+                    action = q_value.max(1)[1].item() 
+            return action
     def update(self):
 
         if len(self.memory) < self.batch_size:
@@ -113,8 +120,9 @@ class DQN:
         for param in self.policy_net.parameters():  # clip防止梯度爆炸
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()  # 更新模型
-        
-    def save_model():
-        pass
-    def load_model():
-        pass
+
+    def save_model(self,path):
+        torch.save(self.target_net.state_dict(), path)
+
+    def load_model(self,path):
+        self.target_net.load_state_dict(torch.load(path))  
