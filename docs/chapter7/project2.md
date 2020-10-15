@@ -62,7 +62,7 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 同时也可以绘制测试(eval)模型时的曲线：
 
-![rewards_eval](assets/rewards_eval.png)()
+![rewards_eval](assets/rewards_eval.png)
 
 ![moving_average_rewards_eval](assets/moving_average_rewards_eval.png)
 
