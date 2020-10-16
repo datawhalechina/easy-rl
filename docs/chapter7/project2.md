@@ -52,7 +52,7 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 ## 任务要求
 
-训练并绘制reward以及滑动平均后的reward随epiosde的变化曲线图并记录超参数写成报告，图示如下：
+训练并绘制reward以及滑动平均后的reward随episode的变化曲线图并记录超参数写成报告，图示如下：
 
 ![rewards_train](assets/rewards_train.png)
 
