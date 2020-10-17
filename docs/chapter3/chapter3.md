@@ -219,8 +219,8 @@ $$
 
 ## References
 
+* [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
 * [百面深度学习](https://book.douban.com/subject/35043939/)
-
 * [神经网络与深度学习](https://nndl.github.io/)
 
 
