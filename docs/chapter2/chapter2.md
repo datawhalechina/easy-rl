@@ -208,7 +208,7 @@ $$
 
 ![](img/2.27.png)
 
-当我们知道一个 MDP 以及要采取的策略 $\pi$ ，那我们计算价值函数的过程，就是 `policy evaluation`。就像我们在评估这个策略，我们会得到多大的奖励。Policy evaluation 在有些地方也被叫做 `prediction`，也就是预测你当前采取的这个策略最终会产生多少的价值。
+当我们知道一个 MDP 以及要采取的策略 $\pi$ ，那我们计算价值函数的过程，就是 `policy evaluation`。就像我们在评估这个策略，我们会得到多大的奖励。**Policy evaluation 在有些地方也被叫做 `prediction`，也就是预测你当前采取的这个策略最终会产生多少的价值。**
 
 ![](img/2.28.png)
 
