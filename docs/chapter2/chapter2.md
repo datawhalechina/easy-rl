@@ -140,7 +140,7 @@ $$
 
 这里迭代的方法就有几种，
 
-* 比如说我们可以通过动态规划的方法，
+* 我们可以通过动态规划的方法，
 * 也可以通过蒙特卡罗的办法，就通过采样的办法去计算它，
 * 也可以通过 Temporal-Difference Learning 的办法。这个 `Temporal-Difference Learning` 叫 `TD Leanring`，它是动态规划和蒙特卡罗的一个结合。
 
@@ -152,6 +152,8 @@ $$
 
 ![](img/2.17.png)**我们也可以用这个动态规划的办法**，一直去迭代它的 Bellman Equation，让它最后收敛，我们就可以得到它的一个状态。所以在这里算法二就是一个迭代的算法，通过 bootstrapping(拔靴自助) 的办法，然后去不停地迭代这个 Bellman Equation。当这个最后更新的状态跟你上一个状态变化并不大的时候，更新就可以停止，我们就可以输出最新的 $V'(s)$ 作为它当前的状态。所以这里就是把 Bellman Equation 变成一个 Bellman Update，这样就可以得到它的一个价值。
 
+>动态规划的方法基于后继状态值的估计来更新状态值的估计（算法二中的第 3 行用 $V'$ 来更新 $V$ ）。也就是说，它们根据其他估算值来更新估算值。我们称这种基本思想为 bootstrapping。
+
 ## Markov Decision Process(MDP)
 
 ![](img/2.18.png)
@@ -160,7 +162,7 @@ $$
 
 ![](img/2.19.png)
 
-Policy 定义了在某一个状态应该采取什么样的行为。当我们知道当前状态过后，可以带入这个 policy function，那我们会得到一个概率，概率就代表了在所有可能的行为里面怎样去采取行动。就可能有 0.7 的概率往左走，有 0.3 的概率往右走，这样是一个概率的表示。另外这个策略也可能是确定的，它有可能是直接输出一个值，或者就直接告诉你当前应该采取什么样的行为，而不是一个行为的概率。然后这里我们有一个假设，就是这个概率函数应该是静态的(stationary)，不同时间点，你采取的行为其实都是对这个 policy function 进行采样。
+**Policy 定义了在某一个状态应该采取什么样的行为。**当我们知道当前状态过后，可以带入这个 policy function，那我们会得到一个概率，概率就代表了在所有可能的行为里面怎样去采取行动。就可能有 0.7 的概率往左走，有 0.3 的概率往右走，这样是一个概率的表示。另外这个策略也可能是确定的，它有可能是直接输出一个值，或者就直接告诉你当前应该采取什么样的行为，而不是一个行为的概率。然后这里我们有一个假设，就是这个概率函数应该是静态的(stationary)，不同时间点，你采取的行为其实都是对这个 policy function 进行采样。
 
 ![](img/2.20.png)
 
@@ -227,15 +229,37 @@ MDP，你其实可以把它想象成一个摆渡的人在这个船上面，她�
 $$
 v_{t}^{\pi}(s)=\sum_{a} P(\pi(s)=a)\left(r(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v_{t-1}^{\pi}\left(s^{\prime}\right)\right)
 $$
-然后就会得到它的状态。另外一个练习的例子，就是说我们现在采取的 policy 在每个状态，我们有 0.5 的概率往左走，有 0.5 的概率往右走，那么放到这个状态里面去如何计算。其实也是把这个 Bellman Expectation Equation 拿出来，然后进行迭代就可以算出来了，就当我们开始的时候，我们可以初始化。初始化这个不同的 $v(s')$ 都会有一个值，那么放到这个里面去迭代，最后它的 $v$ ，然后就会算出来。
+然后就会得到它的状态。
+
+另外一个练习的例子，就是说我们现在采取的 policy 在每个状态，我们有 0.5 的概率往左走，有 0.5 的概率往右走，那么放到这个状态里面去如何计算。其实也是把这个 Bellman Expectation Equation 拿出来，然后进行迭代就可以算出来了，就当我们开始的时候，我们可以初始化。初始化这个不同的 $v(s')$ 都会有一个值，那么放到这个里面去迭代，最后它的 $v$ ，然后就会算出来。
 
 ![](img/2.31.png)
 
 MDP 的 `prediction` 和 `control` 是 MDP 里面的核心问题。
 
-* Prediction 是说给定一个 MDP 以及一个 policy $\pi$ ，去计算它的 value function，就等于每个状态它的价值函数是多少。
-* Control 是说我们去寻找一个最佳的策略，它的 input 就是 MDP，输出是通过去寻找它的最佳策略，然后同时输出它的最佳价值函数(optimal value function)以及它的这个最佳策略(optimal policy)。
+* **Prediction 是说给定一个 MDP 以及一个 policy $\pi$ ，去计算它的 value function，就对于每个状态，它的价值函数是多少。**
+* **Control 是说我们去寻找一个最佳的策略：**
+  * **它的 input 就是 MDP，**
+  * **输出是通过去寻找它的最佳策略，然后同时输出它的最佳价值函数(optimal value function)以及它的最佳策略(optimal policy)。**
 * 在 MDP 里面，prediction 和 control 都可以通过这个动态规划去解决。
+* 要强调的是，这两者的区别就在于，
+  * 预测问题是**给定一个 policy**，我们要确定它的 value function 是多少。
+  * 而控制问题是在**没有 policy 的前提下**，我们要确定最优的 value function 以及对应的决策方案。
+* **实际上，这两者是递进的关系，在强化学习中，我们通过解决预测问题，进而解决控制问题。**
+
+![](img/prediction_example.png)
+
+**举一个例子来说明 prediction 与 control 的区别。**
+
+首先是**预测问题**：在上图的方格中，我们规定从 A $\to$ A' 可以得到 +10 的奖励，从 B $\to$ B' 可以得到 +5 的奖励，其它步骤的奖励为 -1。现在，我们给定一个 policy：在任何状态中，它的行为模式都是随机的，也就是上下左右的概率各 25%。那么，预测问题要做的就是，在这种决策模式下，我们的 value function 是什么，也就是如上图 b 所示。
+
+![](img/control_example.png)
+
+
+
+接着是**控制问题**：在控制问题中，问题背景与预测问题相同，唯一的区别就是：不再限制 policy。也就是说行为模式是未知的，我们要自己确定。所以我们通过解决控制问题，求得每一个状态的最优的 value function（如上图 b 所示），也得到了最优的 policy（如上图 c 所示）。
+
+简单总结下，控制问题要做的问题就是，给定同样的条件，在所有可能的策略下最优的价值函数是什么？最优策略是什么？
 
 ![](img/2.32.png)
 
@@ -418,4 +442,11 @@ $$
 * 对于 control，
   * 如果采取的算法是 policy  iteration，那这里用的是 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，再去优化它的策略，然后不停迭代。这里用到的只是 Bellman Expectation Equation。
   * 如果采取的算法是 value iteration，那这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
+
+## References
+
+* [强化学习基础 David Silver 笔记](https://zhuanlan.zhihu.com/c_135909947)
+* [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
+* [David Silver 强化学习公开课中文讲解及实践](https://zhuanlan.zhihu.com/reinforce)
+* [UCL Course on RL(David Silver)](https://www.davidsilver.uk/teaching/)
 
