@@ -30,13 +30,28 @@
 | [第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) | [第十章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10_questions&keywords) |                                                              |
 | [第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords) |                                                              |
 | [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
-## 主要贡献者
-
-| 作者 | 贡献 |
-|------|------|
-|   [@qiwang067](https://github.com/qiwang067)   | 教程设计 |
-|   [@yyysjz1997](https://github.com/yyysjz1997)   |   习题设计   |
-|  [@JohnJim0816](https://github.com/JohnJim0816)    |  项目设计|
+## 贡献者
+<table border="0">
+  <tbody>
+    <tr align="center" >
+      <td>
+         <a href="https://github.com/qiwang067"><img width="70" height="70" src="https://github.com/qiwang067.png?s=40" alt="pic"></a><br>
+         <a href="https://github.com/qiwang067">Qi Wang</a> 
+        <p>教程设计<br> 中国科学院大学</p>
+      </td>
+      <td>
+         <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
+         <a href="https://github.com/yyysjz1997">David Young</a> 
+        <p>习题设计 <br> 清华大学</p>
+      </td>
+      <td>
+         <a href="https://github.com/JohnJim0816"><img width="70" height="70" src="https://github.com/JohnJim0816.png?s=40" alt="pic"></a><br>
+         <a href="https://github.com/JohnJim0816">John Jim</a>
+         <p>项目设计<br> 北京大学</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## 关注我们
 
@@ -44,4 +59,3 @@
 
 ## LICENSE
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="知识共享许可协议" style="border-width:0" src="https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey" /></a><br />本作品采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>进行许可。
-
