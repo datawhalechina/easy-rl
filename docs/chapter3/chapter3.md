@@ -1,6 +1,6 @@
 # 表格型方法
 
-这节课我们通过最简单的`表格型的方法`来讲解如何使用 value-based 方法去求解强化学习。
+这节课我们通过最简单的`表格型的方法(tabular methods)`来讲解如何使用 value-based 方法去求解强化学习。
 
 ## Sarsa: On-policy TD Control
 
