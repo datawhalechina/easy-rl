@@ -154,13 +154,13 @@ Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略。
 
 ![](img/3.18.png)
 
- 我们通过对比的方式来去理解 `Q-learning`。Q-learning 是 off-policy 的时序差分学习方法，Sarsa 是 on-policy 的时序差分学习方法。
+ **我们通过对比的方式来去理解 `Q-learning`。Q-learning 是 off-policy 的时序差分学习方法，Sarsa 是 on-policy 的时序差分学习方法。**
 
-* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action 。这个 action 有可能是 $\varepsilon$-greddy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作。但是就是它实实在在执行了的那个动作。
+* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action。这个 action 有可能是 $\varepsilon$-greedy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作。但是就是它实实在在执行了的那个动作。
 
-* 但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a')$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。Q-learning 默认的 action 不是通过 behavior policy 来选取的，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入 A'，即 $a_{t+1}$  的值。
+* 但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a)$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。Q-learning 默认的 action 不是通过 behavior policy 来选取的，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入 A'，即 $a_{t+1}$  的值。
 
-在 Q-learning 中，Q函数的估计方法为
+在 Q-learning 中，Q 函数的估计方法为
 $$
 Q(s, a) \leftarrow Q(s, a)+\alpha\left(r+\gamma \max _{a^{\prime}} Q\left(s^{\prime}, a^{\prime}\right)-Q(s, a)\right)
 $$
