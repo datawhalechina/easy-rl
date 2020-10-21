@@ -88,9 +88,9 @@ $$
 =E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta}}\left[A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
 $$
 
-我们用 $\theta$ 这个 actor 去 sample 出 $s_t$ 跟 $a_t$，sample 出 state 跟 action 的 pair，我们会计算这个 state 跟 action pair 它的 advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$就是 accumulated 的 reward 减掉 bias，这一项就是估测出来的。它要估测的是，在 state $s_t$ 采取 action $a_t$ 是好的，还是不好的。那接下来后面会乘上 $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果 $A^{\theta}\left(s_{t}, a_{t}\right)$是正的，就要增加概率， 如果是负的，就要减少概率。
+我们用 $\theta$ 这个 actor 去 sample 出 $s_t$ 跟 $a_t$，sample 出 state 跟 action 的 pair，我们会计算这个 state 跟 action pair 它的 advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$ 就是 accumulated reward 减掉 bias，这一项就是估测出来的。它要估测的是，在 state $s_t$ 采取 action $a_t$ 是好的，还是不好的。那接下来后面会乘上 $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果 $A^{\theta}\left(s_{t}, a_{t}\right)$ 是正的，就要增加概率， 如果是负的，就要减少概率。
 
-那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在 $s_t$、$a_t$ 是$\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的 model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把 $s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉$s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
+那现在用了 importance sampling 的技术把 on-policy 变成 off-policy，就从 $\theta$ 变成 $\theta'$。所以现在 $s_t$、$a_t$ 是 $\theta'$ ，另外一个actor 跟环境互动以后所 sample 到的 data。 但是拿来训练要调整参数是 model $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的 model，所以你要做一个修正的项。这项修正的项，就是用 importance sampling 的技术，把 $s_t$、$a_t$ 用 $\theta$ sample 出来的概率除掉 $s_t$、$a_t$  用 $\theta'$  sample 出来的概率。
 
 $$
 =E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{P_{\theta}\left(s_{t}, a_{t}\right)}{P_{\theta^{\prime}}\left(s_{t}, a_{t}\right)} A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
@@ -144,11 +144,13 @@ $$
 
 ![](img/5.7.png)
 
-我们可以把 on-policy 换成 off-policy，但 importance sampling 有一个 issue，如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多的话，这两个 distribution 差太多的话，importance sampling 的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。它实际上做的事情就是这样，在 off-policy 的方法里要 optimize 的是 $J^{\theta^{\prime}}(\theta)$。但是这个 objective function 又牵涉到 importance sampling。在做 importance sampling 的时候，$p_{\theta}\left(a_{t} | s_{t}\right)$ 不能跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$差太多。你做 demonstration 的 model 不能够跟真正的 model 差太多，差太多的话 importance sampling 的结果就会不好。我们在 training 的时候，多加一个 constrain。这个 constrain 是 $\theta$  跟 $\theta'$  output 的 action 的 KL divergence，简单来说，这一项的意思就是要衡量说 $\theta$ 跟 $\theta'$  有多像。
+我们可以把 on-policy 换成 off-policy，但 importance sampling 有一个 issue，如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多的话，这两个 distribution 差太多的话，importance sampling 的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。
+
+PPO 实际上做的事情就是这样，在 off-policy 的方法里要 optimize 的是 $J^{\theta^{\prime}}(\theta)$。但是这个 objective function 又牵涉到 importance sampling。在做 importance sampling 的时候，$p_{\theta}\left(a_{t} | s_{t}\right)$ 不能跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$差太多。你做 demonstration 的 model 不能够跟真正的 model 差太多，差太多的话 importance sampling 的结果就会不好。我们在 training 的时候，多加一个 constrain。这个 constrain 是 $\theta$  跟 $\theta'$  output 的 action 的 KL divergence，简单来说，这一项的意思就是要衡量说 $\theta$ 跟 $\theta'$  有多像。
 
 然后我们希望在 training 的过程中，learn 出来的 $\theta$ 跟 $\theta'$  越像越好。因为如果 $\theta$ 跟 $\theta'$ 不像的话，最后的结果就会不好。所以在 PPO 里面有两个式子，一方面是 optimize 本来要 optimize 的东西，但再加一个 constrain。这个 constrain 就好像那个 regularization 的 term 一样，在做 machine learning 的时候不是有 L1/L2 的 regularization。这一项也很像 regularization，这样 regularization 做的事情就是希望最后 learn 出来的 $\theta$ 不要跟 $\theta'$ 太不一样。
 
-PPO 有一个前身叫做 TRPO，TRPO 的式子如下式所示。
+PPO 有一个前身叫做 `TRPO(Trust Region Policy Optimization)`，TRPO 的式子如下式所示。
 $$
 \begin{aligned}
 J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] \\ \\
@@ -156,7 +158,7 @@ J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\th
 \end{aligned}
 $$
 
-它与 PPO 不一样的地方 是 constrain 摆的位置不一样，PPO是直接把 constrain 放到你要 optimize 的那个式子里面，然后你就可以用 gradient ascent 的方法去 maximize 这个式子。但 TRPO 是把 KL divergence 当作 constrain，它希望 $\theta$ 跟 $\theta'$ 的 KL divergence 小于一个$\delta$。如果你是用 gradient based optimization 时，有 constrain 是很难处理的。
+它与 PPO 不一样的地方是 constrain 摆的位置不一样，PPO是直接把 constrain 放到你要 optimize 的那个式子里面，然后你就可以用 gradient ascent 的方法去 maximize 这个式子。但 TRPO 是把 KL divergence 当作 constrain，它希望 $\theta$ 跟 $\theta'$ 的 KL divergence 小于一个 $\delta$。如果你是用 gradient based optimization 时，有 constrain 是很难处理的。
 
 PPO 是很难处理的，因为它是把 KL divergence constrain 当做一个额外的 constrain，没有放 objective 里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用 PPO 不要用 TRPO。看文献上的结果是，PPO 跟 TRPO 可能 performance 差不多，但 PPO 在实现上比 TRPO 容易的多。
 
@@ -164,11 +166,15 @@ Q: KL divergence 到底指的是什么？
 
 A: 这边我是直接把 KL divergence 当做一个 function，input 是 $\theta$ 跟 $\theta'$，但我的意思并不是说把 $\theta$ 或 $\theta'$  当做一个distribution，算这两个distribution 之间的距离，我不是这个意思。所谓的 $\theta$ 跟 $\theta'$  的距离并不是参数上的距离，而是 behavior 上的距离。
 
-假设你有一个 model，有一个 actor 它是 $\theta$，你有另外一个 actor 的参数是 $\theta'$ ，所谓参数上的距离就是你算这两组参数有多像。我今天所讲的不是参数上的距离， 而是它们行为上的距离。就是你先带进去一个 state s，它会对这个 action 的 space output 一个 distribution。假设你有 3 个 actions，3 个可能的 actions 就 output 3 个值。那今天所指的 distance 是 behavior distance。也就是说，给同样的 state 的时候，输出 action 之间的差距。这两个 actions 的 distribution 都是一个概率分布。所以就可以计算这两个概率分布的 KL divergence。把不同的 state output 的这两个 distribution 的 KL divergence 平均起来才是我这边所指的两个 actor 间的 KL divergence。你可能说怎么不直接算这个 $\theta$ 或 $\theta'$ 之间的距离，甚至不要用 KL divergence 算，L1 跟 L2 的 norm 也可以保证 $\theta$ 跟 $\theta'$ 很接近。在做 reinforcement learning 的时候，之所以我们考虑的不是参数上的距离，而是 action 上的距离，是因为很有可能对 actor 来说，参数的变化跟 action 的变化不一定是完全一致的。有时候你参数小小变了一下，它可能 output 的行为就差很多。或是参数变很多，但 output 的行为可能没什么改变。**所以我们真正在意的是这个actor 的行为上的差距，而不是它们参数上的差距。**所以在做 PPO 的时候，所谓的 KL divergence 并不是参数的距离，而是 action 的距离。
+假设你有一个 model，有一个 actor 它是 $\theta$，你有另外一个 actor 的参数是 $\theta'$ ，所谓参数上的距离就是你算这两组参数有多像。我今天所讲的不是参数上的距离， 而是它们行为上的距离。就是你先带进去一个 state s，它会对这个 action 的 space output 一个 distribution。假设你有 3 个 actions，3 个可能的 actions 就 output 3 个值。那今天所指的 distance 是 behavior distance。也就是说，给同样的 state 的时候，输出 action 之间的差距。这两个 actions 的 distribution 都是一个概率分布。所以就可以计算这两个概率分布的 KL divergence。把不同的 state output 的这两个 distribution 的 KL divergence 平均起来才是我这边所指的两个 actor 间的 KL divergence。你可能说怎么不直接算这个 $\theta$ 或 $\theta'$ 之间的距离，甚至不要用 KL divergence 算，L1 跟 L2 的 norm 也可以保证 $\theta$ 跟 $\theta'$ 很接近。在做 reinforcement learning 的时候，之所以我们考虑的不是参数上的距离，而是 action 上的距离，是因为很有可能对 actor 来说，参数的变化跟 action 的变化不一定是完全一致的。有时候你参数小小变了一下，它可能 output 的行为就差很多。或是参数变很多，但 output 的行为可能没什么改变。**所以我们真正在意的是这个 actor 的行为上的差距，而不是它们参数上的差距。**所以在做 PPO 的时候，所谓的 KL divergence 并不是参数的距离，而是 action 的距离。
+
+### PPO-Penalty
 
 ![](img/5.8.png)
 
-我们来看一下 `PPO1` 的 algorithm。它先 initial 一个 policy 的参数 $\theta^0$。然后在每一个 iteration 里面呢，你要用参数 $\theta^k$，$\theta^k$ 就是你在前一个 training 的 iteration得到的 actor 的参数，你用 $\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的pair。
+**PPO 算法有两个主要的变种：PPO-Penalty 和 PPO-Clip。**
+
+我们来看一下 `PPO1` 的 algorithm，即 `PPO-Penalty`。它先 initial 一个 policy 的参数 $\theta^0$。然后在每一个 iteration 里面呢，你要用参数 $\theta^k$，$\theta^k$ 就是你在前一个 training 的 iteration得到的 actor 的参数，你用 $\theta^k$ 去跟环境做互动，sample 到一大堆 state-action 的 pair。
 
 然后你根据 $\theta^k$ 互动的结果，估测一下$A^{\theta^{k}}\left(s_{t}, a_{t}\right)$。然后你就 apply PPO 的 optimization 的 formulation。但跟原来的policy gradient 不一样，原来的 policy gradient 只能 update 一次参数，update 完以后，你就要重新 sample data。但是现在不用，你拿 $\theta^k$ 去跟环境做互动，sample 到这组 data 以后，你可以让 $\theta$ update 很多次，想办法去 maximize objective function。这边 $\theta$ update 很多次没有关系，因为我们已经有做 importance sampling，所以这些experience，这些 state-action 的 pair 是从 $\theta^k$ sample 出来的没有关系。$\theta$ 可以 update 很多次，它跟 $\theta^k$ 变得不太一样也没有关系，你还是可以照样训练 $\theta$。
 
@@ -181,32 +187,40 @@ A: 这边我是直接把 KL divergence 当做一个 function，input 是 $\theta
 
 所以 $\beta$ 是可以动态调整的。这个叫做 `adaptive KL penalty`。
 
+### PPO-Clip
+
 ![](img/5.10.png)
 
-如果你觉得算 KL divergence 很复杂。有一个`PPO2`。PPO2 要去 maximize 的 objective function 如下式所示，它的式子里面就没有 KL divergence 。
+如果你觉得算 KL divergence 很复杂，有一个`PPO2`，PPO2 即 `PPO-Clip`。PPO2 要去 maximize 的 objective function 如下式所示，它的式子里面就没有 KL divergence 。
 $$
 \begin{aligned}
 J_{P P O 2}^{\theta^{k}}(\theta) \approx \sum_{\left(s_{t}, a_{t}\right)} \min &\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)} A^{\theta^{k}}\left(s_{t}, a_{t}\right),\right.\\
 &\left.\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^{k}}\left(s_{t}, a_{t}\right)\right)
 \end{aligned}
 $$
-这个式子看起来有点复杂，但实际 implement 就很简单。我们来实际看一下说这个式子到底是什么意思。
-min 这个 operator 做的事情是第一项跟第二项里面选比较小的那个。第二项前面有个 clip function，clip 这个 function 的意思是说，在括号里面有 3 项，如果第一项小于第二项的话，那就 output $1-\varepsilon$ 。第一项如果大于第三项的话，那就output $1+\varepsilon$。 $\varepsilon$ 是一个 hyper parameter，你要 tune 的，你可以设成 0.1 或 设 0.2 。
+这个式子看起来有点复杂，但实际 implement 就很简单。我们来看一下这个式子到底是什么意思。
+
+* Min 这个 operator 做的事情是第一项跟第二项里面选比较小的那个。
+* 第二项前面有个 clip function，clip 这个 function 的意思是说，
+  * 在括号里面有 3 项，如果第一项小于第二项的话，那就 output $1-\varepsilon$ 。
+  * 第一项如果大于第三项的话，那就output $1+\varepsilon$。 
+  * $\varepsilon$ 是一个 hyperparameter，你要 tune 的，你可以设成 0.1 或 设 0.2 。
+
 假设这边设 0.2 的话，如下式所示
 $$
 \operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 0.8, 1.2\right)
 $$
 
-如果$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$算出来小于 0.8，那就当作 0.8。如果算出来大于 1.2，那就当作1.2。
+如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 算出来小于 0.8，那就当作 0.8。如果算出来大于 1.2，那就当作1.2。
 
-我们先看一下下面这项这个算出来到底是什么的东西。
+**我们先看一下下面这项这个算出来到底是什么东西：**
 $$
 \operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)
 $$
 
 ![](img/5.11.png)
 
-上图的横轴是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴是 clip function 实际的输出。
+上图的横轴是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴是 clip function 的输出。
 
 * 如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 大于$1+\varepsilon$，输出就是 $1+\varepsilon$。
 * 如果小于 $1-\varepsilon$， 它输出就是 $1-\varepsilon$。
@@ -220,22 +234,22 @@ $$
 
 ![](img/5.13.png)
 
-如果 A 小于0 的话，取最小的以后，就得到红色的这一条线。
-这一个式子虽然看起来有点复杂，实现起来是蛮简单的，因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟$p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的 model， 跟你实际上 learn 的 model，在 optimize 以后不要差距太大。那你要怎么让它做到不要差距太大呢？
-
-如果 A 大于 0，也就是某一个 state-action 的pair 是好的。那我们希望增加这个 state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过 $1+\varepsilon$  的话，就没有 benefit 了。红色的线就是我们的 objective function，我们希望 objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$只要大过 $1+\varepsilon$，就没有 benefit 了。
-
-所以今天在 train 的时候，当 $p_{\theta}(a_{t} | s_{t})$ 被 train 到 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$大于 $1+\varepsilon$ 时，它就会停止。
-
-假设 $p_{\theta}(a_{t} | s_{t})$  比 $p_{\theta^k}(a_{t} | s_{t})$ 还要小，那我们的目标是要让 $p_{\theta}(a_{t} | s_{t})$ 越大越好。
-
-* 假设这个 advantage 是正的，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。假设这个 action 是好的，我们当然希望这个 action 被采取的概率越大越好。所以假设 $p_{\theta}(a_{t} | s_{t})$ 还比 $p_{\theta^k}(a_{t} | s_{t})$  小，那就尽量把它挪大，但只要大到 $1+\varepsilon$ 就好。
-* 负的时候也是一样，如果某一个 state-action pair 是不好的，我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比$p_{\theta^k}(a_{t} | s_{t})$  还大，那你就尽量把它压小，压到$\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$是$1-\epsilon$ 的时候就停了，就不要再压得更小。
-
-这样的好处就是， 你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要实现这个东西，很简单。
+如果 A 小于 0 的话，取最小的以后，就得到红色的这一条线。
 
 ![](img/5.14.png)
+虽然这个式子看起来有点复杂，实现起来是蛮简单的，**因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做 demonstration 的 model 跟你实际上 learn 的 model，在 optimize 以后不要差距太大。**
+
+**怎么让它做到不要差距太大呢？**
+
+* 如果 A > 0，也就是某一个 state-action 的 pair 是好的，那我们希望增加这个 state-action pair 的概率。也就是说，我们想要让  $p_{\theta}(a_{t} | s_{t})$ 越大越好，但它跟 $p_{\theta^k}(a_{t} | s_{t})$ 的比值不可以超过 $1+\varepsilon$。如果超过 $1+\varepsilon$  的话，就没有 benefit 了。红色的线就是我们的 objective function，我们希望 objective 越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。但是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 只要大过 $1+\varepsilon$，就没有 benefit 了。所以今天在 train 的时候，当 $p_{\theta}(a_{t} | s_{t})$ 被 train 到 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}>1+\varepsilon$ 时，它就会停止。假设 $p_{\theta}(a_{t} | s_{t})$  比 $p_{\theta^k}(a_{t} | s_{t})$ 还要小，并且这个 advantage 是正的。因为这个 action 是好的，我们当然希望这个 action 被采取的概率越大越好，我们希望 $p_{\theta}(a_{t} | s_{t})$ 越大越好。所以假设 $p_{\theta}(a_{t} | s_{t})$ 还比 $p_{\theta^k}(a_{t} | s_{t})$  小，那就尽量把它挪大，但只要大到 $1+\varepsilon$ 就好。
+* 如果 A < 0，也就是某一个 state-action pair 是不好的，我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比 $p_{\theta^k}(a_{t} | s_{t})$  还大，那你就尽量把它压小，压到 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 是 $1-\epsilon$ 的时候就停了，就不要再压得更小。
+
+这样的好处就是，你不会让 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要实现这个东西，很简单。
+
+![](img/5.15.png)
 上图是 PPO 跟其它方法的比较。Actor-Critic 和 A2C+Trust Region 方法是 actor-critic based 的方法。PPO 是紫色线的方法，这边每张图就是某一个 RL 的任务，你会发现说在多数的 cases 里面，PPO 都是不错的，不是最好的，就是第二好的。
 
 ## References
+
+* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#)
 
