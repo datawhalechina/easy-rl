@@ -29,7 +29,7 @@ A: 在实现上，你有两个 Q-network， 一个是 target 的 Q-network，一
 
 ## Dueling DQN
 ![](img/7.4.png)
-第二个 tip 是 `Dueling DQN`。其实 Dueling DQN 也蛮好做的，相较于原来的 DQN，它唯一的差别是改了 network 的架构，Dueling DQN 唯一做的事情是改 network 的架构。Q-network 就是 input state，output 就是每一个 action 的Q value。Dueling DQN 唯一做的事情是改了 network 的架构，其它的算法，你都不要去动它。
+第二个 tip 是 `Dueling DQN`。其实 Dueling DQN 也蛮好做的，相较于原来的 DQN，它唯一的差别是改了 network 的架构。Q-network 就是 input state，output 就是每一个 action 的Q value。Dueling DQN 唯一做的事情是改了 network 的架构，其它的算法，你都不要去动它。
 
 Q: Dueling DQN 是怎么改了 network 的架构呢？
 
@@ -39,7 +39,7 @@ A: 本来的 DQN 就是直接 output Q value 的值。现在这个 dueling 的 D
 
 Q: 这么改有什么好处？
 
-A : 那我们假设说，原来的 $Q(s,a)$ 就是一个 table。我们假设 state 是 discrete 的，实际上 state 不是 discrete 的。那为了说明方便，我们假设就是只有 4 个不同的state，只有 3 个不同的action，所以 $Q(s,a)$ 你可以看作是一个 table。
+A : 那我们假设说，原来的 $Q(s,a)$ 就是一个 table。我们假设 state 是 discrete 的，实际上 state 不是 discrete 的。那为了说明方便，我们假设就是只有 4 个不同的 state，只有 3 个不同的 action，所以 $Q(s,a)$  你可以看作是一个 table。
 
 我们知道：
 $$
@@ -53,7 +53,9 @@ $$
 
 你把这个 V 的值加到 A 的每一个 column 就会得到 Q 的值。把 2+1，2+(-1)，2+0，就得到 3，1，2，以此类推。
 
-如上图所示，假设说你在 train network 的时候，target 是希望这一个值变成 4，这一个值变成 0。但是你实际上能更改的并不是 Q 的值，你的 network 更改的是 V 跟 A 的值。根据 network 的参数，V 跟 A 的值 output 以后，就直接把它们加起来，所以其实不是更动 Q 的值。然后在 learn network 的时候，假设你希望这边的值，这个 3 增加 1 变成 4，这个 -1 增加 1 变成 0。最后你在 train network 的时候，network 可能会说，我们就不要动这个 A 的值，就动 V 的值，把 V 的值从 0 变成 1。把 0 变成 1 有什么好处呢？你会发现说，本来你只想动这两个东西的值，那你会发现说，这个第三个值也动了，-2 变成  -1。所以有可能说你在某一个 state，你明明只 sample 到这 2 个 action，你没 sample 到第三个 action，但是你其实也可以更改第三个 action 的 Q value。这样的好处就是你不需要把所有的 state-action pair 都 sample 过，你可以用比较 efficient 的方式去 estimate Q value 出来。因为有时候你 update 的时候，不一定是 update 下面这个 table。而是只 update 了 $V(s)$，但 update $V(s)$ 的时候，只要一改所有的值就会跟着改。这是一个比较有效率的方法，去使用你的 data，这个是 Dueling DQN 可以带给我们的好处。
+如上图所示，假设说你在 train network 的时候，target 是希望这一个值变成 4，这一个值变成 0。但是你实际上能更改的并不是 Q 的值，你的 network 更改的是 V 跟 A 的值。根据 network 的参数，V 跟 A 的值 output 以后，就直接把它们加起来，所以其实不是更动 Q 的值。
+
+然后在 learn network 的时候，假设你希望这边的值，这个 3 增加 1 变成 4，这个 -1 增加 1 变成 0。最后你在 train network 的时候，network 可能会说，我们就不要动这个 A 的值，就动 V 的值，把 V 的值从 0 变成 1。把 0 变成 1 有什么好处呢？你会发现说，本来你只想动这两个东西的值，那你会发现说，这个第三个值也动了，-2 变成  -1。所以有可能说你在某一个 state，你明明只 sample 到这 2 个 action，你没 sample 到第三个 action，但是你其实也可以更改第三个 action 的 Q value。这样的好处就是你不需要把所有的 state-action pair 都 sample 过，你可以用比较 efficient 的方式去 estimate Q value 出来。因为有时候你 update 的时候，不一定是 update 下面这个 table。而是只 update 了 $V(s)$，但 update $V(s)$ 的时候，只要一改所有的值就会跟着改。这是一个比较有效率的方法，去使用你的 data，这个是 Dueling DQN 可以带给我们的好处。
 
 那可是接下来有人就会问说会不会最后 learn 出来的结果是说，反正 machine 就学到 V 永远都是 0，然后反正 A 就等于 Q，那你就没有得到任何 Dueling DQN 可以带给你的好处， 就变成跟原来的 DQN 一模一样。为了避免这个问题，实际上你要给 A 一些 constrain，让 update A 其实比较麻烦，让 network 倾向于会想要去用 V 来解问题。
 
