@@ -237,3 +237,5 @@ $$
 ![](img/5.14.png)
 上图是 PPO 跟其它方法的比较。Actor-Critic 和 A2C+Trust Region 方法是 actor-critic based 的方法。PPO 是紫色线的方法，这边每张图就是某一个 RL 的任务，你会发现说在多数的 cases 里面，PPO 都是不错的，不是最好的，就是第二好的。
 
+## References
+
