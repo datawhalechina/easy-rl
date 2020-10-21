@@ -33,18 +33,19 @@ import numpy as np
 import argparse
 import time
 import matplotlib.pyplot as plt
+
 def get_args():
     '''训练的模型参数
     '''
     parser = argparse.ArgumentParser()
     parser.add_argument("--gamma", default=0.9,
                         type=float, help="reward 的衰减率") 
-    parser.add_argument("--epsilon_start", default=0.9,
+    parser.add_argument("--es","--epsilon_start", default=0.9,
                         type=float,help="e-greedy策略中初始epsilon")  
-    parser.add_argument("--epsilon_end", default=0.1, type=float,help="e-greedy策略中的结束epsilon")
-    parser.add_argument("--epsilon_decay", default=200, type=float,help="e-greedy策略中epsilon的衰减率")
-    parser.add_argument("--policy_lr", default=0.1, type=float,help="学习率")
-    parser.add_argument("--max_episodes", default=500, type=int,help="训练的最大episode数目") 
+    parser.add_argument("--ee","--epsilon_end", default=0.1, type=float,help="e-greedy策略中的结束epsilon")
+    parser.add_argument("--ed","--epsilon_decay", default=200, type=float,help="e-greedy策略中epsilon的衰减率")
+    parser.add_argument("--pl","--policy_lr", default=0.1, type=float,help="学习率")
+    parser.add_argument("--me","--max_episodes", default=500, type=int,help="训练的最大episode数目") 
 
     config = parser.parse_args()
 
@@ -58,14 +59,14 @@ def train(cfg):
     agent = QLearning(
         obs_dim=env.observation_space.n,
         action_dim=env.action_space.n,
-        learning_rate=cfg.policy_lr,
+        learning_rate=cfg.pl,
         gamma=cfg.gamma,
-        epsilon_start=cfg.epsilon_start,epsilon_end=cfg.epsilon_end,epsilon_decay=cfg.epsilon_decay)
+        epsilon_start=cfg.es,epsilon_end=cfg.ee,epsilon_decay=cfg.ed)
     render = False # 是否打开GUI画面
     rewards = [] # 记录所有episode的reward
     MA_rewards = []  # 记录滑动平均的reward
     steps = []# 记录所有episode的steps
-    for i_episode in range(1,cfg.max_episodes+1):
+    for i_episode in range(1,cfg.me+1):
         ep_reward = 0 # 记录每个episode的reward
         ep_steps = 0 # 记录每个episode走了多少step
         obs = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
@@ -108,7 +109,6 @@ def train(cfg):
     np.save(output_path+"steps_train.npy", steps)
 
 def test(cfg):
-
     env = gym.make("CliffWalking-v0")  # 0 up, 1 right, 2 down, 3 left
     env = CliffWalkingWapper(env)
     agent = QLearning(
@@ -144,12 +144,24 @@ def test(cfg):
             MA_rewards.append(
                 0.9*MA_rewards[-1]+0.1*ep_reward) 
         print('Episode %s: steps = %s , reward = %.1f' % (i_episode, ep_steps, ep_reward))
-    plt.plot(MA_rewards)
+    plt.plot(MA_rewards,cfg,"test_MArewards")
     plt.show()   
+
+def plotRes(cfg):
+    from plot import plot
+    output_path = os.path.dirname(__file__)+"/result/"
+    rewards=np.load(output_path+"rewards_train.npy", )
+    MA_rewards=np.load(output_path+"MA_rewards_train.npy")
+    steps = np.load(output_path+"steps_train.npy")
+    plot(rewards,cfg)
+    plot(MA_rewards,cfg,ylabel='moving_average_rewards')
+    plot(steps,cfg,ylabel='steps')
+
 def main():
     cfg = get_args()
-    # train(cfg)
-    test(cfg)
+    train(cfg)
+    plotRes(cfg)
+    # test(cfg)
 
 if __name__ == "__main__":
     main()

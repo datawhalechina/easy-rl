@@ -14,15 +14,16 @@ import seaborn as sns
 import numpy as np
 import os 
 
-def plot(item,ylabel='rewards'):
+def plot(item,cfg,ylabel='rewards'):
     sns.set()
     plt.figure()
     plt.plot(np.arange(len(item)), item)
     plt.title(ylabel+' of Q-learning') 
     plt.ylabel(ylabel)
     plt.xlabel('episodes')
-    plt.savefig(os.path.dirname(__file__)+"/result/"+ylabel+".png")
-    plt.show()
+    # plt.savefig(os.path.dirname(__file__)+"/result/"+ylabel+".png")
+    plt.savefig(f"{os.path.dirname(__file__)}/result/{ylabel}_{cfg.gamma}_{cfg.es}_{cfg.ee}_{cfg.ed}_{cfg.pl}_{cfg.me}.png")
+    # plt.show()
 
 if __name__ == "__main__":
 
