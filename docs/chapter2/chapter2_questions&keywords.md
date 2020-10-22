@@ -11,10 +11,10 @@
 - **Bellman Equation（贝尔曼等式）:** 定义了当前状态与未来状态的迭代关系，表示当前状态的值函数可以通过下个状态的值函数来计算。Bellman Equation 因其提出者、动态规划创始人 Richard Bellman 而得名 ，同时也被叫作“动态规划方程”。$V(s)=R(S)+ \gamma \sum_{s' \in S}P(s'|s)V(s')$ ，特别地，矩阵形式：$V=R+\gamma PV$。
 - **Monte Carlo Algorithm（蒙特卡罗方法）：** 可用来计算价值函数的值。通俗的讲，我们当得到一个MRP过后，我们可以从某一个状态开始，然后让它让把这个小船放进去，让它随波逐流，这样就会产生一个轨迹。产生了一个轨迹过后，就会得到一个奖励，那么就直接把它的 Discounted 的奖励 $g$ 直接算出来。算出来过后就可以把它积累起来，当积累到一定的轨迹数量过后，然后直接除以这个轨迹，然后就会得到它的这个价值。
 - **Iterative Algorithm（动态规划方法）：** 可用来计算价值函数的值。通过一直迭代对应的Bellman Equation，最后使其收敛。当这个最后更新的状态跟你上一个状态变化并不大的时候，这个更新就可以停止。
-- **Q函数 (action-value function)：**其定义的是某一个状态某一个行为，对应的它有可能得到的 return 的一个期望（over policy function）。
-- **MDP中的prediction（即policy evaluation问题）：**给定一个 MDP 以及一个 policy $\pi$ ，去计算它的 value function，即每个状态它的价值函数是多少。其可以通过动态规划方法（Iterative Algorithm）解决。
+- **Q函数 (action-value function)：** 其定义的是某一个状态某一个行为，对应的它有可能得到的 return 的一个期望（over policy function）。
+- **MDP中的prediction（即policy evaluation问题）：** 给定一个 MDP 以及一个 policy $\pi$ ，去计算它的 value function，即每个状态它的价值函数是多少。其可以通过动态规划方法（Iterative Algorithm）解决。
 - **MDP中的control问题：** 寻找一个最佳的一个策略，它的 input 就是MDP，输出是通过去寻找它的最佳策略，然后同时输出它的最佳价值函数(optimal value function)以及它的这个最佳策略(optimal policy)。其可以通过动态规划方法（Iterative Algorithm）解决。
-- **最佳价值函数(Optimal Value Function)：**我们去搜索一种 policy $\pi$ ，然后我们会得到每个状态它的状态值最大的一个情况，$v^*$ 就是到达每一个状态，它的值的极大化情况。在这种极大化情况上面，我们得到的策略就可以说它是最佳策略(optimal policy)。optimal policy 使得每个状态，它的状态函数都取得最大值。所以当我们说某一个 MDP 的环境被解了过后，就是说我们可以得到一个 optimal value function，然后我们就说它被解了。
+- **最佳价值函数(Optimal Value Function)：** 我们去搜索一种 policy $\pi$ ，然后我们会得到每个状态它的状态值最大的一个情况，$v^*$ 就是到达每一个状态，它的值的极大化情况。在这种极大化情况上面，我们得到的策略就可以说它是最佳策略(optimal policy)。optimal policy 使得每个状态，它的状态函数都取得最大值。所以当我们说某一个 MDP 的环境被解了过后，就是说我们可以得到一个 optimal value function，然后我们就说它被解了。
 
 ## 2 Questions
 
@@ -39,7 +39,7 @@
 
   1. **Monte Carlo Algorithm（蒙特卡罗方法）：** 可用来计算价值函数的值。通俗的讲，我们当得到一个MRP过后，我们可以从某一个状态开始，然后让它让把这个小船放进去，让它随波逐流，这样就会产生一个轨迹。产生了一个轨迹过后，就会得到一个奖励，那么就直接把它的 Discounted 的奖励 $g$ 直接算出来。算出来过后就可以把它积累起来，当积累到一定的轨迹数量过后，然后直接除以这个轨迹，然后就会得到它的这个价值。
   2. **Iterative Algorithm（动态规划方法）：** 可用来计算价值函数的值。通过一直迭代对应的Bellman Equation，最后使其收敛。当这个最后更新的状态跟你上一个状态变化并不大的时候，通常是小于一个阈值 $\gamma$ ，这个更新就可以停止。
-  3. **以上两者的结合方法：**另外我们也可以通过 Temporal-Difference Learning 的那个办法。这个 `Temporal-Difference Learning` 叫 `TD Leanring`，就是动态规划和蒙特卡罗的一个结合。
+  3. **以上两者的结合方法：** 另外我们也可以通过 Temporal-Difference Learning 的那个办法。这个 `Temporal-Difference Learning` 叫 `TD Leanring`，就是动态规划和蒙特卡罗的一个结合。
 
 - 马尔可夫奖励过程（MRP）与马尔可夫决策过程 （MDP）的区别？
 
