@@ -22,7 +22,7 @@
 
   答：我们现在有环境，有agent。每交互一次以后，我们的agent会向环境输出action，接着环境会反馈给agent当前时刻的state和reward。那么agent此时会实现两个方法：
   
-  1. 使用已经训练好的Q表格，对应环境反馈的state和reward选取对应的action进行输出。
+  1.使用已经训练好的Q表格，对应环境反馈的state和reward选取对应的action进行输出。
   
   2.我们已经拥有了$(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$  这几个值，并直接使用 $A_{t+1}$ 去更新我们的Q表格。
 
