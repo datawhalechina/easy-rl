@@ -168,7 +168,7 @@ Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略，
 
 在 off-policy learning 的过程中，我们这些轨迹都是 behavior policy 跟环境交互产生的，产生这些轨迹后，我们使用这些轨迹来更新 target policy $\pi$。
 
-**off-learning policy 有很多好处：**
+**Off-policy learning 有很多好处：**
 
 * 我们可以利用 exploratory policy 来学到一个最佳的策略，学习效率高；
 * 可以让我们学习其他 agent 的行为，模仿学习，学习人或者其他 agent 产生的轨迹；
