@@ -300,7 +300,6 @@ REINFORCE 的伪代码主要看最后四行，先产生一个 episode 的数据�
 
 * [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 * [神经网络与深度学习](https://nndl.github.io/)
-
 * [百面深度学习](https://book.douban.com/subject/35043939/)
 
 

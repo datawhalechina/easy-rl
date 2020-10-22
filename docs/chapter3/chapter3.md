@@ -1,4 +1,4 @@
-# 表格型方法
+# Tabular Methods
 
 这节课我们通过最简单的`表格型的方法(tabular methods)`来讲解如何使用 value-based 方法去求解强化学习。
 
@@ -34,7 +34,10 @@ MDP 就是序列决策这样一个经典的表达方式。MDP 也是强化学习
 ![](img/3.3.png)
 因为现实世界中人类第一次遇到熊之前，我们根本不知道能不能跑得过熊，所以刚刚那个 10%、90% 的概率也就是虚构出来的概率。熊到底在什么时候会往什么方向去转变的话，我们经常是不知道的。我们是处在一个未知的环境里的，也就是这一系列的决策的 P 函数和 R 函数是未知的，这就是 model-based 跟 model-free 的一个最大的区别。强化学习就是可以用来解决用完全未知的和随机的环境。
 
-强化学习要像人类一样去学习，人类学习的话就是一条路一条路地去尝试一下，先走一条路，看看结果到底是什么。多试几次，只要能活命的。我们可以慢慢地了解哪个状态会更好，我们用价值函数 $V(s)$ 来代表这个状态是好的还是坏的。然后用 Q 函数来判断说在什么状态下做什么动作能够拿到最大奖励，用 Q 函数来表示这个状态-动作值。
+强化学习要像人类一样去学习，人类学习的话就是一条路一条路地去尝试一下，先走一条路，看看结果到底是什么。多试几次，只要能活命的。我们可以慢慢地了解哪个状态会更好，
+
+* 我们用价值函数 $V(s)$ 来代表这个状态是好的还是坏的。
+* 然后用 Q 函数来判断说在什么状态下做什么动作能够拿到最大奖励，用 Q 函数来表示这个状态-动作值。
 
 ## Q-table
 
@@ -85,9 +88,14 @@ $$
 这里的计算是我们选择了一条路，计算出这条路径上每一个状态动作的价值。我们可以看一下右下角这个图，如果说我走的不是红色的路，而是蓝色的路，那我算出来的 Q 值可能是这样。那我们就知道，当小乌龟在 -12 这个点的时候，往右边走是 -11，往上走是 -15，它自然就知道往右走的价值更大，小乌龟就会往右走。
 
 ![](img/3.9.png)
-类似于上图，最后我们要求解的就是一张 Q 表格，它的行数是所有的状态数量，一般可以用坐标来表示表示格子的状态，也可以用 1、2、3、4、5、6、7 来表示不同的位置。Q 表格的列表示上下左右四个动作。最开始这张 Q 表格会全部初始化为零，然后 agent 会不断地去和环境交互得到不同的轨迹，当交互的次数足够多的时候，我们就可以估算出每一个状态下，每个行动的平均总收益去更新这个 Q  表格。怎么去更新 Q 表格就是接下来要引入的强化概念。
+类似于上图，最后我们要求解的就是一张 Q 表格，
 
-`强化`就是我们可以用下一个状态的价值来更新当前状态的价值，其实就是强化学习里面有一个 bootstrap 的概念。在强化学习里面，你可以每走一步更新一下 Q 表格，然后用下一个状态的 Q 值来更新这个状态的 Q 值，这种单步更新的方法叫做`时序差分`。
+* 它的行数是所有的状态数量，一般可以用坐标来表示表示格子的状态，也可以用 1、2、3、4、5、6、7 来表示不同的位置。
+* Q 表格的列表示上下左右四个动作。
+
+最开始这张 Q 表格会全部初始化为零，然后 agent 会不断地去和环境交互得到不同的轨迹，当交互的次数足够多的时候，我们就可以估算出每一个状态下，每个行动的平均总收益去更新这个 Q  表格。怎么去更新 Q 表格就是接下来要引入的强化概念。
+
+**`强化`就是我们可以用下一个状态的价值来更新当前状态的价值，其实就是强化学习里面 bootstrapping 的概念。**在强化学习里面，你可以每走一步更新一下 Q 表格，然后用下一个状态的 Q 值来更新这个状态的 Q 值，这种单步更新的方法叫做`时序差分`。
 
 ## Temporal Difference
 
@@ -103,7 +111,7 @@ $$
 
 ![](img/3.12.png)
 
-为了让大家更加直观感受下一个状态影响上一个状态，我们再次推荐这个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。
+**为了让大家更加直观感受下一个状态影响上一个状态**，我们再次推荐这个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。
 
 ![](img/3.13.png)
 
@@ -139,40 +147,79 @@ $Q(S_t,A_t)$  就是要逼近这个目标值，我们用软更新的方式来逼
 
 ## Sarsa: On-policy TD Control
 
-![](img/3.16.png)我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值来更新这一步的 Q 值，不断地强化每一个 Q。
+![](img/3.16.png)
+
+我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值 $Q(S',A')$ 来更新这一步的 Q 值 $Q(S,A)$，不断地强化每一个 Q。
 
 ## Q-learning: Off-policy TD Control
 
 ![](img/3.17.png)
 
-Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略。它直接拿下一步会执行的 action 来去优化 Q 表格，所以 on-policy 在学习的过程中，只存在一种策略，它用一种策略去做 action 的选取，也用一种策略去做优化。所以 Sarsa 知道它下一步的动作有可能会跑到悬崖那边去，所以它就会在优化它自己的策略的时候，会尽可能的离悬崖远一点。这样子就会保证说，它下一步哪怕是有随机动作，它也还是在安全区域内。
+Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略，它直接拿下一步会执行的 action 来去优化 Q 表格，所以 on-policy 在学习的过程中，只存在一种策略，它用一种策略去做 action 的选取，也用一种策略去做优化。所以 Sarsa 知道它下一步的动作有可能会跑到悬崖那边去，所以它就会在优化它自己的策略的时候，会尽可能的离悬崖远一点。这样子就会保证说，它下一步哪怕是有随机动作，它也还是在安全区域内。
 
-而 off-policy 在学习的过程中，有两种不同的策略。第一个策略是我们希望学到一个最佳的目标策略，另外一个策略是探索环境的策略，它可以大胆地去探索到所有可能的轨迹，然后喂给这个目标策略去学习。而且喂给目标策略的数据中并不需要 $a_{t+1}$ ，而 Sarsa 是有 $a_{t+1}$ 的。比如目标策略优化的时候，Q-learning 才不管你下一步去往哪里探索，会不会掉悬崖，我就只选我收益最大一个最优的策略。
+而 off-policy 在学习的过程中，有两种不同的策略:
 
-* 探索环境的策略，我们叫做 `behavior policy(行为策略)`，它像是一个战士，可以在环境里面探索所有的动作和轨迹和经验，然后把这些经验交给目标策略去学习。
-* `Target policy(目标策略)`就像是在后方指挥战术的一个军师，它可以根据自己的经验来学习最优的策略，不需要去和环境交互。
+* 第一个策略是我们需要去学习的策略，即`target policy(目标策略)`，一般用 $\pi$ 来表示，Target policy 就像是在后方指挥战术的一个军师，它可以根据自己的经验来学习最优的策略，不需要去和环境交互。
+* 另外一个策略是探索环境的策略，即`behavior policy(行为策略)`，一般用 $\mu$ 来表示。$\mu$ 可以大胆地去探索到所有可能的轨迹，采集轨迹，采集数据，然后把采集到的数据喂给 target policy 去学习。而且喂给目标策略的数据中并不需要 $A_{t+1}$ ，而 Sarsa 是要有 $A_{t+1}$ 的。Behavior policy 像是一个战士，可以在环境里面探索所有的动作、轨迹和经验，然后把这些经验交给目标策略去学习。比如目标策略优化的时候，Q-learning 才不管你下一步去往哪里探索，会不会掉进悬崖，我就只选我收益最大一个最优的策略。
 
+![](img/off_policy_learning.png)
+
+再举个例子。比如环境是一个波涛汹涌的大海，但 learning policy 太胆小了，没法直接跟环境去学习，所以我们有了 exploratory policy，exploratory policy 是一个不畏风浪的海盗，他非常激进，可以在环境中探索。他有很多经验，可以把这些经验写成稿子，然后喂给这个 learning policy。Learning policy 可以通过这个稿子来进行学习。
+
+在 off-policy learning 的过程中，我们这些轨迹都是 behavior policy 跟环境交互产生的，产生这些轨迹后，我们使用这些轨迹来更新 target policy $\pi$。
+
+**off-learning policy 有很多好处：**
+
+* 我们可以利用 exploratory policy 来学到一个最佳的策略，学习效率高；
+* 可以让我们学习其他 agent 的行为，模仿学习，学习人或者其他 agent 产生的轨迹；
+* 重用老的策略产生的轨迹。探索过程需要很多计算资源，这样的话，可以节省资源。
+
+![](img/Q-learning.png)
+
+Q-learning 的算法有两种 policy：behavior policy 和 target policy。
+
+Target policy $\pi$ 直接在 Q-table 上取 greedy，就取它下一步能得到的所有状态，如下式所示：
+$$
+\pi\left(S_{t+1}\right)=\underset{a^{\prime}}{\arg \max}~ Q\left(S_{t+1}, a^{\prime}\right)
+$$
+Behavior policy $\mu$ 可以是一个随机的 policy，但我们采取 $\varepsilon\text{-greedy}$，让 behavior policy 不至于是完全随机的，它是基于 Q-table 逐渐改进的。
+
+> $\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概率会按照 Q-function 来决定 action，通常 $\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是 90%，也就是 90% 的概率会按照 Q-function 来决定 action，但是你有 10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。在最开始的时候。因为还不知道那个 action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着 training 的次数越来越多。已经比较确定说哪一个 Q 是比较好的。你就会减少你的 exploration，你会把 $\varepsilon$ 的值变小，主要根据 Q-function 来决定你的 action，比较少做 random，这是 $\varepsilon\text{-greedy}$。
+
+我们可以构造 Q-learning target，Q-learning 的 next action 都是通过 arg max 操作来选出来的，于是我们可以代入 arg max 操作，可以得到下式：
+$$
+\begin{aligned}
+R_{t+1}+\gamma Q\left(S_{t+1}, A^{\prime}\right) &=R_{t+1}+\gamma Q\left(S_{t+1},\arg \max ~Q\left(S_{t+1}, a^{\prime}\right)\right) \\
+&=R_{t+1}+\gamma \max _{a^{\prime}} Q\left(S_{t+1}, a^{\prime}\right)
+\end{aligned}
+$$
+接着我们可以把 Q-learning update 写成 incremental learning 的形式，TD target 就变成 max 的值，即
+$$
+Q\left(S_{t}, A_{t}\right) \leftarrow Q\left(S_{t}, A_{t}\right)+\alpha\left[R_{t+1}+\gamma \max _{a} Q\left(S_{t+1}, a\right)-Q\left(S_{t}, A_{t}\right)\right]
+$$
 ![](img/3.18.png)
 
- **我们通过对比的方式来去理解 `Q-learning`。Q-learning 是 off-policy 的时序差分学习方法，Sarsa 是 on-policy 的时序差分学习方法。**
+ **我们再通过对比的方式来进一步理解 `Q-learning`。Q-learning 是 off-policy 的时序差分学习方法，Sarsa 是 on-policy 的时序差分学习方法。**
 
-* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action。这个 action 有可能是 $\varepsilon$-greedy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作。但是就是它实际执行的那个动作。
-
-* 但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a)$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。Q-learning 默认的 next action 不是通过 behavior policy 来选取的，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入 A'，即 $a_{t+1}$  的值。
+* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action。这个 action 有可能是 $\varepsilon$-greedy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作，但这是它实际执行的那个动作。
+* 但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a)$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。
+* Q-learning 默认的 next action 不是通过 behavior policy 来选取的，Q-learning 直接看 Q-table，取它的 max 的这个值，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入 A'，即 $A_{t+1}$  的值。
 
 > 事实上，Q-learning 算法被提出的时间更早，Sarsa 算法是 Q-learning 算法的改进。
 
 
 ![](img/3.19.png)
 
-Sarsa 和 Q-learning 的更新公式都是一样的，区别只在 target 计算的这一部分，
+**Sarsa 和 Q-learning 的更新公式都是一样的，区别只在 target 计算的这一部分，**
 
 * Sarsa 是 $R_{t+1}+\gamma Q(S_{t+1}, A_{t+1})$  ；
 * Q-learning 是 $R_{t+1}+\gamma  \underset{a}{\max} Q\left(S_{t+1}, a\right)$ 。
 
-Sarsa 实际上都是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 $Q(S_{t+1},A_{t+1})$ 去更新原本的 Q 值 $Q(S_t,A_t)$。 但是 Q-learning 并不需要知道我实际上选择哪一个 action ，它默认下一个动作就是 Q 最大的那个动作。Q-learning 知道实际上 behavior policy 可能会有 10% 的概率去选择别的动作，但 Q-learning 并不担心受到探索的影响，它默认了就按照最优的策略来去优化目标策略，所以它可以更大胆地去寻找最优的路径，它会表现得比 Sarsa 大胆非常多。
+Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 $Q(S_{t+1},A_{t+1})$ 去更新原本的 Q 值 $Q(S_t,A_t)$。 
 
-对 Q-learning 进行逐步地拆解的话，跟 Sarsa 唯一一点不一样就是并不需要提前知道 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action $A'$，它只需要前面四个 $ (S,A,R,S')$ 也就可以了，这一点就是跟 Sarsa 有一个很明显的区别。 
+但是 Q-learning 并不需要知道我实际上选择哪一个 action ，它默认下一个动作就是 Q 最大的那个动作。Q-learning 知道实际上 behavior policy 可能会有 10% 的概率去选择别的动作，但 Q-learning 并不担心受到探索的影响，它默认了就按照最优的策略来去优化目标策略，所以它可以更大胆地去寻找最优的路径，它会表现得比 Sarsa 大胆非常多。
+
+对 Q-learning 进行逐步地拆解的话，跟 Sarsa 唯一一点不一样就是并不需要提前知道 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action $A'$，它只需要前面四个 $ (S,A,R,S')$ ，这跟 Sarsa 很不一样。 
 
 ### Q-function Bellman Equation
 
@@ -212,8 +259,8 @@ $$
 
 **总结一下 on-policy 和 off-policy 的区别。**
 
-* Sarsa 是一个典型的 on-policy 策略，它只用一个 $\pi$ 。为了兼顾探索和利用，所以它训练的时候会显得有点胆小怕事。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点，也还是在安全区域内，不至于跳进悬崖。
-* Q-learning 是一个比较典型的 off-policy 的策略，它有目标策略 target policy，一般用 $\pi$ 来表示。然后还有行为策略 behavior policy，用 $\mu$ 来表示。它分离了目标策略跟行为策略。Q-learning 就可以大胆地用 behavior policy 去探索得到的经验轨迹来去优化目标策略，从而更有可能去探索到最优的策略。
+* Sarsa 是一个典型的 on-policy 策略，它只用了一个 policy $\pi$ 。如果 policy 采用 $\varepsilon$-greedy 算法的话，它需要兼顾探索，为了兼顾探索和利用，它训练的时候会显得有点胆小怕事。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点，也还是在安全区域内。此外，因为采用的是 $\varepsilon$-greedy 算法，策略会不断改变($\varepsilon$ 会变小)，所以策略不稳定。
+* Q-learning 是一个典型的 off-policy 的策略，它有两种策略：target policy 和 behavior policy。它分离了目标策略跟行为策略。Q-learning 就可以大胆地用 behavior policy 去探索得到的经验轨迹来去优化目标策略，从而更有可能去探索到最优的策略。Behavior policy 可以采用 $\varepsilon$-greedy 算法，但 target policy 采用的是 greedy 算法，直接根据 behavior policy 采集到的数据来采用最优策略，所以 Q-learning 不需要兼顾探索。
 * 比较 Q-learning 和 Sarsa 的更新公式可以发现，Sarsa 并没有选取最大值的 max 操作。
   * 因此，Q-learning 是一个非常激进的算法，希望每一步都获得最大的利益；
   * 而 Sarsa 则相对非常保守，会选择一条相对安全的迭代路线。
@@ -227,7 +274,9 @@ $$
 * [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
 * [百面深度学习](https://book.douban.com/subject/35043939/)
 * [神经网络与深度学习](https://nndl.github.io/)
+* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 * [机器学习](https://book.douban.com/subject/26708119//)
+
 
 
 
