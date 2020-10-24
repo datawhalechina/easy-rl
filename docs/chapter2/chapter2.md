@@ -137,7 +137,7 @@ $G_t$ 是我们之前定义的 `discounted return`，我们这里取了一个期
 
 ![](img/2.12.png)
 
-但是这里我们采取了另外一种计算方法，我们通过一定的推导就可以从这个价值函数里面推导出 `Bellman Equation（贝尔曼等式）`，如下式所示：
+但是这里我们采取了另外一种计算方法，我们从这个价值函数里面推导出 `Bellman Equation（贝尔曼等式）`，如下式所示：
 $$
 V(s)=\underbrace{R(s)}_{\text {Immediate reward }}+\underbrace{\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s\right) V\left(s^{\prime}\right)}_{\text {Discounted sum of future reward }}
 $$
