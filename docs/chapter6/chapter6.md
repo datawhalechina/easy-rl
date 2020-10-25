@@ -20,19 +20,6 @@
 * 右边那个case，也许你得到的 $V^{\pi}(s)$ 就很小，因为剩下的怪也不多了，并且红色的防护罩已经消失了，所以可能很快就会死掉。所以接下来得到预期的 reward，就不会太大。
 
 这边需要强调的一个点是说，critic 都是绑一个 actor 的，critic 没有办法去凭空去 evaluate 一个 state 的好坏，它所 evaluate 的东西是在给定某一个 state 的时候， 假设接下来互动的 actor 是 $\pi$，那我会得到多少 reward。因为就算是给同样的 state，你接下来的 $\pi$ 不一样，你得到的 reward 也是不一样的。举例来说，在左边那个 case，虽然假设是一个正常的 $\pi$，它可以杀很多怪，那假设他是一个很弱的 $\pi$，它就站在原地不动，然后马上就被射死了，那你得到的 V 还是很小。所以 critic output 值有多大，其实是取决于两件事：state 和 actor。所以你的 critic 其实都要绑一个 actor，它是在衡量某一个 actor 的好坏，而不是 generally 衡量一个 state 的好坏。这边要强调一下，critic output 是跟 actor 有关的，state value 其实是 depend on 你的 actor。当你的 actor 变的时候，state value function 的 output 其实也是会跟着改变的。
-
-### State-value Function Bellman Equation
-
-记策略 $\pi $ 的状态值函数为 $V^{\pi}(s_t)$ ，它表示在状态 $s_t$ 下带来的累积奖励 $G_t$ 的期望，具体公式为：
-$$
-\begin{aligned} V ^ { \pi } \left( s _ { t }  \right) & = \mathbb { E } \left[ G _ { t } \mid s _ { t }  \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma r _ { t + 1 } + \gamma ^ { 2 } r _ { t + 2 } + \cdots \mid s _ { t }  \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma \left( r _ { t + 1 } + \gamma r _ { t + 2 } + \cdots \right) \mid s _ { t }  \right] \\ 
-&= \mathbb{E}[r_t|s_t]+ \gamma\mathbb{E}[r_{t+1}+\gamma r_{t+2}+\cdots|s_t] \\
-& =\mathbb{E}[r_t|s_t]+ \gamma\mathbb{E}[G_{t+1}|s_t]
-\\& = \mathbb { E } \left[ r _ { t } + \gamma V ^ { \pi } \left( s _ { t + 1 }  \right) \mid s _ { t} \right] \end{aligned}
-$$
-
-上式是 State-value Function 的 Bellman Equation。
-
 ### State Value Function Estimation
 
 ![](img/6.2.png)

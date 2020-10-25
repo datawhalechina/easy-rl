@@ -220,39 +220,6 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 但是 Q-learning 并不需要知道我实际上选择哪一个 action ，它默认下一个动作就是 Q 最大的那个动作。Q-learning 知道实际上 behavior policy 可能会有 10% 的概率去选择别的动作，但 Q-learning 并不担心受到探索的影响，它默认了就按照最优的策略来去优化目标策略，所以它可以更大胆地去寻找最优的路径，它会表现得比 Sarsa 大胆非常多。
 
 对 Q-learning 进行逐步地拆解的话，跟 Sarsa 唯一一点不一样就是并不需要提前知道 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action $A'$，它只需要前面四个 $ (S,A,R,S')$ ，这跟 Sarsa 很不一样。 
-
-### Q-function Bellman Equation
-
-记策略 $\pi $ 的状态-动作值函数为 $Q^{\pi}(s_t,a_t)$，它表示在状态 $s_t$ 下，执行动作 $a_t$ 会带来的累积奖励 $G_t$ 的期望，具体公式为：
-$$
-\begin{aligned} Q ^ { \pi } \left( s _ { t } , a _ { t } \right) & = \mathbb { E } \left[ G _ { t } \mid s _ { t } , a _ { t } \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma r _ { t + 1 } + \gamma ^ { 2 } r _ { t + 2 } + \cdots \mid s _ { t } , a _ { t } \right] \\ & = \mathbb { E } \left[ r _ { t } + \gamma \left( r _ { t + 1 } + \gamma r _ { t + 2 } + \cdots \right) \mid s _ { t } , a _ { t } \right]  
-\\ & =\mathbb { E } [ r _ { t }|s_t,a_t] + \gamma \mathbb{E}[r_{t+1}+ \gamma r_{t+2}+\cdots|s_t,a_t] \\
-& = \mathbb{E}[ r _ { t }|s_t,a_t]+ \gamma \mathbb{E}[G_{t+1}|s_t,a_t]
-\\ &= \mathbb { E } \left[ r _ { t } + \gamma Q ^ { \pi } \left( s _ { t + 1 } , a _ { t + 1 } \right) \mid s _ { t } , a _ { t } \right] \end{aligned}
-$$
-上式是 MDP 中 Q-function 的 Bellman 方程的基本形式。累积奖励 $G_t$ 的计算，不仅考虑当下 $t$  时刻的动作  $a_t$  的奖励 $r_t$，还会累积计算对之后決策带来的影响（公式中的 $\gamma$ 是后续奖励的衰减因子）。从上式可以看出，当前状态的动作价值 $Q^{\pi}(s_t,a_t)$ ，与当前动作的奖励 $r_t$  以及下一状态的动作价值 $Q^{\pi}(s_{t+1},a_{t+1})$ 有关，因此，状态-动作值函数的计算可以通过动态规划算法来实现。
-
-从另一方面考虑，在计算 $t$ 时刻的动作价值  $Q^{\pi}(s_t,a_t)$ 时，需要知道在 $t$、$t+1$、$t+2 \cdots \cdots$ 时刻的奖励，这样就不仅需要知道某一状态的所有可能出现的后续状态以及对应的奖励值，还要进行全宽度的回溯来更新状态的价值。这种方法无法在状态转移函数未知或者大规模问题中使用。因此，Q-learning 采用了浅层的时序差分采样学习，在计算累积奖励时，基于当前策略 $\pi$  预测接下来发生的 $n$ 步动作（$n$ 可以取 1 到 $+\infty$）并计算其奖励值。
-
-具体来说，假设在状态 $s_t$ 下选择了动作 $a_t$，并得到了奖励 $r_t$ ，此时状态转移到 $s_{t+1}$，如果在此状态下根据同样的策略选择了动作 $a_{t+1}$ ，则 $Q^{\pi}(s_t,a_t)$ 可以表示为
-$$
-Q^{\pi}\left(s_{t}, a_{t}\right)=\mathbb{E}_{s_{t+1}, a_{t+1}}\left[r_{t}+\gamma Q^{\pi}\left(s_{t+1}, a_{t+1}\right) \mid s_{t}, a_{t}\right]
-$$
-
-Q-learning 算法在使用过程中，可以根据获得的累积奖励来选择策略，累积奖励的期望值越高，价值也就越大，智能体越倾向于选择这个动作。因此，最优策略 $\pi^*$ 对应的状态-动作值函数 $Q^*(s_t,a_t)$ 满足如下关系式：
-
-$$
-Q^{*}\left(s_{t}, a_{t}\right)=\max _{\pi} Q^{\pi}\left(s_{t}, a_{t}\right)=\mathbb{E}_{s_{t+1}}\left[r_{t}+\gamma \max _{a_{t+1}} Q\left(s_{t+1}, a_{t+1}\right) \mid s_{t}, a_{t}\right]
-$$
-
-Q-learning 算法在学习过程中会不断地更新 Q 值，但它并没有直接采用上式中的项进行更新，而是采用类似于梯度下降法的更新方式，即状态  $s_t$ 下的动作价值 $Q^*(s_t,a_t)$ 会朝着状态 $s_{t+1}$ 下的动作价值  $r_{t}+\gamma \max _{a_{t+1}} Q^{*}\left(s_{t+1}, a_{t+1}\right)$ 做一定比例的更新：
-$$
-\begin{aligned}
-Q^{*}\left(s_{t}, a_{t}\right) \leftarrow Q^{*}\left(s_{t}, a_{t}\right)+\alpha\left(r_{t}+\gamma \max _{a_{t+1}} Q^{*}\left(s_{t+1}, a_{t+1}\right)-Q^{*}\left(s_{t}, a_{t}\right)\right)
-\end{aligned}
-$$
-其中 $\alpha$ 是更新比例(学习速率)。这种渐进式的更新方式，可以减少策略估计造成的影响，并且最终会收敛至最优策略。
-
 ## On-policy vs. Off-policy
 
 ![](img/3.20.png)

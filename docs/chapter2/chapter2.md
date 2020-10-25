@@ -10,7 +10,7 @@
 
 ![](img/2.2.png)
 
-上图介绍了在强化学习里面 agent 跟 environment 之间的交互，agent 在得到环境的状态过后，它会采取行为，它会把这个采取的行为返还给环境。环境在得到 agent 的行为过后，它会进入下一个状态，把下一个状态传回 agent。
+上图介绍了在强化学习里面 agent 跟 environment 之间的交互，agent 在得到环境的状态过后，它会采取动作，它会把这个采取的动作返还给环境。环境在得到 agent 的动作过后，它会进入下一个状态，把下一个状态传回 agent。
 
 在强化学习中，agent 跟环境就是这样进行交互的，这个交互过程是可以通过马尔可夫决策过程来表示的，所以马尔可夫决策过程是强化学习里面的一个基本框架。在马尔可夫决策过程中，它的环境是 `fully observable` ，就是全部可以观测的。但是很多时候环境里面有些量是不可观测的，但是这个部分观测的问题也可以转换成一个 MDP 的问题。
 
@@ -87,7 +87,7 @@ $$
 
 *  `Horizon` 说明了同一个 episode 或者是整个一个轨迹的长度，它是由有限个步数决定的。
 
-* `Return` 说的是我们把奖励进行折扣，然后获得的这个收益。Return 可以定义为奖励的逐步叠加，如下式所示：
+* `Return(回报)` 说的是把奖励进行折扣后所获得的收益。Return 可以定义为奖励的逐步叠加，如下式所示：
 
 $$
 G_{t}=R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\gamma^{3} R_{t+4}+\ldots+\gamma^{T-t-1} R_{T}
@@ -166,22 +166,27 @@ $$
 
 ![](img/2.13.png)
 
-**Bellman Equation 定义了状态之间的迭代关系。**假设有一个马尔可夫转移矩阵是右边这个样子。Bellman Equation 描述的就是当前状态到未来状态的一个转移。假设我们当前是在 $s_1$， 那么它只可能去到三个未来的状态：有 0.1 的概率留在它当前这个位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 的状态，所以我们要把这个转移乘以它未来的状态的价值，再加上它的 immediate reward 就会得到它当前状态的价值。所以 Bellman Equation 定义的就是当前状态跟未来状态的一个迭代的关系。
+**Bellman Equation 定义了状态之间的迭代关系。**假设有一个马尔可夫转移矩阵是右边这个样子。Bellman Equation 描述的就是当前状态到未来状态的一个转移。假设我们当前是在 $s_1$， 那么它只可能去到三个未来的状态：有 0.1 的概率留在它当前这个位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 的状态，所以我们要把这个转移乘以它未来的状态的价值，再加上它的 immediate reward 就会得到它当前状态的价值。**所以 Bellman Equation 定义的就是当前状态跟未来状态的一个迭代的关系。**
 
 ![](img/2.14.png)
 
 我们可以把 Bellman Equation 写成一种矩阵的形式。首先有这个转移矩阵。我们当前这个状态是一个向量  $[V(s_1),V(s_2),\cdots,V(s_N)]^T$。我们可以写成迭代的形式。我们每一行来看的话，$V$ 这个向量乘以了转移矩阵里面的某一行，再加上它当前可以得到的 reward，就会得到它当前的价值。
 
-当我们写成如下的矩阵形式后:
+当我们把 Bellman Equation 写成矩阵形式后，可以直接求解：
 $$
-V = R+ \gamma PV
+\begin{aligned}
+V &= R+ \gamma PV \\
+IV &= R+ \gamma PV \\
+(I-\gamma P)V &=R \\
+V&=(I-\gamma P)^{-1}R
+\end{aligned}
 $$
 
-就可以直接得到一个`解析解(analytic solution)`:
+我们可以直接得到一个`解析解(analytic solution)`:
 $$
 V=(I-\gamma P)^{-1} R
 $$
-我们可以通过矩阵求逆把这个 V 的这个价值直接求出来。但是一个问题是这个矩阵求逆的过程的复杂度是 $O(N^3)$。所以当状态非常多的时候，比如说从十个状态到一千个状态，到一百万个状态。那么当我们有一百万个状态的时候，这个转移矩阵就会是个一百万乘以一百万的矩阵，这样一个大矩阵的话求逆是非常困难的，所以这种通过解析解去求解的方法只适用于很小量的 MRP。
+我们可以通过矩阵求逆把这个 V 的这个价值直接求出来。但是一个问题是这个矩阵求逆的过程的复杂度是 $O(N^3)$。所以当状态非常多的时候，比如说从十个状态到一千个状态，到一百万个状态。那么当我们有一百万个状态的时候，这个转移矩阵就会是个一百万乘以一百万的矩阵，这样一个大矩阵的话求逆是非常困难的，**所以这种通过解析解去求解的方法只适用于很小量的 MRP。**
 
 ### Iterative Algorithm for Computing Value of a MRP
 
@@ -214,22 +219,22 @@ $$
 **相对于 MRP，`马尔可夫决策过程(Markov Decision Process)`多了一个 `decision`，其它的定义跟 MRP 都是类似的**:
 
 * 这里多了一个决策，多了一个 action。
-* 状态转移也多了一个条件，变成了 $P\left(s_{t+1}=s^{\prime} \mid s_{t}=s, a_{t}=a\right)$。你采取某一种行为，然后你未来的状态会不同。未来的状态不仅是依赖于你当前的状态，也依赖于在当前状态 agent 采取的这个行为。
-* 对于这个价值函数，它也是多了一个条件，多了一个你当前的这个行为，变成了 $R\left(s_{t}=s, a_{t}=a\right)=\mathbb{E}\left[r_{t} \mid s_{t}=s, a_{t}=a\right]$。你当前的状态以及你采取的行为会决定你在当前可能得到的奖励多少。
+* 状态转移也多了一个条件，变成了 $P\left(s_{t+1}=s^{\prime} \mid s_{t}=s, a_{t}=a\right)$。你采取某一种动作，然后你未来的状态会不同。未来的状态不仅是依赖于你当前的状态，也依赖于在当前状态 agent 采取的这个动作。
+* 对于这个价值函数，它也是多了一个条件，多了一个你当前的这个动作，变成了 $R\left(s_{t}=s, a_{t}=a\right)=\mathbb{E}\left[r_{t} \mid s_{t}=s, a_{t}=a\right]$。你当前的状态以及你采取的动作会决定你在当前可能得到的奖励多少。
 
 ### Policy in MDP
 
 ![](img/2.19.png)
 
-* Policy 定义了在某一个状态应该采取什么样的行为。
+* Policy 定义了在某一个状态应该采取什么样的动作。
 
-* 知道当前状态过后，我们可以把当前状态带入 policy function，那我们会得到一个概率。概率就代表了在所有可能的行为里面怎样去采取行动。就可能有 0.7 的概率往左走，有 0.3 的概率往右走，这样是一个概率的表示。
-* 另外这个策略也可能是确定的，它有可能是直接输出一个值，或者就直接告诉你当前应该采取什么样的行为，而不是一个行为的概率。
-* 我们假设这个概率函数应该是静态的(stationary)，不同时间点，你采取的行为其实都是对这个 policy function 进行采样。
+* 知道当前状态过后，我们可以把当前状态带入 policy function，那我们会得到一个概率。概率就代表了在所有可能的动作里面怎样去采取行动。就可能有 0.7 的概率往左走，有 0.3 的概率往右走，这样是一个概率的表示。
+* 另外这个策略也可能是确定的，它有可能是直接输出一个值，或者就直接告诉你当前应该采取什么样的动作，而不是一个动作的概率。
+* 我们假设这个概率函数应该是静态的(stationary)，不同时间点，你采取的动作其实都是对这个 policy function 进行采样。
 
 ![](img/2.20.png)
 
-**这里说明了 MDP 跟 MRP 的之间的一个转换。**已知一个 MDP 和一个 policy $\pi$ 的时候，我们可以把 MDP 转换成 MRP。在 MDP 里面，转移函数 $P(s'|s,a)$  是基于它当前状态以及它当前的 action。因为我们现在已知它 policy function，就是说在每一个状态，我们知道它可能采取的行为的概率，那么就可以直接把这个 action 进行加和，直接把这个 a 去掉，那我们就可以得到对于 MRP 的一个转移，这里就没有 action。对于这个奖励函数，我们也可以把 action 拿掉，这样就会得到一个类似于 MRP 的奖励函数。
+**这里说明了 MDP 跟 MRP 的之间的一个转换。**已知一个 MDP 和一个 policy $\pi$ 的时候，我们可以把 MDP 转换成 MRP。在 MDP 里面，转移函数 $P(s'|s,a)$  是基于它当前状态以及它当前的 action。因为我们现在已知它 policy function，就是说在每一个状态，我们知道它可能采取的动作的概率，那么就可以直接把这个 action 进行加和，直接把这个 a 去掉，那我们就可以得到对于 MRP 的一个转移，这里就没有 action。对于这个奖励函数，我们也可以把 action 拿掉，这样就会得到一个类似于 MRP 的奖励函数。
 
 ### Comparison of MP/MRP and MDP
 
@@ -240,7 +245,7 @@ $$
 **这里我们看一看，MDP 里面的状态转移跟 MRP 以及 MP 的一个差异。**
 
 * 马尔可夫过程的转移是直接就决定。比如当前状态是 s，那么就直接通过这个转移概率决定了下一个状态是什么。
-* 但对于 MDP，它的中间多了一层这个行为 a ，就是说在你当前这个状态的时候，首先要决定的是采取某一种行为，那么你会到了某一个黑色的节点。到了这个黑色的节点，因为你有一定的不确定性，当你当前状态决定过后以及你当前采取的行为过后，你到未来的状态其实也是一个概率分布。**所以在这个当前状态跟未来状态转移过程中这里多了一层决策性，这是 MDP 跟之前的马尔可夫过程很不同的一个地方。**在马尔可夫决策过程中，行为是由 agent 决定，所以多了一个 component，agent 会采取行为来决定未来的状态转移。
+* 但对于 MDP，它的中间多了一层这个动作 a ，就是说在你当前这个状态的时候，首先要决定的是采取某一种动作，那么你会到了某一个黑色的节点。到了这个黑色的节点，因为你有一定的不确定性，当你当前状态决定过后以及你当前采取的动作过后，你到未来的状态其实也是一个概率分布。**所以在这个当前状态跟未来状态转移过程中这里多了一层决策性，这是 MDP 跟之前的马尔可夫过程很不同的一个地方。**在马尔可夫决策过程中，动作是由 agent 决定，所以多了一个 component，agent 会采取动作来决定未来的状态转移。
 
 ### Value function for MDP
 
@@ -252,26 +257,42 @@ v^{\pi}(s)=\mathbb{E}_{\pi}\left[G_{t} \mid s_{t}=s\right] \tag{3}
 $$
 但是这里 expectation over policy，就是这个期望是基于你采取的这个 policy ，就当你的 policy 决定过后，**我们通过对这个 policy 进行采样来得到一个期望，那么就可以计算出它的这个价值函数。**
 
-这里我们另外引入了一个 `Q 函数(action-value function)`。**Q 函数定义的是在某一个状态采取某一个行为，它有可能得到的这个 return 的一个期望**，如式 (4) 所示：
+这里我们另外引入了一个 `Q 函数(Q-function)`。Q 函数也被称为 `action-value function`。**Q 函数定义的是在某一个状态采取某一个动作，它有可能得到的这个 return 的一个期望**，如式 (4) 所示：
 $$
 q^{\pi}(s, a)=\mathbb{E}_{\pi}\left[G_{t} \mid s_{t}=s, A_{t}=a\right] \tag{4}
 $$
 这里期望其实也是 over policy function。所以你需要对这个 policy function 进行一个加和，然后得到它的这个价值。
-
-**对 Q 函数中的行为函数进行加和，就可以得到价值函数**，如式 (5) 所示：
+**对 Q 函数中的动作函数进行加和，就可以得到价值函数**，如式 (5) 所示：
 $$
 v^{\pi}(s)=\sum_{a \in A} \pi(a \mid s) q^{\pi}(s, a) \tag{5}
 $$
+#### Q-function Bellman Equation
+
+此处我们给出 Q 函数的 Bellman equation：
+
+$$
+\begin{aligned}
+q(s,a)&=\mathbb{E}\left[G_{t} \mid s_{t}=s,a_{t}=a\right]\\
+&=\mathbb{E}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\ldots \mid s_{t}=s,a_{t}=a\right]  \\
+&=\mathbb{E}\left[R_{t+1}|s_{t}=s,a_{t}=a\right] +\gamma \mathbb{E}\left[R_{t+2}+\gamma R_{t+3}+\gamma^{2} R_{t+4}+\ldots \mid s_{t}=s,a_{t}=a\right]\\
+&=R(s,a)+\gamma \mathbb{E}[G_{t+1}|s_{t}=s,a_{t}=a] \\
+&=R(s,a)+\gamma \mathbb{E}[V(s_{t+1})|s_{t}=s,a_{t}=a]\\
+&=R(s,a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s,a\right) V\left(s^{\prime}\right)
+\end{aligned}
+$$
+
 
 ### Bellman Expectation Equation
 
 ![](img/2.23.png)
 
+我们可以把状态-价值函数和 Q 函数拆解成两个部分：即时奖励(immediate reward) 和后续状态的折扣价值(discounted value of successor state)。
+
 通过对状态-价值函数进行一个分解，我们就可以得到一个类似于之前 MRP 的 Bellman Equation，这里叫 `Bellman Expectation Equation`，如式 (6) 所示：
 $$
 v^{\pi}(s)=E_{\pi}\left[R_{t+1}+\gamma v^{\pi}\left(s_{t+1}\right) \mid s_{t}=s\right] \tag{6}
 $$
-对于 Q 函数，我们也可以做类似的分解，也可以得到对于 Q 函数的 Bellman Expectation Equation，如式 (7) 所示：
+对于 Q 函数，我们也可以做类似的分解，也可以得到 Q 函数的 Bellman Expectation Equation，如式 (7) 所示：
 $$
 q^{\pi}(s, a)=E_{\pi}\left[R_{t+1}+\gamma q^{\pi}\left(s_{t+1}, A_{t+1}\right) \mid s_{t}=s, A_{t}=a\right] \tag{7}
 $$
@@ -287,7 +308,7 @@ $$
 $$
 q^{\pi}(s, a)=R_{s}^{a}+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{\pi}\left(s^{\prime}\right) \tag{9}
 $$
-等式 (8) 和等式 (9) 代表了价值函数跟 Q 函数之间的一个关联。
+**等式 (8) 和等式 (9) 代表了价值函数跟 Q 函数之间的一个关联。**
 
 我们把等式 (8) 插入到等式 (9)，就可以得到等式 (11)：
 $$
@@ -312,7 +333,6 @@ $$
 如式 (12) 所示，你可以看到我们这里有两层加和：
 
 * 第一层加和就是这个叶子节点，然后往上走一层的话，我们就可以把未来的这个价值 $s'$ backup 到黑色的节点。
-
 * 第二层加和是把 action 进行加和。
 
 得到黑色节点的价值过后，再往上 backup 一层，然后就会推到根节点的价值，根节点就是我们当前状态。**所以 `Backup Diagram`  定义了你未来下一时刻的状态跟你上一时刻的状态之间的一个关联。**
@@ -338,15 +358,15 @@ $$
 
 ![](img/2.28.png)
 
-MDP，你其实可以把它想象成一个摆渡的人在这个船上面，她可以控制这个船的移动，这样就避免了这个船随波逐流。因为在每一个时刻，这个人会决定采取什么样的一个行为，这样会把这个船进行导向。MRP 跟马尔可夫链的过程的话，这个纸的小船会随波逐流，然后产生轨迹。MDP 的不同就是我们有一个 agent 去控制这个船，这样我们就可以尽可能多地获得奖励。
+MDP，你其实可以把它想象成一个摆渡的人在这个船上面，她可以控制这个船的移动，这样就避免了这个船随波逐流。因为在每一个时刻，这个人会决定采取什么样的一个动作，这样会把这个船进行导向。MRP 跟马尔可夫链的过程的话，这个纸的小船会随波逐流，然后产生轨迹。MDP 的不同就是我们有一个 agent 去控制这个船，这样我们就可以尽可能多地获得奖励。
 
 ![](img/2.29.png)
 
 我们再看下 policy evaluation 的例子，怎么在这个决策过程里面计算它每一个状态的价值。
 
-* 假设环境里面有两种行为：往左走和往右走。
+* 假设环境里面有两种动作：往左走和往右走。
 
-* 现在的奖励函数应该是关于行为以及状态两个变量的一个函数。但我们这里就说，不管你采取什么行为，只要到达状态 $s_1$，就有 5 的奖励。只要你到达状态 $s_7$ 了，就有 10 的奖励，中间没有任何奖励。
+* 现在的奖励函数应该是关于动作以及状态两个变量的一个函数。但我们这里就说，不管你采取什么动作，只要到达状态 $s_1$，就有 5 的奖励。只要你到达状态 $s_7$ 了，就有 10 的奖励，中间没有任何奖励。
 * 假设我们现在采取的一个策略，这个策略是说不管在任何状态，我们采取的策略都是往左走，这里假设价值折扣因子是零，那么对于 deterministic policy，最后估算出的价值函数是一致的。怎么得到这个结果，我们可以直接在去 run 这个 iterative equation，就把这个 Bellman Expectation Equation 拿到这个里面来，然后不停地迭代，最后它会收敛。收敛过后，它的值就是它每一个状态的价值。
 
 ![](img/2.30.png)
@@ -369,7 +389,7 @@ MDP 的 `prediction` 和 `control` 是 MDP 里面的核心问题。
 * **Control 是说我们去寻找一个最佳的策略：**
   * **它的 input 就是 MDP，**
   * **输出是通过去寻找它的最佳策略，然后同时输出它的最佳价值函数(optimal value function)以及它的最佳策略(optimal policy)。**
-* 在 MDP 里面，prediction 和 control 都可以通过这个动态规划去解决。
+* 在 MDP 里面，prediction 和 control 都可以通过动态规划去解决。
 * 要强调的是，这两者的区别就在于，
   * 预测问题是**给定一个 policy**，我们要确定它的 value function 是多少。
   * 而控制问题是在**没有 policy 的前提下**，我们要确定最优的 value function 以及对应的决策方案。
@@ -395,11 +415,17 @@ MDP 的 `prediction` 和 `control` 是 MDP 里面的核心问题。
 
 MDP是满足动态规划的要求的，就是在 Bellman Equation 里面，我们可以把它分解成一个递归的一个结构。当我们把它分解成一个递归的结构的时候，如果我们的子问题子状态能得到一个值，那么它的未来状态因为跟子状态是直接相连的，那我们也可以继续推算出来，所以这个价值函数就可以储存它以及重用它的最佳的解。**所以动态规划是解 MDP prediction 和 control 一个非常有效的方式。**
 
-### Policy evaluation on MDP
+### Policy Evaluation on MDP
 
 ![](img/2.33.png)
 
-**首先看一下 policy evaluation。Policy evaluation 就是当给定一个 MDP 的时候，我们有一个事先定好的 policy。那么我们可以获得多少的价值。**就对于当前这个策略，我们可以得到多大的这个 value function。这里一个方法是说，我们直接把这个 Bellman Expectation Backup，这个等式拿出来，变成一个迭代的过程，这样反复迭代直到收敛。这样就可以计算它的一个过程。这个迭代过程是可以看作是 `synchronous backup` 的一个过程。等式 (14) 说的就是这个 Bellman Expectation Backup，我们把这个转换成一个动态规划的迭代。当我们得到上一时刻的 $v_t$ 的时候，那我们下一时刻就通过这个递归的一个关系，我们可以推出下一时刻的这个值，那么反复去迭代它，最后它的值就是从 $v_1,v_2$ 到最后收敛过后这个值。这个值就是我们当前给定的 policy 对应的价值函数。
+**Policy evaluation 就是给定一个 MDP 和一个 policy，我们可以获得多少的价值。**就对于当前这个策略，我们可以得到多大的这个 value function。
+
+这里有一个方法是说，我们直接把这个 Bellman Expectation Backup，这个等式拿出来，变成一个迭代的过程，这样反复迭代直到收敛。这个迭代过程可以看作是 `synchronous backup` 的一个过程。
+$$
+v_{t+1}(s)=\sum_{a \in \mathcal{A}} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in \mathcal{S}} P\left(s^{\prime} \mid s, a\right) v_{t}\left(s^{\prime}\right)\right) \tag{14}
+$$
+等式 (14) 说的就是这个 Bellman Expectation Backup，我们把这个转换成一个动态规划的迭代。当我们得到上一时刻的 $v_t$ 的时候，下一时刻就可以通过这个递推的关系来推出下一时刻的值。反复去迭代它，最后它的值就是从 $v_1,v_2$ 到最后收敛过后的这个值。这个值就是当前给定的 policy 对应的价值函数。
 
 ![](img/2.34.png)
 
@@ -417,7 +443,7 @@ $$
 
 ![](img/2.35.png)
 
-比如现在这个环境是一个 small gridworld 的例子。这个 agent 的目的是从某一个状态开始，然后到达终点状态。它的终止状态就是左上角跟右上角，这里总共有 14 个状态，因为我们把每个位置就是用一个状态来表示。然后这个 agent 它采取的行为，我们说它的这个 policy function 就直接先给定了，它在每一个状态都是随机游走，它们在每一个状态就是上下左右行走。它在边缘状态的时候，比如说在第四号状态的时候，它往左走的话，它是依然存在第四号状态，我们加了这个限制。
+比如现在这个环境是一个 small gridworld 的例子。这个 agent 的目的是从某一个状态开始，然后到达终点状态。它的终止状态就是左上角跟右上角，这里总共有 14 个状态，因为我们把每个位置就是用一个状态来表示。然后这个 agent 它采取的动作，我们说它的这个 policy function 就直接先给定了，它在每一个状态都是随机游走，它们在每一个状态就是上下左右行走。它在边缘状态的时候，比如说在第四号状态的时候，它往左走的话，它是依然存在第四号状态，我们加了这个限制。
 
 这里我们给的奖励函数就是说你每走一步，就会得到一个负的奖励。所以这个 agent 需要尽快地到达这个终止状态。状态之间的转移也是确定的。比如从第六号状态往上走，它就会直接到达第二号状态。很多时候有些环境是 `probabilistic` 的话，就是说 agent 在第六号状态，它选择往上走的时候，有可能地板是滑的，然后它可能滑到第三号状态或者第一号状态，这就是有概率的一个转移。但这里把这个环境进行了简化，从六号往上走，它就到了二号。所以直接用这个迭代来解它。因为我们已经知道每一个概率以及它的这个概率转移，那么就直接可以进行一个简短的迭代，然后就会算出它每一个状态的价值。
 
@@ -427,7 +453,7 @@ $$
 
 我们再来看一个动态的例子，首先推荐斯坦福大学的一个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html) ，这个网站模拟了单步更新的过程中，所有格子的一个状态价值的变化过程。
 
-这里有很多格子，每个格子都代表了一个状态。在每个格子里面有一个初始值零。然后在每一个状态，它还有一些箭头，这个箭头就是说它在当前这个状态应该采取什么样的策略。我们这里采取一个随机的策略，不管它在哪一个状态，它上下左右的概率都是相同的。比如在某个状态，它都有上下左右 0.25 的概率采取某一个行为，所以它是一个完全随机的一个行为。
+这里有很多格子，每个格子都代表了一个状态。在每个格子里面有一个初始值零。然后在每一个状态，它还有一些箭头，这个箭头就是说它在当前这个状态应该采取什么样的策略。我们这里采取一个随机的策略，不管它在哪一个状态，它上下左右的概率都是相同的。比如在某个状态，它都有上下左右 0.25 的概率采取某一个动作，所以它是一个完全随机的一个动作。
 
 在这样的环境里面，我们想计算它每一个状态的价值。我们也定义了它的 reward function，你可以看到有些状态上面有一个 R 的值。比如我们这边有些值是为负的，我们可以看到格子里面有几个 -1 的 reward，只有一个 +1 reward 的格子。在这个棋盘的中间这个位置，可以看到有一个 R 的值是 1.0，为正的一个价值函数。 所以每个状态对应了一个值，然后有一些状态没有任何值，就说明它的这个 reward function，它的奖励是为零的。
 
@@ -441,43 +467,49 @@ $$
 
 我们再迭代一次(one sweep)，然后发现它就从周围的状态也开始有值。因为周围状态跟之前有值的状态是临近的，所以它就相当于把旁边这个状态转移过来。所以当我们逐渐迭代的话，你会发现这个值一直在变换。等迭代了很多次过后，很远的这些状态的价值函数已经有些值了，而且你可以发现它这里整个过程呈现逐渐扩散开的一个过程，这其实也是 policy evaluation 的一个可视化。当我们每一步在进行迭代的时候，就远的状态就会得到了一些值，就逐渐从一些已经有奖励的这些状态，逐渐扩散，当你 run 很多次过后，它就逐渐稳定下来，最后值就会确定不变，这样收敛过后，每个状态上面的值就是它目前得到的这个 value function 的值。
 
+### MDP Control
+
 ![](img/2.41.png)
 
-**Policy evaluation 是说给定一个 MDP 和一个 policy，我们可以估算出它的价值函数。**这个问题的另外一方面是说如果我们只有一个 MDP，如何去寻找一个最佳的策略，然后可以得到一个`最佳价值函数(Optimal Value Function)`。Optimal Value Function 的定义如下式所示：
+Policy evaluation 是说给定一个 MDP 和一个 policy，我们可以估算出它的价值函数。**还有问题是说如果我们只有一个 MDP，如何去寻找一个最佳的策略，然后可以得到一个`最佳价值函数(Optimal Value Function)`。**
+
+Optimal Value Function 的定义如下式所示：
 $$
 v^{*}(s)=\max _{\pi} v^{\pi}(s)
 $$
-Optimal Value Function 是说，我们去搜索一种 policy $\pi$ ，然后我们会得到每个状态它的状态值最大的一个情况，$v^*$ 就是到达每一个状态，它的值的极大化情况。
+Optimal Value Function 是说，我们去搜索一种 policy $\pi$ 来让每个状态的价值最大。$v^*$ 就是到达每一个状态，它的值的极大化情况。
 
-在这种极大化情况上面，我们得到的策略就可以说它是最佳策略(optimal policy)，如下式所示：
+在这种极大化情况上面，我们得到的策略就可以说它是`最佳策略(optimal policy)`，如下式所示：
 $$
-\pi^{*}(s)=\underset{\pi}{\arg \max } v^{\pi}(s)
+\pi^{*}(s)=\underset{\pi}{\arg \max }~ v^{\pi}(s)
 $$
-Optimal policy 使得每个状态，它的状态函数都取得最大值。所以当我们说某一个 MDP 的环境被解了过后，就是说我们可以得到一个 optimal value function，然后我们就说它被解了。在这种情况下面，然后我们它的最佳的价值函数是一致的，就它达到了这个 upper bound，它的值是一致的，但是这里可能有多个最佳的 policy，多个 policy 可以取得相同的最佳价值。
-
-### Finding Optimal Policy
+Optimal policy 使得每个状态的价值函数都取得最大值。所以如果我们可以得到一个 optimal value function，就可以说某一个 MDP 的环境被解。在这种情况下，它的最佳的价值函数是一致的，就它达到的这个上限的值是一致的，但是这里可能有多个最佳的 policy，就是说多个 policy 可以取得相同的最佳价值。
 
 ![](img/2.42.png)
 
-怎么去寻找这个最佳的 policy ，这里一个隐含条件是当我们取得最佳的价值函数过后，我们其实可以通过对这个 Q 函数进行极大化，然后得到最佳的价值。当所有东西都收敛过后，因为 Q 函数是关于状态跟动作的一个函数，所以对某一个状态采取一个行为，然后可以使得这个 Q 函数最大化，那么就这个行为就应该是最佳的行为。所以当我们能优化出一个 Q 函数，我们可以直接在这个 Q 函数上面取一个让这个 action 最大化的值，就可以直接提取出它的最佳策略。
+Q: 怎么去寻找这个最佳的 policy ？
+
+A: 当取得最佳的价值函数过后，我们可以通过对这个 Q 函数进行极大化，然后得到最佳策略。当所有东西都收敛过后，因为 Q 函数是关于状态跟动作的一个函数，所以在某一个状态采取一个动作，可以使得这个 Q 函数最大化，那么这个动作就应该是最佳的动作。所以如果我们能优化出一个 Q 函数，就可以直接在这个 Q 函数上面取一个让 Q 函数最大化的 action 的值，就可以直接提取出它的最佳策略。
 
 ![](img/2.43.png)
 
-最简单的策略搜索办法就是`穷举`。假设我们有有限多个状态、有限多个行为可能性，那么每个状态我们可以采取这个 A 种行为的策略，那么总共就是 $|A|^{|S|}$ 个可能的 policy。那我们可以把策略都穷举一遍，然后算出每种策略的 value function，对比一下就可以得到最佳策略。
+最简单的策略搜索办法就是`穷举`。假设状态和动作都是有限的，那么每个状态我们可以采取这个 A 种动作的策略，那么总共就是 $|A|^{|S|}$ 个可能的 policy。那我们可以把策略都穷举一遍，然后算出每种策略的 value function，对比一下就可以得到最佳策略。
 
 但是这样的穷举非常没有效率，所以我们要采取其他方法。**搜索最佳策略有两种比较常用的方法：`policy iteration` 和  `value iteration` **。
 
 ![](img/2.44.png)
 
-**寻找这个最佳策略的过程就是 MDP 的控制过程**。MDP Control 说的就是怎么去寻找一个最佳的策略，然后我们可以得到一个最大的价值函数，如下式所示：
+**寻找这个最佳策略的过程就是 MDP control 过程**。MDP control 说的就是怎么去寻找一个最佳的策略来让我们得到一个最大的价值函数，如下式所示：
 $$
-\pi^{*}(s)=\underset{\pi}{\arg \max } v^{\pi}(s)
+\pi^{*}(s)=\underset{\pi}{\arg \max } ~ v^{\pi}(s)
 $$
 对于一个事先定好的 MDP 过程，当这个 agent 去采取最佳策略的时候，
 
 * 我们可以说最佳策略一般都是确定的。
 * 而且是 stationary，它不会随着时间的变化。
-* 但是不一定是 unique，多种行为可能会取得相同的这个价值。
+* 但是不一定是 unique，多种动作可能会取得相同的这个价值。
+
+**我们可以通过 policy iteration 和 value iteration 来解 MDP 的控制问题。**
 
 ### Policy Iteration
 
@@ -491,19 +523,32 @@ $$
 
 ![](img/2.46.png)
 
-这里再来看一下第二个步骤 `policy improvement`，我们是如何改进它的这个策略。当我们得到这个 v 值过后，我们就可以通过这个 reward function 以及状态转移把它的这个 Q-function 算出来。对于每一个状态，第二个步骤会得到它的一个新一轮的这个 policy ，就在每一个状态，我们去取使它得到最大值的 action。你可以把这个 Q 函数看成一个 Q-table。横轴是它的所有状态，纵轴是它的可能的 action。Q 函数得到过后，`Q-table` 就得到了。
+这里再来看一下第二个步骤： `policy improvement`，我们是如何改进它的这个策略。得到这个 v 值过后，我们就可以通过这个 reward function 以及状态转移把它的这个 Q-function 算出来，如下式所示：
+$$
+q^{\pi_{i}}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{\pi_{i}}\left(s^{\prime}\right)
+$$
+对于每一个状态，第二个步骤会得到它的一个新一轮的这个 policy ，就在每一个状态，我们去取使它得到最大值的 action，如下式所示：
+$$
+\pi_{i+1}(s)=\underset{a}{\arg \max } ~q^{\pi_{i}}(s, a)
+$$
+**你可以把 Q 函数看成一个 Q-table:**
 
-那么对于某一个状态，每一列里面我们会取最大的那个值，最大值对应的那个 action 就是它现在应该采取了更佳的 action。所以你看这里下面这个 arg max 操作就说在每个状态里面，我们去采取一个 action，这个 action 就是能使这一列的 Q 最大化的那个动作。
+* 横轴是它的所有状态，
+* 纵轴是它的可能的 action。
 
-### Bellman Optimality Equation
+得到 Q 函数后，`Q-table`也就得到了。
+
+那么对于某一个状态，每一列里面我们会取最大的那个值，最大值对应的那个 action 就是它现在应该采取了更佳的 action。所以 arg max 操作就说在每个状态里面采取一个 action，这个 action 就是能使这一列的 Q 最大化的那个动作。
+
+#### Bellman Optimality Equation
 
 ![](img/2.47.png)
 
-当我们一直在采取这个 arg max 这个操作的时候，我们会得到一个单调的递增。我们通过采取这种 greedy ，这种 arg max 这个操作，就会得到更好的或者不变的 policy，而不会使它这个价值函数变差。所以当这个改进停止过后，我们就会得到一个最佳策略。
+当一直在采取 arg max 这个操作的时候，我们会得到一个单调的递增。通过采取这种 greedy，arg max 这个操作，我们就会得到更好的或者不变的 policy，而不会使它这个价值函数变差。所以当这个改进停止过后，我们就会得到一个最佳策略。
 
 ![](img/2.48.png)
 
-当改进停止过后，我们取它极大化的这个 action 之后，它直接就会变成它的这个价值函数，即
+当改进停止过后，我们取它极大化的这个 action，它直接就会变成它的价值函数，即
 $$
 q^{\pi}\left(s, \pi^{\prime}(s)\right)=\max _{a \in \mathcal{A}} q^{\pi}(s, a)=q^{\pi}(s, \pi(s))=v^{\pi}(s)
 $$
@@ -511,18 +556,51 @@ $$
 $$
 v^{\pi}(s)=\max _{a \in \mathcal{A}} q^{\pi}(s, a)
 $$
-上式被称为  `Bellman Optimality Equation`。**这个 Bellman Optimality Equation 满足的时候，是说整个 MDP 已经到达最佳的状态。**它到达最佳状态过后，对于这个 Q 函数，取它最大的 action 时候的那个值，就是直接等于它的最佳的这个 value function。只有当整个状态已经收敛过后，得到一个最佳的 policy 的时候，这个条件才是满足的。
+上式被称为  `Bellman optimality equation`。从直觉上讲，Bellman optimal equation 表达了这样一个事实：最佳策略下的一个状态的价值必须等于在这个状态下采取最好动作得到的回报的期望。 
+
+**当 MDP 满足 Bellman optimality equation 的时候，整个 MDP 已经到达最佳的状态。**它到达最佳状态过后，对于这个 Q 函数，取它最大的 action 的那个值，就是直接等于它的最佳的 value function。只有当整个状态已经收敛过后，得到一个最佳的 policy 的时候，这个条件才是满足的。
 
 ![](img/2.49.png)
 
-最佳的价值函数到达过后，这个 Bellman Optimlity Equation 就会满足。我们满足过后，就有这个 max 操作，当我们取最大的这个 action 的时候对应的那个值就是当前那个状态的最佳的价值函数。
+最佳的价值函数到达过后，这个 Bellman optimlity equation 就会满足。
 
-我们可以把第一个等式插入到第二个等式里面去，然后就会得到这个 Q 函数之间的这个转移。它下一步这个状态我们取了这个 max 这个值过后，就会也跟它下一个最佳的这个状态等价。
+满足过后，就有这个 max 操作，如第一个等式所示：
+$$
+v^{*}(s)=\max _{a} q^{*}(s, a)
+$$
+当我们取最大的这个 action 的时候对应的那个值就是当前那个状态的最佳的价值函数。
 
-Q-learning 是基于 Bellman Optimality Equation 来进行的，当取它最大的这个状态的时候，它会满足下面这个等式：
+另外，我们给出第二个等式，即 Q函数的 Bellman equation：
+$$
+q^{*}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{*}\left(s^{\prime}\right)
+$$
+**我们可以把第一个等式插入到第二个等式里面去**，如下式所示：
+$$
+\begin{aligned}
+q^{*}(s, a)&=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{*}\left(s^{\prime}\right) \\
+&=R(s,a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) \max _{a} q^{*}(s', a')
+\end{aligned}
+$$
+我们就会得到 Q 函数之间的转移。它下一步这个状态，取了 max 这个值过后，就会跟它最佳的这个状态等价。
+
+Q-learning 是基于 Bellman Optimality Equation 来进行的，当取它最大的这个状态的时候（ $\underset{a'}{\max} q^{*}\left(s^{\prime}, a^{\prime}\right)$ ），它会满足下面这个等式：
 $$
 q^{*}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) \max _{a^{\prime}} q^{*}\left(s^{\prime}, a^{\prime}\right)
 $$
+
+我们还可以把第二个等式插入到第一个等式，如下式所示：
+$$
+\begin{aligned}
+v^{*}(s)&=\max _{a} q^{*}(s, a) \\
+&=\max_{a} \mathbb{E}[G_t|s_t=s,a_t=a]\\  
+&=\max_{a}\mathbb{E}[R_{t+1}+\gamma G_{t+1}|s_t=s,a_t=a]\\
+&=\max_{a}\mathbb{E}[R_{t+1}+\gamma v^*(s_{t+1})|s_t=s,a_t=a]\\
+&=\max_{a}\mathbb{E}[R_{t+1}]+ \max_a \mathbb{E}[\gamma v^*(s_{t+1})|s_t=s,a_t=a]\\
+&=\max_{a} R(s,a) + \max_a\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{*}\left(s^{\prime}\right)\\
+&=\max_{a} \left(R(s,a) + \gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{*}\left(s^{\prime}\right)\right)
+\end{aligned}
+$$
+我们就会得到状态-价值函数的一个转移。
 
 ### Value Iteration
 
@@ -532,15 +610,17 @@ $$
 $$
 v(s) \leftarrow \max _{a \in \mathcal{A}}\left(R(s, a)+\gamma \sum_{s^{\prime} \in \mathcal{S}} P\left(s^{\prime} \mid s, a\right) v\left(s^{\prime}\right)\right)
 $$
-之前我们是说上面这个等式只有当整个状态已经到达最佳状态的时候，然后才满足。但这里可以把它转换成一个 backup 的等式。 Backup 就是说一个迭代的等式，我们不停地去迭代 Bellman Optimality Equation，到了最后，它能逐渐趋向于最佳的策略，这是 value iteration 算法的精髓。我们去为了得到最佳的 $v^*$ ，对于每个状态的 $v^*$ 这个值，我们直接把这个 Bellman Optimality Equation 进行迭代，迭代了很多次之后，它就会收敛。
+之前我们说上面这个等式只有当整个 MDP 已经到达最佳的状态时才满足。但这里可以把它转换成一个 backup 的等式。 Backup 就是说一个迭代的等式。**我们不停地去迭代 Bellman Optimality Equation，到了最后，它能逐渐趋向于最佳的策略，这是 value iteration 算法的精髓。**
+
+我们去为了得到最佳的 $v^*$ ，对于每个状态的 $v^*$ 这个值，我们直接把这个 Bellman Optimality Equation 进行迭代，迭代了很多次之后，它就会收敛。
 
 ![](img/2.51.png)
 
 * 我们使用 value iteration 算法是为了得到一个最佳的策略。
 
-* 一个解法是直接把这个 `Bellman Optimality backup`，把它这个等式拿进来进行迭代，迭代很多次，收敛过后得到的那个值就是它的最佳的那个值。
-* 所以这个算法开始的时候，它是先把所有值初始化，通过每一个状态，然后它会进行这个迭代。把等式 (22) 插到等式 (23) 里面，就是 Bellman Optimallity backup 的那个等式。有了这个等式过后，然后进行不停地迭代，迭代过后，然后收敛。然后就会得到这个 $v^*$ 。当我们有这个 $v^*$ 过后，一个问题是如何进一步推算出它的最佳策略。
-* 最佳策略的话，我们可以直接用 arg max，就先把它的 Q 函数重构出来，重构出来过后，每一个列对应的最大的那个 action 就是它现在的最佳策略。这样就可以把最佳策略从最佳价值函数里面推导出来。
+* 解法：我们可以直接把 `Bellman Optimality backup` 这个等式拿进来进行迭代，迭代很多次，收敛过后得到的那个值就是它的最佳的值。
+* 这个算法开始的时候，它是先把所有值初始化，通过每一个状态，然后它会进行这个迭代。把等式 (22) 插到等式 (23) 里面，就是 Bellman optimality backup 的那个等式。有了等式 (22) 和等式 (23) 这两个等式过后，然后进行不停地迭代，迭代过后，然后收敛，收敛后就会得到这个 $v^*$ 。当我们有这个 $v^*$ 过后，一个问题是如何进一步推算出它的最佳策略。
+* 提取最佳策略的话，我们可以直接用 arg max。就先把它的 Q 函数重构出来，重构出来过后，每一个列对应的最大的那个 action 就是它现在的最佳策略。这样就可以把最佳策略从最佳价值函数里面推导出来。
 
 ![](img/2.52.png)
 
@@ -552,7 +632,7 @@ $$
 
 ![](img/2.54.png)
 
-我们来看一个 MDP 控制的 Demo。首先来看这个 policy iteration。之前的例子，它们在每个状态都是采取固定的随机策略，就每个状态都是 0.25 的概率往上往下往左往右，这里没有策略的改变。但是我们现在想做 policy iteration，就是想每个状态都进行改变。Policy iteration 的过程是一个迭代过程。
+我们来看一个 MDP control 的 Demo。首先来看这个 policy iteration。之前的例子，它们在每个状态都是采取固定的随机策略，就每个状态都是 0.25 的概率往上往下往左往右，这里没有策略的改变。但是我们现在想做 policy iteration，就是想每个状态都进行改变。Policy iteration 的过程是一个迭代过程。
 
 ![](img/2.55.png)
 
@@ -595,8 +675,8 @@ $$
 
 我们再来对比下 policy iteration 和 value iteration，这两个算法都可以解 MDP 的控制问题。
 
-* Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。Policy Iteration 分两步，首先对当前已经搜索到的策略函进行一个估值。得到估值过后，把 Q 函数算出来，我们进一步进行改进。
-*  Value iteration 直接把 Bellman Optimality Equation 拿进来，然后直接去寻找最佳的 value function，没有 policy function 在这里面，当算出 optimal value function 过后，我们可以在最后再执行一步这个提取过程，最佳策略提取过程。这样就可以把它的最佳策略抽取过来。
+* Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。Policy Iteration 分两步，首先对当前已经搜索到的策略函数进行一个估值。得到估值过后，把 Q 函数算出来，我们进一步进行改进。
+*  Value iteration 直接把 Bellman Optimality Equation 拿进来，然后直接去寻找最佳的 value function，没有 policy function 在这里面。当算出 optimal value function 过后，我们再来提取最佳策略。
 
 ### Summary for Prediction and Contro in MDP
 
@@ -604,7 +684,7 @@ $$
 
 这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来讲，我们其实采取了不同的 Bellman Equation。
 
-* 如果是一个 prediction 的问题，即 policy evaluation  的问题，那就直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后可以得到的价值函数。
+* 如果是一个 prediction 的问题，即 policy evaluation  的问题，那就直接是把这个 Bellman Expectation Equation 拿进来，就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后得到价值函数。
 * 对于 control，
   * 如果采取的算法是 policy  iteration，那这里用的是 Bellman Expectation Equation 。把它分成两步，先上它的这个价值函数，再去优化它的策略，然后不停迭代。这里用到的只是 Bellman Expectation Equation。
   * 如果采取的算法是 value iteration，那这里用到的 Bellman Equation 就是 Bellman Optimality Equation，通过 arg max 这个过程，不停地去 arg max 它，最后它就会达到最优的状态。
