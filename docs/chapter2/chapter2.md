@@ -150,7 +150,47 @@ $$
 
 **Bellman Equation 定义了当前状态跟未来状态之间的这个关系。**
 
-未来打了折扣的奖励加上当前立刻可以得到的奖励，就组成了这个 Bellman Equation。Bellman Equation 的推导过程如下：
+未来打了折扣的奖励加上当前立刻可以得到的奖励，就组成了这个 Bellman Equation。
+
+#### Law of Total Expectation
+
+在推导 Bellman equation 之前，我们先使用`Law of Total Expectation(全期望公式)`来证明下面的式子：
+$$
+\mathbb{E}[V(s_{t+1})|s_t]=\mathbb{E}[\mathbb{E}[G_{t+1}|s_{t+1}]|s_t]=E[G_{t+1}|s_t]
+$$
+
+> Law of total expectation 也被称为 law of iterated expectations(LIE)。如果 $A_i$ 是样本空间的有限或可数的划分(partition)，则全期望公式可以写成如下形式：
+> $$
+> \mathrm{E}(X)=\sum_{i} \mathrm{E}\left(X \mid A_{i}\right) \mathrm{P}\left(A_{i}\right)
+> $$
+
+**证明：**
+
+为了记号简洁并且易读，我们丢掉了下标，令 $s=s_t,g'=G_{t+1},s'=s_{t+1}$。按照惯例，我们可以重写这个回报的期望为：
+$$
+\begin{aligned}
+\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] &=\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \\
+&=\sum_{g^{\prime}} g~p\left(g^{\prime} \mid s^{\prime}\right)
+\end{aligned}
+$$
+令 $s_t=s$，我们对上述表达式求期望可得：
+$$
+\begin{aligned}
+\mathbb{E}\left[\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] \mid s_{t}\right] &=\mathbb{E} \left[\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \mid s\right] \\
+&=\sum_{s^{\prime}} \sum_{g^{\prime}} g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime} \mid s\right) \\
+&=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime} \mid s\right) p(s)}{p(s)} \\
+&=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime}, s\right)}{p(s)} \\
+&=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime}, s^{\prime}, s\right)}{p(s)} \\
+&=\sum_{s^{\prime}} \sum_{g^{\prime}} g^{\prime} p\left(g^{\prime}, s^{\prime} \mid s\right) \\
+&=\sum_{g^{\prime}} \sum_{s^{\prime}} g^{\prime} p\left(g^{\prime}, s^{\prime} \mid s\right) \\
+&=\sum_{g^{\prime}} g^{\prime} p\left(g^{\prime} \mid s\right) \\
+&=\mathbb{E}\left[g^{\prime} \mid s\right]=\mathbb{E}\left[G_{t+1} \mid s_{t}\right]
+\end{aligned}
+$$
+
+#### Bellman Equation Derivation
+
+Bellman equation 的推导过程如下：
 $$
 \begin{aligned}
 V(s)&=\mathbb{E}\left[G_{t} \mid s_{t}=s\right]\\
@@ -413,11 +453,21 @@ MDP 的 `prediction` 和 `control` 是 MDP 里面的核心问题。
 
 简单总结下，控制问题要做的就是，给定同样的条件，在所有可能的策略下最优的价值函数是什么？最优策略是什么？
 
+### Dynamic Programming
+
 ![](img/2.32.png)
 
-首先我们来看一下`动态规划`。动态规划是说我们把可以把一个问题分解成一个最佳子结构，当我们可以把一些子结构都可以解决的话，那么它就可以组成一个最优的解。
+首先我们来看一下`动态规划`。动态规划适合解决满足如下两个性质的问题：
 
-MDP是满足动态规划的要求的，就是在 Bellman Equation 里面，我们可以把它分解成一个递归的一个结构。当我们把它分解成一个递归的结构的时候，如果我们的子问题子状态能得到一个值，那么它的未来状态因为跟子状态是直接相连的，那我们也可以继续推算出来，所以这个价值函数就可以储存它以及重用它的最佳的解。**所以动态规划是解 MDP prediction 和 control 一个非常有效的方式。**
+* `最优子结构(optimal substructure)`。最优子结构意味着，我们的问题可以拆分成一个个的小问题，通过解决这个小问题，最后，我们能够通过组合小问题的答案，得到大问题的答案，即最优的解。
+* `重叠子问题(Overlapping subproblems)`。重叠子问题意味着，子问题出现多次，并且子问题的解决方案能够被重复使用。
+
+MDP 是满足动态规划的要求的，
+
+* 在 Bellman equation 里面，我们可以把它分解成一个递归的结构。当我们把它分解成一个递归的结构的时候，如果我们的子问题子状态能得到一个值，那么它的未来状态因为跟子状态是直接相连的，那我们也可以继续推算出来。
+* 价值函数就可以储存并重用它的最佳的解。
+
+**所以动态规划是解 MDP prediction 和 control 一个非常有效的方式。**
 
 ### Policy Evaluation on MDP
 
@@ -699,4 +749,5 @@ $$
 * [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
 * [David Silver 强化学习公开课中文讲解及实践](https://zhuanlan.zhihu.com/reinforce)
 * [UCL Course on RL(David Silver)](https://www.davidsilver.uk/teaching/)
+* [Derivation of Bellman’s Equation](https://jmichaux.github.io/_notebook/2018-10-14-bellman/)
 
