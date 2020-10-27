@@ -612,13 +612,20 @@ print('平均回合奖励 = {}'.format(np.mean(episode_rewards)))
 
 * [百面深度学习](https://book.douban.com/subject/35043939/)
 * [强化学习：原理与Python实现](https://book.douban.com/subject/34478302/)
-* [白话强化学习与PyTorch](https://book.douban.com/subject/34809676/)
-* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#)
-* [神经网络与深度学习](https://nndl.github.io/)
-* [机器学习](https://book.douban.com/subject/26708119//)
+
 * [强化学习基础 David Silver 笔记](https://zhuanlan.zhihu.com/c_135909947)
 * [David Silver 强化学习公开课中文讲解及实践](https://zhuanlan.zhihu.com/reinforce)
 * [UCL Course on RL(David Silver)](https://www.davidsilver.uk/teaching/)
+
+* [白话强化学习与PyTorch](https://book.douban.com/subject/34809676/)
+
+* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#)
+
+* [神经网络与深度学习](https://nndl.github.io/)
+
+* [机器学习](https://book.douban.com/subject/26708119//)
+
+  
 
 
 
