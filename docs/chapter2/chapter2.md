@@ -85,7 +85,7 @@ $$
 
 这里我们进一步定义一些概念。
 
-*  `Horizon` 说明了同一个 episode 或者是整个一个轨迹的长度，它是由有限个步数决定的。
+*  `Horizon` 是指一个 episode 的长度（每个 episode 最大的时间步数），它是由有限个步数决定的。
 
 * `Return(回报)` 说的是把奖励进行折扣后所获得的收益。Return 可以定义为奖励的逐步叠加，如下式所示：
 
@@ -366,7 +366,13 @@ $$
 
 ![](img/2.25.png)
 
-这里有一个概念叫 `Backup`。Backup 类似于 bootstrapping 之间这个迭代关系，就对于某一个状态，它的当前价值是跟它未来价值线性相关的。
+这里有一个概念叫 `backup`。Backup 类似于 bootstrapping 之间这个迭代关系，就对于某一个状态，它的当前价值是跟它的未来价值线性相关的。
+
+我们把上面这样的图称为 `backup diagram(备份图)`，因为它们图示的关系构成了更新或备份操作的基础，而这些操作是强化学习方法的核心。这些操作将价值信息从一个状态（或状态-动作对）的后继状态（或状态-动作对）转移回它。
+
+每一个空心圆圈代表一个状态，每一个实心圆圈代表一个状态-动作对。
+
+
 $$
 v^{\pi}(s)=\sum_{a \in A} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{\pi}\left(s^{\prime}\right)\right) \tag{12}
 $$
@@ -375,11 +381,22 @@ $$
 * 第一层加和就是这个叶子节点，往上走一层的话，我们就可以把未来的价值($s'$ 的价值) backup 到黑色的节点。
 * 第二层加和是对 action 进行加和。得到黑色节点的价值过后，再往上 backup 一层，就会推到根节点的价值，即当前状态的价值。
 
-**所以 `Backup Diagram`  定义了未来下一时刻的状态价值跟上一时刻的状态价值之间的关联。**
+![](img/state_value_function_backup.png)
 
-> 我们把上面这样的图称为 backup diagram(备份图)，因为它们图示的关系构成了更新或备份操作的基础，而这些操作是强化学习方法的核心。这些操作将价值信息从一个状态（或状态-动作对）的后继状态（或状态-动作对）转移回它。
->
-> 每一个空心圆圈代表一个状态，每一个实心圆圈代表一个状态-动作对。
+上图是状态-价值函数的计算分解图，上图 B 计算公式为
+$$
+v^{\pi}(s)=\sum_{a \in A} \pi(a \mid s) q^{\pi}(s, a) \tag{i}
+$$
+上图 B 给出了状态-价值函数与 Q 函数之间的关系。上图 C 计算 Q 函数为
+$$
+q^{\pi}(s,a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{\pi}\left(s^{\prime}\right) \tag{ii}
+$$
+
+将式 (ii) 代入式 (i) 可得：
+$$
+v^{\pi}(s)=\sum_{a \in A} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{\pi}\left(s^{\prime}\right)\right)
+$$
+**所以 backup diagram 定义了未来下一时刻的状态-价值函数跟上一时刻的状态-价值函数之间的关联。**
 
 ![](img/2.26.png)
 
@@ -392,6 +409,16 @@ $$
 * 第一层加和是先把这个叶子节点从黑色节点推到这个白色的节点，进了它的这个状态。
 * 当我们到达某一个状态过后，再对这个白色节点进行一个加和，这样就把它重新推回到当前时刻的一个 Q 函数。
 
+![](img/q_function_backup.png)
+
+在上图 C 中，
+$$
+v^{\pi}\left(s^{\prime}\right)=\sum_{a^{\prime} \in A} \pi\left(a^{\prime} \mid s^{\prime}\right) q^{\pi}\left(s^{\prime}, a^{\prime}\right) \tag{iii}
+$$
+将式 (iii) 代入式 (ii) 可得到 Q 函数：
+$$
+q^{\pi}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) \sum_{a^{\prime} \in A} \pi\left(a^{\prime} \mid s^{\prime}\right) q^{\pi}\left(s^{\prime}, a^{\prime}\right)
+$$
 **所以这个等式就决定了未来 Q 函数跟当前 Q 函数之间的这个关联。**
 
 ### Policy Evaluation
@@ -750,4 +777,5 @@ $$
 * [David Silver 强化学习公开课中文讲解及实践](https://zhuanlan.zhihu.com/reinforce)
 * [UCL Course on RL(David Silver)](https://www.davidsilver.uk/teaching/)
 * [Derivation of Bellman’s Equation](https://jmichaux.github.io/_notebook/2018-10-14-bellman/)
+* [深入浅出强化学习：原理入门](https://book.douban.com/subject/27624485//)
 
