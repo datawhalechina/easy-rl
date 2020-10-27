@@ -2,11 +2,11 @@
 ## Double DQN
 ![](img/7.1.png)
 
-接下来要讲的是 train Q-learning 的一些 tip。第一个 tip 是做 `Double DQN`。那为什么要有 Double DQN 呢？因为在实现上，你会发现 Q value 往往是被高估的。上图来自于 Double DQN 的原始 paper，它想要显示的结果就是 Q value 往往是被高估的。
+接下来要讲的是训练 Q-learning 的一些 tips。第一个 tip 是做 `Double DQN`。为什么要有 Double DQN 呢？因为在实现上，你会发现 Q value 往往是被高估的。上图来自于 Double DQN 的原始 paper，它想要显示的结果就是 Q value 往往是被高估的。
 
 这边有 4 个不同的小游戏，横轴是 training 的时间，红色锯齿状一直在变的线就是 Q-function 对不同的 state estimate 出来的平均 Q value，有很多不同的 state，每个 state 你都 sample 一下，然后算它们的 Q value，把它们平均起来。红色这一条线，它在 training 的过程中会改变，但它是不断上升的，为什么它不断上升，因为 Q-function 是 depend on 你的 policy 的。learn 的过程中你的 policy 越来越强，所以你得到 Q  value 会越来越大。在同一个 state， 你得到 expected reward 会越来越大，所以 general 而言，这个值都是上升的，但这是 Q-network 估测出来的值。
 
-接下来你真地去算它，那怎么真地去算？你有那个 policy，然后真的去玩那个游戏。就玩很多次，玩个一百万次。然后就去真地估说，在某一个 state， 你会得到的 Q value 到底有多少。你会得到说在某一个 state，采取某一个 action。你接下来会得到 accumulated reward 是多少。你会发现估测出来的值是远比实际的值大。在每一个游戏都是这样，都大很多。所以今天要 propose Double DQN 的方法，它可以让估测的值跟实际的值是比较接近的。我们先看它的结果，蓝色的锯齿状的线是 Double DQN 的 Q-network 所估测出来的 Q value，蓝色的无锯齿状的线是真正的 Q value，你会发现它们是比较接近的。 用 network 估测出来的就不用管它，比较没有参考价值。用 Double DQN 得出来真正的 accumulated reward，在这 3 个 case 都是比原来的 DQN 高的，代表 Double DQN learn 出来那个 policy 比较强。所以它实际上得到的 reward 是比较大的。虽然一般的 DQN 的 Q-network 高估了自己会得到的 reward，但实际上它得到的 reward 是比较低的。
+接下来你真地去算它，怎么真地去算？你有 policy，然后真的去玩那个游戏。就玩很多次，玩个一百万次。然后就去真地估说，在某一个 state， 你会得到的 Q value 到底有多少。你会得到说在某一个 state，采取某一个 action。你接下来会得到 accumulated reward 是多少。你会发现估测出来的值是远比实际的值大。在每一个游戏都是这样，都大很多。所以今天要 propose Double DQN 的方法，它可以让估测的值跟实际的值是比较接近的。我们先看它的结果，蓝色的锯齿状的线是 Double DQN 的 Q-network 所估测出来的 Q value，蓝色的无锯齿状的线是真正的 Q value，你会发现它们是比较接近的。 用 network 估测出来的就不用管它，比较没有参考价值。用 Double DQN 得出来真正的 accumulated reward，在这 3 个 case 都是比原来的 DQN 高的，代表 Double DQN learn 出来那个 policy 比较强。所以它实际上得到的 reward 是比较大的。虽然一般的 DQN 的 Q-network 高估了自己会得到的 reward，但实际上它得到的 reward 是比较低的。
 
 ![](img/7.2.png)
 
@@ -83,7 +83,11 @@ $$
 
 ## Noisy Net
 ![](img/7.9.png)
-有一个技术是要 improve exploration 这件事，我们之前讲的 Epsilon Greedy 这样的 exploration 是在 action 的 space 上面加 noise，但是有另外一个更好的方法叫做`Noisy Net`，它是在参数的 space 上面加 noise。Noisy Net 的意思是说，每一次在一个 episode 开始的时候，在你要跟环境互动的时候，你就把你的 Q-function 拿出来，Q-function 里面其实就是一个 network ，就变成你把那个 network 拿出来，在 network 的每一个参数上面加上一个 Gaussian noise。那你就把原来的 Q-function 变成$\tilde{Q}$ 。因为$\hat{Q}$ 已经用过，$\hat{Q}$ 是那个 target network，我们用 $\tilde{Q}$  来代表一个`Noisy Q-function`。我们把每一个参数都可能都加上一个 Gaussian noise，就得到一个新的 network 叫做 $\tilde{Q}$。这边要注意在每个episode 开始的时候，开始跟环境互动之前，我们就 sample network。接下来你就会用这个固定住的 noisy network 去玩这个游戏，直到游戏结束，你才重新再去 sample 新的 noise。OpenAI  跟 Deep mind 又在同时间 propose 一模一样的方法，通通都 publish 在 ICLR 2018，两篇 paper 的方法就是一样的。不一样的地方是，他们用不同的方法，去加noise。OpenAI 加的方法好像比较简单，他就直接加一个 Gaussian noise 就结束了，就你把每一个参数，每一个 weight都加一个 Gaussian noise 就结束了。Deep mind 做比较复杂，他们的 noise 是由一组参数控制的，也就是说 network 可以自己决定说它那个 noise 要加多大，但是概念就是一样的。总之就是把你的 Q-function 的里面的那个 network 加上一些 noise，把它变得有点不一样，跟原来的 Q-function 不一样，然后拿去跟环境做互动。两篇 paper 里面都有强调说，你这个参数虽然会加 noise，但在同一个 episode 里面你的参数就是固定的，你是在换 episode， 玩第二场新的游戏的时候，你才会重新 sample noise，在同一场游戏里面就是同一个 noisy  Q-network 在玩那一场游戏，这件事非常重要。为什么这件事非常重要呢？因为这是导致了 Noisy Net 跟原来的 Epsilon Greedy 或其它在 action 做 sample 方法的本质上的差异。
+我们还可以 improve exploration。Epsilon Greedy 这样的 exploration 是在 action 的 space 上面加 noise，**但是有一个更好的方法叫做`Noisy Net`，它是在参数的 space 上面加 noise。**
+
+Noisy Net 的意思是说，每一次在一个 episode 开始的时候，在你要跟环境互动的时候，你就把你的 Q-function 拿出来，Q-function 里面其实就是一个 network ，就变成你把那个 network 拿出来，在 network 的每一个参数上面加上一个 Gaussian noise，那你就把原来的 Q-function 变成 $\tilde{Q}$ 。因为 $\hat{Q}$ 已经用过，$\hat{Q}$ 是那个 target network，我们用 $\tilde{Q}$  来代表一个`Noisy Q-function`。我们把每一个参数都加上一个 Gaussian noise，就得到一个新的 network 叫做 $\tilde{Q}$。
+
+这边要注意在每个episode 开始的时候，开始跟环境互动之前，我们就 sample network。接下来你就会用这个固定住的 noisy network 去玩这个游戏，直到游戏结束，你才重新再去 sample 新的 noise。OpenAI  跟 DeepMind 又在同时间 propose 一模一样的方法，通通都 publish 在 ICLR 2018，两篇 paper 的方法就是一样的。不一样的地方是，他们用不同的方法，去加 noise。OpenAI 加的方法好像比较简单，他就直接加一个 Gaussian noise 就结束了，就你把每一个参数，每一个 weight都加一个 Gaussian noise 就结束了。DeepMind 做比较复杂，他们的 noise 是由一组参数控制的，也就是说 network 可以自己决定说它那个 noise 要加多大，但是概念就是一样的。总之就是把你的 Q-function 的里面的那个 network 加上一些 noise，把它变得有点不一样，跟原来的 Q-function 不一样，然后拿去跟环境做互动。两篇 paper 里面都有强调说，你这个参数虽然会加 noise，但在同一个 episode 里面你的参数就是固定的，你是在换 episode， 玩第二场新的游戏的时候，你才会重新 sample noise，在同一场游戏里面就是同一个 noisy  Q-network 在玩那一场游戏，这件事非常重要。为什么这件事非常重要呢？因为这是导致了 Noisy Net 跟原来的 Epsilon Greedy 或其它在 action 做 sample 方法的本质上的差异。
 
 ![](img/7.10.png)
 
@@ -92,7 +96,7 @@ $$
 ## Distributional Q-function
 ![](img/7.11.png)
 
-还有一个技巧叫做 Distributional Q-function。我们不讲它的细节，只告诉你大致的概念。Distributional Q-function 还蛮有道理的， 但是它没有红起来。你就发现说没有太多人真的在实现的时候用这个技术，可能一个原因就是它不好实现。Q-function 是 accumulated reward 的期望值，所以我们算出来的这个 Q value 其实是一个期望值。因为环境是有随机性的，在某一个 state 采取某一个 action 的时候，我们把所有的 reward 玩到游戏结束的时候所有的 reward 进行一个统计，你其实得到的是一个 distribution。也许在 reward 得到 0 的机率很高，在 -10 的概率比较低，在 +10 的概率比较低，但是它是一个 distribution。我们对这一个 distribution 算它的 mean才是这个 Q value，我们算出来是 expected accumulated reward。所以 accumulated reward 是一个 distribution，对它取 expectation，对它取 mean，你得到了 Q value。但不同的 distribution，它们其实可以有同样的 mean。也许真正的 distribution 是右边的 distribution，它算出来的 mean 跟左边的 distribution 算出来的 mean 其实是一样的，但它们背后所代表的 distribution 其实是不一样的。假设我们只用一个 expected 的 Q value 来代表整个 reward 的话，其实可能会丢失一些 information，你没有办法 model reward 的distribution。
+还有一个技巧叫做 `Distributional Q-function`。我们不讲它的细节，只告诉你大致的概念。Distributional Q-function 还蛮有道理的， 但是它没有红起来。你就发现说没有太多人真的在实现的时候用这个技术，可能一个原因就是它不好实现。Q-function 是 accumulated reward 的期望值，所以我们算出来的这个 Q value 其实是一个期望值。因为环境是有随机性的，在某一个 state 采取某一个 action 的时候，我们把所有的 reward 玩到游戏结束的时候所有的 reward 进行一个统计，你其实得到的是一个 distribution。也许在 reward 得到 0 的机率很高，在 -10 的概率比较低，在 +10 的概率比较低，但是它是一个 distribution。我们对这一个 distribution 算它的 mean才是这个 Q value，我们算出来是 expected accumulated reward。所以 accumulated reward 是一个 distribution，对它取 expectation，对它取 mean，你得到了 Q value。但不同的 distribution，它们其实可以有同样的 mean。也许真正的 distribution 是右边的 distribution，它算出来的 mean 跟左边的 distribution 算出来的 mean 其实是一样的，但它们背后所代表的 distribution 其实是不一样的。假设我们只用一个 expected 的 Q value 来代表整个 reward 的话，其实可能会丢失一些 information，你没有办法 model reward 的distribution。
 
 ![](img/7.12.png)
 
