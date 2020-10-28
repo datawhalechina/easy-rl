@@ -1,5 +1,7 @@
 # Q-learning for Continuous Actions
 
+## Solution 1 & Solution 2
+
 ![](img/8.1.png)
 
 继续讲一下 Q-learning，其实跟 policy gradient based 方法比起来，Q-learning 是比较稳的。policy gradient 是没有太多游戏是玩得起来的，policy gradient 比较不稳，尤其在没有 PPO 之前，你很难用 policy gradient 做什么事情。Q-learning 相对而言是比较稳的。最早 DeepMind 的 paper 拿 deep reinforcement learning 来玩 Atari 的游戏，用的就是 Q-learning。Q-learning 比较容易 train 的一个理由是：在 Q-learning 里面，你只要能够 estimate 出 Q-function，就保证你一定可以找到一个比较好的 policy。也就是你只要能够 estimate 出 Q-function，就保证你可以 improve 你的 policy。而 estimate Q-function 这件事情，是比较容易的，因为它就是一个 regression problem。在这个 regression problem 里面， 你可以轻易地知道 model learn 得是不是越来越好，只要看那个 regression 的 loss 有没有下降，你就知道说你的 model learn 得好不好，所以 estimate Q-function 相较于 learn 一个 policy 是比较容易的。你只要 estimate Q-function，就可以保证说现在一定会得到比较好的 policy。所以一般而言 Q-learning 比较容易操作。
@@ -14,6 +16,8 @@ A: **最大的问题是它不太容易处理 continuous action**。很多时候 
 
 **第二个 solution 是什么呢？既然要解的是一个 optimization problem，其实是要 maximize objective function，要 maximize 一个东西， 就可以用 gradient ascent。**你就把 a 当作是 parameter，然后你要找一组 a 去 maximize 你的 Q-function，你就用 gradient ascent 去 update a 的 value，最后看看你能不能找到一个 a 去 maximize 你的 Q-function，也就是你的 objective function。当然这样子你会遇到 global maximum 的问题， 就不见得能够真的找到 optimal 的结果，而且这个运算量显然很大， 因为你要迭代地 update a。我们 train 一个 network 就很花时间了。如果你用 gradient ascent 的方法来处理 continuous 的 problem， 等于是你每次要决定 take 哪一个 action 的时候，你都还要做一次 train network 的 process，显然运算量是很大的。这是第二个 solution。
 
+## Solution 3: Design a network
+
 ![](img/8.2.png)
 
 **第三个 solution 是特别 design 一个 network 的架构，特别 design 你的 Q-function，使得解 arg max 的 problem 变得非常容易**。也就是这边的 Q-function 不是一个 general 的 Q-function，特别设计一下它的样子，让你要找让这个 Q-function 最大的 a 的时候非常容易。
@@ -26,7 +30,9 @@ A: **最大的问题是它不太容易处理 continuous action**。很多时候 
 * a 怎么和这 3 个东西互相作用呢？实际上 $Q(s,a)$，你的 Q-function 的运作方式是先 input s，让你得到 $\mu,\Sigma$ 跟 V。然后再 input a，然后接下来把 a 跟 $\mu$ 相减。注意一下 a 现在是 continuous 的 action，所以它也是一个 vector。假设你现在是要操作机器人的话，这个 vector 的每一个 dimension，可能就对应到机器人的某一个关节，它的数值就是关节的角度，所以 a 是一个 vector。把 a 的这个 vector 减掉 $\mu$ 的这个 vector，取 transpose，所以它是一个横的 vector。$\Sigma$ 是一个 matrix。然后 a 减掉 $\mu(s)$ ，a 和 $\mu(s)$ 都是 vector，减掉以后还是一个竖的 vector。所以 $-(a-\mu(s))^{T} \Sigma(s)(a-\mu(s))+V(s)$ 是一个 scalar，这个数值就是 Q value $Q(s,a)$，。
 * 假设 $Q(s,a)$ 定义成这个样子，我们要怎么找到一个 a 去 maximize 这个 Q value 呢？这个 solution 非常简单，什么样的 a， 可以让这一个 Q-function 最终的值最大呢？。因为 $(a-\mu(s))^{T} \Sigma(s)(a-\mu(s))$ 一定是正的，它前面乘上一个负号，所以第一项就假设我们不看这个负号的话，第一项的值越小，最终的 Q value 就越大。因为我们是把 V(s) 减掉第一项，所以第一项的值越小，最后的 Q value 就越大。怎么让第一项的值最小呢？你直接把 a 代入 $\mu$ 的值，让它变成 0，就会让第一项的值最小。
 * $\Sigma$ 一定是正定的。因为这个东西就像是 Gaussian distribution，所以 $\mu$ 就是 Gaussian 的 mean，$\Sigma$ 就是 Gaussian 的 variance。但 variance 是一个 positive definite 的 matrix，怎么样让这个 $\Sigma$ 一定是 positive definite 的 matrix 呢？其实在 $Q^{\pi}$ 里面，它不是直接 output $\Sigma$，如果直接 output 一个 $\Sigma$， 它不一定是 positive definite 的 matrix。它其实是 output 一个 matrix，然后再把那个 matrix 跟另外一个 matrix 做 transpose 相乘， 然后可以确保 $\Sigma $ 是 positive definite 的。这边要强调的点就是说，实际上它不是直接 output 一个 matrix。你再去那个 paper 里面 check 一下它的 trick，它可以保证说 $\Sigma$ 是 positive definite 的。
-* 你把 a 代入 $\mu(s)$ 以后，你可以让 Q 的值最大。所以假设要你 arg max 这个东西，虽然一般而言，若 Q 是一个 general function， 你很难算，但是我们这边 design 了 Q 这个 function，a 只要设 $\mu(s)$，我们就得到最大值。你在解这个 arg max 的 problem 的时候就变得非常容易。所以 Q-learning 也可以用在 continuous 的 case，只是有一些局限，就是 function 不能够随便乱设，它必须有一些限制。 
+* 你把 a 代入 $\mu(s)$ 以后，你可以让 Q 的值最大。所以假设要你 arg max 这个东西，虽然一般而言，若 Q 是一个 general function， 你很难算，但是我们这边 design 了 Q 这个 function，a 只要设 $\mu(s)$，我们就得到最大值。你在解这个 arg max 的 problem 的时候就变得非常容易。所以 Q-learning 也可以用在 continuous 的 case，只是有一些局限，就是 function 不能够随便乱设，它必须有一些限制。
+
+##  Solution 4: Don't use Q-learning
 
 ![](img/8.3.png)
 
