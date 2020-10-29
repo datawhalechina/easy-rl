@@ -266,8 +266,15 @@ $$
 
 * Policy 定义了在某一个状态应该采取什么样的动作。
 
-* 知道当前状态过后，我们可以把当前状态带入 policy function，那我们会得到一个概率。概率就代表了在所有可能的动作里面怎样去采取行动。就可能有 0.7 的概率往左走，有 0.3 的概率往右走，这样是一个概率的表示。
+* 知道当前状态过后，我们可以把当前状态带入 policy function，然后就会得到一个概率，即 
+$$
+\pi(a \mid s)=P\left(a_{t}=a \mid s_{t}=s\right)
+$$
+
+概率就代表了在所有可能的动作里面怎样采取行动，比如可能有 0.7 的概率往左走，有 0.3 的概率往右走，这是一个概率的表示。
+
 * 另外这个策略也可能是确定的，它有可能是直接输出一个值，或者就直接告诉你当前应该采取什么样的动作，而不是一个动作的概率。
+
 * 我们假设这个概率函数应该是静态的(stationary)，不同时间点，你采取的动作其实都是对这个 policy function 进行采样。
 
 ![](img/2.20.png)
@@ -431,7 +438,10 @@ $$
 
 ![](img/2.28.png)
 
-MDP，你其实可以把它想象成一个摆渡的人在这个船上面，她可以控制这个船的移动，这样就避免了这个船随波逐流。因为在每一个时刻，这个人会决定采取什么样的一个动作，这样会把这个船进行导向。MRP 跟马尔可夫链的过程的话，这个纸的小船会随波逐流，然后产生轨迹。MDP 的不同就是我们有一个 agent 去控制这个船，这样我们就可以尽可能多地获得奖励。
+* MDP，你其实可以把它想象成一个摆渡的人在这个船上面，她可以控制这个船的移动，这样就避免了这个船随波逐流。因为在每一个时刻，这个人会决定采取什么样的一个动作，这样会把这个船进行导向。
+
+* MRP 跟 MP 的话，这个纸的小船会随波逐流，然后产生轨迹。
+* MDP 的不同就是有一个 agent 去控制这个船，这样我们就可以尽可能多地获得奖励。
 
 ![](img/2.29.png)
 
@@ -469,10 +479,15 @@ $$
 
 MDP 的 `prediction` 和 `control` 是 MDP 里面的核心问题。
 
-* **Prediction 是说给定一个 MDP 以及一个 policy $\pi$ ，去计算它的 value function，就对于每个状态，它的价值函数是多少。**
-* **Control 是说我们去寻找一个最佳的策略：**
-  * **它的 input 就是 MDP，**
-  * **输出是通过去寻找它的最佳策略，然后同时输出它的最佳价值函数(optimal value function)以及它的最佳策略(optimal policy)。**
+* 预测问题：
+  * 输入：MDP $<S,A,P,R,\gamma>$ 和 policy $\pi$  或者 MRP $<S,P^{\pi},R^{\pi},\gamma>$。
+  * 输出：value function $v^{\pi}$。
+  * Prediction 是说给定一个 MDP 以及一个 policy $\pi$ ，去计算它的 value function，就对于每个状态，它的价值函数是多少。
+
+* 控制问题：
+  * 输入：MDP  $<S,A,P,R,\gamma>$。
+  * 输出：最佳价值函数(optimal value function) $v^*$ 和最佳策略(optimal policy) $\pi^*$。
+  * Control 就是说我们去寻找一个最佳的策略，然后同时输出它的最佳价值函数以及最佳策略。
 * 在 MDP 里面，prediction 和 control 都可以通过动态规划去解决。
 * 要强调的是，这两者的区别就在于，
   * 预测问题是**给定一个 policy**，我们要确定它的 value function 是多少。
@@ -514,36 +529,38 @@ MDP 是满足动态规划的要求的，
 * 在 Bellman equation 里面，我们可以把它分解成一个递归的结构。当我们把它分解成一个递归的结构的时候，如果我们的子问题子状态能得到一个值，那么它的未来状态因为跟子状态是直接相连的，那我们也可以继续推算出来。
 * 价值函数就可以储存并重用它的最佳的解。
 
-**所以动态规划是解 MDP prediction 和 control 一个非常有效的方式。**
+动态规划应用于 MDP 的规划问题(planning)而不是学习问题(learning)，我们必须对环境是完全已知的(Model-Based)，才能做动态规划，直观的说，就是要知道状态转移概率和对应的 reward 才行
+
+动态规划能够完成预测问题和控制问题的求解，是解 MDP prediction 和 control 一个非常有效的方式。
 
 ### Policy Evaluation on MDP
 
 ![](img/2.33.png)
 
-**Policy evaluation 就是给定一个 MDP 和一个 policy，我们可以获得多少的价值。**就对于当前这个策略，我们可以得到多大的这个 value function。
+**Policy evaluation 就是给定一个 MDP 和一个 policy，我们可以获得多少的价值。**就对于当前这个策略，我们可以得到多大的 value function。
 
-这里有一个方法是说，我们直接把这个 Bellman Expectation Backup，这个等式拿出来，变成一个迭代的过程，这样反复迭代直到收敛。这个迭代过程可以看作是 `synchronous backup` 的过程。
+这里有一个方法是说，我们直接把这个 `Bellman Expectation Backup` 拿过来，变成一个迭代的过程，这样反复迭代直到收敛。这个迭代过程可以看作是 `synchronous backup` 的过程。
+
+> 同步备份(synchronous backup)是指每一次的迭代都会完全更新所有的状态，这样对于程序资源需求特别大。异步备份(asynchronous backup)的思想就是通过某种方式，使得每一次得带不需要更新所有的状态，因为事实上，很多的状态也不需要被更新。
+
 $$
 v_{t+1}(s)=\sum_{a \in \mathcal{A}} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in \mathcal{S}} P\left(s^{\prime} \mid s, a\right) v_{t}\left(s^{\prime}\right)\right) \tag{14}
 $$
-* 等式 (14) 说的就是说我们可以把 Bellman Expectation Backup 转换成一个动态规划的迭代。
+* 等式 (14) 说的是说我们可以把 Bellman Expectation Backup 转换成一个动态规划的迭代。
 * 当我们得到上一时刻的 $v_t$ 的时候，就可以通过这个递推的关系来推出下一时刻的值。
-
 * 反复去迭代它，最后它的值就是从 $v_1,v_2$ 到最后收敛过后的这个值。这个值就是当前给定的 policy 对应的价值函数。
 
 ![](img/2.34.png)
 
-Policy evaluation 的核心思想就是直接把这个 Bellman expectation backup，把如下的等式拿出来，
+Policy evaluation 的核心思想就是把如下式所示的 Bellman expectation backup 拿出来反复迭代，然后就会得到一个收敛的价值函数的值。
 $$
 v_{t+1}(s)=\sum_{a \in \mathcal{A}} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in \mathcal{S}} P\left(s^{\prime} \mid s, a\right) v_{t}\left(s^{\prime}\right)\right)
 $$
-然后反复迭代，然后就会得到一个收敛的价值函数的值。
-
-因为我们已经给定了这个函数的 policy  function，那我们可以直接把它简化成一个 MRP 的表达形式，那么它的形式就更简洁一些，就相当于我们把这个 $a$  去掉，如下式所示：
+因为已经给定了这个函数的 policy  function，那我们可以直接把它简化成一个 MRP 的表达形式，这样的话，形式就更简洁一些，就相当于我们把这个 $a$  去掉，如下式所示：
 $$
 v_{t+1}(s)=R^{\pi}(s)+\gamma P^{\pi}\left(s^{\prime} \mid s\right) v_{t}\left(s^{\prime}\right)
 $$
-这样它就只有价值函数跟转移函数了。通过去迭代这个更简化的一个函数，我们也可以得到它每个状态的价值。因为不管是在 MRP 以及 MDP，它的这个价值函数包含的这个变量都是只跟这个状态有关，就相当于进入某一个状态，未来可能得到多大的价值。
+这样它就只有价值函数跟转移函数了。通过去迭代这个更简化的一个函数，我们也可以得到它每个状态的价值。因为不管是在 MRP 以及 MDP，它的价值函数包含的这个变量都是只跟这个状态有关，就相当于进入某一个状态，未来可能得到多大的价值。
 
 ![](img/2.35.png)
 
@@ -558,9 +575,9 @@ $$
 
 ![](img/2.37.png)
 
-我们再来看一个动态的例子，首先推荐斯坦福大学的一个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html) ，这个网站模拟了单步更新的过程中，所有格子的一个状态价值的变化过程。
+我们再来看一个动态的例子，首先推荐斯坦福大学的一个网站：[GridWorld: Dynamic Programming Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_dp.html) ，这个网站模拟了单步更新的过程中，所有格子的一个状态价值的变化过程。
 
-这里有很多格子，每个格子都代表了一个状态。在每个格子里面有一个初始值零。然后在每一个状态，它还有一些箭头，这个箭头就是说它在当前这个状态应该采取什么样的策略。我们这里采取一个随机的策略，不管它在哪一个状态，它上下左右的概率都是相同的。比如在某个状态，它都有上下左右 0.25 的概率采取某一个动作，所以它是一个完全随机的一个动作。
+这里有很多格子，每个格子都代表了一个状态。在每个格子里面有一个初始值零。然后在每一个状态，它还有一些箭头，这个箭头就是说它在当前这个状态应该采取什么样的策略。我们这里采取一个随机的策略，不管它在哪一个状态，它上下左右的概率都是相同的。比如在某个状态，它都有上下左右 0.25 的概率采取某一个动作，所以它的动作是完全随机的。
 
 在这样的环境里面，我们想计算它每一个状态的价值。我们也定义了它的 reward function，你可以看到有些状态上面有一个 R 的值。比如我们这边有些值是为负的，我们可以看到格子里面有几个 -1 的 reward，只有一个 +1 reward 的格子。在这个棋盘的中间这个位置，可以看到有一个 R 的值是 1.0，为正的一个价值函数。 所以每个状态对应了一个值，然后有一些状态没有任何值，就说明它的这个 reward function，它的奖励是为零的。
 
@@ -594,13 +611,13 @@ Optimal Value Function 是说，我们去搜索一种 policy $\pi$ 来让每个�
 $$
 \pi^{*}(s)=\underset{\pi}{\arg \max }~ v^{\pi}(s)
 $$
-Optimal policy 使得每个状态的价值函数都取得最大值。所以如果我们可以得到一个 optimal value function，就可以说某一个 MDP 的环境被解。在这种情况下，它的最佳的价值函数是一致的，就它达到的这个上限的值是一致的，但是这里可能有多个最佳的 policy，就是说多个 policy 可以取得相同的最佳价值。
+Optimal policy 使得每个状态的价值函数都取得最大值。所以如果我们可以得到一个 optimal value function，就可以说某一个 MDP 的环境被解。在这种情况下，它的最佳的价值函数是一致的，就它达到的这个上限的值是一致的，但这里可能有多个最佳的 policy，就是说多个 policy 可以取得相同的最佳价值。
 
 ![](img/2.42.png)
 
 Q: 怎么去寻找这个最佳的 policy ？
 
-A: 当取得最佳的价值函数过后，我们可以通过对这个 Q 函数进行极大化，然后得到最佳策略。当所有东西都收敛过后，因为 Q 函数是关于状态跟动作的一个函数，所以在某一个状态采取一个动作，可以使得这个 Q 函数最大化，那么这个动作就应该是最佳的动作。所以如果我们能优化出一个 Q 函数，就可以直接在这个 Q 函数上面取一个让 Q 函数最大化的 action 的值，就可以直接提取出它的最佳策略。
+A: 当取得最佳的价值函数过后，我们可以通过对这个 Q 函数进行极大化，然后得到最佳策略。当所有东西都收敛过后，因为 Q 函数是关于状态跟动作的一个函数，所以在某一个状态采取一个动作，可以使得这个 Q 函数最大化，那么这个动作就应该是最佳的动作。所以如果我们能优化出一个 Q 函数，就可以直接在这个 Q 函数上面取一个让 Q 函数最大化的 action 的值，就可以提取出它的最佳策略。
 
 ![](img/2.43.png)
 
@@ -626,11 +643,15 @@ $$
 
 ![](img/2.45.png)
 
-**Policy iteration 是一个迭代算法，它主要由两个步骤组成：policy evaluation 和 policy improvement。**
+**Policy iteration 由两个步骤组成：policy evaluation 和 policy improvement。**
 
-* **第一个步骤是 policy evaluation**，当前我们在优化这个 policy $\pi$ ，所以在优化过程中得到一个最新的 policy。我们先保证这个 policy 不变，然后去估计它出来的这个价值。给定当前的 policy function 来估计这个 v 函数。
-* 得到 v 函数过后，我们可以进一步推算出它的 Q 函数。得到 Q 函数过后，我们直接在 Q 函数上面取极大化，**这样我们就有了第二步骤：policy improvement。**通过在这个 Q 函数上面做一个贪心的搜索来进一步改进它的策略。
-* 这两个步骤就一直是在迭代进行，所以在 policy iteration 里面，在初始化的时候，我们有一个初始化的 $V$ 和 $\pi$ ，然后就是在这两个过程之间迭代。左边这幅图上面这根曲线就是我们当前这个 v 的值，下面是 policy 的值。就跟踢皮球一样，我们先给定当前已有的这个 policy function，然后去算它的 v。算出 v 过后，我们会得到一个 Q 函数。Q 函数我们采取 greedy 的策略，这样我们有踢皮球，踢回这个 policy 。然后就会进一步改进那个 policy ，得到一个改进的 policy 过后，它还不是最佳的，我们再进行 policy evaluation，然后又会得到一个新的 value function。基于这个新的 value function 再进行 Q 函数的极大化，这样就逐渐迭代，然后就会得到收敛。
+* **第一个步骤是 policy evaluation**，当前我们在优化这个 policy $\pi$，在优化过程中得到一个最新的 policy。我们先保证这个 policy 不变，然后去估计它出来的这个价值。给定当前的 policy function 来估计这个 v 函数。
+* **第二个步骤是 policy improvement**，得到 v 函数过后，我们可以进一步推算出它的 Q 函数。得到 Q 函数过后，我们直接在 Q 函数上面取极大化，通过在这个 Q 函数上面做一个贪心的搜索来进一步改进它的策略。
+* 这两个步骤就一直是在迭代进行，所以在 policy iteration 里面，在初始化的时候，我们有一个初始化的 $V$ 和 $\pi$ ，然后就是在这两个过程之间迭代。
+* 左边这幅图上面的线就是我们当前 v 的值，下面的线是 policy 的值。
+  * 跟踢皮球一样，我们先给定当前已有的这个 policy function，然后去算它的 v。
+  * 算出 v 过后，我们会得到一个 Q 函数。Q 函数我们采取 greedy 的策略，这样就像踢皮球，踢回这个 policy 。
+  * 然后进一步改进那个 policy ，得到一个改进的 policy 过后，它还不是最佳的，我们再进行 policy evaluation，然后又会得到一个新的 value function。基于这个新的 value function 再进行 Q 函数的极大化，这样就逐渐迭代，然后就会得到收敛。
 
 ![](img/2.46.png)
 
@@ -638,7 +659,7 @@ $$
 $$
 q^{\pi_{i}}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{\pi_{i}}\left(s^{\prime}\right)
 $$
-对于每一个状态，第二个步骤会得到它的一个新一轮的这个 policy ，就在每一个状态，我们去取使它得到最大值的 action，如下式所示：
+对于每一个状态，第二个步骤会得到它的新一轮的这个 policy ，就在每一个状态，我们去取使它得到最大值的 action，如下式所示：
 $$
 \pi_{i+1}(s)=\underset{a}{\arg \max } ~q^{\pi_{i}}(s, a)
 $$
@@ -649,13 +670,13 @@ $$
 
 得到 Q 函数后，`Q-table`也就得到了。
 
-那么对于某一个状态，每一列里面我们会取最大的那个值，最大值对应的那个 action 就是它现在应该采取了更佳的 action。所以 arg max 操作就说在每个状态里面采取一个 action，这个 action 就是能使这一列的 Q 最大化的那个动作。
+那么对于某一个状态，每一列里面我们会取最大的那个值，最大值对应的那个 action 就是它现在应该采取的 action。所以 arg max 操作就说在每个状态里面采取一个 action，这个 action 是能使这一列的 Q 最大化的那个动作。
 
 #### Bellman Optimality Equation
 
 ![](img/2.47.png)
 
-当一直在采取 arg max 这个操作的时候，我们会得到一个单调的递增。通过采取这种 greedy，arg max 这个操作，我们就会得到更好的或者不变的 policy，而不会使它这个价值函数变差。所以当这个改进停止过后，我们就会得到一个最佳策略。
+当一直在采取 arg max 这个操作的时候，我们会得到一个单调的递增。通过采取这种 greedy，即 arg max 操作，我们就会得到更好的或者不变的 policy，而不会使它这个价值函数变差。所以当这个改进停止过后，我们就会得到一个最佳策略。
 
 ![](img/2.48.png)
 
@@ -667,7 +688,7 @@ $$
 $$
 v^{\pi}(s)=\max _{a \in \mathcal{A}} q^{\pi}(s, a)
 $$
-上式被称为  `Bellman optimality equation`。从直觉上讲，Bellman optimal equation 表达了这样一个事实：最佳策略下的一个状态的价值必须等于在这个状态下采取最好动作得到的回报的期望。 
+上式被称为  `Bellman optimality equation`。从直觉上讲，Bellman optimality equation 表达了这样一个事实：最佳策略下的一个状态的价值必须等于在这个状态下采取最好动作得到的回报的期望。 
 
 **当 MDP 满足 Bellman optimality equation 的时候，整个 MDP 已经到达最佳的状态。**它到达最佳状态过后，对于这个 Q 函数，取它最大的 action 的那个值，就是直接等于它的最佳的 value function。只有当整个状态已经收敛过后，得到一个最佳的 policy 的时候，这个条件才是满足的。
 
@@ -681,7 +702,7 @@ v^{*}(s)=\max _{a} q^{*}(s, a)
 $$
 当我们取最大的这个 action 的时候对应的那个值就是当前那个状态的最佳的价值函数。
 
-另外，我们给出第二个等式，即 Q函数的 Bellman equation：
+另外，我们给出第二个等式，即 Q 函数的 Bellman equation：
 $$
 q^{*}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) v^{*}\left(s^{\prime}\right)
 $$
@@ -715,7 +736,24 @@ $$
 
 ### Value Iteration
 
+#### Principle of Optimality
+
+我们从另一个角度思考问题，动态规划的方法将优化问题分成两个部分：
+
+* 我第一步执行的是最优的 action；
+* 我之后后继的状态每一步都按照最优的 policy 去做，那么我最后的结果就是最优的。
+
+**Principle of Optimality Theorem**:
+
+一个 policy $\pi(s|a)$ 在状态 $s$ 达到了最优价值，也就是 $v^{\pi}(s) = v^{*}(s)$ 成立，当且仅当：
+
+对于**任何**能够从 $s$ 到达的 $s'$，都已经达到了最优价值，也就是，对于所有的 $s'$，$v^{\pi}(s') = v^{*}(s')$ 恒成立。
+
+#### Deterministic Value Iteration
+
 ![](img/2.50.png)
+
+
 
 **Value iteration 就是把 Bellman Optimality Equation 当成一个 update rule 来进行，**如下式所示：
 $$
@@ -723,19 +761,23 @@ v(s) \leftarrow \max _{a \in \mathcal{A}}\left(R(s, a)+\gamma \sum_{s^{\prime} \
 $$
 之前我们说上面这个等式只有当整个 MDP 已经到达最佳的状态时才满足。但这里可以把它转换成一个 backup 的等式。 Backup 就是说一个迭代的等式。**我们不停地去迭代 Bellman Optimality Equation，到了最后，它能逐渐趋向于最佳的策略，这是 value iteration 算法的精髓。**
 
-我们去为了得到最佳的 $v^*$ ，对于每个状态的 $v^*$ 这个值，我们直接把这个 Bellman Optimality Equation 进行迭代，迭代了很多次之后，它就会收敛。
+为了得到最佳的 $v^*$ ，对于每个状态的 $v^*$，我们直接把这个 Bellman Optimality Equation 进行迭代，迭代了很多次之后，它就会收敛。
 
 ![](img/2.51.png)
 
 * 我们使用 value iteration 算法是为了得到一个最佳的策略。
-
 * 解法：我们可以直接把 `Bellman Optimality backup` 这个等式拿进来进行迭代，迭代很多次，收敛过后得到的那个值就是它的最佳的值。
-* 这个算法开始的时候，它是先把所有值初始化，通过每一个状态，然后它会进行这个迭代。把等式 (22) 插到等式 (23) 里面，就是 Bellman optimality backup 的那个等式。有了等式 (22) 和等式 (23) 这两个等式过后，然后进行不停地迭代，迭代过后，然后收敛，收敛后就会得到这个 $v^*$ 。当我们有这个 $v^*$ 过后，一个问题是如何进一步推算出它的最佳策略。
-* 提取最佳策略的话，我们可以直接用 arg max。就先把它的 Q 函数重构出来，重构出来过后，每一个列对应的最大的那个 action 就是它现在的最佳策略。这样就可以把最佳策略从最佳价值函数里面推导出来。
+* 这个算法开始的时候，它是先把所有值初始化，通过每一个状态，然后它会进行这个迭代。把等式 (22) 插到等式 (23) 里面，就是 Bellman optimality backup 的那个等式。有了等式 (22) 和等式 (23) 过后，然后进行不停地迭代，迭代过后，然后收敛，收敛后就会得到这个 $v^*$ 。当我们有了 $v^*$ 过后，一个问题是如何进一步推算出它的最佳策略。
+* 提取最佳策略的话，我们可以直接用 arg max。就先把它的 Q 函数重构出来，重构出来过后，每一个列对应的最大的那个 action 就是它现在的最佳策略。这样就可以从最佳价值函数里面提取出最佳策略。
 
 ![](img/2.52.png)
 
-上图是一个可视化的过程。在一个 grid world 中，不管你在哪一个位置开始，我们都希望能够到 goal 的这个点，左上角的那个点。因为它是一个迭代过程，然后这里可视化了从  $v_1$ 到 $v_7$  每一个状态的值的变化，它的这个值逐渐在变化。而且因为它每走一步，就会得到一个负的值，所以它需要尽快地到达左上角，可以发现离它越远的那个值就越大。$v_7$ 收敛过后，右下角那个值是 -6，也就相当于它要走六步，才能到达最上面那个值。而且离这个目的地越近，它的价值越大。
+* value function 做的工作类似于 value 的反向传播，每次迭代做一步传播，所以中间过程的 policy 和 value function 是没有意义的。不像是 policy iteration，它每一次迭代的结果都是有意义的，都是一个完整的 policy。
+* 上图是一个可视化的过程，在一个 gridworld 中，我们设定了一个终点(goal)，也就是左上角的点。不管你在哪一个位置开始，我们都希望能够到终点（实际上这个终点是在迭代过程中不必要的，只是为了更好的演示）。Value iteration 的迭代过程像是一个从某一个 state（这里是我们的 goal）反向传播其他各个状态的过程。因为每次迭代只能影响到与之直接相关的状态。
+* 让我们回忆下 Principle of Optimality Theorem：当你这次迭代求解的某个状态 s 的 value function $v_{k+1}(s)$ 是最优解，它的前提是能够从该状态到达的所有状态 s' 此时都已经得到了最优解；如果不是的话，它做的事情只是一个类似传递 value function 的过程。
+* 以上图为例，实际上，对于每一个状态，我们都可以看成一个终点。迭代由每一个终点开始，每次都根据 Bellman optimality equation 重新计算 value。如果它的相邻节点 value 发生变化，变得更好，那么它也会变得更好，一直到相邻节点都不变了。因此，**在我们迭代到** $v_7$ **之前，也就是还没将每个终点的最优的 value 传递给其他的所有状态之前，中间的几个 value function 只是一种暂存的不完整的数据，它不能代表每一个 state 的 value function，所以生成的 policy 是一个没有意义的 policy**。
+* 因为它是一个迭代过程，这里可视化了从  $v_1$ 到 $v_7$  每一个状态的值的变化，它的这个值逐渐在变化。而且因为它每走一步，就会得到一个负的值，所以它需要尽快地到达左上角，可以发现离它越远的，那个值就越小。
+* $v_7$ 收敛过后，右下角那个值是 -6，相当于它要走六步，才能到达最上面那个值。而且离目的地越近，它的价值越大。
 
 ### Difference between Policy Iteration and Value Iteration
 
@@ -743,7 +785,10 @@ $$
 
 ![](img/2.54.png)
 
-我们来看一个 MDP control 的 Demo。首先来看 policy iteration。之前的例子，它们在每个状态都是采取固定的随机策略，就每个状态都是 0.25 的概率往上往下往左往右，没有策略的改变。但是我们现在想做 policy iteration，就是想每个状态都进行改变。Policy iteration 的过程是一个迭代过程。
+**我们来看一个 MDP control 的 Demo。**
+
+* 首先来看 policy iteration。之前的例子在每个状态都是采取固定的随机策略，就每个状态都是 0.25 的概率往上往下往左往右，没有策略的改变。
+* 但是我们现在想做 policy iteration，就是每个状态的策略都进行改变。Policy iteration 的过程是一个迭代过程。
 
 ![](img/2.55.png)
 
@@ -751,11 +796,13 @@ $$
 
 ![](img/2.56.png)
 
-现在进行 policy improvement，按 policy update。按这个 policy update 过后，你可以发现有些格子里面的 policy 已经产生变化。比如说对于中间这个 -1 的这个状态，它的最佳策略是往下走。当你到达这个状态后，你应该往下，这样就会得到最佳的这个值。绿色旁边的这个方块的策略也改变了，它现在选取的最佳策略是往左走，在当前状态的时候，最佳策略应该是往左走。
+* **现在进行 policy improvement，按 policy update。**按这个 policy update 过后，你可以发现有些格子里面的 policy 已经产生变化。
+* 比如说对于中间这个 -1 的这个状态，它的最佳策略是往下走。当你到达这个状态后，你应该往下，这样就会得到最佳的这个值。
+* 绿色右边的这个方块的策略也改变了，它现在选取的最佳策略是往左走，也就是说在这个状态的时候，最佳策略应该是往左走。
 
 ![](img/2.57.png)
 
-我们再 run 下一轮的 policy evaluation，你发现它的这个值又被改变，很多次过后，然后它会更新。
+我们再 run 下一轮的 policy evaluation，你发现它的值又被改变了，很多次过后，它会收敛。
 
 ![](img/2.58.png)
 
@@ -763,7 +810,7 @@ $$
 
 ![](img/2.59.png)
 
-我们再 run 这个 policy evaluation，它的值又再不停地变化，变化之后又收敛了。
+我们再 run 这个 policy evaluation，它的值又在不停地变化，变化之后又收敛了。
 
 ![](img/2.60.png)
 
@@ -772,26 +819,29 @@ $$
 
 ![](img/2.61.png)
 
-再来在这个状态下面进行改变，现在你看基本没有什么变化，就说明整个 MDP 已经收敛了。所以现在它每个状态的值就是它当前最佳的 value function 的值以及它当前状态对应的这个 policy 已经是最佳的 policy。
+再来在这个状态下面进行改变，现在你看基本没有什么变化，就说明整个 MDP 已经收敛了。所以现在它每个状态的值就是它当前最佳的 value function 的值以及它当前状态对应的这个 policy 就是最佳的 policy。
 
-我们可以简单来看，比如说现在我们在右上角 0.38 的这个位置，然后它说现在应该往下走，我们往下走一步。它又说往下走，然后再往下走。现在我们有两个选择：往左走和往下走。我们现在往下走，随着这个箭头的指示，我们就会到达中间 1.20 的一个状态。如果能达到这个状态的话，我们会得到很多 reward 。
+比如说现在我们在右上角 0.38 的这个位置，然后它说现在应该往下走，我们往下走一步。它又说往下走，然后再往下走。现在我们有两个选择：往左走和往下走。我们现在往下走，随着这个箭头的指示，我们就会到达中间 1.20 的一个状态。如果能达到这个状态，我们就会得到很多 reward 。
 
 这个 Demo 说明了 policy iteration 可以把 gridworld 解决掉。解决掉的意思是说，不管在哪个状态，都可以顺着状态对应的最佳的策略来到达可以获得最多奖励的一个状态。
 
 ![](img/2.62.png)
 
-我们再用 value iteration 来解 MDP，点第 3 个 value iteration。 当它的这个值确定下来过后，然后它会产生它的最佳状态，这个最佳状态跟 policy iteration 得出来的最佳策略是一致的，就可以得到一个最佳的策略。然后在每个状态，我们跟着这个最佳策略走，就会到达可以得到最多奖励的一个状态。
+**我们再用 value iteration 来解 MDP，点第 3 个 value iteration。** 
+
+* 当它的这个值确定下来过后，它会产生它的最佳状态，这个最佳状态提取的策略跟 policy iteration 得出来的最佳策略是一致的。
+* 在每个状态，我们跟着这个最佳策略走，就会到达可以得到最多奖励的一个状态。
 
 ![](img/2.63.png)
 
-这个 Demo 里面是一个代码，就是为了解一个叫 `FrozenLake` 的例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个 probability。
+[这个 Demo](https://github.com/cuhkrlcourse/RLexample/tree/master/MDP) 里面是一个代码，就是为了解一个叫 `FrozenLake` 的例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个 probability。
 
 ![](img/2.64.png)
 
-我们再来对比下 policy iteration 和 value iteration，这两个算法都可以解 MDP 的控制问题。
+**我们再来对比下 policy iteration 和 value iteration，这两个算法都可以解 MDP 的控制问题。**
 
 * Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。Policy Iteration 分两步，首先对当前已经搜索到的策略函数进行一个估值。得到估值过后，把 Q 函数算出来，我们进一步进行改进。
-*  Value iteration 直接把 Bellman Optimality Equation 拿进来，然后直接去寻找最佳的 value function，没有 policy function 在这里面。当算出 optimal value function 过后，我们再来提取最佳策略。
+*  Value iteration 直接把 Bellman Optimality Equation 拿进来，然后去寻找最佳的 value function，没有 policy function 在这里面。当算出 optimal value function 过后，我们再来提取最佳策略。
 
 ### Summary for Prediction and Contro in MDP
 
