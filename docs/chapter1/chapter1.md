@@ -258,9 +258,9 @@ Policy 决定了这个 agent 的行为，它其实是一个函数，把输入的
 ![](img/1.33.png)
 **根据强化学习 agent 的不同，我们可以把 agent 进行归类。**
 
-* **基于价值函数的 agent。**这一类 agent 显式地学习的是价值函数，隐式地学习了它的策略。因为这个策略是从我们学到的价值函数里面推算出来的。
-* **基于策略的 agent**，它直接去学习 policy，就是说你直接给它一个 state，它就会输出这个动作的概率。在这个 policy-based agent 里面并没有去学习它的价值函数。
-* **把 value-based 和 policy-based 结合起来就有了 `Actor-Critic agent`。**这一类 agent 就把它的策略函数和价值函数都学习了，然后通过两者的交互得到一个最佳的行为。
+* **`基于价值的 agent(value-based agent)`。**这一类 agent 显式地学习的是价值函数，隐式地学习了它的策略。这个策略是从我们学到的价值函数里面推算出来的。
+* **`基于策略的 agent(policy-based agent)`**。这一类 agent 直接去学习 policy，就是说你直接给它一个 state，它就会输出这个动作的概率。在这个 policy-based agent 里面并没有去学习它的价值函数。
+* **把 value-based 和 policy-based 结合起来就有了 `Actor-Critic agent`。**这一类 agent 把它的策略函数和价值函数都学习了，然后通过两者的交互得到一个最佳的行为。
 
 Q: 基于策略迭代和基于价值迭代的强化学习方法有什么区别?
 
