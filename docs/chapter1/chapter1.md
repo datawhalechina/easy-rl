@@ -3,9 +3,11 @@
 ## Reinforcement Learning
 
 ![](img/1.1.png)
-**强化学习讨论的问题是一个智能体(agent) 怎么在一个复杂不确定的环境(environment)里面去极大化它能获得的奖励。**
 
-示意图由两部分组成：agent 和 environment。在强化学习过程中，agent 跟 environment 一直在交互。Agent 在环境里面获取到状态，agent 会利用这个状态输出一个 action，一个决策。然后这个决策会放到环境之中去，环境会通过这个 agent 采取的决策，输出下一个状态以及当前的这个决策得到的奖励。Agent 的目的就是为了尽可能多地从环境中获取奖励。
+* **强化学习讨论的问题是一个智能体(agent) 怎么在一个复杂不确定的环境(environment)里面去极大化它能获得的奖励。**
+
+* 示意图由两部分组成：agent 和 environment。
+* 在强化学习过程中，agent 跟 environment 一直在交互。Agent 在环境里面获取到状态，agent 会利用这个状态输出一个 action，一个决策。然后这个决策会放到环境之中去，环境会通过这个 agent 采取的决策，输出下一个状态以及当前的这个决策得到的奖励。Agent 的目的就是为了尽可能多地从环境中获取奖励。
 
 ![](img/1.2.png)
 
@@ -258,9 +260,9 @@ Policy 决定了这个 agent 的行为，它其实是一个函数，把输入的
 ![](img/1.33.png)
 **根据强化学习 agent 的不同，我们可以把 agent 进行归类。**
 
-* **`基于价值的 agent(value-based agent)`。**这一类 agent 显式地学习的是价值函数，隐式地学习了它的策略。这个策略是从我们学到的价值函数里面推算出来的。
-* **`基于策略的 agent(policy-based agent)`**。这一类 agent 直接去学习 policy，就是说你直接给它一个 state，它就会输出这个动作的概率。在这个 policy-based agent 里面并没有去学习它的价值函数。
-* **把 value-based 和 policy-based 结合起来就有了 `Actor-Critic agent`。**这一类 agent 把它的策略函数和价值函数都学习了，然后通过两者的交互得到一个最佳的行为。
+* `基于价值的 agent(value-based agent)`。这一类 agent 显式地学习的是价值函数，隐式地学习了它的策略。这个策略是从我们学到的价值函数里面推算出来的。
+* `基于策略的 agent(policy-based agent)`。这一类 agent 直接去学习 policy，就是说你直接给它一个 state，它就会输出这个动作的概率。在这个 policy-based agent 里面并没有去学习它的价值函数。
+* 把 value-based 和 policy-based 结合起来就有了 `Actor-Critic agent`。这一类 agent 把它的策略函数和价值函数都学习了，然后通过两者的交互得到一个最佳的行为。
 
 Q: 基于策略迭代和基于价值迭代的强化学习方法有什么区别?
 
@@ -276,7 +278,7 @@ A: 对于一个状态转移概率已知的马尔可夫决策过程，我们可�
 **另外，我们是可以通过 agent 到底有没有学习这个环境模型来分类。**
 
 * 第一种是 `model-based(有模型)` RL agent，它通过学习这个状态的转移来采取动作。
-* 另外一种是 ` model-free(免模型)` RL agent，它没有去直接估计这个状态的转移，也没有得到环境的具体转移变量。它通过学习 value function 和 policy function 进行决策。这种 model-free 的模型里面没有一个环境转移的模型。
+* 另外一种是 ` model-free(免模型)` RL agent，它没有去直接估计这个状态的转移，也没有得到环境的具体转移变量。它通过学习 value function 和 policy function 进行决策。Model-free 的模型里面没有一个环境转移的模型。
 
 我们可以用马尔可夫决策过程来定义强化学习任务，并表示为四元组 $<S,A,P,R>$，即状态集合、动作集合、状态转移函数和奖励函数。如果这四元组中所有元素均已知，且状态集合和动作集合在有限步数内是有限集，则机器可以对真实环境进行建模，构建一个虚拟世界来模拟真实环境的状态和交互反应。
 
@@ -311,7 +313,7 @@ A: 针对是否需要对真实环境建模，强化学习可以分为有模型�
 
 ![](img/1.36.png)
 
-把几类模型放到同一个 pie chart 里面。三个组成部分：value function、policy、model。按一个 agent 具不具有三者中的两者或者一者可以把它分成很多类。
+把几类模型放到同一个饼图里面。三个组成部分：value function、policy、model。按一个 agent 具不具有三者中的两者或者一者可以把它分成很多类。
 
 ## Learning and Planning
 
