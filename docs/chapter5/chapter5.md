@@ -26,24 +26,27 @@ $$
 
 ![](img/5.2.png)
 
-具体怎么做呢？这边就需要介绍 `importance sampling` 的概念。假设你有一个 function $f(x)$，你要计算从 p 这个 distribution sample $x$，再把 $x$ 带到 $f$ 里面，得到 $f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些 data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
+具体怎么做呢？这边就需要介绍 `importance sampling` 的概念。
 
-现在有另外一个问题，我们没有办法从 p 这个 distribution 里面 sample data。假设我们不能从 p sample data，只能从另外一个 distribution q 去 sample data，q  可以是任何 distribution。我们不能够从 p 去 sample data，但可以从 q 去 sample $x$。我们从 q 去 sample $x^i$ 的话就不能直接套下面的式子。
+假设你有一个 function $f(x)$，你要计算从 p 这个 distribution sample $x$，再把 $x$ 带到 $f$ 里面，得到 $f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些 data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
+
+现在有另外一个问题，我们没有办法从 p 这个 distribution 里面 sample data。假设我们不能从 p sample data，只能从另外一个 distribution q 去 sample data，q  可以是任何 distribution。我们不能够从 p 去 sample data，但可以从 q 去 sample $x$。我们从 q 去 sample $x^i$ 的话就不能直接套下面的式子：
 $$
 E_{x \sim p}[f(x)] \approx \frac{1}{N} \sum_{i=1}^N f(x^i)
 $$
-因为上式是假设你的 $x$ 都是从 p sample 出来的。所以做一个修正，修正是这样子的。期望值$E_{x \sim p}[f(x)]$其实就是$\int f(x) p(x) dx$，我们对其做如下的变换：
+因为上式是假设你的 $x$ 都是从 p sample 出来的。
+
+所以做一个修正，修正是这样子的。期望值 $E_{x \sim p}[f(x)]$ 其实就是 $\int f(x) p(x) dx$，我们对其做如下的变换：
 $$
 \int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]
 $$
 我们就可以写成对 q 里面所 sample 出来的 x 取期望值。我们从 q 里面 sample x，然后再去计算 $f(x) \frac{p(x)}{q(x)}$，再去取期望值。所以就算我们不能从 p 里面去 sample data，只要能够从 q 里面去 sample data，然后代入上式，你就可以计算从 p 这个 distribution sample $x$ 代入 $f$ 以后所算出来的期望值。
 
-这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔 data，你需要乘上一个 weight 来修正这两个 distribution 的差异，weight 就是 $\frac{p(x)}{q(x)}$。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以 apply importance sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
+这边是从 q 做 sample，所以从 q 里 sample 出来的每一笔 data，你需要乘上一个`重要性权重(importance weight)` $\frac{p(x)}{q(x)}$ 来修正这两个 distribution 的差异。$q(x)$ 可以是任何 distribution，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以使用 importance sampling 这个技巧。你就可以从 p 做 sample 换成从 q 做 sample。
 
 ![](img/5.3.png)
 
-Importance sampling 有一些 issue。虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能差太多。差太多的话，会有一些问题。什么样的问题呢？
-
+**Importance sampling 有一些 issue。**虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能差太多。差太多的话，会有一些问题。什么样的问题呢？
 $$
 E_{x \sim p}[f(x)]=E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
 $$
