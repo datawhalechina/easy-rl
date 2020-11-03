@@ -1,6 +1,6 @@
 # Tabular Methods
 
-这节课我们通过最简单的`表格型的方法(tabular methods)`来讲解如何使用 value-based 方法去求解强化学习。
+本章我们通过最简单的`表格型的方法(tabular methods)`来讲解如何使用 value-based 方法去求解强化学习。
 
 ## MDP
 
@@ -14,8 +14,9 @@
 
 这样子的一个状态转移概率是具有`马尔可夫性质`的(系统下一时刻的状态仅由当前时刻的状态决定，不依赖于以往任何状态)。因为这个状态转移概率，它是下一时刻的状态是取决于当前的状态，它和之前的 $s_{t-1}$ 和 $s_{t-2}$  都没有什么关系。然后再加上这个过程也取决于智能体跟环境交互的这个 $a_t$ ，所以有一个决策的一个过程在里面。我们就称这样的一个过程为`马尔可夫决策过程(Markov Decision Process, MDP)`。
 
-
 MDP 就是序列决策这样一个经典的表达方式。MDP 也是强化学习里面一个非常基本的学习框架。状态、动作、状态转移概率和奖励 $(S,A,P,R)$，这四个合集就构成了强化学习 MDP 的四元组，后面也可能会再加个衰减因子构成五元组。
+
+### Model-based
 
 
 ![](img/3.2.png)
@@ -25,25 +26,43 @@ MDP 就是序列决策这样一个经典的表达方式。MDP 也是强化学习
 
 如上图所示，我们把这些可能的动作和可能的状态转移的关系画成一个树状图。它们之间的关系就是从 $s_t$ 到 $a_t$ ，再到 $s_{t+1}$ ，再到 $a_{t+1}$，再到 $s_{t+2}$ 这样子的一个过程。
 
-我们去跟环境交互，只能走完整的一条通路。这里面产生了一系列的一个决策的过程，就是我们跟环境交互产生了一个经验。我们会使用 `P 函数(probability function)`和 `R 函数(reward function)`来去描述环境。P 函数就是状态转移的概率，P 函数实际上反映的是环境的一个随机性。
+我们去跟环境交互，只能走完整的一条通路。这里面产生了一系列的一个决策的过程，就是我们跟环境交互产生了一个经验。**我们会使用 `P 函数(probability function)`和 `R 函数(reward function)`来去描述环境。**P 函数就是状态转移的概率，P 函数实际上反映的是环境的一个随机性。
+
+**当我们知道 P 函数和  R 函数时，我们就说这个 MDP 是已知的，可以通过 policy iteration 和 value iteration 来找最佳的策略。**
 
 比如，在熊发怒的情况下，我如果选择装死，假设熊看到人装死就一定会走的话，我们就称在这里面的状态转移概率就是 100%。但如果说在熊发怒的情况下，我选择跑路而导致可能跑成功以及跑失败，出现这两种情况。那我们就可以用概率去表达一下说转移到其中一种情况的概率大概 10%，另外一种情况的概率大概是 90% 会跑失败。
 
 **如果知道这些状态转移概率和奖励函数的话，我们就说这个环境是已知的，因为我们是用这两个函数去描述环境的。**如果是已知的话，我们其实可以用动态规划去计算说，如果要逃脱熊，那么能够逃脱熊概率最大的最优策略是什么。很多强化学习的经典算法都是 model-free 的，就是环境是未知的。
 
-![](img/3.3.png)
-因为现实世界中人类第一次遇到熊之前，我们根本不知道能不能跑得过熊，所以刚刚那个 10%、90% 的概率也就是虚构出来的概率。熊到底在什么时候会往什么方向去转变的话，我们经常是不知道的。我们是处在一个未知的环境里的，也就是这一系列的决策的 P 函数和 R 函数是未知的，这就是 model-based 跟 model-free 的一个最大的区别。强化学习就是可以用来解决用完全未知的和随机的环境。
+### Model-free
 
-强化学习要像人类一样去学习，人类学习的话就是一条路一条路地去尝试一下，先走一条路，看看结果到底是什么。多试几次，只要能活命的。我们可以慢慢地了解哪个状态会更好，
+![](img/3.3.png)
+因为现实世界中人类第一次遇到熊之前，我们根本不知道能不能跑得过熊，所以刚刚那个 10%、90% 的概率也就是虚构出来的概率。熊到底在什么时候会往什么方向去转变的话，我们经常是不知道的。
+
+**我们是处在一个未知的环境里的，也就是这一系列的决策的 P 函数和 R 函数是未知的，这就是 model-based 跟 model-free 的一个最大的区别。**
+
+强化学习就是可以用来解决用完全未知的和随机的环境。强化学习要像人类一样去学习，人类学习的话就是一条路一条路地去尝试一下，先走一条路，看看结果到底是什么。多试几次，只要能活命的。我们可以慢慢地了解哪个状态会更好，
 
 * 我们用价值函数 $V(s)$ 来代表这个状态是好的还是坏的。
-* 然后用 Q 函数来判断说在什么状态下做什么动作能够拿到最大奖励，用 Q 函数来表示这个状态-动作值。
+* 用 Q 函数来判断说在什么状态下做什么动作能够拿到最大奖励，用 Q 函数来表示这个状态-动作值。
+
+### Model-based vs. Model-free
+
+![](img/model_free_1.png)
+
+* Policy iteration 和 value iteration 都需要得到环境的转移和奖励函数，所以在这个过程中，agent 没有跟环境进行交互。
+* 在很多实际的问题中，MDP 的模型有可能是未知的，也有可能模型太大了，不能进行迭代的计算。比如 Atari 游戏、围棋、控制直升飞机、股票交易等问题，这些问题的状态转移太复杂了。
+
+![](img/model_free_2.png)
+
+* 在这种情况下，我们使用 model-free 强化学习的方法来解。 
+* Model-free 没有获取环境的状态转移和奖励函数，我们让 agent 跟环境进行交互，采集到很多的轨迹数据，agent 从轨迹中获取信息来改进策略，从而获得更多的奖励。
 
 ## Q-table
 
 ![](img/3.4.png)
 
-接下来就会介绍 Q 函数。在多次尝试和熊打交道之后，人类就可以对熊的不同的状态去做出判断，我们可以用状态动作价值来表达说在某个状态下，为什么动作 1 会比动作 2 好，因为动作 1 的价值比动作 2 要高，这个价值就叫 `Q 函数`。
+接下来介绍下 Q 函数。在多次尝试和熊打交道之后，人类就可以对熊的不同的状态去做出判断，我们可以用状态动作价值来表达说在某个状态下，为什么动作 1 会比动作 2 好，因为动作 1 的价值比动作 2 要高，这个价值就叫 `Q 函数`。
 
 **如果 `Q 表格`是一张已经训练好的表格的话，那这一张表格就像是一本生活手册。**我们就知道在熊发怒的时候，装死的价值会高一点。在熊离开的时候，我们可能偷偷逃跑的会比较容易获救。
 
@@ -98,11 +117,101 @@ $$
 
 **`强化`就是我们可以用下一个状态的价值来更新当前状态的价值，其实就是强化学习里面 bootstrapping 的概念。**在强化学习里面，你可以每走一步更新一下 Q 表格，然后用下一个状态的 Q 值来更新这个状态的 Q 值，这种单步更新的方法叫做`时序差分`。
 
-## Temporal Difference
+## Model-free Prediction
+
+在没法获取 MDP 的模型情况下，我们可以通过以下两种方法来估计某个给定策略的价值：
+
+* Monte Carlo policy evaluation
+* Temporal Difference(TD) learning
+
+### Monte-Carlo Policy Evaluation
+
+![](img/MC_1.png)
+
+* `蒙特卡罗(Monte-Carlo，MC)`方法是基于采样的方法，我们让 agent 跟环境进行交互，就会得到很多轨迹。每个轨迹都有对应的 return：
+
+$$
+G_{t}=R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\ldots
+$$
+
+* 我们把每个轨迹的 return 进行平均，就可以知道某一个策略下面对应状态的价值。
+
+* MC 是用 `empirical mean` return 的方法来估计。
+
+* MC 方法不需要 MDP 的转移函数和奖励函数，并且不需要像动态规划那样用 bootstrapping  的方法。
+
+* MC 的局限性：只能用在有终止的 MDP 。
+
+![](img/MC_2.png)
+
+* 上图是 MC 算法的概括。
+* 为了得到评估 $v(s)$，我们进行了如下的步骤：
+  * 在每个 episode 中，如果在时间步 t 状态 s 被访问了，那么
+    * 状态 s 的访问数 $N(s)$ 增加 1，
+    * 状态 s 的总的回报 $S(s)$  增加 $G_t$。
+  * 状态 s 的价值可以通过 return 的平均来估计，即 $v(s)=S(s)/N(s)$。
+
+* 根据大数定律，只要我们得到足够多的轨迹，就可以趋近这个策略对应的价值函数。
+
+假设现在有样本 $x_1,x_2,\cdots$，我们可以把 empirical mean 转换成 `incremental mean` 的形式，如下式所示：
+$$
+\begin{aligned}
+\mu_{t} &=\frac{1}{t} \sum_{j=1}^{t} x_{j} \\
+&=\frac{1}{t}\left(x_{t}+\sum_{j=1}^{t-1} x_{j}\right) \\
+&=\frac{1}{t}\left(x_{t}+(t-1) \mu_{t-1}\right) \\
+&=\frac{1}{t}\left(x_{t}+t \mu_{t-1}-\mu_{t-1}\right) \\
+&=\mu_{t-1}+\frac{1}{t}\left(x_{t}-\mu_{t-1}\right) 
+\end{aligned}
+$$
+通过这种转换，我们就可以把上一时刻的平均值跟现在时刻的平均值建立联系，即：
+$$
+\mu_t = \mu_{t-1}+\frac{1}{t}(x_t-\mu_{t-1})
+$$
+其中：
+
+* $x_t- \mu_{t-1}$ 是残差
+* $\frac{1}{t}$ 类似于 learning rate
+
+当我们得到 $x_t$，就可以用上一时刻的值来更新现在的值。
+
+![](img/MC_3.png)
+
+我们可以把 Monte-Carlo 更新的方法写成 incremental MC 的方法：
+
+* 我们采集数据，得到一个新的轨迹。
+* 对于这个轨迹，我们采用增量的方法进行更新，如下式所示：
+
+$$
+\begin{array}{l}
+N\left(S_{t}\right) \leftarrow N\left(S_{t}\right)+1 \\
+v\left(S_{t}\right) \leftarrow v\left(S_{t}\right)+\frac{1}{N\left(S_{t}\right)}\left(G_{t}-v\left(S_{t}\right)\right)
+\end{array}
+$$
+
+* 我们可以直接把 $\frac{1}{N(S_t)}$ 变成 $\alpha$ (学习率)，$\alpha$ 代表着更新的速率有多快，我们可以进行设置。
+
+![](img/MC_4.png)
+
+**我们再来看一下 DP 和 MC 方法的差异。**
+
+* 动态规划也是常用的估计价值函数的方法。在动态规划里面，我们使用了 bootstrapping 的思想。bootstrapping 的意思就是我们基于之前估计的量来估计一个量。
+
+* DP 就是用 Bellman expectation backup，就是通过上一时刻的值 $v_{i-1}(s')$ 来更新当前时刻 $v_i(s)$ 这个值，不停迭代，最后可以收敛。Bellman expectation backup 就有两层加和，内部加和和外部加和，算了两次 expectation，得到了一个更新。
+
+![](img/MC_5.png)
+
+MC 是通过 empirical mean return （实际得到的收益）来更新它，对应树上面蓝色的轨迹，我们得到是一个实际的轨迹，实际的轨迹上的状态已经是决定的，采取的行为都是决定的。MC 得到的是一条轨迹，这条轨迹表现出来就是这个蓝色的从起始到最后终止状态的轨迹。现在只是更新这个轨迹上的所有状态，跟这个轨迹没有关系的状态都没有更新。
+
+![](img/MC_6.png)
+
+* MC 可以在不知道环境的情况下 work，而 DP 是 model-based。
+* MC 只需要更新一条轨迹的状态，而 DP 则是需要更新所有的状态。状态数量很多的时候（比如一百万个，两百万个），DP 这样去迭代的话，速度是非常慢的。这也是 sample-based 的方法 MC 相对于 DP 的优势。
+
+### Temporal Difference
 
 ![](img/3.10.png)
 
-**为了让大家更好地理解时序差分这种更新方法，这边给出它的物理意义。**我们先理解一下巴普洛夫的条件反射实验，这个实验讲的是小狗会对盆里面的食物无条件产生刺激，分泌唾液。一开始小狗对于铃声这种中性刺激是没有反应的，可是我们把这个铃声和食物结合起来，每次先给它响一下铃，再给它喂食物，多次重复之后，当铃声响起的时候，小狗也会开始流口水。盆里的肉可以认为是强化学习里面那个延迟的 reward，声音的刺激可以认为是有 reward 的那个状态之前的一个状态。多次重复实验之后，最后的这个 reward 会强化小狗对于这个声音的条件反射，它会让小狗知道这个声音代表着有食物，这个声音对于小狗来说也就有了价值，它听到这个声音也会流口水。
+**为了让大家更好地理解`时序差分(Temporal Difference,TD)`这种更新方法，这边给出它的物理意义。**我们先理解一下巴普洛夫的条件反射实验，这个实验讲的是小狗会对盆里面的食物无条件产生刺激，分泌唾液。一开始小狗对于铃声这种中性刺激是没有反应的，可是我们把这个铃声和食物结合起来，每次先给它响一下铃，再给它喂食物，多次重复之后，当铃声响起的时候，小狗也会开始流口水。盆里的肉可以认为是强化学习里面那个延迟的 reward，声音的刺激可以认为是有 reward 的那个状态之前的一个状态。多次重复实验之后，最后的这个 reward 会强化小狗对于这个声音的条件反射，它会让小狗知道这个声音代表着有食物，这个声音对于小狗来说也就有了价值，它听到这个声音也会流口水。
 
 ![](img/3.11.png)
 
@@ -119,46 +228,250 @@ $$
 ![](img/3.13.png)
 
 * 我们先初始化一下，然后开始时序差分的更新过程。
-* 在训练的过程中，你会看到这个小黄球在不断地试错，在探索当中会先迅速地发现有 reward 的地方。最开始的时候，只是这些有 reward 的格子 才有价值。当不断地重复走这些路线的时候，这些有价值的格子可以去慢慢地影响它附近的格子的价值。
-* 反复训练之后，这些有 reward 的格子周围的格子的状态就会慢慢地被强化。强化就是当它收敛到最后一个最优的状态了，就是把这些价值最终收敛到一个最优的情况之后，那个小黄球就会自动地知道，就是我一直往价值高的地方走，就能够走到能够拿到 reward 的地方。
-  ![](img/3.14.png)
+* 在训练的过程中，你会看到这个小黄球在不断地试错，在探索当中会先迅速地发现有 reward 的地方。最开始的时候，只是这些有 reward 的格子才有价值。当不断地重复走这些路线的时候，这些有价值的格子可以去慢慢地影响它附近的格子的价值。
+* 反复训练之后，这些有 reward 的格子周围的格子的状态就会慢慢地被强化。强化就是当它收敛到最后一个最优的状态了，这些价值最终收敛到一个最优的情况之后，那个小黄球就会自动地知道，就是我一直往价值高的地方走，就能够走到能够拿到 reward 的地方。
 
-如上图所示，这种强化方式可以用一行公式来表示，这种更新的方式叫做`时序差分(Temporal Difference)`。这个公式就是说可以拿下一步的 Q 值 $Q(S_{t+_1},A_{t+1})$ 来更新我这一步的 Q 值 $Q(S_t,A_t)$ 。
+![](img/TD_1.png)
 
-为了理解这个公式，如上图所示，我们先把 $R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 当作是一个目标值，就是 $Q(S_t,A_t)$ 想要去逼近的一个目标值。$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 被称为 `TD target`，TD target 是带衰减的未来收益的总和。 
+* TD 是介于 MC 和 DP 之间的方法。
 
-我们想要计算的就是 $Q(S_t,A_t)$ 。因为最开始 Q 值都是随机初始化或者是初始化为零，它需要不断地去逼近它理想中真实的 Q 值(TD target)，$\delta = R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)-Q\left(S_{t}, A_{t}\right)$ 被称为 `TD error`。
+* TD 是 model free 的，不需要 MDP 的转移矩阵和奖励函数。
+* TD 可以从不完整的 episode 中学习，结合了 bootstrapping 的思想。
 
-我们用 $G_t$ 来表示未来收益总和(return)，并且对它做一下数学变化：
+![](img/TD_2.png)
+
+* 上图是 TD 算法的框架。
+* 目的：对于某个给定的策略，在线(online)地算出它的价值函数，即一步一步地(step-by-step)算。
+* 最简单的算法是 `TD(0)`，每往前走一步，就做一步 bootstrapping，用得到的 estimated return 来更新上一时刻的值 
+* Estimated return $R_{t+1}+\gamma v(S_{t+1})$ 被称为 `TD target`，TD target 是带衰减的未来收益的总和。TD target 由两部分组成：
+  * 走了某一步后得到的实际奖励：$R_{t+1}$， 
+  * 我们利用了 bootstrapping 的方法，通过之前的估计来估计 $v(S_{t+1})$  ，然后加了一个折扣系数，即 $\gamma v(S_{t+1})$。
+* `TD error` $\delta=R_{t+1}+\gamma v(S_{t+1})-v(S_t)$。
+* 可以类比于 Incremental Monte-Carlo 的方法，写出如下的更新方法：
+
 $$
-\begin{aligned}
-G_{t} &=R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\gamma^{3} R_{t+4}+\cdots \\
-&=R_{t+1}+\gamma\left(R_{t+2}+\gamma R_{t+3}+\gamma^{2} R_{t+4}+\cdots\right) \\
-&=R_{t+1}+\gamma G_{t+1}
-\end{aligned}
+v\left(S_{t}\right) \leftarrow v\left(S_{t}\right)+\alpha\left(R_{t+1}+\gamma v\left(S_{t+1}\right)-v\left(S_{t}\right)\right)
 $$
-就可以知道 $G_t = R_{t+1}+ \gamma G_{t+1}$。
+
+> 上式体现了强化这个概念。
+
+* 我们对比下 MC 和 TD：
+  * 在 MC 里面 $G_{i,t}$ 是实际得到的值（可以看成 target），因为它已经把一条轨迹跑完了，可以算每个状态实际的 return。
+  * TD 没有等轨迹结束，往前走了一步，就可以更新价值函数。 
+
+![](img/TD_3.png)
+
+* TD 只执行了一步，状态的值就更新。
+
+* MC 全部走完了之后，到了终止状态之后，再更新它的值。
+
+![](img/TD_4.png)
+
+* TD 可以 online learning，每走一步就可以更新，效率高。
+* MC 必须等游戏结束才可以学习。
+
+
+
+*  TD 可以从不完整序列上进行学习。
+* TD 只能从完整的序列上进行学习。
+
+
+
+* TD 可以在连续的环境下（没有终止）进行学习。
+* MC 只能在有终止的情况下学习。
+
+
+
+* TD 利用了马尔可夫性质，在马尔可夫环境下有更高的学习效率。
+* MC 没有假设环境具有马尔可夫性质，利用采样的价值来估计某一个状态的价值，在不是马尔可夫的环境下更加有效
+
+
+
+**举个例子来解释 TD 和 MC 的区别，**
+
+* TD 是指在不清楚马尔可夫状态转移概率的情况下，以采样的方式得到不完整的状态序列，估计某状态在该状态序列完整后可能得到的收益，并通过不断地采样持续更新价值。
+* MC 则需要经历完整的状态序列后，再来更新状态的真实价值。
+
+例如，你想获得开车去公司的时间，每天上班开车的经历就是一次采样。假设今天在路口 A 遇到了堵车，
+
+* TD 会在路口 A 就开始更新预计到达路口 B、路口 C $\cdots \cdots$，以及到达公司的时间；
+* 而 MC 并不会立即更新时间，而是在到达公司后，再修改到达每个路口和公司的时间。
+
+**TD 能够在知道结果之前就开始学习，相比 MC，其更快速、灵活。**
+
+![](img/TD_5.png)
+
+* 我们可以把 TD 进行进一步的推广。之前是只往前走一步，即 one-step TD，TD(0)。
+
+* 我们可以调整步数，变成 `n-step TD`。比如 `TD(2)`，即往前走两步，然后利用两步得到的 return，使用 bootstrapping 来更新状态的价值。
+
+* 这样就可以通过 step 来调整这个算法需要多少的实际奖励和 bootstrapping。
+
+![](img/TD_6.png)
+
+* 通过调整步数，可以进行一个 MC 和 TD 之间的 trade-off，如果 $n=\infty$， 即整个游戏结束过后，再进行更新，TD 就变成了 MC。
+* n-step 的 TD target 如下式所示：
+
+$$
+G_{t}^{n}=R_{t+1}+\gamma R_{t+2}+\ldots+\gamma^{n-1} R_{t+n}+\gamma^{n} v\left(S_{t+n}\right)
+$$
+
+* 得到 TD target 之后，我们用 incremental learning 的方法来更新状态的价值：
+
+$$
+v\left(S_{t}\right) \leftarrow v\left(S_{t}\right)+\alpha\left(G_{t}^{n}-v\left(S_{t}\right)\right)
+$$
+
+### Bootstrapping and Sampling for DP,MC and TD
+
+![](img/comparison_1.png)
+
+* Bootstrapping：更新时使用了估计：
+  * MC 没用 bootstrapping，因为它是根据实际的 return 来更新。
+  * DP 用了 bootstrapping。
+  * TD 用了 bootstrapping。
+
+* Sampling：更新时通过采样得到一个期望：
+  * MC 是纯 sampling 的方法。
+  * DP 没有用 sampling，它是直接用 Bellman expectation equation 来更新状态价值的。
+  * TD 用了 sampling。TD target 由两部分组成，一部分是 sampling，一部分是 bootstrapping。
+
+![](img/comparison_2.png)
+
+DP 是直接算 expectation，把它所有相关的状态都进行加和。
+
+![](img/comparison_3.png)
+
+MC 在当前状态下，采一个支路，在一个path 上进行更新，更新这个 path 上的所有状态。
+
+![](img/comparison_4.png)
+
+TD 是从当前状态开始，往前走了一步，关注的是非常局部的步骤。
+
+![](img/comparison_5.png)
+
+* 如果 TD 需要更广度的 update，就变成了 DP（因为 DP 是把所有状态都考虑进去来进行更新）。
+* 如果 TD 需要更深度的 update，就变成了 MC。
+* 右下角是穷举的方法（exhaustive search），穷举的方法既需要很深度的信息，又需要很广度的信息。
+
+## Model-free Control
+
+Q: 当我们不知道 MDP 模型情况下，如何优化价值函数，得到最佳的策略？
+
+A: 我们可以把 policy iteration 进行一个广义的推广，使它能够兼容 MC 和 TD 的方法，即 `Generalized Policy Iteration(GPI) with MC and TD`。
+
+![](img/model_free_control_1.png)
+
+Policy iteration 由两个步骤组成：
+
+1. 根据给定的当前的 policy $\pi$ 来估计价值函数；
+2. 得到估计的价值函数后，通过 greedy 的方法来改进它的算法。
+
+这两个步骤是一个互相迭代的过程。
+
+![](img/model_free_control_2.png)
+
+得到一个价值函数过后，我们并不知道它的奖励函数和状态转移，所以就没法估计它的 Q 函数。所以这里有一个问题：当我们不知道奖励函数和状态转移时，如何进行策略的优化。
+
+![](img/model_free_control_3.png)
+
+针对上述情况，我们引入了广义的 policy iteration 的方法。
+
+我们对 policy evaluation 部分进行修改：用 MC 的方法代替 DP 的方法去估计 Q 函数。
+
+当得到 Q 函数后，就可以通过 greedy 的方法去改进它。
+
+![](img/model_free_control_4.png)
+
+上图是用 MC 估计 Q 函数的算法。
+
+* 假设每一个 episode 都有一个 `exploring start`，exploring start 保证所有的状态和动作都在无限步的执行后能被采样到，这样才能很好地去估计。
+* 算法通过 MC 的方法产生了很多的轨迹，每个轨迹都可以算出它的价值。然后，我们可以通过 average 的方法去估计 Q 函数。Q 函数可以看成一个 Q-table，通过采样的方法把表格的每个单元的值都填上，然后我们使用 policy improvement 来选取更好的策略。
+* 算法核心：如何用 MC 方法来填 Q-table。
+
+![](img/model_free_control_5.png)
+
+为了确保 MC 方法能够有足够的探索，我们使用了 $\varepsilon$-greedy exploration。
+
+$\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概率会按照 Q-function 来决定 action，通常 $\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是 90%，也就是 90% 的概率会按照 Q-function 来决定 action，但是你有 10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。在最开始的时候。因为还不知道那个 action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着 training 的次数越来越多。已经比较确定说哪一个 Q 是比较好的。你就会减少你的 exploration，你会把 $\varepsilon$ 的值变小，主要根据 Q-function 来决定你的 action，比较少做 random，这是 $\varepsilon\text{-greedy}$。
+
+![](img/model_free_control_6.png)
+
+当我们使用 MC 和 $\varepsilon$-greedy 探索这个形式的时候，我们可以确保价值函数是单调的，改进的。
+
+![](img/model_free_control_7.png)上图是 MC with $\varepsilon$-greedy exploration 算法的伪代码。
+
+![](img/model_free_control_8.png)
+
+与 MC 相比，TD 有如下几个优势：
+
+* 低方差。
+* 能够在线学习。
+* 能够从不完整的序列学习。
+
+所以我们可以把 TD 也放到 control loop 里面去估计 Q-table，再采取这个 $\varepsilon$-greedy improvement。这样就可以在 episode 没结束的时候来更新已经采集到的状态价值。  
+
+### Sarsa: On-policy TD Control
+
+![](img/model_free_control_9.png)
+
+TD 是给定了一个策略，然后我们去估计它的价值函数。接着我们要考虑怎么用 TD 这个框架来估计 Q-function。
+
+![](img/3.14.png)
+
+Sarsa 跟 TD Prediction 也是类似的，它是直接估计 Q-table。得到这个 Q-table 后，就可以更新这个策略。
+
+如上图所示，我们使用时序差分的方式来进行更新，如下式所示：
+$$
+Q\left(S_{t}, A_{t}\right) \leftarrow Q\left(S_{t}, A_{t}\right)+\alpha\left[R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)-Q\left(S_{t}, A_{t}\right)\right]
+$$
+这个公式就是说可以拿下一步的 Q 值 $Q(S_{t+_1},A_{t+1})$ 来更新我这一步的 Q 值 $Q(S_t,A_t)$ 。
+
+为了理解这个公式，如上图所示，我们先把 $R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 当作是一个目标值，就是 $Q(S_t,A_t)$ 想要去逼近的一个目标值。$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 就是 TD target。
+
+我们想要计算的就是 $Q(S_t,A_t)$ 。因为最开始 Q 值都是随机初始化或者是初始化为零，它需要不断地去逼近它理想中真实的 Q 值(TD target)，$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)-Q\left(S_{t}, A_{t}\right)$ 就是 TD error。
 
 也就是说，我们拿 $Q(S_t,A_t)$ 来逼近 $G_t$，那 $Q(S_{t+1},A_{t+1})$ 其实就是近似 $G_{t+1}$。我就可以用  $Q(S_{t+1},A_{t+1})$ 近似 $G_{t+1}$，然后把  $R_{t+1}+Q(S_{t+1},A_{t+1})$  当成目标值。
 
 $Q(S_t,A_t)$  就是要逼近这个目标值，我们用软更新的方式来逼近。软更新的方式就是每次我只更新一点点，$\alpha$ 类似于学习率。最终的话，Q 值都是可以慢慢地逼近到真实的 target 值。这样我们的更新公式只需要用到当前时刻的 $S_{t},A_t$，还有拿到的 $R_{t+1}, S_{t+1}，A_{t+1}$ 。
 
-**该算法由于每次更新值函数需要知道当前的状态(state)、当前的动作(action)、奖励(reward)、下一步的状态(state)、下一步的动作(action)，即 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ 这几个值 ，由此得名 `Sarsa` 算法**。它走了一步之后，拿到了 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ 之后，就可以做一次更新。
+**该算法由于每次更新值函数需要知道当前的状态(state)、当前的动作(action)、奖励(reward)、下一步的状态(state)、下一步的动作(action)，即 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$ 这几个值 ，由此得名 `Sarsa` 算法**。它走了一步之后，拿到了 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$  之后，就可以做一次更新。
 
 ![](img/3.15.png)
+
+我们直接看这个框框里面的更新公式， 和之前的公式是一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值 $Q(S',A')$ 来更新这一步的 Q 值 $Q(S,A)$，不断地强化每一个 Q。
+
+![](img/n-step_sarsa.png)Sarsa 属于单步更新法，也就是说每执行一个动作，就会更新一次价值和策略。如果不进行单步更新，而是采取 $n$ 步更新或者回合更新，即在执行 $n$ 步之后再来更新价值和策略，这样就得到了 `n 步 Sarsa(n-step Sarsa)`。
+
+比如 2-step Sarsa，就是执行两步后再来更新 Q 的值。
+
+具体来说，对于 Sarsa，在 $t$ 时刻其价值的计算公式为
+$$
+q_{t}=R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)
+$$
+而对于 $n$ 步 Sarsa，它的 $n$ 步 Q 收获为
+$$
+q_{t}^{(n)}=R_{t+1}+\gamma R_{t+2}+\ldots+\gamma^{n-1} R_{t+n}+\gamma^{n} Q\left(S_{t+n}, A_{t+n}\right)
+$$
+
+如果给 $q_t^{(n)}$ 加上衰减因子 $\lambda$ 并进行求和，即可得到 Sarsa($\lambda$) 的 Q 收获：
+$$
+q_{t}^{\lambda}=(1-\lambda) \sum_{n=1}^{\infty} \lambda^{n-1} q_{t}^{(n)}
+$$
+因此，$n$ 步 Sarsa($\lambda$)的更新策略可以表示为
+$$
+Q\left(S_{t}, A_{t}\right) \leftarrow Q\left(S_{t}, A_{t}\right)+\alpha\left(q_{t}^{\lambda}-Q\left(S_{t}, A_{t}\right)\right)
+$$
+总的来说，Sarsa 和 Sarsa($\lambda$) 的差别主要体现在价值的更新上。
+
+![](img/3.16.png)
 
 我们看看用代码去怎么去实现。了解单步更新的一个基本公式之后，代码实现就很简单了。右边是环境，左边是 agent 。我们每次跟环境交互一次之后呢，就可以 learn 一下，向环境输出 action，然后从环境当中拿到 state 和 reward。Agent 主要实现两个方法：
 
 * 一个就是根据 Q 表格去选择动作，输出 action。
 * 另外一个就是拿到 $(S_{t}, A_{t}, R_{t+1}, S_{t+1}, A_{t+1})$  这几个值去更新我们的 Q 表格。
 
-## Sarsa: On-policy TD Control
-
-![](img/3.16.png)
-
-我们直接看这个框框里面的更新公式， 和之前的公式是一模一样的。$S'$ 就是 $S_{t+1}$ 。我们就是拿下一步的 Q 值 $Q(S',A')$ 来更新这一步的 Q 值 $Q(S,A)$，不断地强化每一个 Q。
-
-## Q-learning: Off-policy TD Control
+### Q-learning: Off-policy TD Control
 
 ![](img/3.17.png)
 
@@ -190,8 +503,6 @@ $$
 \pi\left(S_{t+1}\right)=\underset{a^{\prime}}{\arg \max}~ Q\left(S_{t+1}, a^{\prime}\right)
 $$
 Behavior policy $\mu$ 可以是一个随机的 policy，但我们采取 $\varepsilon\text{-greedy}$，让 behavior policy 不至于是完全随机的，它是基于 Q-table 逐渐改进的。
-
-> $\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概率会按照 Q-function 来决定 action，通常 $\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是 90%，也就是 90% 的概率会按照 Q-function 来决定 action，但是你有 10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。在最开始的时候。因为还不知道那个 action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着 training 的次数越来越多。已经比较确定说哪一个 Q 是比较好的。你就会减少你的 exploration，你会把 $\varepsilon$ 的值变小，主要根据 Q-function 来决定你的 action，比较少做 random，这是 $\varepsilon\text{-greedy}$。
 
 我们可以构造 Q-learning target，Q-learning 的 next action 都是通过 arg max 操作来选出来的，于是我们可以代入 arg max 操作，可以得到下式：
 $$
@@ -245,10 +556,10 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 
 ## References
 
+* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 * [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
 * [百面深度学习](https://book.douban.com/subject/35043939/)
 * [神经网络与深度学习](https://nndl.github.io/)
-* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 * [机器学习](https://book.douban.com/subject/26708119//)
 
 
