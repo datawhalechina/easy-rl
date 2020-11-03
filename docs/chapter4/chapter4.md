@@ -41,7 +41,10 @@
 我们把一开始的初始画面记作 $s_1$， 把第一次执行的动作记作 $a_1$，把第一次执行动作完以后得到的 reward 记作 $r_1$。不同的书会有不同的定义，有人会觉得说这边应该要叫做 $r_2$，这个都可以，你自己看得懂就好。Actor 决定一个行为以后， 就会看到一个新的游戏画面，这边是 $s_2$。然后把这个 $s_2$ 输入给 actor，这个 actor 决定要开火，然后它可能杀了一只怪，就得到五分。这个 process 就反复地持续下去，直到今天走到某一个 timestamp 执行某一个 action，得到 reward 之后， 这个 environment 决定这个游戏结束了。比如说，如果在这个游戏里面，你是控制绿色的船去杀怪，如果你被杀死的话，游戏就结束，或是你把所有的怪都清空，游戏就结束了。
 
 ![](img/4.4.png)
-一场游戏叫做一个 `episode(回合)` 或者 `trial(试验)`。把这个游戏里面，所有得到的 reward 都总合起来，就是 `total reward`，我们称其为`return(回报)`，用 R 来表示它。Actor 要想办法去 maximize 它可以得到的 reward。
+
+* 一场游戏叫做一个 `episode(回合)` 或者 `trial(试验)`。
+* 把这场游戏里面所有得到的 reward 都加起来，就是 `total reward`，我们称其为`return(回报)`，用 R 来表示它。
+* Actor 要想办法去最大化它可以得到的 reward。
 
 ![](img/4.5.png)
 首先，`environment` 是一个`function`，游戏的主机也可以把它看作是一个 function，虽然它不一定是 neural network，可能是 rule-based 的规则，但你可以把它看作是一个 function。这个 function，一开始就先吐出一个 state，也就是游戏的画面，接下来你的 actor 看到这个游戏画面 $s_1$ 以后，它吐出 $a_1$，然后 environment 把 $a_1$ 当作它的输入，然后它再吐出 $s_2$，吐出新的游戏画面。Actor 看到新的游戏画面，再采取新的行为 $a_2$，然后 environment 再看到 $a_2$，再吐出 $s_3$。这个 process 会一直持续下去，直到 environment 觉得说应该要停止为止。
