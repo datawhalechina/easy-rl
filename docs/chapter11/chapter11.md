@@ -7,7 +7,7 @@
 * 在自动驾驶汽车里面，虽然你没有办法给出自动驾驶汽车的 reward，但你可以收集很多人类开车的纪录。
 * 在 chat-bot 里面，你可能没有办法定义什么叫做好的对话，什么叫做不好的对话。但是收集很多人的对话当作范例，这一件事情也是可行的。
 
-所以 imitation learning 的使用性非常高。假设你不知道该怎么定义 reward，你就可以收集到 expert 的 demonstration。如果你可以收集到一些范例的话，你可以收集到一些很厉害的 agent(比如人)跟环境实际上的互动的话，那你就可以考虑 imitation learning 这个技术。在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者又叫做 `Inverse Optimal Control`。
+所以 imitation learning 的使用性非常高。假设你不知道该怎么定义 reward，你就可以收集到 expert 的 demonstration。如果你可以收集到一些范例的话，你可以收集到一些很厉害的 agent(比如人)跟环境实际上的互动的话，那你就可以考虑 imitation learning 这个技术。在 imitation learning 里面，我们介绍两个方法。第一个叫做 `Behavior Cloning`，第二个叫做 `Inverse Reinforcement Learning` 或者叫做 `Inverse Optimal Control`。
 
 ##  Behavior Cloning
 ![](img/11.2.png)
@@ -108,4 +108,10 @@ IRL 有很多的 application，比如可以用开来自动驾驶汽车，有人�
 在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 imitation learning。机器在 imitate 人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给它看唐诗三百首。人类写的文字其实就是 expert 的 demonstration。每一个词汇其实就是一个 action。你让机器做 Sentence Generation 的时候，其实就是在 imitate expert 的 trajectory。Chat-bot 也是一样，在 Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是 expert 的 demonstration。
 
 如果我们单纯用 maximum likelihood 这个技术来 maximize 会得到 likelihood，这个其实就是 behavior cloning。我们做 behavior cloning 就是看到一个 state，接下来预测我们会得到什么样的 action。看到一个 state，然后有一个 ground truth 告诉机器说什么样的 action 是最好的。在做 likelihood 的时候也是一样，given sentence 已经产生的部分。接下来 machine 要 predict 说接下来要写哪一个word 才是最好的。**所以，其实 maximum likelihood 在做 sequence generation 的时候，它对应到 imitation learning 里面就是 behavior cloning。**只有 maximum likelihood 是不够的，我们想要用 Sequence GAN。**其实 Sequence GAN 就是对应到 Inverse Reinforcement Learning**，Inverse Reinforcement Learning 就是一种 GAN 的技术。你把 Inverse Reinforcement Learning 的技术放在 sentence generation，放到 Chat-bot 里面，其实就是 Sequence GAN 跟它的种种的变形。
+
+## References
+
+* [机器学习](https://book.douban.com/subject/26708119//)
+
+
 
