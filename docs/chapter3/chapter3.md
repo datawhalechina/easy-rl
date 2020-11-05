@@ -417,15 +417,14 @@ $\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概�
 
 TD 是给定了一个策略，然后我们去估计它的价值函数。接着我们要考虑怎么用 TD 这个框架来估计 Q-function。
 
-![](img/3.14.png)
+![](img/3.14.png)Sarsa 所作出的改变很简单，就是将原本我们 TD 更新 V 的过程，变成了更新 Q，如下式所示：
 
-Sarsa 跟 TD Prediction 也是类似的，它是直接估计 Q-table。得到这个 Q-table 后，就可以更新这个策略。
-
-如上图所示，我们使用时序差分的方式来进行更新，如下式所示：
 $$
 Q\left(S_{t}, A_{t}\right) \leftarrow Q\left(S_{t}, A_{t}\right)+\alpha\left[R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)-Q\left(S_{t}, A_{t}\right)\right]
 $$
 这个公式就是说可以拿下一步的 Q 值 $Q(S_{t+_1},A_{t+1})$ 来更新我这一步的 Q 值 $Q(S_t,A_t)$ 。
+
+Sarsa 是直接估计 Q-table，得到 Q-table 后，就可以更新策略。
 
 为了理解这个公式，如上图所示，我们先把 $R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 当作是一个目标值，就是 $Q(S_t,A_t)$ 想要去逼近的一个目标值。$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 就是 TD target。
 
@@ -496,7 +495,7 @@ Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略，
 
 ![](img/Q-learning.png)
 
-Q-learning 的算法有两种 policy：behavior policy 和 target policy。
+Q-learning 有两种 policy：behavior policy 和 target policy。
 
 Target policy $\pi$ 直接在 Q-table 上取 greedy，就取它下一步能得到的所有状态，如下式所示：
 $$
@@ -544,7 +543,7 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 
 **总结一下 on-policy 和 off-policy 的区别。**
 
-* Sarsa 是一个典型的 on-policy 策略，它只用了一个 policy $\pi$ 。如果 policy 采用 $\varepsilon$-greedy 算法的话，它需要兼顾探索，为了兼顾探索和利用，它训练的时候会显得有点胆小怕事。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点，也还是在安全区域内。此外，因为采用的是 $\varepsilon$-greedy 算法，策略会不断改变($\varepsilon$ 会不断变小)，所以策略不稳定。
+* Sarsa 是一个典型的 on-policy 策略，它只用了一个 policy $\pi$ 。如果 policy 采用 $\varepsilon$-greedy 算法的话，它需要兼顾探索，为了兼顾探索和利用，它训练的时候会显得有点胆小。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点，也还是在安全区域内。此外，因为采用的是 $\varepsilon$-greedy 算法，策略会不断改变($\varepsilon$ 会不断变小)，所以策略不稳定。
 * Q-learning 是一个典型的 off-policy 的策略，它有两种策略：target policy 和 behavior policy。它分离了目标策略跟行为策略。Q-learning 就可以大胆地用 behavior policy 去探索得到的经验轨迹来去优化目标策略，从而更有可能去探索到最优的策略。Behavior policy 可以采用 $\varepsilon$-greedy 算法，但 target policy 采用的是 greedy 算法，直接根据 behavior policy 采集到的数据来采用最优策略，所以 Q-learning 不需要兼顾探索。
 * 比较 Q-learning 和 Sarsa 的更新公式可以发现，Sarsa 并没有选取最大值的 max 操作，因此，
   * Q-learning 是一个非常激进的算法，希望每一步都获得最大的利益；
@@ -556,6 +555,7 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 
 ## References
 
+* [强化学习基础 David Silver 笔记](https://zhuanlan.zhihu.com/c_135909947)
 * [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 * [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
 * [百面深度学习](https://book.douban.com/subject/35043939/)
