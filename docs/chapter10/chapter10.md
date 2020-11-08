@@ -1,13 +1,16 @@
 # Sparse Reward 
-实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。那在没有办法得到 reward 的情况下，训练 agent 是非常困难的。举例来说，假设你要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，那这个很难，为什么？因为你知道一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说，它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样的好。所以，它最后什么都不会学到。
+实际上用 reinforcement learning learn agent 的时候，多数的时候 agent 都是没有办法得到 reward 的。在没有办法得到 reward 的情况下，训练 agent 是非常困难的。举例来说，假设你要训练一个机器手臂，然后桌上有一个螺丝钉跟螺丝起子，那你要训练它用螺丝起子把螺丝钉栓进去，这个很难，为什么？因为一开始你的 agent 是什么都不知道的，它唯一能够做不同的 action 的原因是 exploration。举例来说，你在做 Q-learning 的时候，会有一些随机性，让它去采取一些过去没有采取过的 action，那你要随机到说，它把螺丝起子捡起来，再把螺丝栓进去，然后就会得到 reward 1，这件事情是永远不可能发生的。所以，不管你的 actor 做了什么事情，它得到 reward 永远都是 0，对它来说不管采取什么样的 action 都是一样糟或者是一样的好。所以，它最后什么都不会学到。
 
 如果环境中的 reward 非常 sparse，reinforcement learning 的问题就会变得非常的困难，但是人类可以在非常 sparse 的 reward 上面去学习。我们的人生通常多数的时候，我们就只是活在那里，都没有得到什么 reward 或是 penalty。但是，人还是可以采取各种各式各样的行为。所以，一个真正厉害的 AI 应该能够在 sparse reward 的情况下也学到要怎么跟这个环境互动。
 
-怎么解决 sparse reward 的这件事情呢？我们等一下会讲三个方向。
+我们可以通过三个方向来解决 sparse reward 的问题。
+
 ## Reward Shaping
 ![](img/10.1.png)
 
-第一个方向是 `reward shaping`。**Reward shaping 的意思是说环境有一个固定的 reward，它是真正的 reward，但是为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些 reward 来引导我们的 agent。**举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可以 take 两个 actions，一个 action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到 reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在 100 个小时后，他可以得到 reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是 accumulated reward，但也许对小孩来说，他的 discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多 experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的 reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。Reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些 reward，它不是环境真正的 reward。在玩 Atari 游戏里面，真的 reward 是游戏主机给你的 reward，但你自己去设计一些 reward 好引导你的 machine，做你想要它做的事情。
+第一个方向是 `reward shaping`。**Reward shaping 的意思是说环境有一个固定的 reward，它是真正的 reward，但是为了让 agent 学出来的结果是我们要的样子，我们刻意地设计了一些 reward 来引导我们的 agent。**
+
+举例来说，如果是把小孩当成一个 agent 的话。那一个小孩，他可以 take 两个 actions，一个 action 是他可以出去玩，那他出去玩的话，在下一秒钟它会得到 reward 1。但是他在月考的时候，成绩可能会很差。所以在100 个小时之后呢，他会得到 reward -100。然后，他也可以决定要念书，然后在下一个时间，因为他没有出去玩，所以他觉得很不爽，所以他得到 reward -1。但是在 100 个小时后，他可以得到 reward 100。但对一个小孩来说，他可能就会想要 take play 而不是 take study。我们计算的是 accumulated reward，但也许对小孩来说，他的 discount factor 会很大，所以他就不太在意未来的reward。而且因为他是一个小孩，他还没有很多 experience，所以他的 Q-function estimate 是非常不精准的。所以要他去 estimate 很远以后会得到的 accumulated reward，他其实是预测不出来的。所以这时候大人就要引导他，怎么引导呢？就骗他说，如果你坐下来念书我就给你吃一个棒棒糖。所以，对他来说，下一个时间点会得到的 reward 就变成是positive 的。所以他就觉得说，也许 take 这个 study 是比 play 好的。虽然这并不是真正的 reward，而是其他人骗他的reward，告诉他说你采取这个 action 是好的。Reward shaping 的概念是一样的，简单来说，就是你自己想办法 design 一些 reward，它不是环境真正的 reward。在玩 Atari 游戏里面，真的 reward 是游戏主机给你的 reward，但你自己去设计一些 reward 好引导你的 machine，做你想要它做的事情。
 
 ![](img/10.2.png)
 
@@ -57,7 +60,9 @@ Reward shaping 是有问题的，因为我们需要 domain knowledge，举例来
 
 ![](img/10.8.png)
 
-接下来，我们把 reward 特别极端的 case 去掉。Reward 特别极端的 case 的意思就是说那些 case 太简单或是太难了。如果 reward 很大，代表说这个 case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的 reward。如果 reward 太小，代表这个 case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。那当然什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的 case 去 sample 出更多的 state。就假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是 curriculum learning，就是你要为机器规划它学习的顺序。而 reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从目标去反推，所以这个叫做 reverse。  
+接下来，我们把 reward 特别极端的 case 去掉。Reward 特别极端的 case 的意思就是说那些 case 太简单或是太难了。如果 reward 很大，代表说这个 case 太简单了，就不用学了，因为机器已经会了，它可以得到很大的 reward。如果 reward 太小，代表这个 case 太难了，依照机器现在的能力这个课程太难了，它学不会，所以就不要学这个，所以只找一些 reward 适中的 case。
+
+什么叫做适中，这个就是你要调的参数，找一些 reward 适中的 case。接下来，再根据这些 reward 适中的 case 去 sample 出更多的 state。假设你一开始，你机械手臂在这边，可以抓的到以后。接下来，就再离远一点，看看能不能够抓得到，又抓的到以后，再离远一点，看看能不能抓得到。这是一个有用的方法，它叫做`Reverse Curriculum learning`。刚才讲的是 curriculum learning，就是你要为机器规划它学习的顺序。而 reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从目标去反推，所以这个叫做 reverse。  
 
 ## Hierarchical RL
 
@@ -65,7 +70,7 @@ Reward shaping 是有问题的，因为我们需要 domain knowledge，举例来
 
 第三个方向是`分层强化学习(hierarchical reinforcement learning，HRL)`。分层强化学习是说，我们有好几个 agent。然后，有一些 agent 负责比较 high level 的东西，它负责订目标，然后它订完目标以后，再分配给其他的 agent，去把它执行完成。
 
-这样的想法其实也是很合理的。因为我们知道说，我们人在一生之中，并不是时时刻刻都在做决定。举例来说，假设你想要写一篇 paper，你会说就我先想个梗这样子，然后想完梗以后，你还要跑个实验。跑完实验以后，你还要写。写完以后呢，你还要这个去发表。每一个动作下面又还会再细分，比如说怎么跑实验呢？你要先 collect data，collect 完 data 以后，你要再 label，你要弄一个 network，然后又 train 不起来，要 train 很多次。然后重新 design network 架构好几次，最后才把 network train 起来。
+这样的想法其实也是很合理的。因为人在一生之中，并不是时时刻刻都在做决定。举例来说，假设你想要写一篇 paper，你会说就我先想个梗这样子，然后想完梗以后，你还要跑个实验。跑完实验以后，你还要写。写完以后呢，你还要这个去发表。每一个动作下面又还会再细分，比如说怎么跑实验呢？你要先 collect data，collect 完 data 以后，你要再 label，你要弄一个 network，然后又 train 不起来，要 train 很多次。然后重新 design network 架构好几次，最后才把 network train 起来。
 
 所以，我们要完成一个很大的 task 的时候，我们并不是从非常底层的那些 action 开始想起，我们其实是有个 plan。我们先想说，如果要完成这个最大的任务，那接下来要拆解成哪些小任务。每一个小任务要再怎么拆解成小小的任务。举例来说，叫你直接写一本书可能很困难，但叫你先把一本书拆成好几个章节，每个章节拆成好几段，每一段又拆成好几个句子，每一个句子又拆成好几个词汇，这样你可能就比较写得出来，这个就是分层的 reinforcement learning 的概念。
 
