@@ -783,7 +783,7 @@ $$
 
 ### Difference between Policy Iteration and Value Iteration
 
-![](img/2.53.png ':size=450')
+![](img/2.53.png)
 
 ![](img/2.54.png ':size=450')
 
@@ -792,7 +792,7 @@ $$
 * 首先来看 policy iteration。之前的例子在每个状态都是采取固定的随机策略，就每个状态都是 0.25 的概率往上往下往左往右，没有策略的改变。
 * 但是我们现在想做 policy iteration，就是每个状态的策略都进行改变。Policy iteration 的过程是一个迭代过程。
 
-![](img/2.55.png)
+![](img/2.55.png ':size=450')
 
 我们先在这个状态里面 run 一遍 policy  evaluation，就得到了一个 value function，每个状态都有一个 value function。
 
