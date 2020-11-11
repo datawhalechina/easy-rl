@@ -225,7 +225,7 @@ MC 是通过 empirical mean return （实际得到的收益）来更新它，对
 
 **为了让大家更加直观感受下一个状态影响上一个状态**，我们推荐这个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。
 
-![](img/3.13.png ':size=70%')
+![](img/3.13.png ':size=200x200')
 
 * 我们先初始化一下，然后开始时序差分的更新过程。
 * 在训练的过程中，你会看到这个小黄球在不断地试错，在探索当中会先迅速地发现有 reward 的地方。最开始的时候，只是这些有 reward 的格子才有价值。当不断地重复走这些路线的时候，这些有价值的格子可以去慢慢地影响它附近的格子的价值。
