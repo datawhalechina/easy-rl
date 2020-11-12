@@ -573,7 +573,7 @@ $$
 
 ![](img/2.36.png)
 
-![](img/2.37.png ':size=450')
+![](img/2.37.png ':size=550')
 
 我们再来看一个动态的例子，首先推荐斯坦福大学的一个网站：[GridWorld: Dynamic Programming Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_dp.html) ，这个网站模拟了单步更新的过程中，所有格子的一个状态价值的变化过程。
 
