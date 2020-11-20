@@ -3,7 +3,7 @@
 
 ![](img/4.1.png)
 
-在 reinforcement learning 中有 3 个components，一个`actor`，一个`environment`，一个`reward function`。
+在 reinforcement learning 中有 3 个 components：`actor`、`environment` 和 `reward function`。
 
 让机器玩 video game 时，
 
@@ -76,9 +76,11 @@ $$
 
 ![](img/4.6.png)
 
+在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。
 
-在 reinforcement learning 里面，除了 environment 跟 actor 以外， 还有`reward function`。Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的 $r$ 都加起来，我们就得到了 $R(\tau)$ ，代表某一个 trajectory $\tau$ 的 reward。在某一场游戏里面， 某一个 episode 里面，我们会得到 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable，R 其实是一个 random variable。 因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
+Reward function 根据在某一个 state 采取的某一个 action 决定说现在这个行为可以得到多少的分数。 它是一个 function，给它 $s_1$，$a_1$，它告诉你得到 $r_1$。给它 $s_2$ ，$a_2$，它告诉你得到 $r_2$。 把所有的 $r$ 都加起来，我们就得到了 $R(\tau)$ ，代表某一个 trajectory $\tau$ 的 reward。
 
+在某一场游戏里面， 某一个 episode 里面，我们会得到 R。**我们要做的事情就是调整 actor 内部的参数 $\theta$， 使得 R 的值越大越好。** 但实际上 reward 并不只是一个 scalar，reward 其实是一个 random variable。R 其实是一个 random variable，因为 actor 在给定同样的 state 会做什么样的行为，这件事情是有随机性的。Environment 在给定同样的 observation 要采取什么样的 action，要产生什么样的 observation，本身也是有随机性的。所以 R 是一个 random variable，你能够计算的，是它的期望值。你能够计算的是说，在给定某一组参数 $\theta$ 的情况下，我们会得到的 R 的期望值是多少。
 $$
 \bar{R}_{\theta}=\sum_{\tau} R(\tau) p_{\theta}(\tau)
 $$
@@ -112,7 +114,7 @@ $$
 \end{aligned}
 $$
 
-实际上这个 expected value 没有办法算，所以你是用 sample 的方式来 sample 一大堆的 $\tau$。你 sample $N$ 笔  $\tau$， 然后你去计算每一笔的这些 value，然后把它全部加起来，最后你就得到你的 gradient。你就可以去 update 你的参数，你就可以去 update 你的 agent，如下式所示。
+实际上这个 expected value 没有办法算，所以你是用 sample 的方式来 sample 一大堆的 $\tau$。你 sample $N$ 笔  $\tau$， 然后你去计算每一笔的这些 value，然后把它全部加起来，就可以得到你的 gradient。你就可以去 update 你的参数，你就可以去 update 你的 agent，如下式所示。
 $$
 \begin{aligned}
 E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right] &\approx \frac{1}{N} \sum_{n=1}^{N} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(\tau^{n}\right) \\
@@ -143,7 +145,7 @@ $$
 
 你就可以把 sample 到的东西代到这个 gradient 的式子里面，把 gradient 算出来。也就是把这边的每一个 s 跟 a 的 pair 拿进来，算一下它的 log probability 。你计算一下在某一个 state 采取某一个 action 的 log probability，然后对它取 gradient，然后这个 gradient 前面会乘一个 weight，weight 就是这场游戏的 reward。 有了这些以后，你就会去 update 你的 model。
 
-Update 完你的 model 以后。你要重新去收集 data，再 update model。这边要注意一下，一般 policy gradient sample 的 data 就只会用一次。你把这些 data sample 起来，然后拿去 update 参数，这些 data 就丢掉了。接着再重新 sample data，才能够去 update 参数， 等一下我们会解决这个问题。
+Update 完你的 model 以后。你要重新去收集 data，再 update model。这边要注意一下，一般  `policy gradient(PG) ` sample 的 data 就只会用一次。你把这些 data sample 起来，然后拿去 update 参数，这些 data 就丢掉了。接着再重新 sample data，才能够去 update 参数， 等一下我们会解决这个问题。
 
 ![](img/4.9.png)
 
@@ -158,13 +160,12 @@ Update 完你的 model 以后。你要重新去收集 data，再 update model。
 
 ![](img/4.10.png)
 
-做 classification 的时候，objective function 就是 maximize 或 minimize 的对象， 因为我们现在是 maximize likelihood 所以其实是 maximize， 你要 maximize 的对象，如下式所示:
+做 classification 的时候，objective function 就是 maximize 或 minimize 的对象， 因为我们现在是 maximize likelihood，所以其实是 maximize， 你要 maximize 的对象，如下式所示:
 $$
 \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 
-像这种 loss function，你可在 TensorFlow 里调用现成的 function，它就会自动帮你算。
-然后你就可以把 gradient 计算出来，这是一般的分类问题。RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 PyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
+像这种 loss function，你可在 TensorFlow 里调用现成的 function，它就会自动帮你算，然后你就可以把 gradient 计算出来。这是一般的分类问题，RL 唯一不同的地方是 loss 前面乘上一个 weight，这个是整场游戏的时候得到的 total reward R， 它并不是在 state s 采取 action a 的时候得到的 reward。 你要把你的每一笔 training data，都 weighted by 这个 R。然后你用 TensorFlow 或 PyTorch 去帮你算 gradient 就结束了，跟一般 classification 差不多。
 
 ## Tips
 这边有一些在实现的时候，你也许用得上的 tip。
@@ -183,7 +184,7 @@ $$
  ![1](img/4.13.png)
 
 
-这个是一个理想上的状况，但是实际上，我们是在做 sampling 就本来这边应该是一个 expectation， summation over 所有可能的 s 跟 a 的 pair。 但你真正在学的时候，当然不可能是这么做的，你只是 sample 了少量的 s 跟 a 的 pair 而已。 因为我们做的是 sampling，有一些 action 可能从来都没有 sample 到。在某一个 state1，虽然可以执行的 action 有 a/b/c 3 个，但你可能只 sample 到 action b，你可能只 sample 到 action c，你没有 sample 到 action a。但现在所有 action 的 reward 都是正的，所以根据这个式子，它的每一项的概率都应该要上升。你会遇到的问题是，因为 a 没有被 sample 到，其它 action 的概率如果都要上升，a 的概率就下降。 所以 a 不一定是一个不好的 action， 它只是没被 sample 到。但只是因为它没被 sample 到， 它的概率就会下降，这个显然是有问题的，要怎么解决这个问题呢？你会希望你的 reward 不要总是正的。
+这是一个理想上的状况，但是实际上，我们是在做 sampling 就本来这边应该是一个 expectation， summation over 所有可能的 s 跟 a 的 pair。 但你真正在学的时候，当然不可能是这么做的，你只是 sample 了少量的 s 跟 a 的 pair 而已。 因为我们做的是 sampling，有一些 action 可能从来都没有 sample 到。在某一个 state1，虽然可以执行的 action 有 a/b/c 3 个，但你可能只 sample 到 action b，你可能只 sample 到 action c，你没有 sample 到 action a。但现在所有 action 的 reward 都是正的，所以根据这个式子，它的每一项的概率都应该要上升。你会遇到的问题是，因为 a 没有被 sample 到，其它 action 的概率如果都要上升，a 的概率就下降。 所以 a 不一定是一个不好的 action， 它只是没被 sample 到。但只是因为它没被 sample 到， 它的概率就会下降，这个显然是有问题的，要怎么解决这个问题呢？你会希望你的 reward 不要总是正的。
 
 ![1.](img/4.14.png)
 
@@ -284,11 +285,16 @@ REINFORCE 的伪代码主要看最后四行，先产生一个 episode 的数据�
 
 ![](img/4.26.png)
 
-类似地，policy gradient 预测每一个状态下面应该要输出的这个行动的概率，就是输入状态 $s_t$，然后输出动作的概率，比如 0.02，0.08，0.09。实际上输出给环境的动作是随机选了一个 action，比如说我选了右这个 action，它的 one-hot 向量就是 0，0，1。我们把神经网络的输出和实际动作带入 cross entropy 的公式就可以求出输出的概率和实际的动作之间的差距。但这个实际的动作 $a_t$ 只是我们输出的真实的 action，它并不一定是正确的 action，它不能像手写数字识别一样作为一个正确的标签来去指导神经网络朝着正确的方向去更新，所以我们在这里会需要乘以一个奖励回报 $G_t$。这个奖励回报相当于是对这个真实 action 的评价，$G_t$ 具体越大，未来总收益越大，说明当前输出的这个真实的 action 就越好，这个 loss 就越需要重视。如果 $G_t$ 越小，那就说明做这个 action $a_t$ 并没有那么的好，loss 的权重就要小一点，优化力度就小一点。通过这个和那个手写输入识别的一个对比，我们就知道为什么 loss 会构造成这个样子。
+* 类似地，policy gradient 预测每一个状态下面应该要输出的这个行动的概率，就是输入状态 $s_t$，然后输出动作的概率，比如 0.02，0.08，0.09。实际上输出给环境的动作是随机选了一个 action，比如说我选了右这个 action，它的 one-hot 向量就是 0，0，1。
+* 我们把神经网络的输出和实际动作带入 cross entropy 的公式就可以求出输出的概率和实际的动作之间的差距。
+* 但这个实际的动作 $a_t$ 只是我们输出的真实的 action，它并不一定是正确的 action，它不能像手写数字识别一样作为一个正确的标签来去指导神经网络朝着正确的方向去更新，所以我们需要乘以一个奖励回报 $G_t$。这个奖励回报相当于是对这个真实 action 的评价。
+  * 如果 $G_t$ 越大，未来总收益越大，那就说明当前输出的这个真实的 action 就越好，这个 loss 就越需要重视。
+  * 如果 $G_t$ 越小，那就说明做这个 action $a_t$ 并没有那么的好，loss 的权重就要小一点，优化力度就小一点。
+* 通过这个和那个手写输入识别的一个对比，我们就知道为什么 loss 会构造成这个样子。
 
 ![](img/4.27.png)
 
-实际上我们在计算这个 loss 的时候，我们要拿到那个 $\ln \pi(A_t|S_t,\theta)$。我就拿我实际执行的这个动作，先取个 one-hot 向量，然后再拿到神经网络预测的动作概率，这两个一相乘，我就可以拿到算法里面的那个  $\ln \pi(A_t|S_t,\theta)$。这个就是我们要构造的 loss。因为我们会拿到整个 episode 的所有的轨迹，所以我们可以对这一条整条轨迹里面的每个 action 都去计算一个 loss。把所有的 loss 加起来之后，我们再扔给那个 adam 的优化器去自动更新参数就好了。
+实际上我们在计算这个 loss 的时候，我们要拿到那个 $\ln \pi(A_t|S_t,\theta)$。我就拿实际执行的这个动作，先取个 one-hot 向量，然后再拿到神经网络预测的动作概率，这两个一相乘，我就可以拿到算法里面的那个  $\ln \pi(A_t|S_t,\theta)$。这个就是我们要构造的 loss。因为我们会拿到整个 episode 的所有的轨迹，所以我们可以对这一条整条轨迹里面的每个 action 都去计算一个 loss。把所有的 loss 加起来之后，我们再扔给 adam 的优化器去自动更新参数就好了。
 
 ![](img/4.28.png)
 
