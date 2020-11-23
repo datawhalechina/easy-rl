@@ -4,7 +4,9 @@
 
 ## CartPole-v0
 
-CartPole-v0是OpenAI gym中的一个经典环境，通过向左(action=0)或向右(action=1)推车能够实现平衡，所以动作空间由两个动作组成。每进行一个step就会给一个reward，如果无法保持平衡那么done等于true，本次episode失败。理想状态下，每个episode至少能进行200个step，也就是说每个episode的reward总和至少为200，step数目至少为200。
+CartPole-v0是OpenAI gym中的一个经典环境，通过向左(action=0)或向右(action=1)推车能够实现平衡，所以动作空间由两个动作组成。每进行一个step就会给一个+1的reward，如果无法保持平衡那么done等于true，本次episode失败。
+
+**理想状态下，每个episode至少能进行200个step，也就是说每个episode的reward总和至少为200，step数目至少为200**。
 
 ![p1](img/p1.png)
 
