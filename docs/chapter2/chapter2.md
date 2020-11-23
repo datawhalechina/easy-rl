@@ -573,7 +573,7 @@ $$
 
 ![](img/2.36.png)
 
-![](img/2.37.png)
+![](img/2.37.png ':size=550')
 
 我们再来看一个动态的例子，首先推荐斯坦福大学的一个网站：[GridWorld: Dynamic Programming Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_dp.html) ，这个网站模拟了单步更新的过程中，所有格子的一个状态价值的变化过程。
 
@@ -581,14 +581,15 @@ $$
 
 在这样的环境里面，我们想计算它每一个状态的价值。我们也定义了它的 reward function，你可以看到有些状态上面有一个 R 的值。比如我们这边有些值是为负的，我们可以看到格子里面有几个 -1 的 reward，只有一个 +1 reward 的格子。在这个棋盘的中间这个位置，可以看到有一个 R 的值是 1.0，为正的一个价值函数。 所以每个状态对应了一个值，然后有一些状态没有任何值，就说明它的这个 reward function，它的奖励是为零的。
 
-![](img/2.38.png)
+![](img/2.38.png ':size=550')
+
 我们开始做这个 policy evaluation，policy evaluation 是一个不停迭代的过程。当我们初始化的时候，所有的 $v(s)$ 都是 0。我们现在迭代一次，迭代一次过后，你发现有些状态上面，值已经产生了变化。比如有些状态的值的 R 为 -1，迭代一次过后，它就会得到 -1 的这个奖励。对于中间这个绿色的，因为它的奖励为正，所以它是 +1 的状态。
 
-![](img/2.39.png)
+![](img/2.39.png ':size=550')
 
 所以当迭代第一次的时候，$v(s)$ 某些状态已经有些值的变化。
 
-![](img/2.40.png)
+![](img/2.40.png ':size=550')
 
 * 我们再迭代一次(one sweep)，然后发现它就从周围的状态也开始有值。因为周围状态跟之前有值的状态是临近的，所以它就相当于把旁边这个状态转移过来。所以当我们逐渐迭代的话，你会发现这个值一直在变换。
 
@@ -784,41 +785,41 @@ $$
 
 ![](img/2.53.png)
 
-![](img/2.54.png)
+![](img/2.54.png ':size=550')
 
 **我们来看一个 MDP control 的 Demo。**
 
 * 首先来看 policy iteration。之前的例子在每个状态都是采取固定的随机策略，就每个状态都是 0.25 的概率往上往下往左往右，没有策略的改变。
 * 但是我们现在想做 policy iteration，就是每个状态的策略都进行改变。Policy iteration 的过程是一个迭代过程。
 
-![](img/2.55.png)
+![](img/2.55.png ':size=550')
 
 我们先在这个状态里面 run 一遍 policy  evaluation，就得到了一个 value function，每个状态都有一个 value function。
 
-![](img/2.56.png)
+![](img/2.56.png ':size=550')
 
 * **现在进行 policy improvement，按 policy update。**按这个 policy update 过后，你可以发现有些格子里面的 policy 已经产生变化。
 * 比如说对于中间这个 -1 的这个状态，它的最佳策略是往下走。当你到达这个状态后，你应该往下，这样就会得到最佳的这个值。
 * 绿色右边的这个方块的策略也改变了，它现在选取的最佳策略是往左走，也就是说在这个状态的时候，最佳策略应该是往左走。
 
-![](img/2.57.png)
+![](img/2.57.png ':size=550')
 
 我们再 run 下一轮的 policy evaluation，你发现它的值又被改变了，很多次过后，它会收敛。
 
-![](img/2.58.png)
+![](img/2.58.png ':size=550')
 
 我们再 run policy update，你发现每个状态里面的值基本都改变，它不再是上下左右随机在变了，它会选取一个最佳的策略。
 
-![](img/2.59.png)
+![](img/2.59.png ':size=550')
 
 我们再 run 这个 policy evaluation，它的值又在不停地变化，变化之后又收敛了。
 
-![](img/2.60.png)
+![](img/2.60.png ':size=550')
 
 
 我们再来 run 一遍 policy update。现在它的值又会有变化，就在每一个状态，它的这个最佳策略也会产生一些改变。
 
-![](img/2.61.png)
+![](img/2.61.png ':size=550')
 
 再来在这个状态下面进行改变，现在你看基本没有什么变化，就说明整个 MDP 已经收敛了。所以现在它每个状态的值就是它当前最佳的 value function 的值以及它当前状态对应的这个 policy 就是最佳的 policy。
 
@@ -826,7 +827,7 @@ $$
 
 这个 Demo 说明了 policy iteration 可以把 gridworld 解决掉。解决掉的意思是说，不管在哪个状态，都可以顺着状态对应的最佳的策略来到达可以获得最多奖励的一个状态。
 
-![](img/2.62.png)
+![](img/2.62.png ':size=550')
 
 **我们再用 value iteration 来解 MDP，点第 3 个 value iteration。** 
 
