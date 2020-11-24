@@ -77,7 +77,7 @@
 
 ![moving_average_rewards](assets/moving_average_rewards.png)
 
-### 主要代码清单
+## 主要代码清单
 
 **main.py**：保存强化学习基本接口，以及相应的超参数，可使用argparse
 
