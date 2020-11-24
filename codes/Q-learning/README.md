@@ -17,3 +17,22 @@
 ![](assets/cliffwalking_2.png)
 
 由于从起点到终点最少需要13步，每步得到-1的reward，因此最佳训练算法下，每个episode下reward总和应该为-13。
+
+
+## 使用
+
+train: 
+
+```python
+python main.py 
+```
+
+eval: 
+
+```python
+python main.py --train 0 
+```
+tensorboard：
+```python
+tensorboard --logdir logs 
+```

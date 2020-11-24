@@ -18,10 +18,14 @@ import gym
 import turtle
 import numpy as np
 
-# turtle tutorial : https://docs.python.org/3.3/library/turtle.html
+def env_init_1():
+    ''' 初始化CliffWalking-v0环境
+    '''
+    env = gym.make("CliffWalking-v0")  # 0 up, 1 right, 2 down, 3 left
+    env = CliffWalkingWapper(env)
+    return env
 
-
-def GridWorld(gridmap=None, is_slippery=False):
+def env_init_2(gridmap=None, is_slippery=False):
     if gridmap is None:
         gridmap = ['SFFF', 'FHFH', 'FFFH', 'HFFG']
     env = gym.make("FrozenLake-v0", desc=gridmap, is_slippery=False)

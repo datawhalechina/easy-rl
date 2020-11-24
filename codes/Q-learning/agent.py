@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2020-10-07 20:48:29
+LastEditTime: 2020-11-24 20:22:03
 Discription: 
 Environment: 
 '''
@@ -81,14 +81,11 @@ class QLearning(object):
                 self.Q_table[next_obs, :])  # Q_table-learning
         self.Q_table[obs, action] += self.lr * (Q_target - Q_predict)  # 修正q
 
-    def save(self):
+    def save_model(self,path):
         '''把 Q表格 的数据保存到文件中
         '''
-        npy_file = './result/Q_table.npy'
-        np.save(npy_file, self.Q_table)
-        print(npy_file + ' saved.')
-    def load(self, npy_file='./result/Q_table.npy'):
+        np.save(path, self.Q_table)
+    def load_model(self, path):
         '''从文件中读取数据到 Q表格
         '''
-        self.Q_table = np.load(npy_file)
-        print(npy_file + 'loaded.')
+        self.Q_table = np.load(path)
