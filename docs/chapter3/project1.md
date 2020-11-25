@@ -77,7 +77,7 @@
 
 ![moving_average_rewards](assets/moving_average_rewards.png)
 
-### 主要代码清单
+## 主要代码清单
 
 **main.py**：保存强化学习基本接口，以及相应的超参数，可使用argparse
 
@@ -93,7 +93,7 @@
 
 ## 备注
 
-* 注意 $\varepsilon -greedy$ 策略的使用，以及相应的参数$\varepsilon$如何衰减
-* 训练模型和测试模型的时候选择动作有一些不同，训练时采取e-greedy策略，而测试时直接选取Q值最大对应的动作，所以算法在动作选择的时候会包括sample(训练时的动作采样)和predict(测试时的动作选择)
+* 注意 $\varepsilon$-greedy 策略的使用，以及相应的参数$\varepsilon$如何衰减
+* 训练模型和测试模型的时候选择动作有一些不同，训练时采取 $\varepsilon$-greedy策略，而测试时直接选取Q值最大对应的动作，所以算法在动作选择的时候会包括sample(训练时的动作采样)和predict(测试时的动作选择)
 
 * Q值最大对应的动作可能不止一个，此时可以随机选择一个输出结果
