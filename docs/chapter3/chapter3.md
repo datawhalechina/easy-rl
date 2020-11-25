@@ -563,6 +563,8 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 
 ## References
 
+* [百度强化学习](https://aistudio.baidu.com/aistudio/education/lessonvideo/460292)
+
 * [强化学习基础 David Silver 笔记](https://zhuanlan.zhihu.com/c_135909947)
 * [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 * [Reinforcement Learning: An Introduction (second edition)](https://book.douban.com/subject/30323890/)
