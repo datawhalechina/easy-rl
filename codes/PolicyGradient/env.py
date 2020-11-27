@@ -14,6 +14,6 @@ import gym
 def env_init():
     env = gym.make('CartPole-v0') # 可google为什么unwrapped gym，此处一般不需要
     env.seed(1) # 设置env随机种子
-    n_states = env.observation_space.shape[0]
+    state_dim = env.observation_space.shape[0]
     n_actions = env.action_space.n
-    return env,n_states,n_actions
+    return env,state_dim,n_actions

@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2020-11-23 12:05:03
+LastEditTime: 2020-11-23 17:04:37
 Discription: 
 Environment: 
 '''
@@ -18,9 +18,9 @@ from model import FCN
 
 class PolicyGradient:
     
-    def __init__(self, n_states,device='cpu',gamma = 0.99,lr = 0.01,batch_size=5):
+    def __init__(self, state_dim,device='cpu',gamma = 0.99,lr = 0.01,batch_size=5):
         self.gamma = gamma
-        self.policy_net = FCN(n_states)
+        self.policy_net = FCN(state_dim)
         self.optimizer = torch.optim.RMSprop(self.policy_net.parameters(), lr=lr)
         self.batch_size = batch_size
 
@@ -66,3 +66,7 @@ class PolicyGradient:
             # print(loss)
             loss.backward()
         self.optimizer.step()
+    def save_model(self,path):
+        torch.save(self.policy_net.state_dict(), path)
+    def load_model(self,path):
+        self.policy_net.load_state_dict(torch.load(path)) 
