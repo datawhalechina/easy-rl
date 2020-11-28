@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 16:30:09
 @LastEditor: John
-LastEditTime: 2020-10-15 22:01:50
+LastEditTime: 2020-11-23 13:48:31
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -27,18 +27,6 @@ def plot(item,ylabel='rewards_train', save_fig = True):
         plt.savefig(os.path.dirname(__file__)+"/result/"+ylabel+".png")
     plt.show()
 
-# def plot(item,ylabel='rewards'):
-#     
-#     df = pd.DataFrame(dict(time=np.arange(len(item)),value=item))
-#     g = sns.relplot(x="time", y="value", kind="line", data=df)
-#     # g.fig.autofmt_xdate()
-#     # sns.lineplot(time=time, data=item, color="r", condition="behavior_cloning")
-#     # # sns.tsplot(time=time, data=x2, color="b", condition="dagger")
-#     # plt.ylabel("Reward")
-#     # plt.xlabel("Iteration Number")
-#     # plt.title("Imitation Learning")
-
-    # plt.show()
 if __name__ == "__main__":
 
     output_path = os.path.split(os.path.abspath(__file__))[0]+"/result/"
