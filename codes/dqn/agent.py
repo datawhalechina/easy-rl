@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2020-10-15 21:56:21
+LastEditTime: 2020-11-22 11:12:30
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -24,11 +24,12 @@ from memory import ReplayBuffer
 from model import FCN
 class DQN:
     def __init__(self, n_states, n_actions, gamma=0.99, epsilon_start=0.9, epsilon_end=0.05, epsilon_decay=200, memory_capacity=10000, policy_lr=0.01, batch_size=128, device="cpu"):
-        self.actions_count = 0
+        
         self.n_actions = n_actions  # 总的动作个数
         self.device = device  # 设备，cpu或gpu等
-        self.gamma = gamma
+        self.gamma = gamma # 奖励的折扣因子
         # e-greedy策略相关参数
+        self.actions_count = 0 # 用于epsilon的衰减计数
         self.epsilon = 0
         self.epsilon_start = epsilon_start
         self.epsilon_end = epsilon_end
@@ -67,12 +68,11 @@ class DQN:
                 action = random.randrange(self.n_actions)
             return action
         else: 
-            with torch.no_grad():
+            with torch.no_grad(): # 取消保存梯度
                     # 先转为张量便于丢给神经网络,state元素数据原本为float64
                     # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
                     state = torch.tensor(
-                        [state], device='cpu', dtype=torch.float32)
-                    # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
+                        [state], device='cpu', dtype=torch.float32) # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
                     q_value = self.target_net(state)
                     # tensor.max(1)返回每行的最大值以及对应的下标，
                     # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
@@ -86,8 +86,8 @@ class DQN:
         # 从memory中随机采样transition
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample(
             self.batch_size)
-        # 转为张量
-        # 例如tensor([[-4.5543e-02, -2.3910e-01,  1.8344e-02,  2.3158e-01],...,[-1.8615e-02, -2.3921e-01, -1.1791e-02,  2.3400e-01]])
+        '''转为张量
+        例如tensor([[-4.5543e-02, -2.3910e-01,  1.8344e-02,  2.3158e-01],...,[-1.8615e-02, -2.3921e-01, -1.1791e-02,  2.3400e-01]])'''
         state_batch = torch.tensor(
             state_batch, device=self.device, dtype=torch.float)
         action_batch = torch.tensor(action_batch, device=self.device).unsqueeze(
@@ -99,9 +99,8 @@ class DQN:
         done_batch = torch.tensor(np.float32(
             done_batch), device=self.device).unsqueeze(1)  # 将bool转为float然后转为张量
 
-        # 计算当前(s_t,a)对应的Q(s_t, a)
-        # 关于torch.gather,对于a=torch.Tensor([[1,2],[3,4]])
-        # 那么a.gather(1,torch.Tensor([[0],[1]]))=torch.Tensor([[1],[3]])
+        '''计算当前(s_t,a)对应的Q(s_t, a)'''
+        '''torch.gather:对于a=torch.Tensor([[1,2],[3,4]]),那么a.gather(1,torch.Tensor([[0],[1]]))=torch.Tensor([[1],[3]])'''
         q_values = self.policy_net(state_batch).gather(
             dim=1, index=action_batch)  # 等价于self.forward
         # 计算所有next states的V(s_{t+1})，即通过target_net中选取reward最大的对应states
@@ -119,6 +118,7 @@ class DQN:
         self.loss.backward()
         for param in self.policy_net.parameters():  # clip防止梯度爆炸
             param.grad.data.clamp_(-1, 1)
+            
         self.optimizer.step()  # 更新模型
 
     def save_model(self,path):

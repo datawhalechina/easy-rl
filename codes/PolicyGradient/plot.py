@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
 '''
-@Author: John
-@Email: johnjim0816@gmail.com
-@Date: 2020-06-11 16:30:09
-@LastEditor: John
-LastEditTime: 2020-11-23 13:48:31
-@Discription: 
-@Environment: python 3.7.7
+Author: John
+Email: johnjim0816@gmail.com
+Date: 2020-11-23 13:48:46
+LastEditor: John
+LastEditTime: 2020-11-23 13:48:48
+Discription: 
+Environment: 
 '''
 import matplotlib.pyplot as plt
 import seaborn as sns
