@@ -100,7 +100,7 @@ $$
 
 **所以不同的方法考虑了不同的假设，运算结果不同。**
 
-## State-action Value Function
+## State-action Value Function(Q-function)
 
 ![](img/6.7.png)
 
@@ -116,7 +116,7 @@ Q-function 有两种写法：
 * input 是 state 跟 action，output 就是一个 scalar；
 * input  是一个 state s，output 就是好几个 value。
 
-假设 action 是 discrete 的，action 就只有3 个可能，往左往右或是开火。那这个 Q-function output 的 3 个 values 就分别代表 a 是向左的时候的 Q value，a 是向右的时候的 Q value，还有 a 是开火的时候的 Q value。
+假设 action 是 discrete 的，action 就只有 3 个可能：往左往右或是开火。那这个 Q-function output 的 3 个 values 就分别代表 a 是向左的时候的 Q value，a 是向右的时候的 Q value，还有 a 是开火的时候的 Q value。
 
 那你要注意的事情是，上图右边的 function 只有 discrete action 才能够使用。如果 action 是无法穷举的，你只能够用上图左边这个式子，不能够用右边这个式子。
 
@@ -138,12 +138,12 @@ Q-function 有两种写法：
 
 虽然表面上我们 learn 一个 Q-function，它只能拿来评估某一个 actor $\pi$ 的好坏，但只要有了这个 Q-function，我们就可以做 reinforcement learning。有了这个 Q-function，我们就可以决定要采取哪一个 action，我们就可以进行`策略改进(Policy Improvement)`。
 
-它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 这个 actor 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，那用 TD 或 MC 也是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以这边神奇的地方是，假设你有一个 Q-function 和 某一个 policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。这样一直循环下去，policy 就会越来越好。 
+它的大原则是这样，假设你有一个初始的 actor，也许一开始很烂， 随机的也没有关系。初始的 actor 叫做 $\pi$，这个 $\pi$ 跟环境互动，会 collect data。接下来你 learn 一个 $\pi$ 这个 actor 的 Q value，你去衡量一下 $\pi$ 在某一个 state 强制采取某一个 action，接下来用 $\pi$ 这个 policy 会得到的 expected reward，用 TD 或 MC 都是可以的。你 learn 出一个 Q-function 以后，就保证你可以找到一个新的 policy $\pi'$ ，policy $\pi'$ 一定会比原来的 policy $\pi$ 还要好。那等一下会定义说，什么叫做好。所以假设你有一个 Q-function 和某一个 policy $\pi$，你根据 policy $\pi$ learn 出 policy $\pi$ 的 Q-function，接下来保证你可以找到一个新的 policy  $\pi'$ ，它一定会比 $\pi$ 还要好，然后你用 $\pi'$ 取代 $\pi$，再去找它的 Q-function，得到新的以后，再去找一个更好的 policy。**这样一直循环下去，policy 就会越来越好。** 
 
 ![](img/6.10.png)
 上图就是讲我们刚才讲的到底是什么。
 
-* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边所谓好的意思是说，对所有可能的 state s 而言，对同一个 state s 而言，$\pi$  的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的reward。所以不管在哪一个 state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个 policy。
+* 首先要定义的是什么叫做比较好？我们说 $\pi'$ 一定会比 $\pi$ 还要好，什么叫做好呢？这边好是说，对所有可能的 state s 而言，$\pi$  的 value function 一定会小于 $\pi'$ 的 value function。也就是说我们走到同一个 state s 的时候，如果拿 $\pi$ 继续跟环境互动下去，我们得到的 reward 一定会小于用 $\pi'$ 跟环境互动下去得到的 reward。所以不管在哪一个 state，你用 $\pi'$ 去做 interaction，得到的 expected reward 一定会比较大。所以 $\pi'$ 是比 $\pi$  还要好的一个 policy。
 
 * 有了这个 Q-function 以后，怎么找这个 $\pi'$ 呢？如果你根据以下的这个式子去决定你的 action，
 
@@ -151,20 +151,24 @@ $$
 \pi^{\prime}(s)=\arg \max _{a} Q^{\pi}(s, a)
 $$
 
-根据上式去决定你的 action 的步骤叫做 $\pi'$ 的话，那这个 $\pi'$ 一定会比 $\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个 state s，你把所有可能的 action a 都一一带入这个 Q-function，看看说那一个 a 可以让 Q-function 的 value 最大，那这个 action 就是 $\pi'$ 会采取的 action。这边要注意一下，给定这个 state s，你的 policy $\pi$  并不一定会采取 action a，我们是给定某一个 state s 强制采取 action a，用 $\pi$ 继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。用这一个 $\pi'$ 在 state s 采取 action a 跟 $\pi$ 采取的 action 是不一定会一样的。然后 $\pi'$ 所采取的 action 会让它得到比较大的 reward。
+根据上式去决定你的 action 的步骤叫做 $\pi'$ 的话，那 $\pi'$ 一定会比 $\pi$ 还要好。这个意思是说，假设你已经 learn 出 $\pi$ 的Q-function，今天在某一个 state s，你把所有可能的 action a 都一一带入这个 Q-function，看看哪一个 a 可以让 Q-function 的 value 最大，那这个 action 就是 $\pi'$ 会采取的 action。
 
-* 所以根本就没有一个 policy 叫做 $\pi'$，这个 $\pi'$ 是用 Q-function 推出来的。所以没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出 $\pi'$。
-* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem。所以 a 如果是 continuous 的就会有问题，如果是 discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果是 continuous 要解 arg max problem，你就会有问题，这个之后会解决。
+这边要注意一下，给定这个 state s，你的 policy $\pi$  并不一定会采取 action a，我们是给定某一个 state s 强制采取 action a，用 $\pi$  继续互动下去得到的 expected reward，这个才是 Q-function 的定义。所以在 state s 里面不一定会采取 action a。用 $\pi'$ 在 state s 采取 action a 跟 $\pi$ 采取的 action 是不一定会一样的，$\pi'$ 所采取的 action 会让它得到比较大的 reward。
+
+* 所以这个 $\pi'$ 是用 Q-function 推出来的，没有另外一个 network 决定 $\pi'$ 怎么interaction，有 Q-function 就可以找出 $\pi'$。
+* 但是这边有另外一个问题就是，在这边要解一个 arg max 的 problem，所以 a 如果是连续的就会有问题。如果是 discrete 的，a 只有3 个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果 a 是连续的，要解 arg max problem，你就会有问题，这个之后会解决。
 
 ![](img/6.11.png)
 
-上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$  这个 Q-function 所决定出来的 $\pi'$，一定会比 $\pi$ 还要好。
+上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$  这个 Q-function 所决定出来的 $\pi'$ 一定会比 $\pi$ 还要好。
 
-假设有一个policy 叫做 $\pi'$，它是由 $Q^{\pi}$  决定的。我们要证对所有的 state s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。怎么证呢？我们先把$V^{\pi^{\prime}}(s)$写出来：
+假设有一个policy 叫做 $\pi'$，它是由 $Q^{\pi}$ 决定的。我们要证对所有的 state s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。
+
+怎么证呢？我们先把$V^{\pi^{\prime}}(s)$写出来：
 $$
 V^{\pi}(s)=Q^{\pi}(s, \pi(s))
 $$
-假设在 state s 这个地方，你 follow $\pi$ 这个actor，它会采取的action，也就是$\pi(s)$，那你算出来的$Q^{\pi}(s, \pi(s))$ 会等于$V^{\pi}(s)$。In general 而言，$Q^{\pi}(s, \pi(s))$ 不见得等于$V^{\pi}(s)$ ，因为 action 不见得是$\pi(s)$。但如果这个 action 是 $\pi(s)$ 的话，$Q^{\pi}(s, \pi(s))$ 是等于$V^{\pi}(s)$的。
+假设在 state s 这个地方，你 follow $\pi$ 这个actor，它会采取的action 就是 $\pi(s)$，那你算出来的 $Q^{\pi}(s, \pi(s))$ 会等于 $V^{\pi}(s)$。一般而言，$Q^{\pi}(s, \pi(s))$ 不见得等于 $V^{\pi}(s)$ ，因为 action 不一定是 $\pi(s)$。但如果这个 action 是 $\pi(s)$ 的话，$Q^{\pi}(s, \pi(s))$ 是等于 $V^{\pi}(s)$的。
 
 
 $Q^{\pi}(s, \pi(s))$ 还满足如下的关系：
@@ -172,7 +176,7 @@ $$
 Q^{\pi}(s, \pi(s)) \le \max _{a} Q^{\pi}(s, a)
 $$
 
-因为这边是所有action 里面可以让 Q 最大的那个action，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是$Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为 $\pi'(s)$ output 的 a， 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
+因为 a 是所有 action 里面可以让 Q 最大的那个action，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是 $Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为 $\pi'(s)$ output 的 a 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
 $$
 \max _{a} Q^{\pi}(s, a)=Q^{\pi}\left(s, \pi^{\prime}(s)\right)
 $$
@@ -181,19 +185,21 @@ $$
 $$
 V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
 $$
-也就是说某一个 state，如果你按照 policy $\pi$，一直做下去，你得到的 reward 一定会小于等于，在这个 state s。你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但之后只有第一步是按照 $\pi'$ 的方向走，只有在 state s 这个地方，你才按照 $\pi'$ 的指示走，但接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是我从上面这个式子知道说，只有一步之差，你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
+也就是说某一个 state，如果你按照 policy $\pi$ 一直做下去，你得到的 reward 一定会小于等于，在这个 state s，你故意不按照 $\pi$ 所给你指示的方向，而是按照 $\pi'$ 的方向走一步，但只有第一步是按照 $\pi'$ 的方向走，只有在 state s 这个地方，你才按照 $\pi'$ 的指示走，接下来你就按照 $\pi$ 的指示走。虽然只有一步之差， 但是从上面这个式子可知，虽然只有一步之差，但你得到的 reward 一定会比完全 follow $\pi$ 得到的 reward 还要大。
 
 那接下来你想要证下面的式子：
 $$
 Q^{\pi}\left(s, \pi^{\prime}(s) \right) \le V^{\pi'}(s)
 $$
 
-也就是说，只有一步之差，你会得到比较大的 reward。但假设每步都是不一样的，每步都是 follow $\pi'$ 而不是 $\pi$ 的话，那你得到的 reward 一定会更大。如果你要用数学式把它写出来的话，你可以这样写 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ 这个式子，它的意思就是说，我们在 state $s_t$ 采取 action $a_t$，得到 reward $r_{t+1}$，然后跳到 state $s_{t+1}$，即如下式所示：
+也就是说，只有一步之差，你会得到比较大的 reward。**但假设每步都是不一样的，每步都是 follow $\pi'$ 而不是 $\pi$ 的话，那你得到的 reward 一定会更大。**如果你要用数学式把它写出来的话，你可以写成 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ ，它的意思就是说，我们在 state $s_t$ 采取 action $a_t$，得到 reward $r_{t+1}$，然后跳到 state $s_{t+1}$，即如下式所示：
 
 $$
 Q^{\pi}\left(s, \pi^{\prime}(s)\right)=E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) \mid s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
 $$
-这边有一个地方写得不太好，这边应该写成 $r_t$ 跟之前的记号比较一致，但这边写成了 $r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在 state $s_t$ 采取 action $a_t$ 得到 reward $r_{t+1}$， 有人会写成 $r_t$，但意思其实都是一样的。在 state s，按照 $\pi'$ 采取某一个 action $a_t$ ，得到 reward $r_{t+1}$，然后跳到 state $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是 state $s_{t+1}$，根据 $\pi$ 这个 actor 所估出来的 value。因为在同样的 state 采取同样的 action，你得到的 reward，还有会跳到的 state 不一定是一样， 所以这边需要取一个期望值。 
+> 这边有一个地方写得不太好，这边应该写成 $r_t$ 跟之前的记号比较一致，但这边写成了 $r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在 state $s_t$ 采取 action $a_t$ 得到 reward $r_{t+1}$， 有人会写成 $r_t$，但意思其实都是一样的。
+
+在 state s 按照 $\pi'$ 采取某一个 action $a_t$ ，得到 reward $r_{t+1}$，然后跳到 state $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是 state $s_{t+1}$ 根据 $\pi$ 这个 actor 所估出来的 value。因为在同样的 state 采取同样的 action，你得到的 reward，还有会跳到的 state 不一定是一样， 所以这边需要取一个期望值。 
 
 接下来我们会得到如下的式子：
 $$
@@ -251,9 +257,13 @@ $$
 
 所以你在 learn 的时候，你会说我们有 Q-function，input $s_t$, $a_t$ 得到的 value，跟 input $s_{t+1}$, $\pi (s_{t+1})$ 得到的 value 中间，我们希望它差了一个 $r_t$， 这跟刚才讲的 TD 的概念是一样的。
 
-但是实际上在 learn 的时候，你会发现这样的一个function 并不好 learn，因为假设这是一个 regression problem，$\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 是 network 的 output，$r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$是 target，你会发现 target 是会动的。当然你要 implement 这样的 training，其实也没有问题，就是你在做 backpropagation 的时候， $Q^{\pi}$ 的参数会被 update，你会把两个 update 的结果加在一起。因为它们是同一个 model $Q^{\pi}$， 所以两个 update 的结果会加在一起。但这样会导致 training 变得不太稳定。因为假设你把 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 当作你model 的output， $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 当作 target 的话。你要去 fit 的 target 是一直在变的，这种一直在变的 target 的 training 是不太好 train 的。所以你会把其中一个 Q-network，通常是你会把右边这个 Q-network 固定住。也就是说你在 training 的时候，你只 update 左边这个 Q-network 的参数，而右边这个 Q-network  的参数会被固定住。因为右边的 Q-network 负责产生 target，所以叫做 `target network`。因为 target network 是固定的，所以你现在得到的 target  $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 的值也是固定的。因为 target network 是固定的，我们只调左边 network 的参数，它就变成是一个 regression problem。我们希望  model 的 output 的值跟目标越接近越好，你会 minimize 它的 mean square error。
+但是实际上这样的一个 function 并不好 learn，因为假设这是一个 regression problem，$\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 是 network 的 output，$r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$是 target，你会发现 target 是会动的。当然你要实现这样的 training，其实也没有问题，就是你在做 backpropagation 的时候， $Q^{\pi}$ 的参数会被 update，你会把两个 update 的结果加在一起。因为它们是同一个 model $Q^{\pi}$， 所以两个 update 的结果会加在一起。但这样会导致 training 变得不太稳定，因为假设你把 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) $ 当作你 model 的 output， $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 当作 target 的话，你要去 fit 的 target 是一直在变的，这种一直在变的 target 的 training 是不太好 train 的。
 
-在实现的时候，你会把左边的 Q-network update 好几次以后，再去用 update 过的 Q-network 替换这个 target network 。但它们两个不要一起动，它们两个一起动的话， 结果会很容易坏掉。一开始这两个 network 是一样的，然后在 train 的时候，你会把右边的 Q-network fix 住。你在做 gradient decent 的时候，只调左边这个 network 的参数，那你可能update 100 次以后才把这个参数复制到右边的 network 去，把它盖过去。把它盖过去以后，你这个 target value 就变了。就好像说你本来在做一个 regression problem，那你 train 后把这个 regression problem 的 loss 压下去以后，接下来你把这边的参数把它 copy 过去以后，你的 target 就变掉了，接下来就要重新再 train。
+所以你会把其中一个 Q-network，通常是你会把右边这个 Q-network 固定住。也就是说你在 training 的时候，你只 update 左边的 Q-network 的参数，而右边的 Q-network  的参数会被固定住。因为右边的 Q-network 负责产生 target，所以叫做 `target network`。因为 target network 是固定的，所以你现在得到的 target  $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 的值也是固定的。因为 target network 是固定的，我们只调左边 network 的参数，它就变成是一个 regression problem。我们希望  model 的 output 的值跟目标越接近越好，你会 minimize 它的 mean square error。
+
+在实现的时候，你会把左边的 Q-network update 好几次以后，再去用 update 过的 Q-network 替换这个 target network 。但它们两个不要一起动，它们两个一起动的话，结果会很容易坏掉。
+
+一开始这两个 network 是一样的，然后在训练的时候，你会把右边的 Q-network fix 住。你在做 gradient decent 的时候，只调左边这个 network 的参数，那你可能 update 100 次以后才把这个参数复制到右边的 network 去，把它盖过去。把它盖过去以后，你这个 target value 就变了。就好像说你本来在做一个 regression problem，那你 train 后把这个 regression problem 的 loss 压下去以后，接下来你把这边的参数把它 copy 过去以后，你的 target 就变掉了，接下来就要重新再 train。
 
 ###  Intuition
 
@@ -271,7 +281,7 @@ $$
 
 ## Exploration
 
-![](img/6.16.png)**第二个 tip 是`Exploration`。**当我们使用 Q-function 的时候，policy 完全 depend on  Q-function。给定某一个 state，你就穷举所有的 a， 看哪个 a 可以让 Q value 最大，它就是采取的 action。那其实这个跟 policy gradient 不一样，在做 policy gradient 的时候，output 其实是 stochastic 的。我们 output 一个 action 的 distribution，根据这个 action 的distribution 去做sample， 所以在 policy gradient 里面，你每次采取的 action 是不一样的，是有随机性的。那像这种 Q-function， 如果你采取的 action 总是固定的，会有什么问题呢？你会遇到的问题就是这不是一个好的收集 data 的方式。因为假设我们今天真的要估某一个 state，你可以采取 action $a_{1}$, $a_{2}$, $a_{3}$。你要估测在某一个 state 采取某一个 action 会得到的 Q value，你一定要在那一个 state 采取过那一个 action，才估得出它的 value。如果你没有在那个 state 采取过那个action，你其实估不出那个 value 的。当然如果是用 deep 的network，就你的 Q-function 其实是一个 network，这种情形可能会没有那么严重。但是 in general 而言，假设 Q-function 是一个 table，没有看过的 state-action pair，它就是估不出值来。Network 也是会有一样的问题就是， 只是没有那么严重。所以今天假设你在某一个 state，action $a_{1}$, $a_{2}$, $a_{3}$ 你都没有采取过，那你估出来的 $Q(s,a_{1})$, $Q(s,a_{2})$, $Q(s,a_{3})$ 的 value 可能都是一样的，就都是一个初始值，比如说 0，即
+![](img/6.16.png)**第二个 tip 是`Exploration`。**当我们使用 Q-function 的时候，policy 完全 depend on  Q-function。给定某一个 state，你就穷举所有的 a， 看哪个 a 可以让 Q value 最大，它就是采取的 action。那其实这个跟 policy gradient 不一样，在做 policy gradient 的时候，output 其实是 stochastic 的。我们 output 一个 action 的 distribution，根据这个 action 的distribution 去做sample， 所以在 policy gradient 里面，你每次采取的 action 是不一样的，是有随机性的。那像这种 Q-function， 如果你采取的 action 总是固定的，会有什么问题呢？你会遇到的问题就是这不是一个好的收集 data 的方式。因为假设我们今天真的要估某一个 state，你可以采取 action $a_{1}$, $a_{2}$, $a_{3}$。你要估测在某一个 state 采取某一个 action 会得到的 Q value，你一定要在那一个 state 采取过那一个 action，才估得出它的 value。如果你没有在那个 state 采取过那个action，你其实估不出那个 value 的。当然如果是用 deep 的network，就你的 Q-function 其实是一个 network，这种情形可能会没有那么严重。但是一般而言，假设 Q-function 是一个 table，没有看过的 state-action pair，它就是估不出值来。Network 也是会有一样的问题就是， 只是没有那么严重。所以今天假设你在某一个 state，action $a_{1}$, $a_{2}$, $a_{3}$ 你都没有采取过，那你估出来的 $Q(s,a_{1})$, $Q(s,a_{2})$, $Q(s,a_{3})$ 的 value 可能都是一样的，就都是一个初始值，比如说 0，即
 
 $$
 \begin{array}{l}
