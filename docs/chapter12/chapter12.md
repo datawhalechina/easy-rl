@@ -93,9 +93,9 @@ DDPG 是 DQN 的一个扩展的版本。
 
 我们可以把两个网络的 loss function 构造出来。
 
-策略网络的 loss function 是一个复合函数。我们把 $a = \mu_\theta(s)$ 代进去，最终策略网络要优化的是策略网络的参数 $\theta$ 。Q 网络要优化的是那个 Q 的输出 $Q_w(s,a)$ 和那个 Q_target 之间的一个均方差。
+策略网络的 loss function 是一个复合函数。我们把 $a = \mu_\theta(s)$ 代进去，最终策略网络要优化的是策略网络的参数 $\theta$ 。Q 网络要优化的是 $Q_w(s,a)$ 和 Q_target 之间的一个均方差。
 
-但是 Q 网络的优化存在一个和 DQN 一模一样的问题就是它后面的这个 Q_target 是不稳定的。这个在之前的 DQN 有讲过。后面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是不稳定的。因为 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是一个预估的值。
+但是 Q 网络的优化存在一个和 DQN 一模一样的问题就是它后面的 Q_target 是不稳定的。此外，后面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是不稳定的，因为 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是一个预估的值。
 
 **为了稳定这个 Q_target，DDPG 分别给 Q 网络和策略网络都搭建了 target network。**
 
