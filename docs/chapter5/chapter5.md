@@ -221,7 +221,7 @@ $$
 \operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)
 $$
 
-![](img/5.11.png)
+![](img/5.11.png ':size=450')
 
 上图的横轴是 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴是 clip function 的输出。
 
@@ -229,13 +229,13 @@ $$
 * 如果小于 $1-\varepsilon$， 它输出就是 $1-\varepsilon$。
 * 如果介于 $1+\varepsilon$ 跟 $1-\varepsilon$ 之间， 就是输入等于输出。
 
-![](img/5.12.png)
+![](img/5.12.png ':size=450')
 
 *  $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 是绿色的线；
 * $\operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)$ 是蓝色的线；
 * 在绿色的线跟蓝色的线中间，我们要取一个最小的。假设前面乘上的这个 term A，它是大于0 的话，取最小的结果，就是红色的这一条线。
 
-![](img/5.13.png)
+![](img/5.13.png ':size=450')
 
 如果 A 小于 0 的话，取最小的以后，就得到红色的这一条线。
 
