@@ -49,8 +49,8 @@
     </tr>
   </tbody>
 </table>
-## 致谢
 
+## 致谢
 特别感谢 [@Sm1les](https://github.com/Sm1les)、[@LSGOMYP](https://github.com/LSGOMYP) 对本项目的帮助与支持。
 
 ## 关注我们
