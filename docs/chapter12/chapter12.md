@@ -107,16 +107,61 @@ DDPG 是 DQN 的一个扩展的版本。
 
 这里面训练需要用到的数据就是 $s,a,r,s'$，我们只需要用到这四个数据。我们就用 Replay Memory 把这些数据存起来，然后再 sample 进来训练就好了。这个经验回放的技巧跟 DQN 是一模一样的。注意，因为 DDPG 使用了经验回放这个技巧，所以 DDPG 是一个 `off-policy` 的算法。
 
-## Exploration vs. Exploitation
+### Exploration vs. Exploitation
 DDPG 通过 off-policy 的方式来训练一个确定性策略。因为策略是确定的，如果 agent 使用同策略来探索，在一开始的时候，它会很可能不会尝试足够多的 action 来找到有用的学习信号。为了让 DDPG 的策略更好地探索，我们在训练的时候给它们的 action 加了噪音。DDPG 的原作者推荐使用时间相关的 [OU noise](https://en.wikipedia.org/wiki/Ornstein–Uhlenbeck_process)，但最近的结果表明不相关的、均值为 0 的 Gaussian noise 的效果非常好。由于后者更简单，因此我们更喜欢使用它。为了便于获得更高质量的训练数据，你可以在训练过程中把噪声变小。
 
 在测试的时候，为了查看策略利用它学到的东西的表现，我们不会在 action 中加噪音。
+
+## Twin Delayed DDPG(TD3)
+
+![](img/12.9.png 'size=500')
+
+虽然 DDPG 有时表现很好，但它在超参数和其他类型的调整方面经常很敏感。DDPG 常见的失败情况是已经学习好的 Q 函数开始显著地高估 Q 值，然后导致策略被破坏了，因为它利用了 Q 函数中的误差。
+
+我们可以拿实际的 Q 值跟这个 Q-network 输出的 Q 值进行对比。实际的 Q 值可以用 MC 来算。根据当前的 policy 采样 1000 条轨迹，得到 G 后取平均，得到实际的 Q 值。
+
+`Twin Delayed DDPG(TD3)`通过引入三个关键技巧来解决这个问题：
+
+* **Clipped Dobule-Q learning** 。TD3 学习两个 Q-network（因此名字中有 “twin”）。
+* **“Delayed” Policy Updates**。TD3 更新策略（和目标网络）的频率低于 Q-function。这篇论文建议每更新两次 Q-function 就更新一次策略。
+* **Target Policy smoothing**。TD3 引入了 smoothing 的思想。TD3 在目标动作中加入噪音，通过平滑 Q 沿动作的变化，使策略更难利用 Q 函数的误差。
+
+这三个技巧加在一起，使得性能相比基线 DDPG 有了大幅的提升。
+
+TD3 通过最小化 mean square Bellman error 来同时学习两个 Q-function：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个 Q-function 都使用一个目标，两个 Q-function 中给出较小的值会被作为如下的 Q-target：
+
+$$
+y\left(r, s^{\prime}, d\right)=r+\gamma(1-d) \min _{i=1,2} Q_{\phi_{i, t a r g}}\left(s^{\prime}, a_{T D 3}\left(s^{\prime}\right)\right)
+$$
+目标策略平滑化的工作原理如下：
+
+$$
+a_{T D 3}\left(s^{\prime}\right)=\operatorname{clip}\left(\mu_{\theta, t a r g}\left(s^{\prime}\right)+\operatorname{clip}(\epsilon,-c, c), a_{\text {low }}, a_{\text {high }}\right)
+$$
+
+其中 $\epsilon$ 本质上是一个噪声，是从正态分布中取样得到的，即 $\epsilon \sim N(0,\sigma)$。
+
+目标策略平滑化起到了 regularizer 的作用，它处理了 DDPG 中可能发生的一种特殊的失败情况：如果 Q 函数近似器对某些动作形成了一个不正确的尖峰，那么策略将迅速利用这个尖峰，然后出现敏感或不正确的行为。这种情况可以通过在类似的动作上平滑 Q 函数来避免，目标策略平滑化就是为了做到这一点。
+
+![](img/12.10.png)
+
+我们可以讲 TD3 跟其他算法进行对比。这边作者自己实现的 DDPG(our DDPG) 和官方实现的 DDPG 的表现不一样，这说明 DDPG 对初始化和调参非常敏感。TD3 对参数不是这么敏感。在 TD3 的论文中，TD3 的性能比 SAC(Soft Actor-Critic) 高。但在 SAC 的论文中，SAC 的性能比 TD3 高，这是因为强化学习的很多算法估计对参数和初始条件敏感。
+
+TD3 的作者给出了对应的实现：[TD3 Pytorch implementation](https://github.com/sfujim/TD3/)，代码写得很棒，我们可以将其作为一个强化学习的标准库来学习。
+
+### Exploration vs. Exploitation
+
+TD3 以 off-policy 的方式训练确定性策略。由于该策略是确定性的，因此如果智能体要探索策略，则一开始它可能不会尝试采取足够广泛的动作来找到有用的学习信号。为了使 TD3 策略更好地探索，我们在训练时在它们的动作中添加了噪声，通常是不相关的均值为零的高斯噪声。为了便于获取高质量的训练数据，你可以在训练过程中减小噪声的大小。
+
+在测试时，为了查看策略对所学知识的利用程度，我们不会在动作中增加噪音。
 
 ## References
 
 * [百度强化学习](https://aistudio.baidu.com/aistudio/education/lessonvideo/460292)
 
 * [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/algorithms/ddpg.html#)
+
+* [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
 
   
 
