@@ -12,8 +12,7 @@
 
 ![](img/5.1.png)
 
-PPO 是 policy gradient 的一个变形，它是现在 OpenAI 默认的 reinforcement learning 的 algorithm。
-
+`近端策略优化(Proximal Policy Optimization，简称 PPO)` 是 policy gradient 的一个变形，它是现在 OpenAI 默认的 reinforcement learning 的 algorithm。
 $$
 \nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
 $$
@@ -153,7 +152,8 @@ PPO 实际上做的事情就是这样，在 off-policy 的方法里要 optimize 
 
 然后我们希望在 training 的过程中，learn 出来的 $\theta$ 跟 $\theta'$  越像越好。因为如果 $\theta$ 跟 $\theta'$ 不像的话，最后的结果就会不好。所以在 PPO 里面有两个式子，一方面是 optimize 本来要 optimize 的东西，但再加一个 constrain。这个 constrain 就好像那个 regularization 的 term 一样，在做 machine learning 的时候不是有 L1/L2 的 regularization。这一项也很像 regularization，这样 regularization 做的事情就是希望最后 learn 出来的 $\theta$ 不要跟 $\theta'$ 太不一样。
 
-PPO 有一个前身叫做 `TRPO(Trust Region Policy Optimization)`，TRPO 的式子如下式所示。
+PPO 有一个前身叫做`信任区域策略优化(Trust Region Policy Optimization，TRPO)`，TRPO 的式子如下式所示。
+
 $$
 \begin{aligned}
 J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] \\ \\

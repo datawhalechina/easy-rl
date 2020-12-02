@@ -39,7 +39,7 @@
 
 ![](img/12.4.png)
 
-在连续控制领域，比较经典的强化学习算法就是 `DDPG(Deep Deterministic Policy Gradient)`。DDPG 的特点可以从它的名字当中拆解出来，拆解成 Deep、Deterministic 和 Policy Gradient。
+在连续控制领域，比较经典的强化学习算法就是 `深度确定性策略梯度(Deep Deterministic Policy Gradient，简称 DDPG)`。DDPG 的特点可以从它的名字当中拆解出来，拆解成 Deep、Deterministic 和 Policy Gradient。
 
 * Deep 是因为用了神经网络；
 * Deterministic 表示 DDPG 输出的是一个确定性的动作，可以用于连续动作的一个环境；
@@ -83,7 +83,7 @@ DDPG 是 DQN 的一个扩展的版本。
 这里要注意，除了策略网络要做优化，DDPG 还有一个 Q 网络也要优化。
 
 * 评委一开始也不知道怎么评分，它也是在一步一步的学习当中，慢慢地去给出准确的打分。
-* 那我们优化 Q 网络的方法其实跟 DQN 优化 Q 网络的方法是一模一样的，我们用真实的 reward $r$ 和下一步的 Q 即 Q' 来去拟合未来的收益也就是 Q_target。
+* 我们优化 Q 网络的方法其实跟 DQN 优化 Q 网络的方法是一样的，我们用真实的 reward $r$ 和下一步的 Q 即 Q' 来去拟合未来的收益 Q_target。
 
 * 然后让 Q 网络的输出去逼近这个 Q_target。
   * 所以构造的 loss function 就是直接求这两个值的均方差。
@@ -100,7 +100,7 @@ DDPG 是 DQN 的一个扩展的版本。
 **为了稳定这个 Q_target，DDPG 分别给 Q 网络和策略网络都搭建了 target network。**
 
 * target_Q 网络就为了来计算 Q_target 里面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$。
-* 然后 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$  里面的需要的 next action $a'$  就是通过 target_P 网络来去输出，即 $a^{\prime}=\mu_{\bar{\theta}}\left(s^{\prime}\right)$。
+* $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$  里面的需要的 next action $a'$  就是通过 target_P 网络来去输出，即 $a^{\prime}=\mu_{\bar{\theta}}\left(s^{\prime}\right)$。
 
 * 为了区分前面的 Q 网络和策略网络以及后面的 target_Q 网络和 target_P 策略网络，前面的网络的参数是 $w$，后面的网络的参数是 $\bar{w}$。
 * DDPG 有四个网络，策略网络的 target 网络 和 Q 网络的 target 网络就是颜色比较深的这两个，它只是为了让计算 Q_target 的时候能够更稳定一点而已。因为这两个网络也是固定一段时间的参数之后再跟评估网络同步一下最新的参数。
@@ -120,19 +120,20 @@ DDPG 通过 off-policy 的方式来训练一个确定性策略。因为策略是
 
 我们可以拿实际的 Q 值跟这个 Q-network 输出的 Q 值进行对比。实际的 Q 值可以用 MC 来算。根据当前的 policy 采样 1000 条轨迹，得到 G 后取平均，得到实际的 Q 值。
 
-`Twin Delayed DDPG(TD3)`通过引入三个关键技巧来解决这个问题：
+`双延迟深度确定性策略梯度(Twin Delayed DDPG，简称 TD3)`通过引入三个关键技巧来解决这个问题：
 
-* **Clipped Dobule-Q learning** 。TD3 学习两个 Q-network（因此名字中有 “twin”）。
-* **“Delayed” Policy Updates**。TD3 更新策略（和目标网络）的频率低于 Q-function。这篇论文建议每更新两次 Q-function 就更新一次策略。
-* **Target Policy smoothing**。TD3 引入了 smoothing 的思想。TD3 在目标动作中加入噪音，通过平滑 Q 沿动作的变化，使策略更难利用 Q 函数的误差。
-
-这三个技巧加在一起，使得性能相比基线 DDPG 有了大幅的提升。
-
-TD3 通过最小化 mean square Bellman error 来同时学习两个 Q-function：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个 Q-function 都使用一个目标，两个 Q-function 中给出较小的值会被作为如下的 Q-target：
+* **截断的双 Q 学习(Clipped Dobule Q-learning)** 。TD3 学习两个 Q-function（因此名字中有 “twin”）。TD3 通过最小化均方差来同时学习两个 Q-function：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个 Q-function 都使用一个目标，两个 Q-function 中给出较小的值会被作为如下的 Q-target：
 
 $$
 y\left(r, s^{\prime}, d\right)=r+\gamma(1-d) \min _{i=1,2} Q_{\phi_{i, t a r g}}\left(s^{\prime}, a_{T D 3}\left(s^{\prime}\right)\right)
 $$
+
+* **延迟的策略更新(“Delayed” Policy Updates)**。相关实验结果表明，同步训练动作网络和评价网络，却不使用目标网络，会导致训练过程不稳定；但是仅固定动作网络时，评价网络往往能够收敛到正确的结果。因此 TD3 算法以较低的频率更新动作网络，较高频率更新评价网络，通常每更新两次评价网络就更新一次策略。
+* **目标策略平滑(Target Policy smoothing)**。TD3 引入了 smoothing 的思想。TD3 在目标动作中加入噪音，通过平滑 Q 沿动作的变化，使策略更难利用 Q 函数的误差。
+
+这三个技巧加在一起，使得性能相比基线 DDPG 有了大幅的提升。
+
+
 目标策略平滑化的工作原理如下：
 
 $$
@@ -141,7 +142,7 @@ $$
 
 其中 $\epsilon$ 本质上是一个噪声，是从正态分布中取样得到的，即 $\epsilon \sim N(0,\sigma)$。
 
-目标策略平滑化起到了 regularizer 的作用。
+目标策略平滑化是一种正则化方法。
 
 ![](img/12.10.png)
 
@@ -162,6 +163,8 @@ TD3 以 off-policy 的方式训练确定性策略。由于该策略是确定性�
 * [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/algorithms/ddpg.html#)
 
 * [Intro to Reinforcement Learning (强化学习纲要）](https://github.com/zhoubolei/introRL)
+
+* [天授文档](https://tianshou.readthedocs.io/zh/latest/index.html)
 
   
 
