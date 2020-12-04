@@ -17,7 +17,7 @@
 - [项目二 使用 DQN 实现 CartPole-v0](chapter7/project2)
 - [第八章 Q 学习 (连续动作)](chapter8/chapter8)
 - [第八章 习题](chapter8/chapter8_questions&keywords)
-- [第九章 演员-评论员算法](chapter9/chapter9)
+- [第九章 演员-评论家算法](chapter9/chapter9)
 - [第九章 习题](chapter9/chapter9_questions&keywords)
 - [第十章 稀疏奖励](chapter10/chapter10)
 - [第十章 习题](chapter10/chapter10_questions&keywords)
