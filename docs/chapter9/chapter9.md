@@ -4,11 +4,11 @@
 
 在 REINFORCE 算法中，每次需要根据一个策略采集一条完整的轨迹，并计算这条轨迹上的回报。这种采样方式的方差比较大，学习效率也比较低。我们可以借鉴时序差分学习的思想，使用动态规划方法来提高采样的效率，即从状态 $s$ 开始的总回报可以通过当前动作的即时奖励 $r(s,a,s')$ 和下一个状态 $s'$ 的值函数来近似估计。
 
-`演员-评论员算法(Actor-Critic Algorithm)`是一种结合`策略梯度`和`时序差分学习`的强化学习方法，其中：
+`演员-评论家算法(Actor-Critic Algorithm)`是一种结合`策略梯度`和`时序差分学习`的强化学习方法，其中：
 
 * 演员(Actor)是指策略函数 $\pi_{\theta}(a|s)$，即学习一个策略来得到尽量高的回报。
-* 评论员(Critic)是指值函数 $V^{\pi}(s)$，对当前策略的值函数进行估计，即评估演员的好坏。
-* 借助于值函数，演员-评论员算法可以进行单步更新参数，不需要等到回合结束才进行更新。
+* 评论家(Critic)是指值函数 $V^{\pi}(s)$，对当前策略的值函数进行估计，即评估演员的好坏。
+* 借助于值函数，演员-评论家算法可以进行单步更新参数，不需要等到回合结束才进行更新。
 
 在  Actor-Critic 算法 里面，最知名的方法就是 `A3C(Asynchronous Advantage Actor-Critic)`。
 
@@ -25,7 +25,7 @@ $$
 $$
 这个式子是在说，我们先让 agent 去跟环境互动一下，那我们可以计算出在某一个 state s，采取了某一个 action a 的概率  $p_{\theta}(a_t|s_t)$。接下来，我们去计算在某一个 state s 采取了某一个 action a 之后，到游戏结束为止，accumulated reward 有多大。我们把这些 reward 从时间 t 到时间 T 的 reward 通通加起来，并且会在前面乘一个 discount factor，可能设 0.9 或 0.99。我们会减掉一个 baseline b，减掉这个值 b 的目的，是希望括号这里面这一项是有正有负的。如果括号里面这一项是正的，我们就要增加在这个 state 采取这个 action 的机率；如果括号里面是负的，我们就要减少在这个 state 采取这个 action 的机率。
 
-我们把用 G 来表示 accumulated reward。但 G 这个值，其实是非常不稳定的。因为互动的 process 本身是有随机性的，所以在某一个 state s 采取某一个 action a，然后计算 accumulated reward，每次算出来的结果都是不一样的，所以 G 其实是一个 random variable。给同样的 state s，给同样的 action a，G 可能有一个固定的 distribution。但我们是采取 sample 的方式，我们在某一个 state s 采取某一个 action a，然后玩到底，我们看看得到多少的 reward，我们就把这个东西当作 G。
+我们把用 G 来表示 accumulated reward。但 G 这个值，其实是非常不稳定的。因为互动的过程本身是有随机性的，所以在某一个 state s 采取某一个 action a，然后计算 accumulated reward，每次算出来的结果都是不一样的，所以 G 其实是一个 random variable。给同样的 state s，给同样的 action a，G 可能有一个固定的 distribution。但我们是采取 sample 的方式，我们在某一个 state s 采取某一个 action a，然后玩到底，我们看看得到多少的 reward，我们就把这个东西当作 G。
 
 把 G 想成是一个 random variable 的话，我们实际上是对这个 G 做一些 sample，然后拿这些 sample 的结果，去 update 我们的参数。但实际上在某一个 state s 采取某一个 action a，接下来会发生什么事，它本身是有随机性的。虽然说有个固定的 distribution，但它本身是有随机性的，而这个 random variable 的 variance 可能会非常大。你在同一个 state 采取同一个 action，你最后得到的结果可能会是天差地远的。
 
