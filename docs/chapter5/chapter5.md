@@ -25,7 +25,7 @@ $$
 
 ![](img/5.2.png)
 
-具体怎么做呢？这边就需要介绍 `importance sampling` 的概念。
+具体怎么做呢？这边就需要介绍 `importance sampling(重要性采样)` 的概念。
 
 假设你有一个 function $f(x)$，你要计算从 p 这个 distribution sample $x$，再把 $x$ 带到 $f$ 里面，得到 $f(x)$。你要该怎么计算这个 $f(x)$ 的期望值？假设你不能对 p 这个distribution 做积分的话，那你可以从 p 这个 distribution 去 sample 一些 data $x^i$。把 $x^i$ 代到 $f(x)$ 里面，然后取它的平均值，就可以近似 $f(x)$ 的期望值。
 
@@ -63,13 +63,15 @@ $$
 \end{aligned}
 $$
 
-$\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的差别在第一项是不同的， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的第一项多乘了$\frac{p(x)}{q(x)}$，如果$\frac{p(x)}{q(x)}$ 差距很大的话， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$的 variance 就会很大。所以虽然理论上它们的 expectation 一样，也就是说，你只要对 p 这个 distribution sample 够多次，q 这个 distribution sample 够多，你得到的结果会是一样的。但是假设你 sample 的次数不够多，因为它们的 variance 差距是很大的，所以你就有可能得到非常大的差别。
+$\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的差别在第一项是不同的， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 的第一项多乘了$\frac{p(x)}{q(x)}$，如果 $\frac{p(x)}{q(x)}$ 差距很大的话， $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$的 variance 就会很大。所以虽然理论上它们的 expectation 一样，也就是说，你只要对 p 这个 distribution sample 够多次，q 这个 distribution sample 够多，你得到的结果会是一样的。但是假设你 sample 的次数不够多，因为它们的 variance 差距是很大的，所以你就有可能得到非常大的差别。
 
 ![](img/5.4.png)
 
-举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。假设蓝线是 $p(x)$  的distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算$f(x)$的期望值，从 $p(x)$  这个 distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+举个例子，当 $p(x)$ 和 $q(x)$ 差距很大的时候，会发生什么样的问题。
 
-接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你 sample 的点不够的话，那你可能都只 sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边 sample 到这些点，然后你去计算它们的 $f(x) \frac{p(x)}{q(x)}$ 都是正的，所以你 sample 到这些点都是正的。 你取期望值以后，也都是正的。为什么会这样，因为你 sample 的次数不够多，因为假设你 sample 次数很少，你只能 sample 到右边这边。左边这边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很小，$q(x)$ 很大。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到 positive 的 value 的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要 sample 够多次，这件事情才会发生。但有可能 sample 不够，$E_{x \sim p}[f(x)]$ 跟 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 就有可能有很大的差距。这就是 importance sampling 的问题。
+假设蓝线是 $p(x)$  的 distribution，绿线是 $q(x)$  的 distribution，红线是 $f(x)$。如果我们要计算 $f(x)$的期望值，从 $p(x)$  这个 distribution 做 sample 的话，那显然 $E_{x \sim p}[f(x)]$ 是负的，因为左边那块区域 $p(x)$ 的概率很高，所以要 sample 的话，都会 sample 到这个地方，而 $f(x)$ 在这个区域是负的， 所以理论上这一项算出来会是负。
+
+接下来我们改成从 $q(x)$ 这边做 sample，因为 $q(x)$ 在右边这边的概率比较高，所以如果你 sample 的点不够的话，那你可能都只 sample 到右侧。如果你都只 sample 到右侧的话，你会发现说，算 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$这一项，搞不好还应该是正的。你这边 sample 到这些点，然后你去计算它们的 $f(x) \frac{p(x)}{q(x)}$ 都是正的。你 sample 到这些点都是正的。 你取期望值以后也都是正的，这是因为你 sample 的次数不够多。假设你 sample 次数很少，你只能 sample 到右边这边。左边虽然概率很低，但也不是没有可能被 sample 到。假设你今天好不容易 sample 到左边的点，因为左边的点，$p(x)$ 和 $q(x)$ 是差很多的， 这边 $p(x)$ 很大，$q(x)$ 很小。今天 $f(x)$ 好不容易终于 sample 到一个负的，这个负的就会被乘上一个非常大的 weight ，这样就可以平衡掉刚才那边一直 sample 到正的值的情况。最终你算出这一项的期望值，终究还是负的。但前提是你要 sample 够多次，这件事情才会发生。**但有可能 sample 次数不够多，$E_{x \sim p}[f(x)]$ 跟 $E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 就有可能有很大的差距。这就是 importance sampling 的问题。**
 
 ![](img/5.5.png)
 
