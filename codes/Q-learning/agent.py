@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2020-11-24 20:22:03
+LastEditTime: 2020-12-12 10:13:47
 Discription: 
 Environment: 
 '''
@@ -56,7 +56,7 @@ class QLearning(object):
             action = np.random.choice(self.action_dim)  #有一定概率随机探索选取一个动作
         return action
     def predict(self, obs):
-        '''根据输入观测值，采样输出的动作值，带探索，测试模型时使用
+        '''根据输入观测值，采样输出的动作值，不带探索，测试模型时使用
         '''
         Q_list = self.Q_table[obs, :]
         Q_max = np.max(Q_list)
