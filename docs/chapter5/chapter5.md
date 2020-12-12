@@ -154,7 +154,7 @@ PPO 实际上做的事情就是这样，在 off-policy 的方法里要优化的�
 
 然后我们希望在训练的过程中，学习出来的 $\theta$ 跟 $\theta'$  越像越好。因为如果 $\theta$ 跟 $\theta'$ 不像的话，最后的结果就会不好。所以在 PPO 里面有两个式子，一方面是优化本来要优化的东西，但再加一个约束。这个约束就好像正则化(regularization) 的项(term) 一样，在做机器学习的时候不是有 L1/L2 的正则化。这一项也很像正则化，这样正则化 做的事情就是希望最后学习出来的 $\theta$ 不要跟 $\theta'$ 太不一样。
 
-PPO 有一个前身叫做`信任区域策略优化(Trust Region Policy Optimization，TRPO)`，TRPO 的式子如下式所示。
+PPO 有一个前身叫做`信任区域策略优化(Trust Region Policy Optimization，TRPO)`，TRPO 的式子如下式所示：
 
 $$
 \begin{aligned}
@@ -163,9 +163,9 @@ J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\th
 \end{aligned}
 $$
 
-它与 PPO 不一样的地方是约束摆的位置不一样，PPO是直接把约束放到你要优化的那个式子里面，然后你就可以用梯度上升的方法去最大化这个式子。但 TRPO 是把 KL 散度当作约束，它希望 $\theta$ 跟 $\theta'$ 的 KL 散度小于一个 $\delta$。如果你使用的是基于梯度的优化时，有约束是很难处理的。
+它与 PPO 不一样的地方是约束摆的位置不一样，PPO 是直接把约束放到你要优化的那个式子里面，然后你就可以用梯度上升的方法去最大化这个式子。但 TRPO 是把 KL 散度当作约束，它希望 $\theta$ 跟 $\theta'$ 的 KL 散度小于一个 $\delta$。如果你使用的是基于梯度的优化时，有约束是很难处理的。
 
-PPO 是很难处理的，因为它是把 KL 散度约束当做一个额外的约束，没有放目标(objective)里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用 PPO 不要用 TRPO。看文献上的结果是，PPO 跟 TRPO 可能性能差不多，但 PPO 在实现上比 TRPO 容易的多。
+TRPO 是很难处理的，因为它是把 KL 散度约束当做一个额外的约束，没有放目标(objective)里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用 PPO 不要用 TRPO。看文献上的结果是，PPO 跟 TRPO 可能性能差不多，但 PPO 在实现上比 TRPO 容易的多。
 
 Q: KL 散度 到底指的是什么？
 
