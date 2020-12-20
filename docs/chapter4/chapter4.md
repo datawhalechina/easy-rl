@@ -120,8 +120,7 @@ E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right] 
 &=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 \end{aligned}
 $$
-注意 $p_{\theta}(\tau)$ 里面有两项，$p(s_{t+1}|s_t,a_t)$ 来自于环境，$p_\theta(a_t|s_t)$ 是来自于 agent。 $p(s_{t+1}|s_t,a_t)$ 由环境决定，所以与 $\theta$ 无关，因此 $\nabla \log p(s_{t+1}|s_t,a_t) =0 $。因此 $\nabla p_{\theta}(\tau)=
-\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$。
+注意 $p_{\theta}(\tau)$ 里面有两项，$p(s_{t+1}|s_t,a_t)$ 来自于环境，$p_\theta(a_t|s_t)$ 是来自于 agent。 $p(s_{t+1}|s_t,a_t)$ 由环境决定，所以与 $\theta$ 无关，因此 $\nabla \log p(s_{t+1}|s_t,a_t) =0 $。因此 $\nabla \log p_{\theta}(\tau^{n})=\sum_{t=1}^{T_{n}} \nabla \log p_{\theta}\left (a_{t}^{n} | s_{t}^{n}\right)$。
 
 你可以非常直观的来理解这个部分，也就是在你采样到的数据里面， 你采样到，在某一个状态 $s_t$ 要执行某一个动作 $a_t$， 这个 $s_t$ 跟 $a_t$ 它是在整个轨迹 $\tau$ 的里面的某一个状态和动作的对。
 
