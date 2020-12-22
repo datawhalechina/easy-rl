@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2020-12-22 14:44:46
+LastEditTime: 2020-12-22 16:20:35
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -101,7 +101,7 @@ class DQN:
 
         # 计算当前(s_t,a)对应的Q(s_t, a)
         q_values = self.policy_net(state_batch) 
-        next_q_values = self.policy_net(state_batch)
+        next_q_values = self.policy_net(next_state_batch)
         # 代入当前选择的action，得到Q(s_t|a=a_t)
         q_value = q_values.gather(dim=1, index=action_batch)
         '''以下是Nature DQN的q_target计算方式
