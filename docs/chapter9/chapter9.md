@@ -61,9 +61,9 @@ $$
 E\left[G_{t}^{n}\right]=Q^{\pi_{\theta}} \left(s_{t}^{n}, a_{t}^{n}\right)
 $$
 
-因为这个就是 Q 的定义。Q-function 的定义就是在某一个状态 s，采取某一个动作 a，假设 policy 就是 $\pi$ 的情况下会得到的累积奖励的期望值有多大，而这个东西就是 G 的期望值。累积奖励的期望值就是 G 的期望值。所以假设用期望值来代表 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}$ 这一项的话，把 Q-function 套在这里就结束了。那我们就可以 Actor 跟 Critic 这两个方法结合起来。
+因为这个就是 Q 的定义。Q-function 的定义就是在某一个状态 s，采取某一个动作 a，假设 policy 就是 $\pi$ 的情况下会得到的累积奖励的期望值有多大，而这个东西就是 G 的期望值。累积奖励的期望值就是 G 的期望值。所以假设用期望值来代表 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}$ 这一项的话，把 Q-function 套在这里就结束了。我们就可以 Actor 跟 Critic 这两个方法结合起来。
 
-有不同的方法来表示 baseline，但一个常见的做法是，你用 value function $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 来表示 baseline。Value function 的意思是说，假设 policy 是 $\pi$，在某一个状态 s 一直互动到游戏结束，期望奖励(expected reward)有多大。 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 没有涉及到动作，$Q^{\pi_{\theta}}\left(s_{t}^{n}, a_{t}^{n}\right)$ 涉及到动作。
+有不同的方法来表示 baseline，但一个常见的做法是用 value function $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 来表示 baseline。Value function 是说，假设 policy 是 $\pi$，在某一个状态 s 一直互动到游戏结束，期望奖励(expected reward)有多大。 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 没有涉及到动作，$Q^{\pi_{\theta}}\left(s_{t}^{n}, a_{t}^{n}\right)$ 涉及到动作。
 
 其实 $V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会是 $Q^{\pi_{\theta}}\left(s_{t}^{n}, a_{t}^{n}\right)$ 的期望值，所以 $Q^{\pi_{\theta}}\left(s_{t}^{n}, a_{t}^{n}\right)-V^{\pi_{\theta}}\left(s_{t}^{n}\right)$ 会有正有负，所以 $\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b$ 这一项就会是有正有负的。
 
@@ -135,11 +135,25 @@ A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就�
  ## Pathwise Derivative Policy Gradient
 ![](img/9.9.png)
 
-讲完 A3C 之后，我们要讲另外一个方法叫做 `Pathwise Derivative Policy Gradient`。这个方法很神奇，它可以看成是 Q-learning 解连续动作的一种特别的方法，也可以看成是一种特别的 Actor-Critic 的方法。
+讲完 A3C 之后，我们要讲另外一个方法叫做 `Pathwise Derivative Policy Gradient`。这个方法可以看成是 Q-learning 解连续动作的一种特别的方法，也可以看成是一种特别的 Actor-Critic 的方法。
 
-用棋灵王来比喻的话，阿光是一个 actor，佐为是一个 critic。阿光落某一子以后呢，如果佐为是一般的 Actor-Critic，他会告诉他说这时候不应该下小马步飞，他会告诉你，你现在采取的这一步算出来的 value 到底是好还是不好，但这样就结束了，他只告诉你说好还是不好。因为一般的这个 Actor-Critic 里面那个 critic 就是输入状态或输入状态跟动作的 pair，然后给你一个 value 就结束了。所以对 actor 来说，它只知道它做的这个行为到底是好还是不好。但如果是在 pathwise derivative policy gradient 里面，这个 critic 会直接告诉 actor 说采取什么样的动作才是好的。所以今天佐为不只是告诉阿光说，这个时候不要下小马步飞，同时还告诉阿光说这个时候应该要下大马步飞，所以这个就是 Pathwise Derivative Policy Gradient 中的 critic。critic 会直接告诉 actor 做什么样的动作才可以得到比较大的 value。
+用棋灵王来比喻的话，阿光是一个 actor，佐为是一个 critic。阿光落某一子以后，
 
-从 Q-learning 的观点来看，Q-learning 的一个问题是你没有办法在用 Q-learning 的时候，考虑 continuous vector。其实也不是完全没办法，就是比较麻烦，比较没有通用的解决方法(general solution)，我们怎么解这个优化问题呢？我们用一个 actor 来解这个优化的问题。本来在 Q-learning 里面，如果是一个连续的动作(continuous action)，我们要解这个优化问题。但是现在这个优化问题由 actor 来解，我们假设 actor 就是一个 solver，这个 solver 的工作就是给你状态, s，然后它就去解解告诉我们说，哪一个动作可以给我们最大的 Q value，这是从另外一个观点来看 pathwise derivative policy gradient 这件事情。这个说法，你有没有觉得非常的熟悉呢？我们在讲 GAN 的时候，不是也讲过一个说法。我们学习一个 discriminator，它是要评估东西好不好，discriminator 要自己生成东西，非常的困难，那怎么办？因为要解一个 arg max 的问题非常的困难，所以用 generator 来生成。所以今天的概念其实是一样的，Q 就是那个 discriminator。要根据这个 discriminator 决定动作非常困难，怎么办？另外学习一个网络来解这个优化问题，这个东西就是 actor。所以，两个不同的观点是同一件事，从两个不同的观点来看，一个观点是说，我们可以对原来的 Q-learning 加以改进，怎么改进呢？我们学习一个 actor 来决定动作以解决 arg max 不好解的问题。或是另外一个观点是，原来的 actor-critic 的问题是 critic 并没有给 actor 足够的信息，它只告诉它好或不好，没有告诉它说什么样叫好，那现在有新的方法可以直接告诉 actor 说，什么样叫做好。
+* 如果佐为是一般的 Actor-Critic，他会告诉阿光说这时候不应该下小马步飞，他会告诉你，你现在采取的这一步算出来的 value 到底是好还是不好，但这样就结束了，他只告诉你说好还是不好。因为一般的这个 Actor-Critic 里面那个 critic 就是输入状态或输入状态跟动作的对(pair)，然后给你一个 value 就结束了。所以对 actor 来说，它只知道它做的这个行为到底是好还是不好。
+* 但如果是在 pathwise derivative policy gradient 里面，这个 critic 会直接告诉 actor 说采取什么样的动作才是好的。所以今天佐为不只是告诉阿光说，这个时候不要下小马步飞，同时还告诉阿光说这个时候应该要下大马步飞，所以这个就是 Pathwise Derivative Policy Gradient 中的 critic。critic 会直接告诉 actor 做什么样的动作才可以得到比较大的 value。
+
+从 Q-learning 的观点来看，Q-learning 的一个问题是你在用 Q-learning 的时候，考虑 continuous vector 会比较麻烦，比较没有通用的解决方法(general solution)，怎么解这个优化问题呢？
+
+我们用一个 actor 来解这个优化的问题。本来在 Q-learning 里面，如果是一个连续的动作，我们要解这个优化问题。但是现在这个优化问题由 actor 来解，假设 actor 就是一个 solver，这个 solver 的工作就是给定状态 s，然后它就去解，告诉我们说，哪一个动作可以给我们最大的 Q value，这是从另外一个观点来看 pathwise derivative policy gradient 这件事情。
+
+在 GAN 中也有类似的说法。我们学习一个 discriminator 来评估东西好不好，要 discriminator 生成东西的话，非常困难，那怎么办？因为要解一个 arg max 的问题非常的困难，所以用 generator 来生成。
+
+所以今天的概念其实是一样的，Q 就是那个 discriminator。要根据这个 discriminator 决定动作非常困难，怎么办？另外学习一个网络来解这个优化问题，这个东西就是 actor。
+
+所以两个不同的观点是同一件事。从两个不同的观点来看，
+
+* 一个观点是说，我们可以对原来的 Q-learning 加以改进，我们学习一个 actor 来决定动作以解决 arg max 不好解的问题。
+* 另外一个观点是，原来的 actor-critic 的问题是 critic 并没有给 actor 足够的信息，它只告诉它好或不好，没有告诉它说什么样叫好，那现在有新的方法可以直接告诉 actor 说，什么样叫做好。
 
 ![](img/9.10.png)
 
@@ -153,14 +167,14 @@ A3C 这个方法就是同时开很多个 worker，那每一个 worker 其实就�
 
 ![](img/9.12.png)
 
-上图是原来 Q-learning 的算法。你有一个 Q-function Q，你有另外一个目标的 Q-function 叫做 $\hat{Q}$。然后在每一次 训练，在每一个回合的每一个时间点里面，你会看到一个状态 $s_t$，你会采取某一个动作 $a_{t}$。至于采取哪一个动作是由 Q-function 所决定的，因为解一个 arg max 的问题。如果是离散的话没有问题，你就看说哪一个 a 可以让 Q 的 value 最大，就采取哪一个动作。那你需要加一些 exploration，这样 performance 才会好。你会得到奖励 $r_t$，跳到新的状态 $s_{t+1}$。你会把 $s_t$, $a_{t}$, $r_t$, $s_{t+1}$ 塞到你的 buffer 里面去。你会从你的 buffer 里面采样一个 batch 的 data，这个 batch data 里面，可能某一笔是 $s_i, a_i, r_i, s_{i+1}$。接下来你会算一个目标，这个目标叫做 $y$ ，$y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)$。然后怎么学习你的 Q 呢？你希望 $Q(s_i,a_i)$ 跟 y 越接近越好，这是一个回归的问题，最后每 C 个步骤，你要把用 Q 替代 $\hat{Q}$ 。
+上图是原来 Q-learning 的算法。你有一个 Q-function Q，你有另外一个目标的 Q-function 叫做 $\hat{Q}$。然后在每一次 训练，在每一个回合的每一个时间点里面，你会看到一个状态 $s_t$，你会采取某一个动作 $a_{t}$。至于采取哪一个动作是由 Q-function 所决定的，因为解一个 arg max 的问题。如果是离散的话没有问题，你就看说哪一个 a 可以让 Q 的 value 最大，就采取哪一个动作。那你需要加一些探索，这样 performance 才会好。你会得到奖励 $r_t$，跳到新的状态 $s_{t+1}$。你会把 $s_t$, $a_{t}$, $r_t$, $s_{t+1}$ 塞到你的 buffer 里面去。你会从你的 buffer 里面采样一个批量的数据，在这个批量数据里面，可能某一笔是 $s_i, a_i, r_i, s_{i+1}$。接下来你会算一个目标，这个目标叫做 $y$ ，$y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)$。然后怎么学习你的 Q 呢？你希望 $Q(s_i,a_i)$ 跟 y 越接近越好，这是一个回归的问题，最后每 C 个步骤，你要把用 Q 替代 $\hat{Q}$ 。
 
 ![](img/9.13.png)
 
  接下来我们把 Q-learning 改成 Pathwise Derivative Policy Gradient，这边需要做四个改变。
 
 * 第一个改变是，你要把 Q 换成 $\pi$，本来是用 Q 来决定在状态 $s_t$ 产生那一个动作, $a_{t}$ 现在是直接用 $\pi$ 。我们不用再解 arg max 的问题了，我们直接学习了一个 actor。这个 actor 输入 $s_t$ 就会告诉我们应该采取哪一个 $a_{t}$。所以本来输入 $s_t$，采取哪一个 $a_t$，是 Q 决定的。在 Pathwise Derivative Policy Gradient 里面，我们会直接用 $\pi$ 来决定，这是第一个改变。
-* 第二个改变是，本来这个地方是要计算在 $s_{i+1}$，根据你的 policy 采取某一个动作 a 会得到多少的 Q value。那你会采取让 $\hat{Q}$ 最大的那个动作 a。那现在因为我们其实不好解这个 arg max 的问题，所以 arg max 问题，其实现在就是由 policy $\pi$ 来解了，所以我们就直接把 $s_{i+1}$ 代到 policy $\pi$ 里面，你就会知道说  given $s_{i+1}$ ，哪一个动作会给我们最大的 Q value，那你在这边就会采取那一个动作。在 Q-function 里面，有两个 Q network，一个是真正的 Q network，另外一个是目标 Q network。那实际上你在实现这个算法 的时候，你也会有两个 actor，你会有一个真正要学习的 actor $\pi$，你会有一个目标 actor $\hat{\pi}$ 。这个原理就跟为什么要有目标 Q network 一样，我们在算目标 value 的时候，我们并不希望它一直的变动，所以我们会有一个目标的 actor 和一个目标的 Q-function，它们平常的参数就是固定住的，这样可以让你的这个目标的 value 不会一直地变化。所以本来到底是要用哪一个动作 a，你会看说哪一个动作 a 可以让 $\hat{Q}$  最大。但现在因为哪一个动作 a 可以让 $\hat{Q}$ 最大这件事情已经被用那个 policy 取代掉了，所以我们要知道哪一个动作 a 可以让 $\hat{Q}$ 最大，就直接把那个状态带到 $\hat{\pi}$ 里面，看它得到哪一个 a，就用那一个 a，那一个 a 就是会让 $\hat{Q}(s,a)$ 的值最大的那个 a 。其实跟原来的这个 Q-learning 也是没什么不同，只是原来你要解 arg max 的地方，通通都用 policy 取代掉了，那这个是第二个不同。
+* 第二个改变是，本来这个地方是要计算在 $s_{i+1}$，根据你的 policy 采取某一个动作 a 会得到多少的 Q value。那你会采取让 $\hat{Q}$ 最大的那个动作 a。那现在因为我们其实不好解这个 arg max 的问题，所以 arg max 问题，其实现在就是由 policy $\pi$ 来解了，所以我们就直接把 $s_{i+1}$ 代到 policy $\pi$ 里面，你就会知道说给定 $s_{i+1}$ ，哪一个动作会给我们最大的 Q value，那你在这边就会采取那一个动作。在 Q-function 里面，有两个 Q network，一个是真正的 Q network，另外一个是目标 Q network。那实际上你在实现这个算法 的时候，你也会有两个 actor，你会有一个真正要学习的 actor $\pi$，你会有一个目标 actor $\hat{\pi}$ 。这个原理就跟为什么要有目标 Q network 一样，我们在算目标 value 的时候，我们并不希望它一直的变动，所以我们会有一个目标的 actor 和一个目标的 Q-function，它们平常的参数就是固定住的，这样可以让你的这个目标的 value 不会一直地变化。所以本来到底是要用哪一个动作 a，你会看说哪一个动作 a 可以让 $\hat{Q}$  最大。但现在因为哪一个动作 a 可以让 $\hat{Q}$ 最大这件事情已经用 policy 取代掉了，所以我们要知道哪一个动作 a 可以让 $\hat{Q}$ 最大，就直接把那个状态带到 $\hat{\pi}$ 里面，看它得到哪一个 a，那个 a 就是会让 $\hat{Q}(s,a)$ 的值最大的那个 a 。其实跟原来的这个 Q-learning 也是没什么不同，只是原来你要解 arg max 的地方，通通都用 policy 取代掉了，那这个是第二个不同。
 * 第三个不同就是之前只要学习 Q，现在你多学习一个 $\pi$，那学习 $\pi$ 的时候的方向是什么呢？学习 $\pi$ 的目的，就是为了最大化 Q-function，希望你得到的这个 actor，它可以让你的 Q-function 输出越大越好，这个跟学习 GAN 里面的 generator 的概念。其实是一样的。
 * 第四个步骤，就跟原来的 Q-function 一样。你要把目标的 Q network 取代掉，你现在也要把目标 policy 取代掉。
 
