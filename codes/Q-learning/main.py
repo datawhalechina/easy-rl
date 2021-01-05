@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2020-11-24 19:56:23
+LastEditTime: 2021-01-05 09:41:34
 Discription: 
 Environment: 
 '''
@@ -92,7 +92,7 @@ def train(cfg):
     plot(rewards)
     plot(MA_rewards,ylabel='moving_average_rewards_train')
 
-def test(cfg):
+def eval(cfg, saved_model_path = SAVED_MODEL_PATH):
 
     env = gym.make("CliffWalking-v0")  # 0 up, 1 right, 2 down, 3 left
     env = CliffWalkingWapper(env)
@@ -102,7 +102,7 @@ def test(cfg):
         learning_rate=cfg.policy_lr,
         gamma=cfg.gamma,
         epsilon_start=cfg.epsilon_start,epsilon_end=cfg.epsilon_end,epsilon_decay=cfg.epsilon_decay)
-    agent.load() # 导入保存的模型
+    agent.load_model(saved_model_path+'checkpoint.npy') # 导入保存的模型
     rewards = [] # 记录所有episode的reward
     MA_rewards = []  # 记录滑动平均的reward
     steps = []# 记录所有episode的steps
