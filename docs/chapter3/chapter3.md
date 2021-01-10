@@ -136,7 +136,7 @@ $$
 
 * 我们把每个轨迹的 return 进行平均，就可以知道某一个策略下面对应状态的价值。
 
-* MC 是用 `empirical mean` return 的方法来估计。
+* MC 是用 `经验平均回报(empirical mean return)` 的方法来估计。
 
 * MC 方法不需要 MDP 的转移函数和奖励函数，并且不需要像动态规划那样用 bootstrapping  的方法。
 
@@ -146,14 +146,14 @@ $$
 
 * 上图是 MC 算法的概括。
 * 为了得到评估 $v(s)$，我们进行了如下的步骤：
-  * 在每个 episode 中，如果在时间步 t 状态 s 被访问了，那么
+  * 在每个回合中，如果在时间步 t 状态 s 被访问了，那么
     * 状态 s 的访问数 $N(s)$ 增加 1，
     * 状态 s 的总的回报 $S(s)$  增加 $G_t$。
   * 状态 s 的价值可以通过 return 的平均来估计，即 $v(s)=S(s)/N(s)$。
 
 * 根据大数定律，只要我们得到足够多的轨迹，就可以趋近这个策略对应的价值函数。
 
-假设现在有样本 $x_1,x_2,\cdots$，我们可以把 empirical mean 转换成 `incremental mean` 的形式，如下式所示：
+假设现在有样本 $x_1,x_2,\cdots$，我们可以把经验均值(empirical mean)转换成 `增量均值(incremental mean)` 的形式，如下式所示：
 $$
 \begin{aligned}
 \mu_{t} &=\frac{1}{t} \sum_{j=1}^{t} x_{j} \\
@@ -170,7 +170,7 @@ $$
 其中：
 
 * $x_t- \mu_{t-1}$ 是残差
-* $\frac{1}{t}$ 类似于 learning rate
+* $\frac{1}{t}$ 类似于学习率(learning rate)
 
 当我们得到 $x_t$，就可以用上一时刻的值来更新现在的值。
 
@@ -235,7 +235,7 @@ MC 是通过 empirical mean return （实际得到的收益）来更新它，对
 
 * TD 是介于 MC 和 DP 之间的方法。
 
-* TD 是 model free 的，不需要 MDP 的转移矩阵和奖励函数。
+* TD 是 model-free 的，不需要 MDP 的转移矩阵和奖励函数。
 * TD 可以从不完整的 episode 中学习，结合了 bootstrapping 的思想。
 
 ![](img/TD_2.png)
@@ -316,7 +316,7 @@ $$
 G_{t}^{n}=R_{t+1}+\gamma R_{t+2}+\ldots+\gamma^{n-1} R_{t+n}+\gamma^{n} v\left(S_{t+n}\right)
 $$
 
-* 得到 TD target 之后，我们用 incremental learning 的方法来更新状态的价值：
+* 得到 TD target 之后，我们用增量学习(incremental learning)的方法来更新状态的价值：
 
 $$
 v\left(S_{t}\right) \leftarrow v\left(S_{t}\right)+\alpha\left(G_{t}^{n}-v\left(S_{t}\right)\right)
@@ -393,13 +393,13 @@ Policy iteration 由两个步骤组成：
 
 为了确保 MC 方法能够有足够的探索，我们使用了 $\varepsilon$-greedy exploration。
 
-$\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概率会按照 Q-function 来决定 action，通常 $\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是 90%，也就是 90% 的概率会按照 Q-function 来决定 action，但是你有 10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。在最开始的时候。因为还不知道那个 action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着 training 的次数越来越多。已经比较确定说哪一个 Q 是比较好的。你就会减少你的 exploration，你会把 $\varepsilon$ 的值变小，主要根据 Q-function 来决定你的 action，比较少做 random，这是 $\varepsilon\text{-greedy}$。
+$\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概率会按照 Q-function 来决定 action，通常 $\varepsilon$ 就设一个很小的值， $1-\varepsilon$ 可能是 90%，也就是 90% 的概率会按照 Q-function 来决定 action，但是你有 10% 的机率是随机的。通常在实现上 $\varepsilon$ 会随着时间递减。在最开始的时候。因为还不知道那个 action 是比较好的，所以你会花比较大的力气在做 exploration。接下来随着训练的次数越来越多。已经比较确定说哪一个 Q 是比较好的。你就会减少你的 exploration，你会把 $\varepsilon$ 的值变小，主要根据 Q-function 来决定你的 action，比较少做 random，这是 $\varepsilon\text{-greedy}$。
 
 ![](img/model_free_control_6.png)
 
 当我们使用 MC 和 $\varepsilon$-greedy 探索这个形式的时候，我们可以确保价值函数是单调的，改进的。
 
-![](img/model_free_control_7.png)上图是 MC with $\varepsilon$-greedy exploration 算法的伪代码。
+![](img/model_free_control_7.png)上图是带 $\varepsilon$-greedy 探索的 MC 算法的伪代码。
 
 ![](img/model_free_control_8.png)
 
@@ -515,7 +515,7 @@ R_{t+1}+\gamma Q\left(S_{t+1}, A^{\prime}\right) &=R_{t+1}+\gamma Q\left(S_{t+1}
 &=R_{t+1}+\gamma \max _{a^{\prime}} Q\left(S_{t+1}, a^{\prime}\right)
 \end{aligned}
 $$
-接着我们可以把 Q-learning update 写成 incremental learning 的形式，TD target 就变成 max 的值，即
+接着我们可以把 Q-learning 更新写成增量学习的形式，TD target 就变成 max 的值，即
 $$
 Q\left(S_{t}, A_{t}\right) \leftarrow Q\left(S_{t}, A_{t}\right)+\alpha\left[R_{t+1}+\gamma \max _{a} Q\left(S_{t+1}, a\right)-Q\left(S_{t}, A_{t}\right)\right]
 $$
@@ -523,7 +523,7 @@ $$
 
  **我们再通过对比的方式来进一步理解 `Q-learning`。Q-learning 是 off-policy 的时序差分学习方法，Sarsa 是 on-policy 的时序差分学习方法。**
 
-* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action。这个 action 有可能是 $\varepsilon$-greedy 方法 sample 出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作，但这是它实际执行的那个动作。
+* Sarsa 在更新 Q 表格的时候，它用到的 A' 。我要获取下一个 Q 值的时候，A' 是下一个 step 一定会执行的 action。这个 action 有可能是 $\varepsilon$-greedy 方法采样出来的值，也有可能是 max Q 对应的 action，也有可能是随机动作，但这是它实际执行的那个动作。
 * 但是 Q-learning 在更新 Q 表格的时候，它用到这个的 Q 值 $Q(S',a)$ 对应的那个 action ，它不一定是下一个 step 会执行的实际的 action，因为你下一个实际会执行的那个 action 可能会探索。
 * Q-learning 默认的 next action 不是通过 behavior policy 来选取的，Q-learning 直接看 Q-table，取它的 max 的这个值，它是默认 A' 为最优策略选的动作，所以 Q-learning 在学习的时候，不需要传入 A'，即 $A_{t+1}$  的值。
 
