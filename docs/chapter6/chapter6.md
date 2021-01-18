@@ -63,7 +63,7 @@ $$
 
 也就是说你会是这样训练的，你把 $s_t$ 丢到网络里面，因为 $s_t$ 丢到网络里面会得到 $V^{\pi}(s_t)$，把 $s_{t+1}$ 丢到你的值网络里面会得到 $V^{\pi}(s_{t+1})$，这个式子告诉我们，$V^{\pi}(s_t)$ 减 $V^{\pi}(s_{t+1})$ 的值应该是 $r_t$。然后希望它们两个相减的 loss 跟 $r_t$ 越接近，训练下去，更新 V 的参数，你就可以把 V function 学习出来。
 
-![](img/6.4.png)
+![](img/6.4.png ':size=500')
 
 **MC 跟 TD 有什么样的差别呢？**
 
@@ -169,9 +169,7 @@ $$
 * 所以这个 $\pi'$ 是用 Q-function 推出来的，没有另外一个网络决定 $\pi'$ 怎么交互，有 Q-function 就可以找出 $\pi'$。
 * 但是这边有另外一个问题就是，在这边要解一个 arg max 的问题，所以 a 如果是连续的就会有问题。如果是离散的，a 只有 3  个选项，一个一个带进去， 看谁的 Q 最大，没有问题。但如果 a 是连续的，要解 arg max 问题，你就会有问题。
 
-![](img/6.11.png)
-
-上图想要跟大家讲的是说，为什么用 $Q^{\pi}(s,a)$ 决定出来的 $\pi'$ 一定会比 $\pi$ 好。
+**接下来讲一下为什么用 $Q^{\pi}(s,a)$ 决定出来的 $\pi'$ 一定会比 $\pi$ 好。**
 
 假设有一个策略叫做 $\pi'$，它是由 $Q^{\pi}$ 决定的。我们要证对所有的状态 s 而言，$V^{\pi^{\prime}}(s) \geq V^{\pi}(s)$。
 
@@ -179,7 +177,7 @@ $$
 $$
 V^{\pi}(s)=Q^{\pi}(s, \pi(s))
 $$
-假设在状态 s 这个地方，你 follow $\pi$ 这个演员，它会采取的动作就是 $\pi(s)$，那你算出来的 $Q^{\pi}(s, \pi(s))$ 会等于 $V^{\pi}(s)$。一般而言，$Q^{\pi}(s, \pi(s))$ 不见得等于 $V^{\pi}(s)$ ，因为动作不一定是 $\pi(s)$。但如果这个动作是 $\pi(s)$ 的话，$Q^{\pi}(s, \pi(s))$ 是等于 $V^{\pi}(s)$ 的。
+假设在状态 s follow $\pi$ 这个演员，它会采取的动作就是 $\pi(s)$，那你算出来的 $Q^{\pi}(s, \pi(s))$ 会等于 $V^{\pi}(s)$。一般而言，$Q^{\pi}(s, \pi(s))$ 不一定等于 $V^{\pi}(s)$ ，因为动作不一定是 $\pi(s)$。但如果这个动作是 $\pi(s)$ 的话，$Q^{\pi}(s, \pi(s))$ 是等于 $V^{\pi}(s)$ 的。
 
 
 $Q^{\pi}(s, \pi(s))$ 还满足如下的关系：
@@ -187,7 +185,7 @@ $$
 Q^{\pi}(s, \pi(s)) \le \max _{a} Q^{\pi}(s, a)
 $$
 
-因为 a 是所有动作里面可以让 Q 最大的那个动作，所以今天这一项一定会比它大。那我们知道说这一项是什么，这一项就是 $Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为 $\pi'(s)$ 输出的 a 就是可以让 $Q^\pi(s,a)$ 最大的那一个。所以我们得到了下面的式子：
+因为 a 是所有动作里面可以让 Q 最大的那个动作，所以今天这一项一定会比它大。这一项就是 $Q^{\pi}(s, a)$，$a$ 就是 $\pi'(s)$。因为 $\pi'(s)$ 输出的 $a$ 就是可以让 $Q^\pi(s,a)$ 最大的那一个，所以我们得到了下面的式子：
 $$
 \max _{a} Q^{\pi}(s, a)=Q^{\pi}\left(s, \pi^{\prime}(s)\right)
 $$
@@ -203,53 +201,47 @@ $$
 Q^{\pi}\left(s, \pi^{\prime}(s) \right) \le V^{\pi'}(s)
 $$
 
-也就是说，只有一步之差，你会得到比较大的奖励。**但假设每步都是不一样的，每步都是 follow $\pi'$ 而不是 $\pi$ 的话，那你得到的奖励一定会更大。**如果你要用数学式把它写出来的话，你可以写成 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ ，它的意思就是说，我们在状态 $s_t$ 采取动作 $a_t$，得到奖励 $r_{t+1}$，然后跳到状态 $s_{t+1}$，即如下式所示：
+也就是说，只有一步之差，你会得到比较大的奖励。**但假设每步都是不一样的，每步都是 follow $\pi'$ 而不是 $\pi$ 的话，那你得到的奖励一定会更大。**如果你要用数学式把它写出来的话，你可以写成 $Q^{\pi}\left(s, \pi^{\prime}(s)\right)$ ，它的意思就是说，我们在状态 $s_t$ 采取动作 $a_t$，得到奖励 $r_{t}$，然后跳到状态 $s_{t+1}$，即如下式所示：
 
 $$
-Q^{\pi}\left(s, \pi^{\prime}(s)\right)=E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) \mid s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
+Q^{\pi}\left(s, \pi^{\prime}(s)\right)=E\left[r_t+V^{\pi}\left(s_{t+1}\right) \mid s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
 $$
-> 这边有一个地方写得不太好，这边应该写成 $r_t$ 跟之前的记号比较一致，但这边写成了 $r_{t+1}$，其实这都是可以的。在文献上有时候有人会说 在状态 $s_t$ 采取动作$a_t$ 得到奖励 $r_{t+1}$， 有人会写成 $r_t$，但意思其实都是一样的。
+> 在文献上有时也会说：在状态 $s_t$ 采取动作 $a_t$ 得到奖励 $r_{t+1}$， 有人会写成 $r_t$，但意思其实都是一样的。
 
-在状态 s 按照 $\pi'$ 采取某一个动作 $a_t$ ，得到奖励 $r_{t+1}$，然后跳到状态 $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$是状态 $s_{t+1}$ 根据 $\pi$ 这个演员所估出来的值。因为在同样的状态采取同样的动作，你得到的奖励，还有会跳到的状态不一定是一样， 所以这边需要取一个期望值。 
+在状态 $s$ 按照 $\pi'$ 采取某一个动作 $a_t$ ，得到奖励 $r_{t}$，然后跳到状态 $s_{t+1}$，$V^{\pi}\left(s_{t+1}\right)$ 是状态 $s_{t+1}$ 根据 $\pi$ 这个演员所估出来的值。因为在同样的状态采取同样的动作，你得到的奖励和会跳到的状态不一定一样， 所以这边需要取一个期望值。
 
-接下来我们会得到如下的式子：
+因为 $V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)$，也就是 $V^{\pi}(s_{t+1}) \leq Q^{\pi}\left(s_{t+1}, \pi^{\prime}(s_{t+1})\right)$，所以我们得到下式：
 $$
 \begin{array}{l}
-E\left[r_{t+1}+V^{\pi}\left(s_{t+1}\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
-\leq E\left[r_{t+1}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
-\end{array}
-$$
-上式为什么成立呢？因为
-$$
-V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
-$$
-也就是
-$$
-V^{\pi}(s_{t+1}) \leq Q^{\pi}\left(s_{t+1}, \pi^{\prime}(s_{t+1})\right)
-$$
-
-也就是说，现在你一直 follow $\pi$，跟某一步 follow $\pi'$，接下来都 follow $\pi$ 比起来，某一步 follow $\pi'$ 得到的奖励是比较大的。
-
-接着我们得到下式：
-$$
-\begin{array}{l}
-E\left[r_{t+1}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
-=E\left[r_{t+1}+r_{t+2}+V^{\pi}\left(s_{t+2}\right) | \ldots\right]
+E\left[r_{t}+V^{\pi}\left(s_{t+1}\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+\leq E\left[r_{t}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
 \end{array}
 $$
 
-因为
+因为 $Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) = r_{t+1}+V^{\pi}\left(s_{t+2}\right)$，所以我们得到下式：
 $$
-Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) = r_{t+2}+V^{\pi}\left(s_{t+2}\right)
-$$
-
-然后你再代入
-
-$$
-V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)
+\begin{array}{l}
+E\left[r_{t}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+=E\left[r_{t}+r_{t+1}+V^{\pi}\left(s_{t+2}\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]
+\end{array}
 $$
 
-一直算到底，算到 episode 结束。那你就知道说
+然后你再代入 $V^{\pi}(s) \leq Q^{\pi}\left(s, \pi^{\prime}(s)\right)$，一直算到回合结束，即：
+$$
+\begin{aligned}
+V^{\pi}(s) &\le Q^{\pi}(s,\pi'(s)) \\
+&= E\left[r_{t}+Q^{\pi}\left(s_{t+1}, \pi^{\prime}\left(s_{t+1}\right)\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+&=E\left[r_{t}+r_{t+1}+V^{\pi}\left(s_{t+2}\right) |s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]  \\
+& \le E\left[r_{t}+r_{t+1}+Q^{\pi}\left(s_{t+2},\pi'(s_{t+2}\right) | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+& = E\left[r_{t}+r_{t+1}+r_{t+2}+V^{\pi}\left(s_{t+3}\right) |s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right] \\
+& \le \cdots\\
+& \le E\left[r_{t}+r_{t+1}+r_{t+2}+\cdots | s_{t}=s, a_{t}=\pi^{\prime}\left(s_{t}\right)\right]  \\
+& = V^{\pi'}(s)
+\end{aligned}
+$$
+
+
+因此：
 $$
 V^{\pi}(s)\le V^{\pi'}(s)
 $$
