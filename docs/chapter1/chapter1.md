@@ -138,9 +138,7 @@
 
 ### Reward
 
-**奖励是由环境给的一个标量的反馈信号(scalar feedback signal)**。
-
-这个信号显示了 agent 在某一步采取了某个策略的表现如何。
+奖励是由环境给的一个标量的反馈信号(scalar feedback signal)，这个信号显示了 agent 在某一步采取了某个策略的表现如何。
 
 强化学习的目的就是为了最大化 agent 可以获得的奖励，agent 在这个环境里面存在的目的就是为了极大化它的期望的累积奖励(expected cumulative reward)。
 
