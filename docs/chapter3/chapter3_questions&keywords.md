@@ -72,8 +72,6 @@
   $$
   Q(s, a) \larr Q(s, a) + \alpha [r(s,a) + \gamma  Q(s', a') - Q(s, a)]
   $$
-  
-
   其为on-policy的，SARSA必须执行两次动作得到 $(s,a,r,s',a') $才可以更新一次；而且 $a'$ 是在特定策略 $\pi$ 的指导下执行的动作，因此估计出来的 $Q(s,a)$ 是在该策略 $\pi$ 之下的Q-value，样本生成用的 $\pi$ 和估计的 $\pi$ 是同一个，因此是on-policy。
 
 - 高冷的面试官：请问value-based和policy-based的区别是什么？
