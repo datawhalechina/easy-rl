@@ -92,3 +92,7 @@
   Q(S_t,A_t) \larr Q(S_t,A_t) + \alpha [R_{t+1}+\gamma Q(S_{t+1},A_{t+1})]
   $$
   
+- 高冷的面试官：请问蒙特卡洛方法（Monte Carlo Algorithm，MC）和时序差分(Temporal Difference，TD)算法是无偏估计吗？另外谁的方法更大呢？为什么呢？
+
+答：蒙特卡洛方法（MC）是无偏估计，时序差分（TD）是有偏估计；MC的方差较大，TD的方差较小，原因在于TD中使用了自举（bootstrapping）的方法，实现了基于平滑的效果，导致估计的值函数的方差更小。
+  
