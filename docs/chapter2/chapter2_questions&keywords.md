@@ -94,3 +94,9 @@
 
   答: 最佳价值函数的定义为： $v^* (s)=\max_{\pi} v^{\pi}(s)$ 即我们去搜索一种 policy $\pi$ 来让每个状态的价值最大。$v^*$ 就是到达每一个状态，它的值的极大化情况。在这种极大化情况上面，我们得到的策略就可以说它是最佳策略(optimal policy)，即 $ \pi^{*}(s)=\underset{\pi}{\arg \max }~ v^{\pi}(s) $. Optimal policy 使得每个状态的价值函数都取得最大值。所以如果我们可以得到一个 optimal value function，就可以说某一个 MDP 的环境被解。在这种情况下，它的最佳的价值函数是一致的，就它达到的这个上限的值是一致的，但这里可能有多个最佳的 policy，就是说多个 policy 可以取得相同的最佳价值。
 
+- 高冷的面试官：能不能手写一下第n步的值函数更新公式呀？另外，当n越来越大时，值函数的期望和方差分别变大还是变小呢？
+
+答：$n$越大，方差越大，期望偏差越小。值函数的更新公式? 话不多说，公式如下：
+  $$
+  Q\left(S, A\right) \leftarrow Q\left(S, A\right)+\alpha\left[\sum_{i=1}^{n} \gamma^{i-1} R_{t+i}+\gamma^{n} \max _{a}   Q\left(S',a\right)-Q\left(S, A\right)\right]
+  $$
