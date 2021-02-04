@@ -96,7 +96,7 @@
 
 - 高冷的面试官：能不能手写一下第n步的值函数更新公式呀？另外，当n越来越大时，值函数的期望和方差分别变大还是变小呢？
 
-答：$n$越大，方差越大，期望偏差越小。值函数的更新公式? 话不多说，公式如下：
+  答：$n$越大，方差越大，期望偏差越小。值函数的更新公式? 话不多说，公式如下：
   $$
   Q\left(S, A\right) \leftarrow Q\left(S, A\right)+\alpha\left[\sum_{i=1}^{n} \gamma^{i-1} R_{t+i}+\gamma^{n} \max _{a}   Q\left(S',a\right)-Q\left(S, A\right)\right]
   $$
