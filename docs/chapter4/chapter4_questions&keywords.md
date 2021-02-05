@@ -104,7 +104,7 @@
   \nabla_{\theta}J(\theta) =E_{\tau \sim p_{\theta}(\tau)}[{\nabla}_{\theta}logp_{\theta}(\tau)r(\tau)] = E_{\tau \sim p_{\theta}}[(\nabla_{\theta}log\pi_{\theta}(a_t|s_t))(\sum_{t=1}^Tr(s_t,a_t))] = \frac{1}{N}\sum_{i=1}^N[(\sum_{t=1}^T\nabla_{\theta}log \pi_{\theta}(a_{i,t}|s_{i,t}))(\sum_{t=1}^Nr(s_{i,t},a_{i,t}))]
   $$
   
-  - 高冷的面试官：可以说一下你了解到的基于梯度策略的优化时的小技巧吗？
+- 高冷的面试官：可以说一下你了解到的基于梯度策略的优化时的小技巧吗？
 
   答：
 
