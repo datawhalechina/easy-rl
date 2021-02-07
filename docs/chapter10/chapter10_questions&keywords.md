@@ -1,6 +1,6 @@
 # Chapter10 Sparse Reward
 
-## 1 关键词
+## 1 Keywords
 
 - **reward shaping：** 在我们的agent与environment进行交互时，我们人为的设计一些reward，从而“指挥”agent，告诉其采取哪一个action是最优的，而这个reward并不是environment对应的reward，这样可以提高我们estimate Q-function时的准确性。
 - **ICM（intrinsic curiosity module）：** 其代表着curiosity driven这个技术中的增加新的reward function以后的reward function。
@@ -8,7 +8,7 @@
 - **reverse curriculum learning：** 相较于上面的curriculum learning，其为更general的方法。其从最终最理想的state（我们称之为gold state）开始，依次去寻找距离gold state最近的state作为想让agent达到的阶段性的“理想”的state，当然我们应该在此过程中有意的去掉一些极端的case（太简单、太难的case）。综上，reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse curriculum learning。  
 - **hierarchical （分层） reinforcement learning：** 将一个大型的task，横向或者纵向的拆解成多个 agent去执行。其中，有一些agent 负责比较high level 的东西，负责订目标，然后它订完目标以后，再分配给其他的 agent把它执行完成。（看教程的 hierarchical  reinforcement learning部分的示例就会比较明了）
 
-## 2 思考题
+## 2 Questions
 
 - 解决sparse reward的方法有哪些？
 
