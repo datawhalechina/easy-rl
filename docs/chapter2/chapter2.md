@@ -18,7 +18,7 @@
 
 ### Markov Property
 
-![](img/2.4.png)如果一个状态转移是符合马尔可夫的，那就是说一个状态的下一个状态只取决于它当前状态，而跟它当前状态之前的状态都没有关系。
+如果一个状态转移是符合马尔可夫的，那就是说一个状态的下一个状态只取决于它当前状态，而跟它当前状态之前的状态都没有关系。
 
 我们设状态的历史为 $h_{t}=\left\{s_{1}, s_{2}, s_{3}, \ldots, s_{t}\right\}$（$h_t$ 包含了之前的所有状态），如果一个状态转移是符合马尔可夫的，也就是满足如下条件：
 $$
@@ -31,9 +31,9 @@ $$
 
 从当前 $s_t$ 转移到 $s_{t+1}$ 这个状态，它是直接就等于它之前所有的状态转移到 $s_{t+1}$。如果某一个过程满足`马尔可夫性质(Markov Property)`，就是说未来的转移跟过去是独立的，它只取决于现在。**马尔可夫性质是所有马尔可夫过程的基础。**
 
-### Markov Process
+### Markov Process/Markov Chain
 
-![](img/2.5.png)
+![](img/2.5.png ':size=500')
 
 首先看一看`马尔可夫链(Markov Chain)`。举个例子，这个图里面有四个状态，这四个状态从 $s_1,s_2,s_3,s_4$ 之间互相转移。比如说从 $s_1$ 开始，
 
@@ -47,7 +47,16 @@ $$
 * 有 0.2 的概率转移到 $s_3$ ，
 * 有 0.5 的概率留在这里。
 
-我们可以用`状态转移矩阵(State Transition Matrix)`来描述这样的状态转移。状态转移矩阵类似于一个 conditional probability，当我们知道当前我们在 $s_t$ 这个状态过后，到达下面所有状态的一个概念。所以它每一行其实描述了是从一个节点到达所有其它节点的概率。
+我们可以用`状态转移矩阵(State Transition Matrix)` $P$ 来描述状态转移 $p\left(s_{t+1}=s^{\prime} \mid s_{t}=s\right)$，如下式所示。
+$$
+P=\left[\begin{array}{cccc}
+P\left(s_{1} \mid s_{1}\right) & P\left(s_{2} \mid s_{1}\right) & \ldots & P\left(s_{N} \mid s_{1}\right) \\
+P\left(s_{1} \mid s_{2}\right) & P\left(s_{2} \mid s_{2}\right) & \ldots & P\left(s_{N} \mid s_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots \\
+P\left(s_{1} \mid s_{N}\right) & P\left(s_{2} \mid s_{N}\right) & \ldots & P\left(s_{N} \mid s_{N}\right)
+\end{array}\right]
+$$
+状态转移矩阵类似于一个 conditional probability，当我们知道当前我们在 $s_t$ 这个状态过后，到达下面所有状态的一个概念。所以它每一行其实描述了是从一个节点到达所有其它节点的概率。
 
 ### Example of MP
 
@@ -226,9 +235,7 @@ $$
 
 ### Iterative Algorithm for Computing Value of a MRP
 
-![](img/2.15.png)
-
-接下来我们来求解这个价值函数。**我们可以通过迭代的方法来解这种状态非常多的 MRP，**比如说：
+接下来我们来求解这个价值函数。**我们可以通过迭代的方法来解这种状态非常多的 MRP(large MRPs)，**比如说：
 
 * 动态规划的方法，
 * 蒙特卡罗的办法(通过采样的办法去计算它)，
