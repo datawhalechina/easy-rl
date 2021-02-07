@@ -1,6 +1,6 @@
 # Chapter11 Imitation Learning 
 
-## 1 关键词
+## 1 Keywords
 
 - **Imitation learning：**  其讨论我们没有reward或者无法定义reward但是有与environment进行交互时怎么进行agent的学习。这与我们平时处理的问题中的情况有些类似，因为通常我们无法从环境中得到明确的reward。Imitation learning 又被称为 learning from demonstration (示范学习) ，apprenticeship learning (学徒学习)，learning by watching (观察学习)等。
 - **Behavior Cloning：** 类似于ML中的监督学习，通过收集expert的state与action的对应信息，训练我们的network（actor）。在使用时input state时，得到对应的outpur action。
@@ -8,7 +8,7 @@
 - **Inverse Reinforcement learning（IRL）：** Inverse Reinforcement Learning 是先找出 reward function，再去用 Reinforcement Learning 找出 optimal actor。这么做是因为我们没有环境中reward，但是我们有expert 的demonstration，使用IRL，我们可以推断expert 是因为什么样的 reward function 才会采取这些action。有了reward function 以后，接下来，就可以套用一般的 reinforcement learning 的方法去找出 optimal actor。
 - **Third Person Imitation Learning：** 一种把第三人称视角所观察到的经验 generalize 到第一人称视角的经验的技术。
 
-## 2 思考题
+## 2 Questions
 
 - 对于Imitation Learning 的方法有哪些？
 

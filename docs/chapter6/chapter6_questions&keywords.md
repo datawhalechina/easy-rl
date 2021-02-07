@@ -2,7 +2,7 @@
 
 ## 1 Keywords
 
-- **DQN(Deep Q-Network)：**  基于深度学习的Q-learning算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经历回放（Experience Replay）的方法进行网络的训练。
+- **DQN(Deep Q-Network)：**  基于深度学习的Q-learninyang算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经验回放（Experience Replay）的方法进行网络的训练。
 - **State-value Function：** 本质是一种critic。其输入为actor某一时刻的state，对应的输出为一个标量，即当actor在对应的state时，预期的到过程结束时间段中获得的value的数值。
 - **State-value Function Bellman Equation：** 基于state-value function的Bellman Equation，它表示在状态 $s_t$ 下带来的累积奖励 $G_t$ 的期望。
 - **Q-function:** 其也被称为state-action value function。其input 是一个 state 跟 action 的 pair，即在某一个 state 采取某一个action，假设我们都使用 actor $\pi$ ，得到的 accumulated reward 的期望值有多大。
@@ -82,3 +82,33 @@
   - 首先，DQN 将 Q-learning 与深度学习结合，用深度网络来近似动作价值函数，而 Q-learning 则是采用表格存储。
   - DQN 采用了我们前面所描述的经验回放（Experience Replay）训练方法，从历史数据中随机采样，而 Q-learning 直接采用下一个状态的数据进行学习。
 
+
+## 3 Something About Interview
+
+- 高冷的面试官：请问DQN（Deep Q-Network）是什么？其两个关键性的技巧分别是什么？
+
+  答：Deep Q-Network是基于深度学习的Q-learning算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经验回放（Experience Replay）的方法进行网络的训练。
+
+- 高冷的面试官：接上题，DQN中的两个trick：目标网络和experience replay的具体作用是什么呢？
+
+  答：在DQN中某个动作值函数的更新依赖于其他动作值函数。如果我们一直更新值网络的参数，会导致
+  更新目标不断变化，也就是我们在追逐一个不断变化的目标，这样势必会不太稳定。 为了解决在基于TD的Network的问题时，优化目标 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) =r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 左右两侧会同时变化使得训练过程不稳定，从而增大regression的难度。target network选择将上式的右部分即 $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 固定，通过改变上式左部分的network的参数，进行regression。对于经验回放，其会构建一个Replay Buffer（Replay Memory），用来保存许多data，每一个data的形式如下：在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$，然后跳到 state $s_{t+1}$。我们使用 $\pi$ 去跟环境互动很多次，把收集到的数据都放到这个 replay buffer 中。当我们的buffer”装满“后，就会自动删去最早进入buffer的data。在训练时，对于每一轮迭代都有相对应的batch（与我们训练普通的Network一样通过sample得到），然后用这个batch中的data去update我们的Q-function。也就是，Q-function再sample和训练的时候，会用到过去的经验数据，也可以消除样本之间的相关性。
+
+- 高冷的面试官：DQN（Deep Q-learning）和Q-learning有什么异同点？
+
+  答：整体来说，从名称就可以看出，两者的目标价值以及价值的update方式基本相同，另外一方面，不同点在于：
+
+  - 首先，DQN 将 Q-learning 与深度学习结合，用深度网络来近似动作价值函数，而 Q-learning 则是采用表格存储。
+  - DQN 采用了我们前面所描述的经验回放（Experience Replay）训练方法，从历史数据中随机采样，而 Q-learning 直接采用下一个状态的数据进行学习。
+
+- 高冷的面试官：请问，随机性策略和确定性策略有什么区别吗？
+
+  答：随机策略表示为某个状态下动作取值的分布，确定性策略在每个状态只有一个确定的动作可以选。
+  从熵的角度来说，确定性策略的熵为0，没有任何随机性。随机策略有利于我们进行适度的探索，确定
+  性策略的探索问题更为严峻。
+
+- 高冷的面试官：请问不打破数据相关性，神经网络的训练效果为什么就不好？
+
+  答：在神经网络中通常使用随机梯度下降法。随机的意思是我们随机选择一些样本来增量式的估计梯度，比如常用的
+  采用batch训练。如果样本是相关的，那就意味着前后两个batch的很可能也是相关的，那么估计的梯度也会呈现
+  出某种相关性。如果不幸的情况下，后面的梯度估计可能会抵消掉前面的梯度量。从而使得训练难以收敛。

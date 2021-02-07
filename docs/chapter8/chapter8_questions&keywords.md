@@ -1,6 +1,6 @@
 # Chapter8 Q-learning for Continuous Actions
 
-## 思考题
+## Questions
 
 - Q-learning相比于policy gradient based方法为什么训练起来效果更好，更平稳？
 
