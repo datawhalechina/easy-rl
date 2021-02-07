@@ -35,3 +35,23 @@
 
   - 优势：因为我们现在 sample 了比较多的step，之前是只sample 了一个step， 所以某一个step 得到的data 是真实值，接下来都是Q value 估测出来的。现在sample 比较多step，sample N 个step 才估测value，所以估测的部分所造成的影响就会比小。
   - 劣势：因为我们的 reward 比较多，当我们把 N 步的 reward 加起来，对应的 variance 就会比较大。但是我们可以选择通过调整 N 值，去在variance 跟不精确的 Q 之间取得一个平衡。这里介绍的参数 N 就是一个hyper parameter，你要调这个N 到底是多少，你是要多 sample 三步，还是多 sample 五步。
+
+
+
+## 3 Something About Interview
+
+- 高冷的面试官：DQN都有哪些变种？引入状态奖励的是哪种？
+
+  答：DQN三个经典的变种：Double DQN、Dueling DQN、Prioritized Replay Buffer。
+
+  - Double-DQN：将动作选择和价值估计分开，避免价值过高估计。
+  - Dueling-DQN：将Q值分解为状态价值和优势函数，得到更多有用信息。
+  - Prioritized Replay Buffer：将经验池中的经验按照优先级进行采样。
+
+- 简述double DQN原理？
+
+  答：DQN由于总是选择当前值函数最大的动作值函数来更新当前的动作值函数，因此存在着过估计问题（估计的值函数大于真实的值函数）。为了解耦这两个过程，double DQN 使用了两个值网络，一个网络用来执行动作选择，然后用另一个值函数对一个的动作值更新当前网络。
+
+- 高冷的面试官：请问Dueling DQN模型有什么优势呢？
+
+  答：对于我们的 $Q(s,a)$ 其对应的state由于为table的形式，所以是离散的，而实际中的state不是离散的。对于 $Q(s,a)$ 的计算公式， $Q(s,a)=V(s)+A(s,a)$ 。其中的 $V(s)$ 是对于不同的state都有值，对于 $A(s,a)$ 对于不同的state都有不同的action对应的值。所以本质上来说，我们最终的矩阵 $Q(s,a)$ 的结果是将每一个 $V(s)$ 加到矩阵 $A(s,a)$ 中得到的。从模型的角度考虑，我们的network直接改变的 $Q(s,a)$ 而是更改的 $V、A$ 。但是有时我们update时不一定会将 $V(s)$ 和 $Q(s,a)$ 都更新。我们将其分成两个path后，我们就不需要将所有的state-action pair都sample一遍，我们可以使用更高效的estimate Q value方法将最终的 $Q(s,a)$ 计算出来。
