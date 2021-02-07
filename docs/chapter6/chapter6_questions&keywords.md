@@ -2,7 +2,7 @@
 
 ## 1 Keywords
 
-- **DQN(Deep Q-Network)：**  基于深度学习的Q-learning算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经历回放（Experience Replay）的方法进行网络的训练。
+- **DQN(Deep Q-Network)：**  基于深度学习的Q-learninyang算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经验回放（Experience Replay）的方法进行网络的训练。
 - **State-value Function：** 本质是一种critic。其输入为actor某一时刻的state，对应的输出为一个标量，即当actor在对应的state时，预期的到过程结束时间段中获得的value的数值。
 - **State-value Function Bellman Equation：** 基于state-value function的Bellman Equation，它表示在状态 $s_t$ 下带来的累积奖励 $G_t$ 的期望。
 - **Q-function:** 其也被称为state-action value function。其input 是一个 state 跟 action 的 pair，即在某一个 state 采取某一个action，假设我们都使用 actor $\pi$ ，得到的 accumulated reward 的期望值有多大。
