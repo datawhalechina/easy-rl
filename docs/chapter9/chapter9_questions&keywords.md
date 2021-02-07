@@ -36,3 +36,45 @@
   2. 另外，原本是要计算在 $s_{i+1}$ 时对应的 policy 采取的 action a 会得到多少的 Q value，那你会采取让 $\hat{Q}$ 最大的那个 action a。现在因为我们不需要再解argmax 的问题。所以现在我们就直接把 $s_{i+1}$ 代入到 policy $\pi$ 里面，直接就会得到在 $s_{i+1}$ 下，哪一个 action 会给我们最大的 Q value，那你在这边就会 take 那一个 action。在 Q-function 里面，有两个 Q network，一个是真正的 Q network，另外一个是 target Q network。那实际上你在 implement 这个 algorithm 的时候，你也会有两个 actor，你会有一个真正要 learn 的 actor $\pi$，你会有一个 target actor $\hat{\pi}$ 。但现在因为哪一个 action a 可以让 $\hat{Q}$ 最大这件事情已经被用那个 policy 取代掉了，所以我们要知道哪一个 action a 可以让 $\hat{Q}$ 最大，就直接把那个 state 带到 $\hat{\pi}$ 里面，看它得到哪一个 a，就用那一个 a，其也就是会让 $\hat{Q}(s,a)$ 的值最大的那个 a 。
   3. 还有，之前只要 learn Q，现在你多 learn 一个 $\pi$，其目的在于maximize Q-function，希望你得到的这个 actor，它可以让你的 Q-function output 越大越好，这个跟 learn GAN 里面的 generator 的概念类似。
   4. 最后，与原来的 Q-function 一样。我们要把 target 的 Q-network 取代掉，你现在也要把 target policy 取代掉。
+
+
+## 3 Something About Interview
+
+- 高冷的面试官：请简述一下A3C算法吧，另外A3C是on-policy还是off-policy呀？
+
+  答：A3C就是异步优势演员-评论家方法（Asynchronous Advantage Actor-Critic）：评论家学习值函数，同时有多个actor并行训练并且不时与全局参数同步。A3C旨在用于并行训练，是 on-policy 的方法。 
+
+- 高冷的面试官：请问Actor - Critic有何优点呢？
+
+  答：
+
+  - 相比以值函数为中心的算法，Actor - Critic应用了策略梯度的做法，这能让它在连续动作或者高维动作空间中选取合适的动作，而 Q-learning 做这件事会很困难甚至瘫痪。
+  - 相比单纯策略梯度，Actor - Critic应用了Q-learning或其他策略评估的做法，使得Actor Critic能进行单步更新而不是回合更新，比单纯的Policy Gradient的效率要高。
+
+- 高冷的面试官：请问A3C算法具体是如何异步更新的？
+
+  答：下面是算法大纲：
+
+  - 定义全局参数 $\theta$ 和 $w$ 以及特定线程参数 $θ′$ 和 $w′$。
+  - 初始化时间步 $t=1$。
+  - 当 $T<=T_{max}$：
+    - 重置梯度：$dθ=0$ 并且 $dw=0$。
+    - 将特定于线程的参数与全局参数同步：$θ′=θ$ 以及 $w′=w$。
+    - 令 $t_{start} =t$ 并且随机采样一个初始状态 $s_t$。
+    - 当 （$s_t!=$ 终止状态）并$t−t_{start}<=t_{max}$：
+      - 根据当前线程的策略选择当前执行的动作 $a_t∼π_{θ′}(a_t|s_t)$，执行动作后接收回报$r_t$然后转移到下一个状态st+1。
+      - 更新 t 以及 T：t=t+1 并且 T=T+1。
+    - 初始化保存累积回报估计值的变量
+    - 对于 $i=t_1,…,t_{start}$：
+      - r←γr+ri；这里 r 是 Gi 的蒙特卡洛估计。
+      - 累积关于参数 θ′的梯度：$dθ←dθ+∇θ′logπθ′(ai|si)(r−Vw′(si))$;
+      - 累积关于参数 w′ 的梯度：$dw←dw+2(r−Vw′(si))∇w′(r−Vw′(si))$.
+    - 分别使用 dθ以及 dw异步更新 θ以及 w。简述A3C的优势函数？
+
+
+37. 答：$A(s,a)=Q(s,a)-V(s)$是为了解决value-based方法具有高变异性。它代表着与该状态下采取的平均行动相比所取得的进步。
+
+    - 如果 A(s,a)>0: 梯度被推向了该方向
+    - 如果 A(s,a)<0: (我们的action比该state下的平均值还差) 梯度被推向了反方
+
+    但是这样就需要两套 value function，所以可以使用TD error 做估计：$A(s,a)=r+\gamma V(s')-V(s)$。
