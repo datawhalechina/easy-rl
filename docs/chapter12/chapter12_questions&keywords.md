@@ -43,7 +43,7 @@
   - 分布式 critic: 不再只估计Q值的期望值，而是去估计期望Q值的分布, 即将期望Q值作为一个随机变量来进行估计。
   - N步累计回报: 当计算TD误差时，D4PG计算的是N步的TD目标值而不仅仅只有一步，这样就可以考虑未来更多步骤的回报。
   - 多个分布式并行actor：D4PG使用K个独立的演员并行收集训练样本并存储到同一个replay buffer中。
-  - 优先经验回放（Prioritized Experience Replay，PER](https://arxiv.org/abs/1511.05952）：使用一个非均匀概率 $\pi$ 从replay buffer中采样。
+  - 优先经验回放（Prioritized Experience Replay，PER）：使用一个非均匀概率 $\pi$ 从replay buffer中采样。
   
   
   
