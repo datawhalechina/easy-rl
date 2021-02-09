@@ -27,6 +27,7 @@
 | [第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) | [第十章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10_questions&keywords) |                                                              |
 | [第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords) |                                                              |
 | [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
+| [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/leedeeprl-notes/#/chapter13/chapter13) |||
 ## 贡献者
 <table border="0">
   <tbody>
@@ -34,12 +35,12 @@
       <td>
          <a href="https://github.com/qiwang067"><img width="70" height="70" src="https://github.com/qiwang067.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/qiwang067">Qi Wang</a> 
-        <p>教程设计<br> 中国科学院大学</p>
+        <p>教程设计(第1~12章)<br> 中国科学院大学</p>
       </td>
       <td>
          <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/yyysjz1997">David Young</a> 
-        <p>习题设计 <br> 清华大学</p>
+        <p>习题设计&第13章 <br> 清华大学</p>
       </td>
       <td>
          <a href="https://github.com/JohnJim0816"><img width="70" height="70" src="https://github.com/JohnJim0816.png?s=40" alt="pic"></a><br>
@@ -49,6 +50,7 @@
     </tr>
   </tbody>
 </table>
+
 
 ## 致谢
 特别感谢 [@Sm1les](https://github.com/Sm1les)、[@LSGOMYP](https://github.com/LSGOMYP) 对本项目的帮助与支持。
