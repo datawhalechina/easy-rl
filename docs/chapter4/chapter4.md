@@ -120,19 +120,14 @@ $$
 \end{aligned}
 $$
 
-实际上这个期望值没有办法算，所以你是用采样的方式来采样一大堆的 $\tau$。你采样 $N$ 笔  $\tau$， 然后你去计算每一笔的这些值，然后把它全部加起来，就可以得到你的梯度。你就可以去更新你的参数，你就可以去更新你的 agent，如下式所示：
+实际上这个期望值没有办法算，所以你是用采样的方式来采样一大堆的 $\tau$。你采样 $N$ 笔  $\tau$， 然后你去计算每一笔的这些值，然后把它全部加起来，就可以得到梯度。你就可以去更新参数，你就可以去更新你的 agent，如下式所示：
 $$
 \begin{aligned}
 E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right] &\approx \frac{1}{N} \sum_{n=1}^{N} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(\tau^{n}\right) \\
 &=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 \end{aligned}
 $$
-下面给出 $\nabla \log p_{\theta}(\tau)$ 的具体计算过程。
-$$
-\nabla \log p_{\theta}(\tau) = \nabla \left(\log p(s_1)+\sum_{t=1}^{T}\log p_{\theta}(a_t|s_t)+ \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t) \right)
-$$
-
-注意 $p(s_1)$ 和 $p(s_{t+1}|s_t,a_t)$ 来自于环境，$p_\theta(a_t|s_t)$ 是来自于 agent。$p(s_1)$ 和 $p(s_{t+1}|s_t,a_t)$ 由环境决定，所以与 $\theta$ 无关，因此 $\nabla \log p(s_1)=0$ ，$\nabla \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t)=0$，所以：
+下面给出 $\nabla \log p_{\theta}(\tau)$ 的具体计算过程，如下式所示。
 $$
 \begin{aligned}
 \nabla \log p_{\theta}(\tau) &= \nabla \left(\log p(s_1)+\sum_{t=1}^{T}\log p_{\theta}(a_t|s_t)+ \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t) \right) \\
@@ -141,12 +136,24 @@ $$
 &=\sum_{t=1}^{T} \nabla\log p_{\theta}(a_t|s_t)
 \end{aligned}
 $$
-你可以非常直观的来理解这个部分，也就是在你采样到的数据里面， 你采样到在某一个状态 $s_t$ 要执行某一个动作 $a_t$， 这个 $s_t$ 跟 $a_t$ 它是在整个轨迹 $\tau$ 的里面的某一个状态和动作的对。
+
+注意， $p(s_1)$ 和 $p(s_{t+1}|s_t,a_t)$ 来自于环境，$p_\theta(a_t|s_t)$ 是来自于 agent。$p(s_1)$ 和 $p(s_{t+1}|s_t,a_t)$ 由环境决定，所以与 $\theta$ 无关，因此 $\nabla \log p(s_1)=0$ ，$\nabla \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t)=0$。
+
+
+$$
+\begin{aligned}
+\nabla \bar{R}_{\theta}&=\sum_{\tau} R(\tau) \nabla p_{\theta}(\tau)\\&=\sum_{\tau} R(\tau) p_{\theta}(\tau) \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)} \\&=
+\sum_{\tau} R(\tau) p_{\theta}(\tau) \nabla \log p_{\theta}(\tau) \\
+&=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]\\
+&\approx \frac{1}{N} \sum_{n=1}^{N} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(\tau^{n}\right) \\
+&=\frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
+\end{aligned}
+$$
+
+我们可以直观地来理解上面这个式子，也就是在你采样到的数据里面， 你采样到在某一个状态 $s_t$ 要执行某一个动作 $a_t$， 这个 $s_t$ 跟 $a_t$ 它是在整个轨迹 $\tau$ 的里面的某一个状态和动作的对。
 
 *  假设你在 $s_t$ 执行 $a_t$，最后发现 $\tau$ 的奖励是正的， 那你就要增加这一项的概率，你就要增加在 $s_t$ 执行 $a_t$ 的概率。
 *  反之，在 $s_t$ 执行 $a_t$ 会导致 $\tau$ 的奖励变成负的， 你就要减少这一项的概率。
-
-
 
 ![](img/4.8.png)
 这个怎么实现呢？ 你用梯度上升来更新你的参数，你原来有一个参数 $\theta$ ，把你的 $\theta$  加上你的梯度这一项，那当然前面要有个学习率，学习率也是要调整的，你可用 Adam、RMSProp 等方法对其进行调整。
