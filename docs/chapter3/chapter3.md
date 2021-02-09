@@ -228,25 +228,42 @@ MC 是通过 empirical mean return （实际得到的收益）来更新它，对
 ![](img/3.13.png ':size=500')
 
 * 我们先初始化一下，然后开始时序差分的更新过程。
-* 在训练的过程中，你会看到这个小黄球在不断地试错，在探索当中会先迅速地发现有 reward 的地方。最开始的时候，只是这些有 reward 的格子才有价值。当不断地重复走这些路线的时候，这些有价值的格子可以去慢慢地影响它附近的格子的价值。
-* 反复训练之后，这些有 reward 的格子周围的格子的状态就会慢慢地被强化。强化就是当它收敛到最后一个最优的状态了，这些价值最终收敛到一个最优的情况之后，那个小黄球就会自动地知道，就是我一直往价值高的地方走，就能够走到能够拿到 reward 的地方。
+* 在训练的过程中，你会看到这个小黄球在不断地试错，在探索当中会先迅速地发现有奖励的地方。最开始的时候，只是这些有奖励的格子才有价值。当不断地重复走这些路线的时候，这些有价值的格子可以去慢慢地影响它附近的格子的价值。
+* 反复训练之后，这些有奖励的格子周围的格子的状态就会慢慢地被强化。强化就是当它收敛到最后一个最优的状态了，这些价值最终收敛到一个最优的情况之后，那个小黄球就会自动地知道，就是我一直往价值高的地方走，就能够走到能够拿到奖励的地方。
 
-![](img/TD_1.png)
+**下面开始正式介绍 TD 方法。**
 
 * TD 是介于 MC 和 DP 之间的方法。
 
 * TD 是 model-free 的，不需要 MDP 的转移矩阵和奖励函数。
-* TD 可以从不完整的 episode 中学习，结合了 bootstrapping 的思想。
+* TD 可以从**不完整的** episode 中学习，结合了 bootstrapping 的思想。
 
 ![](img/TD_2.png)
 
 * 上图是 TD 算法的框架。
+
 * 目的：对于某个给定的策略，在线(online)地算出它的价值函数，即一步一步地(step-by-step)算。
-* 最简单的算法是 `TD(0)`，每往前走一步，就做一步 bootstrapping，用得到的 estimated return 来更新上一时刻的值 
-* Estimated return $R_{t+1}+\gamma v(S_{t+1})$ 被称为 `TD target`，TD target 是带衰减的未来收益的总和。TD target 由两部分组成：
+
+* 最简单的算法是 `TD(0)`，每往前走一步，就做一步 bootstrapping，用得到的估计回报(estimated return)来更新上一时刻的值。 
+
+* 估计回报 $R_{t+1}+\gamma v(S_{t+1})$ 被称为 `TD target`，TD target 是带衰减的未来收益的总和。TD target 由两部分组成：
   * 走了某一步后得到的实际奖励：$R_{t+1}$， 
-  * 我们利用了 bootstrapping 的方法，通过之前的估计来估计 $v(S_{t+1})$  ，然后加了一个折扣系数，即 $\gamma v(S_{t+1})$。
+  * 我们利用了 bootstrapping 的方法，通过之前的估计来估计 $v(S_{t+1})$  ，然后加了一个折扣系数，即 $\gamma v(S_{t+1})$，具体过程如下式所示：
+  
+  $$
+  \begin{aligned}
+  v(s)&=\mathbb{E}\left[G_{t} \mid s_{t}=s\right] \\ 
+  &=\mathbb{E}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\ldots \mid s_{t}=s\right]  \\
+  &=\mathbb{E}\left[R_{t+1}|s_t=s\right] +\gamma \mathbb{E}\left[R_{t+2}+\gamma R_{t+3}+\gamma^{2} R_{t+4}+\ldots \mid s_{t}=s\right]\\
+  &=R(s)+\gamma \mathbb{E}[G_{t+1}|s_t=s] \\
+  &=R(s)+\gamma \mathbb{E}[v(s_{t+1})|s_t=s]\\
+  \end{aligned}
+  $$
+  
+* TD目标是估计有两个原因：它在（6.4）中对期望值进行采样，并且使用当前估计V 而不是真实 $v_{\pi}$。
+
 * `TD error` $\delta=R_{t+1}+\gamma v(S_{t+1})-v(S_t)$。
+
 * 可以类比于 Incremental Monte-Carlo 的方法，写出如下的更新方法：
 
 $$
@@ -262,30 +279,21 @@ $$
 ![](img/TD_3.png)
 
 * TD 只执行了一步，状态的值就更新。
-
 * MC 全部走完了之后，到了终止状态之后，再更新它的值。
 
-![](img/TD_4.png)
+接下来，进一步比较下 TD 和 MC。
 
 * TD 可以在线学习(online learning)，每走一步就可以更新，效率高。
 * MC 必须等游戏结束才可以学习。
 
-
-
 * TD 可以从不完整序列上进行学习。
 * MC 只能从完整的序列上进行学习。
-
-
 
 * TD 可以在连续的环境下（没有终止）进行学习。
 * MC 只能在有终止的情况下学习。
 
-
-
 * TD 利用了马尔可夫性质，在马尔可夫环境下有更高的学习效率。
-* MC 没有假设环境具有马尔可夫性质，利用采样的价值来估计某一个状态的价值，在不是马尔可夫的环境下更加有效
-
-
+* MC 没有假设环境具有马尔可夫性质，利用采样的价值来估计某一个状态的价值，在不是马尔可夫的环境下更加有效。
 
 **举个例子来解释 TD 和 MC 的区别，**
 
@@ -323,8 +331,6 @@ v\left(S_{t}\right) \leftarrow v\left(S_{t}\right)+\alpha\left(G_{t}^{n}-v\left(
 $$
 
 ### Bootstrapping and Sampling for DP,MC and TD
-
-![](img/comparison_1.png)
 
 * Bootstrapping：更新时使用了估计：
   * MC 没用 bootstrapping，因为它是根据实际的 return 来更新。
