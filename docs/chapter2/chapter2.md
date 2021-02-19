@@ -207,13 +207,39 @@ $$
 
 >Bellman Equation 就是当前状态与未来状态的迭代关系，表示当前状态的值函数可以通过下个状态的值函数来计算。Bellman Equation 因其提出者、动态规划创始人 Richard Bellman 而得名 ，也叫作“动态规划方程”。
 
+**Bellman Equation 定义了状态之间的迭代关系，如下式所示。**
+$$
+V(s)=R(s)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s\right) V\left(s^{\prime}\right)
+$$
 ![](img/2.13.png)
 
-**Bellman Equation 定义了状态之间的迭代关系。**假设有一个马尔可夫转移矩阵是右边这个样子。Bellman Equation 描述的就是当前状态到未来状态的一个转移。假设我们当前是在 $s_1$， 那么它只可能去到三个未来的状态：有 0.1 的概率留在它当前这个位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 的状态，所以我们要把这个转移乘以它未来的状态的价值，再加上它的 immediate reward 就会得到它当前状态的价值。**所以 Bellman Equation 定义的就是当前状态跟未来状态的一个迭代的关系。**
+假设有一个马尔可夫转移矩阵是右边这个样子，Bellman Equation 描述的就是当前状态到未来状态的一个转移。假设我们当前是在 $s_1$， 那么它只可能去到三个未来的状态：有 0.1 的概率留在它当前这个位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 的状态，所以我们要把这个转移乘以它未来的状态的价值，再加上它的 immediate reward 就会得到它当前状态的价值。**所以 Bellman Equation 定义的就是当前状态跟未来状态的一个迭代的关系。**
 
-![](img/2.14.png)
-
-我们可以把 Bellman Equation 写成一种矩阵的形式。首先有这个转移矩阵。我们当前这个状态是一个向量  $[V(s_1),V(s_2),\cdots,V(s_N)]^T$。我们可以写成迭代的形式。我们每一行来看的话，$V$ 这个向量乘以了转移矩阵里面的某一行，再加上它当前可以得到的 reward，就会得到它当前的价值。
+我们可以把 Bellman Equation 写成一种矩阵的形式，如下式所示。
+$$
+\left[\begin{array}{c}
+V\left(s_{1}\right) \\
+V\left(s_{2}\right) \\
+\vdots \\
+V\left(s_{N}\right)
+\end{array}\right]=\left[\begin{array}{c}
+R\left(s_{1}\right) \\
+R\left(s_{2}\right) \\
+\vdots \\
+R\left(s_{N}\right)
+\end{array}\right]+\gamma\left[\begin{array}{cccc}
+P\left(s_{1} \mid s_{1}\right) & P\left(s_{2} \mid s_{1}\right) & \ldots & P\left(s_{N} \mid s_{1}\right) \\
+P\left(s_{1} \mid s_{2}\right) & P\left(s_{2} \mid s_{2}\right) & \ldots & P\left(s_{N} \mid s_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots \\
+P\left(s_{1} \mid s_{N}\right) & P\left(s_{2} \mid s_{N}\right) & \ldots & P\left(s_{N} \mid s_{N}\right)
+\end{array}\right]\left[\begin{array}{c}
+V\left(s_{1}\right) \\
+V\left(s_{2}\right) \\
+\vdots \\
+V\left(s_{N}\right)
+\end{array}\right]
+$$
+首先有这个转移矩阵。我们当前这个状态是一个向量  $[V(s_1),V(s_2),\cdots,V(s_N)]^T$。我们可以写成迭代的形式。我们每一行来看的话，$V$ 这个向量乘以了转移矩阵里面的某一行，再加上它当前可以得到的 reward，就会得到它当前的价值。
 
 当我们把 Bellman Equation 写成矩阵形式后，可以直接求解：
 $$
@@ -298,8 +324,6 @@ $$
 
 ### Value function for MDP
 
-![](img/2.22.png)
-
 顺着 MDP 的定义，我们可以把 `状态-价值函数(state-value function)`，就是在 MDP 里面的价值函数也进行一个定义，它的定义是跟 MRP 是类似的，如式 (3)  所示：
 $$
 v^{\pi}(s)=\mathbb{E}_{\pi}\left[G_{t} \mid s_{t}=s\right] \tag{3}
@@ -333,8 +357,6 @@ $$
 
 ### Bellman Expectation Equation
 
-![](img/2.23.png)
-
 **我们可以把状态-价值函数和 Q 函数拆解成两个部分：即时奖励(immediate reward) 和后续状态的折扣价值(discounted value of successor state)。**
 
 通过对状态-价值函数进行一个分解，我们就可以得到一个类似于之前 MRP 的 Bellman Equation，这里叫 `Bellman Expectation Equation`，如式 (6) 所示：
@@ -347,9 +369,7 @@ q^{\pi}(s, a)=E_{\pi}\left[R_{t+1}+\gamma q^{\pi}\left(s_{t+1}, A_{t+1}\right) \
 $$
 **Bellman expectation equation 定义了你当前状态跟未来状态之间的一个关联。**
 
-![](img/2.24.png)
-
-**那我们进一步进行一个简单的分解。**
+我们进一步进行一个简单的分解。
 
 我们先给出等式 (8)：
 $$
