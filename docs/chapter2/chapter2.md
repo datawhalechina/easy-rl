@@ -292,8 +292,6 @@ $$
 
 ### Policy in MDP
 
-![](img/2.19.png)
-
 * Policy 定义了在某一个状态应该采取什么样的动作。
 
 * 知道当前状态过后，我们可以把当前状态带入 policy function，然后就会得到一个概率，即 
@@ -414,7 +412,7 @@ $$
 * 第一层加和就是这个叶子节点，往上走一层的话，我们就可以把未来的价值($s'$ 的价值) backup 到黑色的节点。
 * 第二层加和是对 action 进行加和。得到黑色节点的价值过后，再往上 backup 一层，就会推到根节点的价值，即当前状态的价值。
 
-![](img/state_value_function_backup.png ':size=550')
+![](img/state_value_function_backup.png ':size=650')
 
 上图是状态-价值函数的计算分解图，上图 B 计算公式为
 $$
@@ -442,7 +440,7 @@ $$
 * 第一层加和是先把这个叶子节点从黑色节点推到这个白色的节点，进了它的这个状态。
 * 当我们到达某一个状态过后，再对这个白色节点进行一个加和，这样就把它重新推回到当前时刻的一个 Q 函数。
 
-![](img/q_function_backup.png ':size=550')
+![](img/q_function_backup.png ':size=650')
 
 在上图 C 中，
 $$
@@ -863,7 +861,7 @@ $$
 * Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。Policy Iteration 分两步，首先对当前已经搜索到的策略函数进行一个估值。得到估值过后，把 Q 函数算出来，我们进一步进行改进。
 *  Value iteration 直接把 Bellman Optimality Equation 拿进来，然后去寻找最佳的 value function，没有 policy function 在这里面。当算出 optimal value function 过后，我们再来提取最佳策略。
 
-### Summary for Prediction and Contro in MDP
+### Summary for Prediction and Control in MDP
 
 ![](img/2.65.png)
 
