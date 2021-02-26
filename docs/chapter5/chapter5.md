@@ -17,7 +17,7 @@ $$
 \nabla \bar{R}_{\theta}=E_{\tau \sim p_{\theta}(\tau)}\left[R(\tau) \nabla \log p_{\theta}(\tau)\right]
 $$
 
-问题是上面这个更新的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\theta$ 所采样出来的轨迹 $\tau$ 做期望(expectation)。一旦更新了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前采样出来的数据就变的不能用了。所以 policy gradient 是一个会花很多时间来采样数据的算法，你会发现大多数时间都在采样数据，agent 去跟环境做互动以后，接下来就要更新参数。你只能更新参数一次。接下来你就要重新再去收集数据， 然后才能再次更新参数。
+问题是上面这个更新的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\pi_{\theta}$ 所采样出来的轨迹 $\tau$ 做期望(expectation)。一旦更新了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前采样出来的数据就变的不能用了。所以 policy gradient 是一个会花很多时间来采样数据的算法，大多数时间都在采样数据，agent 去跟环境做互动以后，接下来就要更新参数。你只能更新参数一次。接下来你就要重新再去收集数据， 然后才能再次更新参数。
 
 这显然是非常花时间的，所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个 policy， 另外一个 actor $\theta'$  去跟环境做互动。用 $\theta'$ 收集到的数据去训练 $\theta$。假设我们可以用 $\theta'$ 收集到的数据去训练 $\theta$，意味着说我们可以把 $\theta'$ 收集到的数据用非常多次，我们可以执行梯度上升(gradient ascent)好几次，我们可以更新参数好几次， 都只要用同一笔数据就好了。因为假设 $\theta$ 有能力学习另外一个 actor $\theta'$ 所采样出来的数据的话， 那 $\theta'$  就只要采样一次，也许采样多一点的数据， 让 $\theta$ 去更新很多次，这样就会比较有效率。
 
