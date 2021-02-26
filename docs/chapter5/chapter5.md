@@ -8,9 +8,7 @@
 
 比较拟人化的讲法是如果要学习的那个 agent，一边跟环境互动，一边做学习这个叫 on-policy。 如果它在旁边看别人玩，通过看别人玩来学习的话，这个叫做 off-policy。
 
-为什么我们会想要考虑 off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做 policy gradient 时，我们需要有一个 agent、一个 policy 和一个 actor。这个 actor 先去跟环境互动去搜集资料，搜集很多的 $\tau$，根据它搜集到的资料，会按照 policy gradient 的式子去更新 policy 的参数。所以 policy gradient 是一个 on-policy 的算法。
-
-![](img/5.1.png)
+为什么我们会想要考虑 off-policy ？让我们来想想 policy gradient。Policy gradient 是 on-policy 的做法，因为在做 policy gradient 时，我们需要有一个 agent、一个 policy 和一个 actor。这个 actor 先去跟环境互动去搜集资料，搜集很多的 $\tau$，根据它搜集到的资料按照 policy gradient 的式子去更新 policy 的参数。所以 policy gradient 是一个 on-policy 的算法。
 
 `近端策略优化(Proximal Policy Optimization，简称 PPO)` 是 policy gradient 的一个变形，它是现在 OpenAI 默认的强化学习算法。
 $$
@@ -19,11 +17,9 @@ $$
 
 问题是上面这个更新的式子中的 $E_{\tau \sim p_{\theta}(\tau)}$  应该是你现在的 policy $\pi_{\theta}$ 所采样出来的轨迹 $\tau$ 做期望(expectation)。一旦更新了参数，从 $\theta$ 变成 $\theta'$ ，$p_\theta(\tau)$这个概率就不对了，之前采样出来的数据就变的不能用了。所以 policy gradient 是一个会花很多时间来采样数据的算法，大多数时间都在采样数据，agent 去跟环境做互动以后，接下来就要更新参数。你只能更新参数一次。接下来你就要重新再去收集数据， 然后才能再次更新参数。
 
-这显然是非常花时间的，所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个 policy， 另外一个 actor $\theta'$  去跟环境做互动。用 $\theta'$ 收集到的数据去训练 $\theta$。假设我们可以用 $\theta'$ 收集到的数据去训练 $\theta$，意味着说我们可以把 $\theta'$ 收集到的数据用非常多次，我们可以执行梯度上升(gradient ascent)好几次，我们可以更新参数好几次， 都只要用同一笔数据就好了。因为假设 $\theta$ 有能力学习另外一个 actor $\theta'$ 所采样出来的数据的话， 那 $\theta'$  就只要采样一次，也许采样多一点的数据， 让 $\theta$ 去更新很多次，这样就会比较有效率。
+这显然是非常花时间的，所以我们想要从 on-policy 变成 off-policy。 这样做就可以用另外一个 policy， 另外一个 actor $\theta'$  去跟环境做互动($\theta'$ 被固定了)。用 $\theta'$ 收集到的数据去训练 $\theta$。假设我们可以用 $\theta'$ 收集到的数据去训练 $\theta$，意味着说我们可以把 $\theta'$ 收集到的数据用非常多次，我们可以执行梯度上升(gradient ascent)好几次，我们可以更新参数好几次， 都只要用同一笔数据就好了。因为假设 $\theta$ 有能力学习另外一个 actor $\theta'$ 所采样出来的数据的话， 那 $\theta'$  就只要采样一次，也许采样多一点的数据， 让 $\theta$ 去更新很多次，这样就会比较有效率。
 
 ### Importance Sampling
-
-![](img/5.2.png)
 
 具体怎么做呢？这边就需要介绍 `importance sampling(重要性采样)` 的概念。
 
@@ -43,15 +39,13 @@ $$
 
 这边是从 q 做采样，所以从 q 里采样出来的每一笔数据，你需要乘上一个`重要性权重(importance weight)` $\frac{p(x)}{q(x)}$ 来修正这两个分布的差异。$q(x)$ 可以是任何分布，唯一的限制就是 $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率不为 0，不然这样会没有定义。假设  $q(x)$ 的概率是 0 的时候，$p(x)$ 的概率也都是 0 的话，那这样 $p(x)$ 除以 $q(x)$是有定义的。所以这个时候你就可以使用重要性采样这个技巧。你就可以从 p 做采样换成从 q 做采样。
 
-![](img/5.3.png)
-
 **重要性采样有一些问题。**虽然理论上你可以把 p 换成任何的 q。但是在实现上， p 和 q 不能差太多。差太多的话，会有一些问题。什么样的问题呢？
 $$
 E_{x \sim p}[f(x)]=E_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]
 $$
-虽然上式成立（上式左边是 $f(x)$ 的期望值，它的分布是 p，上式右边是 $f(x) \frac{p(x)}{q(x)}$ 的期望值，它的分布是 q），但如果不是算期望值，而是算方差的话，这两个方差是不一样的。两个随机变量的平均值一样，并不代表它的方差一样。
+虽然上式成立（上式左边是 $f(x)$ 的期望值，它的分布是 p，上式右边是 $f(x) \frac{p(x)}{q(x)}$ 的期望值，它的分布是 q），但如果不是算期望值，而是算方差的话，$\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(x) \frac{p(x)}{q(x)}\right]$ 是不一样的。两个随机变量的平均值一样，并不代表它的方差一样。
 
-我们可以代一下方差的公式：
+我们可以代一下方差的公式 $\operatorname{Var}[X]=E\left[X^{2}\right]-(E[X])^{2}$，然后得到下式：
 $$
 \operatorname{Var}_{x \sim p}[f(x)]=E_{x \sim p}\left[f(x)^{2}\right]-\left(E_{x \sim p}[f(x)]\right)^{2}
 $$
@@ -75,11 +69,11 @@ $\operatorname{Var}_{x \sim p}[f(x)]$ 和 $\operatorname{Var}_{x \sim q}\left[f(
 
 ![](img/5.5.png)
 
-现在要做的事情就是把重要性采样用在 off-policy 的情况。把 on-policy 训练的算法改成 off-policy 训练的算法。
+现在要做的事情就是把重要性采样用在 off-policy 的情况，把 on-policy 训练的算法改成 off-policy 训练的算法。
 
 怎么改呢，之前我们是拿 $\theta$ 这个 policy 去跟环境做互动，采样出轨迹 $\tau$，然后计算 $R(\tau) \nabla \log p_{\theta}(\tau)$。现在我们不用 $\theta$ 去跟环境做互动，假设有另外一个 policy  $\theta'$，它就是另外一个 actor。它的工作是去做示范(demonstration)。$\theta'$ 的工作是要去示范给$\theta$ 看。它去跟环境做互动，告诉 $\theta$ 说，它跟环境做互动会发生什么事，借此来训练 $\theta$。我们要训练的是 $\theta$ ，$\theta'$  只是负责做示范，负责跟环境做互动。
 
-我们现在的 $\tau$ 是从 $\theta'$ 采样出来的，是拿 $\theta'$ 去跟环境做互动。所以采样出来的 $\tau$ 是从 $\theta'$ 采样出来的，这两个分布不一样。但没有关系，假设你本来是从 p 做采样，但你发现你不能从 p 做采样，所以我们不拿 $\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面补上一个重要性权重。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个重要性权重 $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个重要性权重就是某一个轨迹 $\tau$ 用 $\theta$ 算出来的概率除以这个轨迹 $\tau$，用 $\theta'$ 算出来的概率。这一项是很重要的，因为今天你要学习的是 actor $\theta$ 和 $\theta'$ 是不太一样的。$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
+我们现在的 $\tau$ 是从 $\theta'$ 采样出来的，是拿 $\theta'$ 去跟环境做互动。所以采样出来的 $\tau$ 是从 $\theta'$ 采样出来的，这两个分布不一样。但没有关系，假设你本来是从 p 做采样，但你发现你不能从 p 做采样，所以我们不拿 $\theta$ 去跟环境做互动。你可以把 p 换 q，然后在后面补上一个重要性权重。现在的状况就是一样，把 $\theta$ 换成 $\theta'$ 后，要补上一个重要性权重 $\frac{p_{\theta}(\tau)}{p_{\theta^{\prime}}(\tau)}$。这个重要性权重就是某一个轨迹 $\tau$ 用 $\theta$ 算出来的概率除以这个轨迹 $\tau$ 用 $\theta'$ 算出来的概率。这一项是很重要的，因为你要学习的是 actor $\theta$ 和 $\theta'$ 是不太一样的，$\theta'$ 会见到的情形跟 $\theta$ 见到的情形不见得是一样的，所以中间要做一个修正的项。
 
 Q: 现在的数据是从 $\theta'$ 采样出来的，从 $\theta$ 换成 $\theta'$ 有什么好处呢？
 
@@ -92,7 +86,9 @@ $$
 =E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta}}\left[A^{\theta}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
 $$
 
-我们用 $\theta$ 这个 actor 去采样出 $s_t$ 跟 $a_t$，采样出状态跟动作的对，我们会计算这个状态跟动作对的 advantage， 就是它有多好。$A^{\theta}\left(s_{t}, a_{t}\right)$ 就是累积奖励减掉 bias，这一项就是估测出来的。它要估测的是，在状态 $s_t$ 采取动作 $a_t$ 是好的，还是不好的。那接下来后面会乘上 $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果 $A^{\theta}\left(s_{t}, a_{t}\right)$ 是正的，就要增加概率， 如果是负的，就要减少概率。
+我们用 $\theta$ 这个 actor 去采样出 $s_t$ 跟 $a_t$，采样出状态跟动作的对，我们会计算这个状态跟动作对的 advantage $A^{\theta}\left(s_{t}, a_{t}\right)$， 就是它有多好。
+
+$A^{\theta}\left(s_{t}, a_{t}\right)$ 就是累积奖励减掉 bias，这一项就是估测出来的。它要估测的是，在状态 $s_t$ 采取动作 $a_t$ 是好的还是不好的。接下来后面会乘上 $\nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)$，也就是说如果 $A^{\theta}\left(s_{t}, a_{t}\right)$ 是正的，就要增加概率， 如果是负的，就要减少概率。
 
 我们通过重要性采样把 on-policy 变成 off-policy，从 $\theta$ 变成 $\theta'$。所以现在 $s_t$、$a_t$ 是 $\theta'$ 跟环境互动以后所采样到的数据。 但是拿来训练要调整参数是模型 $\theta$。因为 $\theta'$  跟 $\theta$ 是不同的模型，所以你要做一个修正的项。这项修正的项，就是用重要性采样的技术，把 $s_t$、$a_t$ 用 $\theta$ 采样出来的概率除掉 $s_t$、$a_t$  用 $\theta'$  采样出来的概率。
 
@@ -133,7 +129,7 @@ J^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prim
 $$
 
 
-式(1)是梯度，其实我们可以从梯度去反推原来的目标函数。我们可以用如下的公式来反推目标函数：
+式(1)是梯度，其实我们可以从梯度去反推原来的目标函数，我们可以用如下的公式来反推目标函数：
 
 $$
 \nabla f(x)=f(x) \nabla \log f(x)
@@ -167,7 +163,7 @@ $$
 
 它与 PPO 不一样的地方是约束摆的位置不一样，PPO 是直接把约束放到你要优化的那个式子里面，然后你就可以用梯度上升的方法去最大化这个式子。但 TRPO 是把 KL 散度当作约束，它希望 $\theta$ 跟 $\theta'$ 的 KL 散度小于一个 $\delta$。如果你使用的是基于梯度的优化时，有约束是很难处理的。
 
-TRPO 是很难处理的，因为它是把 KL 散度约束当做一个额外的约束，没有放目标(objective)里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用 PPO 不要用 TRPO。看文献上的结果是，PPO 跟 TRPO 可能性能差不多，但 PPO 在实现上比 TRPO 容易的多。
+TRPO 是很难处理的，因为它把 KL 散度约束当做一个额外的约束，没有放目标(objective)里面，所以它很难算。所以不想搬石头砸自己的脚的话， 你就用 PPO 不要用 TRPO。看文献上的结果是，PPO 跟 TRPO 可能性能差不多，但 PPO 在实现上比 TRPO 容易的多。
 
 Q: KL 散度到底指的是什么？
 
@@ -195,7 +191,7 @@ A: 在做强化学习的时候，之所以我们考虑的不是参数上的距�
 
 在 PPO 的论文里面还有一个 `adaptive KL divergence`。这边会遇到一个问题就是 $\beta$  要设多少，它就跟正则化一样。正则化前面也要乘一个权重，所以这个 KL 散度前面也要乘一个权重，但 $\beta$  要设多少呢？所以有个动态调整 $\beta$ 的方法。
 
-* 在这个方法里面呢，你先设一个你可以接受的 KL 散度的最大值。假设优化完这个式子以后，你发现 KL 散度的项太大，那就代表说后面这个惩罚的项没有发挥作用，那就把 $\beta$ 调大。
+* 在这个方法里面，你先设一个你可以接受的 KL 散度的最大值。假设优化完这个式子以后，你发现 KL 散度的项太大，那就代表说后面这个惩罚的项没有发挥作用，那就把 $\beta$ 调大。
 * 另外，你设一个 KL 散度的最小值。如果优化完上面这个式子以后，你发现 KL 散度比最小值还要小，那代表后面这一项的效果太强了，你怕他只弄后面这一项，那 $\theta$ 跟 $\theta^k$ 都一样，这不是你要的，所以你要减少 $\beta$。
 
 所以 $\beta$ 是可以动态调整的。这个叫做 `adaptive KL penalty`。
@@ -250,6 +246,7 @@ $$
 如果 A 小于 0 的话，取最小的以后，就得到红色的这一条线。
 
 ![](img/5.14.png ':size=500')
+
 虽然这个式子看起来有点复杂，实现起来是蛮简单的，**因为这个式子想要做的事情就是希望 $p_{\theta}(a_{t} | s_{t})$ 跟 $p_{\theta^k}(a_{t} | s_{t})$，也就是你拿来做示范的模型跟你实际上学习的模型，在优化以后不要差距太大。**
 
 **怎么让它做到不要差距太大呢？**
