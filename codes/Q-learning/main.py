@@ -136,11 +136,6 @@ def eval(cfg, saved_model_path = SAVED_MODEL_PATH):
     plot(rewards)
     plot(MA_rewards,ylabel='moving_average_rewards_train')
       
-def main():
-    cfg = get_args()
-    # train(cfg)
-    test(cfg)
-
 if __name__ == "__main__":
     cfg = get_args()
     if cfg.train:
