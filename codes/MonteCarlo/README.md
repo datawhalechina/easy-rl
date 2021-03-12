@@ -2,7 +2,7 @@
 
 ## 环境说明
 
-
+见[环境说明](https://github.com/datawhalechina/leedeeprl-notes/blob/master/codes/env_info.md)中的The Racetrack
 
 ## First-Visit MC 介绍
 
