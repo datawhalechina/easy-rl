@@ -28,6 +28,22 @@
 | [第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords) |                                                              |
 | [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/leedeeprl-notes/#/chapter13/chapter13) |||
+
+## 算法代码实现一览
+
+|         算法名称         |                        相关论文材料                         |                备注                | 进度 |
+| :----------------------: | :---------------------------------------------------------: | :--------------------------------: | :--: |
+| On-Policy First-Visit MC |                                                             |            蒙特卡洛算法            |  OK  |
+|        Q-Learning        |                                                             |                                    |  OK  |
+|          SARSA           |                                                             |                                    |  OK  |
+|           DQN            | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |                                    |  OK  |
+|         DQN-cnn          | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | 与DQN相比使用了CNN而不是全链接网络 |  OK  |
+|        DoubleDQN         |                                                             |                                    |  OK  |
+|     Hierarchical DQN     |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                    |      |
+|      PolicyGradient      |                                                             |                                    |  OK  |
+|           A2C            |                                                             |                                    |  OK  |
+|           DDPG           |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        |                                    |  OK  |
+|           TD3            | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                    |      |
 ## 贡献者
 <table border="0">
   <tbody>
