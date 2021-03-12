@@ -5,11 +5,10 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-03-11 19:16:27
+LastEditTime: 2021-03-12 16:48:25
 Discription: 
 Environment: 
 '''
-from functools import update_wrapper
 import numpy as np
 import math
 import torch
@@ -53,11 +52,11 @@ class QLearning(object):
         import dill
         torch.save(
             obj=self.Q_table,
-            f=path,
+            f=path+"Qleaning_model.pkl",
             pickle_module=dill
         )
-
     def load(self, path):
         '''从文件中读取数据到 Q表格
         '''
-        self.Q_table =torch.load(f='prod_dls.pkl',pickle_module=dill)
+        import dill
+        self.Q_table =torch.load(f=path+'Qleaning_model.pkl',pickle_module=dill)
