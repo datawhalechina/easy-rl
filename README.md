@@ -33,19 +33,19 @@
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/leedeeprl-notes/#/chapter13/chapter13) |||
 ## 算法代码实现一览
 
-|         算法名称         |                        相关论文材料                         |                备注                | 进度 |
-| :----------------------: | :---------------------------------------------------------: | :--------------------------------: | :--: |
-| On-Policy First-Visit MC |                                                             |            蒙特卡洛算法            |  OK  |
-|        Q-Learning        |                                                             |                                    |  OK  |
-|          SARSA           |                                                             |                                    |  OK  |
-|           DQN            | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |                                    |  OK  |
-|         DQN-cnn          | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | 与DQN相比使用了CNN而不是全链接网络 |  OK  |
-|        DoubleDQN         |                                                             |                                    |  OK  |
-|     Hierarchical DQN     |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                    |      |
-|      PolicyGradient      |                                                             |                                    |  OK  |
-|           A2C            |                                                             |                                    |  OK  |
-|           DDPG           |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        |                                    |  OK  |
-|           TD3            | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                    |      |
+|                           算法名称                           |                        相关论文材料                         |                备注                | 进度 |
+| :----------------------------------------------------------: | :---------------------------------------------------------: | :--------------------------------: | :--: |
+| [On-Policy First-Visit MC](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/MonteCarlo) |                                                             |            蒙特卡洛算法            |  OK  |
+| [Q-Learning](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/QLearning) |                                                             |                                    |  OK  |
+| [Sarsa](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Sarsa) |                                                             |                                    |  OK  |
+| [DQN](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/DQN) | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |                                    |  OK  |
+|                           DQN-cnn                            | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | 与DQN相比使用了CNN而不是全链接网络 |  OK  |
+| [DoubleDQN](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/DoubleDQN) |                                                             |                                    |  OK  |
+|                       Hierarchical DQN                       |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                    |      |
+| [PolicyGradient](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/PolicyGradient) |                                                             |                                    |  OK  |
+| [A2C](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/A2C) |                                                             |                                    |  OK  |
+|                             DDPG                             |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        |                                    |  OK  |
+|                             TD3                              | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                    |      |
 
 ## 贡献者
 
