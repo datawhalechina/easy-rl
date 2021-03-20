@@ -9,11 +9,8 @@
 * 第 3 章和第 12 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
 
 
-## 笔记在线阅读地址(内容实时更新)
+## 在线阅读(内容实时更新)
 地址：https://datawhalechina.github.io/easy-rl/
-
-## 课程在线观看地址
-- bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
 
 ## 内容导航
 | 章节                                                         | 习题                                                         | 项目                                                         |
