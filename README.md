@@ -10,7 +10,7 @@
 
 
 ## 笔记在线阅读地址(内容实时更新)
-地址：https://datawhalechina.github.io/leedeeprl-notes/
+地址：https://datawhalechina.github.io/easy-rl/
 
 ## 课程在线观看地址
 - bilibili：[李宏毅《深度强化学习》](https://www.bilibili.com/video/BV1MW411w79n)
@@ -18,32 +18,32 @@
 ## 内容导航
 | 章节                                                         | 习题                                                         | 项目                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [第一章 强化学习概述](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1) | [第一章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter1/chapter1_questions&keywords) |                                                              |
-| [第二章 马尔可夫决策过程 (MDP)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2) | [第二章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter2/chapter2_questions&keywords) |                                                              |
-| [第三章 表格型方法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3) | [第三章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/chapter3_questions&keywords) | [项目一 使用 Q-learning 解决悬崖寻路问题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter3/project1) |
-| [第四章 策略梯度](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4) | [第四章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4_questions&keywords) |                                                              |
-| [第五章 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5) | [第五章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter5/chapter5_questions&keywords) |                                                              |
-| [第六章 DQN (基本概念)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6) | [第六章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter6/chapter6_questions&keywords) |                                                              |
-| [第七章 DQN (进阶技巧)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7) | [第七章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/chapter7_questions&keywords) | [项目二 使用 DQN 实现 CartPole-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter7/project2) |
-| [第八章 DQN (连续动作)](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8) | [第八章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter8/chapter8_questions&keywords) |                                                              |
-| [第九章 演员-评论家算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9) | [第九章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter9/chapter9_questions&keywords) |                                                              |
-| [第十章 稀疏奖励](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10) | [第十章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter10/chapter10_questions&keywords) |                                                              |
-| [第十一章 模仿学习](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter11/chapter11_questions&keywords) |                                                              |
-| [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/leedeeprl-notes/#/chapter12/project3) |
-| [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/leedeeprl-notes/#/chapter13/chapter13) |||
+| [第一章 强化学习概述](https://datawhalechina.github.io/easy-rl/#/chapter1/chapter1) | [第一章 习题](https://datawhalechina.github.io/easy-rl/#/chapter1/chapter1_questions&keywords) |                                                              |
+| [第二章 马尔可夫决策过程 (MDP)](https://datawhalechina.github.io/easy-rl/#/chapter2/chapter2) | [第二章 习题](https://datawhalechina.github.io/easy-rl/#/chapter2/chapter2_questions&keywords) |                                                              |
+| [第三章 表格型方法](https://datawhalechina.github.io/easy-rl/#/chapter3/chapter3) | [第三章 习题](https://datawhalechina.github.io/easy-rl/#/chapter3/chapter3_questions&keywords) | [项目一 使用 Q-learning 解决悬崖寻路问题](https://datawhalechina.github.io/easy-rl/#/chapter3/project1) |
+| [第四章 策略梯度](https://datawhalechina.github.io/easy-rl/#/chapter4/chapter4) | [第四章 习题](https://datawhalechina.github.io/easy-rl/#/chapter4/chapter4_questions&keywords) |                                                              |
+| [第五章 近端策略优化 (PPO) 算法](https://datawhalechina.github.io/easy-rl/#/chapter5/chapter5) | [第五章 习题](https://datawhalechina.github.io/easy-rl/#/chapter5/chapter5_questions&keywords) |                                                              |
+| [第六章 DQN (基本概念)](https://datawhalechina.github.io/easy-rl/#/chapter6/chapter6) | [第六章 习题](https://datawhalechina.github.io/easy-rl/#/chapter6/chapter6_questions&keywords) |                                                              |
+| [第七章 DQN (进阶技巧)](https://datawhalechina.github.io/easy-rl/#/chapter7/chapter7) | [第七章 习题](https://datawhalechina.github.io/easy-rl/#/chapter7/chapter7_questions&keywords) | [项目二 使用 DQN 实现 CartPole-v0](https://datawhalechina.github.io/easy-rl/#/chapter7/project2) |
+| [第八章 DQN (连续动作)](https://datawhalechina.github.io/easy-rl/#/chapter8/chapter8) | [第八章 习题](https://datawhalechina.github.io/easy-rl/#/chapter8/chapter8_questions&keywords) |                                                              |
+| [第九章 演员-评论家算法](https://datawhalechina.github.io/easy-rl/#/chapter9/chapter9) | [第九章 习题](https://datawhalechina.github.io/easy-rl/#/chapter9/chapter9_questions&keywords) |                                                              |
+| [第十章 稀疏奖励](https://datawhalechina.github.io/easy-rl/#/chapter10/chapter10) | [第十章 习题](https://datawhalechina.github.io/easy-rl/#/chapter10/chapter10_questions&keywords) |                                                              |
+| [第十一章 模仿学习](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11_questions&keywords) |                                                              |
+| [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/easy-rl/#/chapter12/project3) |
+| [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |||
 ## 算法代码实现一览
 
 |                           算法名称                           |                        相关论文材料                         |                备注                | 进度 |
 | :----------------------------------------------------------: | :---------------------------------------------------------: | :--------------------------------: | :--: |
-| [On-Policy First-Visit MC](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/MonteCarlo) |                                                             |            蒙特卡洛算法            |  OK  |
-| [Q-Learning](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/QLearning) |                                                             |                                    |  OK  |
-| [Sarsa](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Sarsa) |                                                             |                                    |  OK  |
-| [DQN](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/DQN) | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |                                    |  OK  |
+| [On-Policy First-Visit MC](https://github.com/datawhalechina/easy-rl/tree/master/codes/MonteCarlo) |                                                             |            蒙特卡洛算法            |  OK  |
+| [Q-Learning](https://github.com/datawhalechina/easy-rl/tree/master/codes/QLearning) |                                                             |                                    |  OK  |
+| [Sarsa](https://github.com/datawhalechina/easy-rl/tree/master/codes/Sarsa) |                                                             |                                    |  OK  |
+| [DQN](https://github.com/datawhalechina/easy-rl/tree/master/codes/DQN) | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |                                    |  OK  |
 |                           DQN-cnn                            | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | 与DQN相比使用了CNN而不是全链接网络 |  OK  |
-| [DoubleDQN](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/DoubleDQN) |                                                             |                                    |  OK  |
+| [DoubleDQN](https://github.com/datawhalechina/easy-rl/tree/master/codes/DoubleDQN) |                                                             |                                    |  OK  |
 |                       Hierarchical DQN                       |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                    |      |
-| [PolicyGradient](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/PolicyGradient) |                                                             |                                    |  OK  |
-| [A2C](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/A2C) |                                                             |                                    |  OK  |
+| [PolicyGradient](https://github.com/datawhalechina/easy-rl/tree/master/codes/PolicyGradient) |                                                             |                                    |  OK  |
+| [A2C](https://github.com/datawhalechina/easy-rl/tree/master/codes/A2C) |                                                             |                                    |  OK  |
 |                             DDPG                             |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        |                                    |  OK  |
 |                             TD3                              | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                    |      |
 
