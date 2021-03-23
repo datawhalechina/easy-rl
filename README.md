@@ -28,7 +28,7 @@
 | [第十一章 模仿学习](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11_questions&keywords) |                                                              |
 | [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12_questions&keywords) | [项目三 使用 Policy-Based 方法实现 Pendulum-v0](https://datawhalechina.github.io/easy-rl/#/chapter12/project3) |
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |||
-## 算法代码实现一览
+## 算法实战
 
 |                           算法名称                           |                        相关论文材料                         |                             备注                             |                             环境                             |
 | :----------------------------------------------------------: | :---------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -63,7 +63,7 @@
       <td>
          <a href="https://github.com/JohnJim0816"><img width="70" height="70" src="https://github.com/JohnJim0816.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/JohnJim0816">John Jim</a>
-         <p>项目设计<br> 北京大学</p>
+         <p>算法实战<br> 北京大学</p>
       </td>
     </tr>
   </tbody>
