@@ -41,9 +41,12 @@
 |                       Hierarchical DQN                       |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                                              |                                                              |
 | [PolicyGradient](https://github.com/datawhalechina/easy-rl/tree/master/codes/PolicyGradient) |                                                             |                                                              | [CartPole-v0](https://github.com/datawhalechina/easy-rl/blob/master/codes/envs/gym_info.md) |
 | [A2C](https://github.com/datawhalechina/easy-rl/tree/master/codes/A2C) |                                                             |                                                              | [CartPole-v0](https://github.com/datawhalechina/easy-rl/blob/master/codes/envs/gym_info.md) |
+|                             A3C                              |                                                             |                                                              |                                                              |
+|                             SAC                              |                                                             |                                                              |                                                              |
 | [PPO](https://github.com/datawhalechina/easy-rl/tree/master/codes/PPO) |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [PPO算法实战](https://blog.csdn.net/JohnJim0/article/details/115126363) | [CartPole-v0](https://github.com/datawhalechina/easy-rl/blob/master/codes/envs/gym_info.md) |
 |                             DDPG                             |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        |                                                              | [Pendulum-v0](https://github.com/datawhalechina/easy-rl/blob/master/codes/envs/gym_info.md) |
 |                             TD3                              | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                                              |                                                              |
+|                             GAIL                             |                                                             |                                                              |                                                              |
 
 ## 贡献者
 
