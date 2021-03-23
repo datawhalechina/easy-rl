@@ -30,7 +30,7 @@
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |||
 ## 算法代码实现一览
 
-|                           算法名称                           |                        相关论文材料                         |                             备注                             |                             进度                             |
+|                           算法名称                           |                        相关论文材料                         |                             备注                             |                             环境                             |
 | :----------------------------------------------------------: | :---------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | [On-Policy First-Visit MC](https://github.com/datawhalechina/easy-rl/tree/master/codes/MonteCarlo) |                                                             |                         蒙特卡洛算法                         | [Racetrack](https://github.com/datawhalechina/easy-rl/blob/master/codes/envs/racetrack_env.md) |
 | [Q-Learning](https://github.com/datawhalechina/easy-rl/tree/master/codes/QLearning) |                                                             |                                                              | [CliffWalking-v0](https://github.com/datawhalechina/easy-rl/blob/master/codes/envs/gym_info.md) |
