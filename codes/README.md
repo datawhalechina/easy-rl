@@ -1,5 +1,5 @@
 
-[Eng](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/README.md)|[中文](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/README_cn.md)
+[Eng](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/README_en.md)|[中文](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/README.md)
 
 ## 写在前面
 
@@ -18,27 +18,29 @@
 
 ## 运行环境
 
-python 3.7.9、pytorch 1.6.0、gym 0.18.0
+python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
 ## 使用说明
 
-本repo使用到的[环境说明](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/env_info.md)，在各算法目录下也有README说明
-
+对应算法文件夹下运行```main.py```即可
 ## 算法进度
 
-|                           算法名称                           |                        相关论文材料                         |                             备注                             | 进度 |
-| :----------------------------------------------------------: | :---------------------------------------------------------: | :----------------------------------------------------------: | :--: |
-|                   On-Policy First-Visit MC                   |                                                             |                                                              |  OK  |
-|                          Q-Learning                          |                                                             |                                                              |  OK  |
-|                            SARSA                             |                                                             |                                                              |  OK  |
-|                             DQN                              | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |                                                              |  OK  |
-|                           DQN-cnn                            | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) |              与DQN相比使用了CNN而不是全链接网络              |  OK  |
-|                          DoubleDQN                           |                                                             |                       效果不好，待改进                       |  OK  |
-|                       Hierarchical DQN                       |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                                              |      |
-|                        PolicyGradient                        |                                                             |                                                              |  OK  |
-|                             A2C                              |                                                             |                                                              |  OK  |
-| [PPO](https://github.com/JohnJim0816/rl-tutorials/tree/master/PPO) |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [PPO算法实战](https://blog.csdn.net/JohnJim0/article/details/115126363) |  OK  |
-|                             DDPG                             |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        |                                                              |  OK  |
-|                             TD3                              | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                                              |      |
+|                 算法名称                 |                        相关论文材料                         | 环境                                  |                备注                |
+| :--------------------------------------: | :---------------------------------------------------------: | ------------------------------------- | :--------------------------------: |
+| [On-Policy First-Visit MC](./MonteCarlo) |                                                             | [Racetrack](./envs/racetrack_env.md)  |                                    |
+|        [Q-Learning](./QLearning)         |                                                             | [CliffWalking-v0](./envs/gym_info.md) |                                    |
+|             [Sarsa](./Sarsa)             |                                                             | [Racetrack](./envs/racetrack_env.md)  |                                    |
+|               [DQN](./DQN)               | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|                 DQN-cnn                  | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
+|         [DoubleDQN](./DoubleDQN)         |                                                             | [CartPole-v0](./envs/gym_info.md)     |          效果不好，待改进          |
+|             Hierarchical DQN             |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                       |                                    |
+|    [PolicyGradient](./PolicyGradient)    |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|                   A2C                    |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|                   A3C                    |                                                             |                                       |                                    |
+|                   SAC                    |                                                             |                                       |                                    |
+|               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|                   DDPG                   |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |                                    |
+|                   TD3                    | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                       |                                    |
+|                   GAIL                   |                                                             |                                       |                                    |
 
 
 
