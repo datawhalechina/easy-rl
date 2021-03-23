@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2021-03-13 11:50:16
+LastEditTime: 2021-03-23 16:37:14
 Discription: 
 Environment: 
 '''
@@ -13,14 +13,13 @@ import torch
 from torch.distributions import Bernoulli
 from torch.autograd import Variable
 import numpy as np
-
-from common.model import MLP1
+from PolicyGradient.model import MLP
 
 class PolicyGradient:
     
     def __init__(self, n_states,cfg):
         self.gamma = cfg.gamma
-        self.policy_net = MLP1(n_states,hidden_dim=cfg.hidden_dim)
+        self.policy_net = MLP(n_states,hidden_dim=cfg.hidden_dim)
         self.optimizer = torch.optim.RMSprop(self.policy_net.parameters(), lr=cfg.lr)
         self.batch_size = cfg.batch_size
 
@@ -66,6 +65,6 @@ class PolicyGradient:
             loss.backward()
         self.optimizer.step()
     def save_model(self,path):
-        torch.save(self.policy_net.state_dict(), path+'pg_checkpoint.pth')
+        torch.save(self.policy_net.state_dict(), path+'pg_checkpoint.pt')
     def load_model(self,path):
-        self.policy_net.load_state_dict(torch.load(path+'pg_checkpoint.pth')) 
+        self.policy_net.load_state_dict(torch.load(path+'pg_checkpoint.pt')) 

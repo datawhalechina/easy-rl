@@ -5,12 +5,12 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:21:53
 LastEditor: John
-LastEditTime: 2021-03-13 11:50:32
+LastEditTime: 2021-03-23 16:38:54
 Discription: 
 Environment: 
 '''
 import sys,os
-sys.path.append(os.getcwd()) # 添加当前终端路径
+sys.path.append(os.getcwd()) # add current terminal path to sys.path
 from itertools import count
 import datetime
 import gym
@@ -18,25 +18,25 @@ from PolicyGradient.agent import PolicyGradient
 from common.plot import plot_rewards
 from common.utils import save_results
 
-SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # 获取当前时间
-SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/' # 生成保存的模型路径
-if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"): # 检测是否存在文件夹
+SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current time
+SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/'  # path to save model
+if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"): 
     os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/")
-if not os.path.exists(SAVED_MODEL_PATH): # 检测是否存在文件夹
+if not os.path.exists(SAVED_MODEL_PATH):
     os.mkdir(SAVED_MODEL_PATH)
-RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/results/"+SEQUENCE+'/' # 存储reward的路径
-if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/results/"): # 检测是否存在文件夹
+RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/results/"+SEQUENCE+'/' # path to save rewards
+if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/results/"): 
     os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/results/")
-if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
+if not os.path.exists(RESULT_PATH): 
     os.mkdir(RESULT_PATH)
 
 class PGConfig:
     def __init__(self):
         self.train_eps = 300 # 训练的episode数目
         self.batch_size = 8
-        self.lr = 0.01 # 学习率
+        self.lr = 0.01 # learning rate
         self.gamma = 0.99
-        self.hidden_dim = 36 # 隐藏层维度
+        self.hidden_dim = 36 # dimmension of hidden layer
         
 def train(cfg,env,agent):
     '''下面带pool都是存放的transition序列用于gradient'''
