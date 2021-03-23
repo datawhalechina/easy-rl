@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-09 20:25:52
 @LastEditor: John
-LastEditTime: 2020-09-02 01:19:13
+LastEditTime: 2021-03-17 20:43:25
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -14,18 +14,17 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from model import Actor, Critic
-from memory import ReplayBuffer
+from common.model import Actor, Critic
+from common.memory import ReplayBuffer
 
 
 class DDPG:
-    def __init__(self, n_states, n_actions, hidden_dim=30, device="cpu", critic_lr=1e-3,
-                 actor_lr=1e-4, gamma=0.99, soft_tau=1e-2, memory_capacity=100000, batch_size=128):
-        self.device = device
-        self.critic = Critic(n_states, n_actions, hidden_dim).to(device)
-        self.actor = Actor(n_states, n_actions, hidden_dim).to(device)
-        self.target_critic = Critic(n_states, n_actions, hidden_dim).to(device)
-        self.target_actor = Actor(n_states, n_actions, hidden_dim).to(device)
+    def __init__(self, n_states, n_actions, cfg):
+        self.device = cfg.device
+        self.critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.target_critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.target_actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
 
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
             target_param.data.copy_(param.data)
@@ -33,14 +32,14 @@ class DDPG:
             target_param.data.copy_(param.data)
 
         self.critic_optimizer = optim.Adam(
-            self.critic.parameters(),  lr=critic_lr)
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
-        self.memory = ReplayBuffer(memory_capacity)
-        self.batch_size = batch_size
-        self.soft_tau = soft_tau
-        self.gamma = gamma
+            self.critic.parameters(),  lr=cfg.critic_lr)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=cfg.actor_lr)
+        self.memory = ReplayBuffer(cfg.memory_capacity)
+        self.batch_size = cfg.batch_size
+        self.soft_tau = cfg.soft_tau
+        self.gamma = cfg.gamma
 
-    def select_action(self, state):
+    def choose_action(self, state):
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         action = self.actor(state)
         # torch.detach()用于切断反向传播
@@ -87,8 +86,8 @@ class DDPG:
                 target_param.data * (1.0 - self.soft_tau) +
                 param.data * self.soft_tau
             )
-    def save_model(self,path):
-        torch.save(self.target_actor.state_dict(), path)
+    def save(self,path):
+        torch.save(self.target_net.state_dict(), path+'DDPG_checkpoint.pth')
 
-    def load_model(self,path):
-        self.actor.load_state_dict(torch.load(path))
+    def load(self,path):
+        self.actor.load_state_dict(torch.load(path+'DDPG_checkpoint.pth')) 

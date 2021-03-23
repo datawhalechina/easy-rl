@@ -5,13 +5,13 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-10-30 15:39:37
 LastEditor: John
-LastEditTime: 2020-11-03 20:52:07
+LastEditTime: 2021-03-17 20:19:14
 Discription: 
 Environment: 
 '''
 
 import gym
-from common.multiprocessing_env import SubprocVecEnv
+from A2C.multiprocessing_env import SubprocVecEnv
 
 # num_envs = 16
 # env_name = "Pendulum-v0"

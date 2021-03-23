@@ -5,12 +5,11 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-10 15:27:16
 @LastEditor: John
-LastEditTime: 2020-12-22 12:56:27
+LastEditTime: 2021-01-20 18:58:37
 @Discription: 
 @Environment: python 3.7.7
 '''
 import random
-import numpy as np
 
 class ReplayBuffer:
     

@@ -15,7 +15,7 @@ import datetime
 
 SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/'
-RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/result/"+SEQUENCE+'/'
+RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/results/"+SEQUENCE+'/'
 
 
 def save_results(rewards,moving_average_rewards,ep_steps,path=RESULT_PATH):

@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-03-13 14:56:50
+LastEditTime: 2021-03-17 20:35:37
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -68,7 +68,7 @@ def train(cfg,env,agent):
         # 更新target network，复制DQN中的所有weights and biases
         if i_episode % cfg.target_update == 0:
             agent.target_net.load_state_dict(agent.policy_net.state_dict())
-        print('Episode:{}/{}, Reward:{}, Steps:{}, Done:{}'.format(i_episode+1,cfg.train_eps,ep_reward,i_step,done))
+        print('Episode:{}/{}, Reward:{}, Steps:{}, Done:{}'.format(i_episode+1,cfg.train_eps,ep_reward,i_step+1,done))
         ep_steps.append(i_step)
         rewards.append(ep_reward)
         # 计算滑动窗口的reward

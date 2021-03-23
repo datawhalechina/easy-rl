@@ -24,14 +24,14 @@ def plot(item,ylabel='rewards_train', save_fig = True):
     plt.ylabel(ylabel)
     plt.xlabel('episodes')
     if save_fig:
-        plt.savefig(os.path.dirname(__file__)+"/result/"+ylabel+".png")
+        plt.savefig(os.path.dirname(__file__)+"/results/"+ylabel+".png")
     plt.show()
 
 
     # plt.show()
 if __name__ == "__main__":
 
-    output_path = os.path.split(os.path.abspath(__file__))[0]+"/result/"
+    output_path = os.path.split(os.path.abspath(__file__))[0]+"/results/"
     tag = 'train'
     rewards=np.load(output_path+"rewards_"+tag+".npy", )
     moving_average_rewards=np.load(output_path+"moving_average_rewards_"+tag+".npy",)

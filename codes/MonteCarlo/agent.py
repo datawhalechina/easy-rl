@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:14:34
 LastEditor: John
-LastEditTime: 2021-03-12 16:15:12
+LastEditTime: 2021-03-17 12:35:06
 Discription: 
 Environment: 
 '''
@@ -26,11 +26,13 @@ class FisrtVisitMC:
         
     def choose_action(self,state):
         ''' e-greed policy '''
-        best_action = np.argmax(self.Q[state])
-        # action = best_action
-        action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
-        action_probs[best_action] += (1.0 - self.epsilon)
-        action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
+        if state in self.Q.keys():
+            best_action = np.argmax(self.Q[state])
+            action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
+            action_probs[best_action] += (1.0 - self.epsilon)
+            action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
+        else:
+            action = np.random.randint(0,self.n_actions)
         return action
     def update(self,one_ep_transition):
         # Find all (state, action) pairs we've visited in this one_ep_transition

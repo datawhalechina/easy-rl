@@ -64,7 +64,7 @@ class Agent:
         return adjoining_wall_x, adjoining_wall_y, food_dir_x, food_dir_y, adjoining_body_top, adjoining_body_bottom, adjoining_body_left, adjoining_body_right
 
 
-    def update_tables(self, _state, points, dead):
+    def update(self, _state, points, dead):
         if self.s:
             maxq = max(self.Q[_state]) 
             reward = self.R(points,dead)
@@ -72,7 +72,7 @@ class Agent:
             self.Q[self.s][self.a] += alpha * (reward + self.gamma * maxq - self.Q[self.s][self.a])
             self.N[self.s][self.a] += 1.0
         
-    def act(self, state, points, dead):
+    def choose_action(self, state, points, dead):
         '''
         :param state: a list of [snake_head_x, snake_head_y, snake_body, food_x, food_y] from environment.
         :param points: float, the current points from environment
@@ -88,7 +88,7 @@ class Agent:
         Qs = self.Q[_state][:]
         
         if self._train:
-            self.update_tables(_state, points, dead)
+            self.update(_state, points, dead)
             if dead:
                 self.reset()  
                 return

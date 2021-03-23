@@ -5,14 +5,13 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-03-12 16:52:26
+LastEditTime: 2021-03-12 21:16:50
 Discription: 
 Environment: 
 '''
 
 import sys,os
 sys.path.append(os.getcwd()) # 添加当前终端路径
-import argparse
 import gym
 import datetime
 
@@ -108,7 +107,6 @@ if __name__ == "__main__":
     agent = QLearning(n_actions,cfg)
     rewards,ma_rewards = train(cfg,env,agent)
     agent.save(path=SAVED_MODEL_PATH)
-    # eval(cfg,env,agent)
     save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)
     plot_rewards(rewards,ma_rewards,tag="train",algo = "On-Policy First-Visit MC Control",path=RESULT_PATH)
     

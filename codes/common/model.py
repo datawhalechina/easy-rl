@@ -5,12 +5,14 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 21:14:12
 LastEditor: John
-LastEditTime: 2021-03-13 13:48:35
+LastEditTime: 2021-03-20 16:44:00
 Discription: 
 Environment: 
 '''
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.distributions import Categorical
 class MLP1(nn.Module):
     ''' 多层感知机
         输入：state维度
@@ -46,3 +48,60 @@ class MLP2(nn.Module):
         x = F.relu(self.fc1(x)) 
         x = F.relu(self.fc2(x))
         return self.fc3(x)
+
+class Critic(nn.Module):
+    def __init__(self, n_obs, n_actions, hidden_size, init_w=3e-3):
+        super(Critic, self).__init__()
+        
+        self.linear1 = nn.Linear(n_obs + n_actions, hidden_size)
+        self.linear2 = nn.Linear(hidden_size, hidden_size)
+        self.linear3 = nn.Linear(hidden_size, 1)
+        # 随机初始化为较小的值
+        self.linear3.weight.data.uniform_(-init_w, init_w)
+        self.linear3.bias.data.uniform_(-init_w, init_w)
+        
+    def forward(self, state, action):
+        # 按维数1拼接
+        x = torch.cat([state, action], 1)
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        x = self.linear3(x)
+        return x
+
+class Actor(nn.Module):
+    def __init__(self, n_obs, n_actions, hidden_size, init_w=3e-3):
+        super(Actor, self).__init__()  
+        self.linear1 = nn.Linear(n_obs, hidden_size)
+        self.linear2 = nn.Linear(hidden_size, hidden_size)
+        self.linear3 = nn.Linear(hidden_size, n_actions)
+        
+        self.linear3.weight.data.uniform_(-init_w, init_w)
+        self.linear3.bias.data.uniform_(-init_w, init_w)
+        
+    def forward(self, x):
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        x = F.tanh(self.linear3(x))
+        return x
+
+class ActorCritic(nn.Module):
+    def __init__(self, n_states, n_actions, hidden_dim=256):
+        super(ActorCritic, self).__init__()
+        self.critic = nn.Sequential(
+            nn.Linear(n_states, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)
+        )
+        
+        self.actor = nn.Sequential(
+            nn.Linear(n_states, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, n_actions),
+            nn.Softmax(dim=1),
+        )
+        
+    def forward(self, x):
+        value = self.critic(x)
+        probs = self.actor(x)
+        dist  = Categorical(probs)
+        return dist, value

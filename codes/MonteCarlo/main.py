@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 14:26:44
 LastEditor: John
-LastEditTime: 2021-03-12 16:15:46
+LastEditTime: 2021-03-17 12:35:36
 Discription: 
 Environment: 
 '''
@@ -35,7 +35,7 @@ class MCConfig:
     def __init__(self): 
         self.epsilon = 0.15 # epsilon: The probability to select a random action . 
         self.gamma = 0.9 # gamma: Gamma discount factor.
-        self.n_episodes = 300
+        self.n_episodes = 150
         self.n_steps = 2000
 
 def get_mc_args():
@@ -58,8 +58,8 @@ def mc_train(cfg,env,agent):
         one_ep_transition = []
         state = env.reset()
         ep_reward = 0
-        # while True:
-        for t in range(cfg.n_steps):
+        while True:
+        # for t in range(cfg.n_steps):
             action = agent.choose_action(state)
             next_state, reward, done = env.step(action)
             ep_reward+=reward

@@ -23,6 +23,7 @@ class SnakeEnv:
         state, points, dead = self.game.step(action)
         if self.render:
             self.draw(state, points, dead)
+        # return state, reward, done
         return state, points, dead
 
     def draw(self, state, points, dead):
@@ -99,22 +100,16 @@ class SnakeEnv:
         self.render = True
             
 class Snake:
-    ''' 定义贪吃蛇的类
-    '''
     def __init__(self, snake_head_x, snake_head_y, food_x, food_y):
-        # 初始化蛇头的位置
-        self.init_snake_head_x, self.init_snake_head_y = snake_head_x, snake_head_y
-        # 初始化食物的位置
-        self.init_food_x, self.init_food_y = food_x, food_y
+        self.init_snake_head_x,self.init_snake_head_y = snake_head_x,snake_head_y # 蛇头初始位置
+        self.init_food_x, self.init_food_y = food_x, food_y # 食物初始位置
         self.reset()
 
     def reset(self):
         self.points = 0
-        self.snake_head_x = self.init_snake_head_x
-        self.snake_head_y = self.init_snake_head_y
-        self.snake_body = []
-        self.food_x = self.init_food_x
-        self.food_y = self.init_food_y
+        self.snake_head_x, self.snake_head_y = self.init_snake_head_x, self.init_snake_head_y
+        self.food_x, self.food_y = self.init_food_x, self.init_food_y
+        self.snake_body = [] # 蛇身的位置集合
 
     def get_points(self):
         return self.points
@@ -132,8 +127,10 @@ class Snake:
         ]
 
     def move(self, action):
+        '''根据action指令移动蛇头，并返回是否撞死
+        '''
         delta_x = delta_y = 0
-        if action == 0:
+        if action == 0: # 上
             delta_x = utils.GRID_SIZE
         elif action == 1:
             delta_x = - utils.GRID_SIZE
@@ -141,33 +138,31 @@ class Snake:
             delta_y = - utils.GRID_SIZE
         elif action == 3:
             delta_y = utils.GRID_SIZE
-
         old_body_head = None
         if len(self.snake_body) == 1:
             old_body_head = self.snake_body[0]
+
         self.snake_body.append((self.snake_head_x, self.snake_head_y))
         self.snake_head_x += delta_x
         self.snake_head_y += delta_y
 
-        if len(self.snake_body) > self.points:
+        if len(self.snake_body) > self.points: # 说明没有吃到食物
             del(self.snake_body[0])
 
         self.handle_eatfood()
 
-        # colliding with the snake body or going backwards while its body length
-        # greater than 1
+        # 蛇长大于1时，蛇头与蛇身任一位置重叠则看作蛇与自身相撞
         if len(self.snake_body) >= 1:
             for seg in self.snake_body:
                 if self.snake_head_x == seg[0] and self.snake_head_y == seg[1]:
                     return True
 
-        # moving towards body direction, not allowing snake to go backwards while 
-        # its body length is 1
+        # 蛇长为1时，如果蛇头与之前的位置重复则看作蛇与自身相撞
         if len(self.snake_body) == 1:
             if old_body_head == (self.snake_head_x, self.snake_head_y):
                 return True
 
-        # collide with the wall
+        # 蛇头是否撞墙
         if (self.snake_head_x < utils.GRID_SIZE or self.snake_head_y < utils.GRID_SIZE or
             self.snake_head_x + utils.GRID_SIZE > utils.DISPLAY_SIZE-utils.GRID_SIZE or self.snake_head_y + utils.GRID_SIZE > utils.DISPLAY_SIZE-utils.GRID_SIZE):
             return True
@@ -183,15 +178,16 @@ class Snake:
             self.random_food()
             self.points += 1
 
-
     def random_food(self):
+        '''生成随机位置的食物
+        '''
         max_x = (utils.DISPLAY_SIZE - utils.WALL_SIZE - utils.GRID_SIZE)
         max_y = (utils.DISPLAY_SIZE - utils.WALL_SIZE - utils.GRID_SIZE)
         
         self.food_x = random.randint(utils.WALL_SIZE, max_x)//utils.GRID_SIZE * utils.GRID_SIZE
         self.food_y = random.randint(utils.WALL_SIZE, max_y)//utils.GRID_SIZE * utils.GRID_SIZE
 
-        while self.check_food_on_snake():
+        while self.check_food_on_snake(): # 食物不能生成在蛇身上
             self.food_x = random.randint(utils.WALL_SIZE, max_x)//utils.GRID_SIZE * utils.GRID_SIZE
             self.food_y = random.randint(utils.WALL_SIZE, max_y)//utils.GRID_SIZE * utils.GRID_SIZE
 

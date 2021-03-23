@@ -5,19 +5,18 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-03 20:47:09
 LastEditor: John
-LastEditTime: 2020-11-08 22:16:29
+LastEditTime: 2021-03-20 17:41:21
 Discription: 
 Environment: 
 '''
-from model import ActorCritic
+from A2C.model import ActorCritic
 import torch.optim as optim
 
 class A2C:
-    def __init__(self,n_states, n_actions, hidden_dim=256,device="cpu",lr = 3e-4):
-        self.device = device
+    def __init__(self,n_states, n_actions, cfg):
         self.gamma = 0.99
-        self.model = ActorCritic(n_states, n_actions, hidden_dim=hidden_dim).to(device)
-        self.optimizer = optim.Adam(self.model.parameters(),lr=lr)
+        self.model = ActorCritic(n_states, n_actions, hidden_dim=cfg.hidden_dim).to(cfg.device)
+        self.optimizer = optim.Adam(self.model.parameters(),lr=cfg.lr)
     def choose_action(self, state):
         dist, value = self.model(state)
         action = dist.sample()

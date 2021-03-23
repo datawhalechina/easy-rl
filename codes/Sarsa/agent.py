@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:58:16
 LastEditor: John
-LastEditTime: 2021-03-12 17:03:05
+LastEditTime: 2021-03-13 11:02:50
 Discription: 
 Environment: 
 '''
@@ -42,11 +42,11 @@ class Sarsa(object):
         import dill
         torch.save(
             obj=self.Q,
-            f=path+"Sarsa_model.pkl",
+            f=path+"sarsa_model.pkl",
             pickle_module=dill
         )
     def load(self, path):
         '''从文件中读取数据到 Q表格
         '''
         import dill
-        self.Q =torch.load(f=path+'Sarsa_model.pkl',pickle_module=dill)
+        self.Q =torch.load(f=path+'sarsa_model.pkl',pickle_module=dill)

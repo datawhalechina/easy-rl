@@ -5,74 +5,60 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2020-10-15 21:23:39
+LastEditTime: 2021-03-19 19:57:00
 @Discription: 
 @Environment: python 3.7.7
 '''
-from token import NUMBER
-from typing import Sequence
+import sys,os
+sys.path.append(os.getcwd()) # 添加当前终端路径
 import torch
 import gym
-from agent import DDPG
-from env import NormalizedActions
-from noise import OUNoise
-import os
 import numpy as np
-import argparse
-from torch.utils.tensorboard import SummaryWriter
 import datetime
+from DDPG.agent import DDPG
+from DDPG.env import NormalizedActions,OUNoise
+from common.plot import plot_rewards
+from common.utils import save_results
 
-SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/'
-RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/result/"+SEQUENCE+'/'
+SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # 获取当前时间
+SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/' # 生成保存的模型路径
+if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"): # 检测是否存在文件夹
+    os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/")
+if not os.path.exists(SAVED_MODEL_PATH): # 检测是否存在文件夹
+    os.mkdir(SAVED_MODEL_PATH)
+RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/results/"+SEQUENCE+'/' # 存储reward的路径
+if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/results/"): # 检测是否存在文件夹
+    os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/results/")
+if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
+    os.mkdir(RESULT_PATH)
 
-def get_args():
-    '''模型建立好之后只需要在这里调参
-    '''
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--train", default=1, type=int)  # 1 表示训练，0表示只进行eval
-    parser.add_argument("--gamma", default=0.99,
-                        type=float)  # q-learning中的gamma
-    parser.add_argument("--critic_lr", default=1e-3, type=float)  # critic学习率
-    parser.add_argument("--actor_lr", default=1e-4, type=float)
-    parser.add_argument("--memory_capacity", default=10000,
-                        type=int, help="capacity of Replay Memory")
-    parser.add_argument("--batch_size", default=128, type=int,
-                        help="batch size of memory sampling")
-    parser.add_argument("--train_eps", default=200, type=int)
-    parser.add_argument("--train_steps", default=200, type=int)
-    parser.add_argument("--eval_eps", default=200, type=int)  # 训练的最大episode数目
-    parser.add_argument("--eval_steps", default=200,
-                        type=int)  # 训练每个episode的长度
-    parser.add_argument("--target_update", default=4, type=int,
-                        help="when(every default 10 eisodes) to update target net ")
-    config = parser.parse_args()
-    return config
-
-
-def train(cfg):
-    print('Start to train ! \n')
-    env = NormalizedActions(gym.make("Pendulum-v0"))
-
-    # 增加action噪声
-    ou_noise = OUNoise(env.action_space)
-
-    n_states = env.observation_space.shape[0]
-    n_actions = env.action_space.shape[0]
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    agent = DDPG(n_states, n_actions, device="cpu", critic_lr=1e-3,
-                 actor_lr=1e-4, gamma=0.99, soft_tau=1e-2, memory_capacity=100000, batch_size=128)
+class DDPGConfig:
+    def __init__(self):
+        self.gamma = 0.99
+        self.critic_lr = 1e-3  
+        self.actor_lr = 1e-4 
+        self.memory_capacity = 10000
+        self.batch_size = 128
+        self.train_eps =300
+        self.train_steps = 200
+        self.eval_eps = 200
+        self.eval_steps = 200
+        self.target_update = 4
+        self.hidden_dim = 30
+        self.soft_tau=1e-2
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def train(cfg,env,agent):
+    print('Start to train ! ')
+    ou_noise = OUNoise(env.action_space) # action noise
     rewards = []
-    moving_average_rewards = []
+    ma_rewards = [] # moving average rewards
     ep_steps = []
-    log_dir=os.path.split(os.path.abspath(__file__))[0]+"/logs/train/" + SEQUENCE
-    writer = SummaryWriter(log_dir)
-    for i_episode in range(1, cfg.train_eps+1):
+    for i_episode in range(cfg.train_eps):
         state = env.reset()
         ou_noise.reset()
         ep_reward = 0
-        for i_step in range(1, cfg.train_steps+1):
-            action = agent.select_action(state)
+        for i_step in range(cfg.train_steps):
+            action = agent.choose_action(state)
             action = ou_noise.get_action(
                 action, i_step)  # 即paper中的random process
             next_state, reward, done, _ = env.step(action)
@@ -82,80 +68,25 @@ def train(cfg):
             state = next_state
             if done:
                 break
-        print('Episode:', i_episode, ' Reward: %i' %
-              int(ep_reward), 'n_steps:', i_step)
+        print('Episode:{}/{}, Reward:{}, Steps:{}, Done:{}'.format(i_episode+1,cfg.train_eps,ep_reward,i_step+1,done))
         ep_steps.append(i_step)
         rewards.append(ep_reward)
-        if i_episode == 1:
-            moving_average_rewards.append(ep_reward)
+        if ma_rewards:
+            ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
-            moving_average_rewards.append(
-                0.9*moving_average_rewards[-1]+0.1*ep_reward)
-        writer.add_scalars('rewards',{'raw':rewards[-1], 'moving_average': moving_average_rewards[-1]}, i_episode)
-        writer.add_scalar('steps_of_each_episode',
-                          ep_steps[-1], i_episode)
-    writer.close()
+            ma_rewards.append(ep_reward)
     print('Complete training！')
-    ''' 保存模型 '''
-    if not os.path.exists(SAVED_MODEL_PATH): # 检测是否存在文件夹
-        os.mkdir(SAVED_MODEL_PATH)
-    agent.save_model(SAVED_MODEL_PATH+'checkpoint.pth')
-    '''存储reward等相关结果'''
-    if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
-        os.mkdir(RESULT_PATH)
-    np.save(RESULT_PATH+'rewards_train.npy', rewards)
-    np.save(RESULT_PATH+'moving_average_rewards_train.npy', moving_average_rewards)
-    np.save(RESULT_PATH+'steps_train.npy', ep_steps)
-
-def eval(cfg, saved_model_path = SAVED_MODEL_PATH):
-    print('start to eval ! \n')
-    env = NormalizedActions(gym.make("Pendulum-v0"))
-    n_states = env.observation_space.shape[0]
-    n_actions = env.action_space.shape[0]
-    agent = DDPG(n_states, n_actions, critic_lr=1e-3,
-                 actor_lr=1e-4, gamma=0.99, soft_tau=1e-2, memory_capacity=100000, batch_size=128)
-    agent.load_model(saved_model_path+'checkpoint.pth')
-    rewards = []
-    moving_average_rewards = []
-    ep_steps = []
-    log_dir=os.path.split(os.path.abspath(__file__))[0]+"/logs/eval/" + SEQUENCE
-    writer = SummaryWriter(log_dir)
-    for i_episode in range(1, cfg.eval_eps+1):
-        state = env.reset()  # reset环境状态
-        ep_reward = 0
-        for i_step in range(1, cfg.eval_steps+1):
-            action = agent.select_action(state)  # 根据当前环境state选择action
-            next_state, reward, done, _ = env.step(action)  # 更新环境参数
-            ep_reward += reward
-            state = next_state  # 跳转到下一个状态
-            if done:
-                break
-        print('Episode:', i_episode, ' Reward: %i' %
-              int(ep_reward), 'n_steps:', i_step, 'done: ', done)
-        ep_steps.append(i_step)
-        rewards.append(ep_reward)
-        # 计算滑动窗口的reward
-        if i_episode == 1:
-            moving_average_rewards.append(ep_reward)
-        else:
-            moving_average_rewards.append(
-                0.9*moving_average_rewards[-1]+0.1*ep_reward)
-        writer.add_scalars('rewards',{'raw':rewards[-1], 'moving_average': moving_average_rewards[-1]}, i_episode)
-        writer.add_scalar('steps_of_each_episode',
-                          ep_steps[-1], i_episode)
-    writer.close()
-    '''存储reward等相关结果'''
-    if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
-        os.mkdir(RESULT_PATH)
-    np.save(RESULT_PATH+'rewards_eval.npy', rewards)
-    np.save(RESULT_PATH+'moving_average_rewards_eval.npy', moving_average_rewards)
-    np.save(RESULT_PATH+'steps_eval.npy', ep_steps)
+    return rewards,ma_rewards
 
 if __name__ == "__main__":
-    cfg = get_args()
-    if cfg.train:
-        train(cfg)
-        eval(cfg)
-    else:
-        model_path = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"
-        eval(cfg,saved_model_path=model_path)
+    cfg = DDPGConfig()
+    env = NormalizedActions(gym.make("Pendulum-v0"))
+    env.seed(1) # 设置env随机种子
+    n_states = env.observation_space.shape[0]
+    n_actions = env.action_space.shape[0]
+    agent = DDPG(n_states,n_actions,cfg)
+    rewards,ma_rewards = train(cfg,env,agent)
+    agent.save(path=SAVED_MODEL_PATH)
+    save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)
+    plot_rewards(rewards,ma_rewards,tag="train",algo = cfg.algo,path=RESULT_PATH)
+    

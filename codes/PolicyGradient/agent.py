@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2020-11-23 17:04:37
+LastEditTime: 2021-03-13 11:50:16
 Discription: 
 Environment: 
 '''
@@ -14,24 +14,23 @@ from torch.distributions import Bernoulli
 from torch.autograd import Variable
 import numpy as np
 
-from model import FCN
+from common.model import MLP1
 
 class PolicyGradient:
     
-    def __init__(self, state_dim,device='cpu',gamma = 0.99,lr = 0.01,batch_size=5):
-        self.gamma = gamma
-        self.policy_net = FCN(state_dim)
-        self.optimizer = torch.optim.RMSprop(self.policy_net.parameters(), lr=lr)
-        self.batch_size = batch_size
+    def __init__(self, n_states,cfg):
+        self.gamma = cfg.gamma
+        self.policy_net = MLP1(n_states,hidden_dim=cfg.hidden_dim)
+        self.optimizer = torch.optim.RMSprop(self.policy_net.parameters(), lr=cfg.lr)
+        self.batch_size = cfg.batch_size
 
     def choose_action(self,state):
         
         state = torch.from_numpy(state).float()
         state = Variable(state)
         probs = self.policy_net(state)
-        m = Bernoulli(probs)
+        m = Bernoulli(probs) # 伯努利分布
         action = m.sample()
-
         action = action.data.numpy().astype(int)[0] # 转为标量
         return action
         
@@ -67,6 +66,6 @@ class PolicyGradient:
             loss.backward()
         self.optimizer.step()
     def save_model(self,path):
-        torch.save(self.policy_net.state_dict(), path)
+        torch.save(self.policy_net.state_dict(), path+'pg_checkpoint.pth')
     def load_model(self,path):
-        self.policy_net.load_state_dict(torch.load(path)) 
+        self.policy_net.load_state_dict(torch.load(path+'pg_checkpoint.pth')) 

@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2020-12-22 16:20:35
+LastEditTime: 2021-03-13 15:01:27
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -20,65 +20,51 @@ import torch.nn.functional as F
 import random
 import math
 import numpy as np
-from memory import ReplayBuffer
-from model import FCN
-class DQN:
-    def __init__(self, n_states, n_actions, gamma=0.99, epsilon_start=0.9, epsilon_end=0.05, epsilon_decay=200, memory_capacity=10000, policy_lr=0.01, batch_size=128, device="cpu"):
-        self.actions_count = 0
+from common.memory import ReplayBuffer
+from common.model import MLP2
+class DoubleDQN:
+    def __init__(self, n_states, n_actions, cfg):
+        
         self.n_actions = n_actions  # 总的动作个数
-        self.device = device  # 设备，cpu或gpu等
-        self.gamma = gamma
+        self.device = cfg.device  # 设备，cpu或gpu等
+        self.gamma = cfg.gamma
         # e-greedy策略相关参数
-        self.epsilon = 0
-        self.epsilon_start = epsilon_start
-        self.epsilon_end = epsilon_end
-        self.epsilon_decay = epsilon_decay
-        self.batch_size = batch_size
-        self.policy_net = FCN(n_states, n_actions).to(self.device)
-        self.target_net = FCN(n_states, n_actions).to(self.device)
+        self.actions_count = 0
+        self.epsilon_start = cfg.epsilon_start
+        self.epsilon_end = cfg.epsilon_end
+        self.epsilon_decay = cfg.epsilon_decay
+        self.batch_size = cfg.batch_size
+        self.policy_net = MLP2(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.target_net = MLP2(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
         # target_net的初始模型参数完全复制policy_net
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()  # 不启用 BatchNormalization 和 Dropout
         # 可查parameters()与state_dict()的区别，前者require_grad=True
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=policy_lr)
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
         self.loss = 0
-        self.memory = ReplayBuffer(memory_capacity)
+        self.memory = ReplayBuffer(cfg.memory_capacity)
 
-    def choose_action(self, state, train=True):
+    def choose_action(self, state):
         '''选择动作
         '''
-        if train:
-            self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-                math.exp(-1. * self.actions_count / self.epsilon_decay)
-            self.actions_count += 1
-            if random.random() > self.epsilon:
-                with torch.no_grad():
-                    # 先转为张量便于丢给神经网络,state元素数据原本为float64
-                    # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
-                    state = torch.tensor(
-                        [state], device=self.device, dtype=torch.float32)
-                    # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
-                    q_value = self.policy_net(state)
-                    # tensor.max(1)返回每行的最大值以及对应的下标，
-                    # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
-                    # 所以tensor.max(1)[1]返回最大值对应的下标，即action
-                    action = q_value.max(1)[1].item()  
-            else:
-                action = random.randrange(self.n_actions)
-            return action
-        else: 
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+            math.exp(-1. * self.actions_count / self.epsilon_decay)
+        self.actions_count += 1
+        if random.random() > self.epsilon:
             with torch.no_grad():
-                    # 先转为张量便于丢给神经网络,state元素数据原本为float64
-                    # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
-                    state = torch.tensor(
-                        [state], device='cpu', dtype=torch.float32)
-                    # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
-                    q_value = self.target_net(state)
-                    # tensor.max(1)返回每行的最大值以及对应的下标，
-                    # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
-                    # 所以tensor.max(1)[1]返回最大值对应的下标，即action
-                    action = q_value.max(1)[1].item() 
-            return action
+                # 先转为张量便于丢给神经网络,state元素数据原本为float64
+                # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
+                state = torch.tensor(
+                    [state], device=self.device, dtype=torch.float32)
+                # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
+                q_value = self.policy_net(state)
+                # tensor.max(1)返回每行的最大值以及对应的下标，
+                # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
+                # 所以tensor.max(1)[1]返回最大值对应的下标，即action
+                action = q_value.max(1)[1].item()  
+        else:
+            action = random.randrange(self.n_actions)
+        return action
     def update(self):
 
         if len(self.memory) < self.batch_size:
@@ -86,8 +72,7 @@ class DQN:
         # 从memory中随机采样transition
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample(
             self.batch_size)
-        # 转为张量
-        # 例如tensor([[-4.5543e-02, -2.3910e-01,  1.8344e-02,  2.3158e-01],...,[-1.8615e-02, -2.3921e-01, -1.1791e-02,  2.3400e-01]])
+        ### 转为张量 ###
         state_batch = torch.tensor(
             state_batch, device=self.device, dtype=torch.float)
         action_batch = torch.tensor(action_batch, device=self.device).unsqueeze(
@@ -96,6 +81,7 @@ class DQN:
             reward_batch, device=self.device, dtype=torch.float)  # tensor([1., 1.,...,1])
         next_state_batch = torch.tensor(
             next_state_batch, device=self.device, dtype=torch.float)
+        
         done_batch = torch.tensor(np.float32(
             done_batch), device=self.device).unsqueeze(1)  # 将bool转为float然后转为张量
 
@@ -112,7 +98,7 @@ class DQN:
         # 对于终止状态，此时done_batch[0]=1, 对应的expected_q_value等于reward
         q_target = reward_batch + self.gamma * next_q_state_value * (1-done_batch[0])
         '''
-        '''以下是Double DQNq_target计算方式，与NatureDQN稍有不同'''
+        '''以下是Double DQN q_target计算方式，与NatureDQN稍有不同'''
         next_target_values = self.target_net(
             next_state_batch)
         # 选出Q(s_t‘, a)对应的action，代入到next_target_values获得target net对应的next_q_value，即Q’(s_t|a=argmax Q(s_t‘, a))
@@ -127,8 +113,8 @@ class DQN:
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()  # 更新模型
 
-    def save_model(self,path):
-        torch.save(self.target_net.state_dict(), path)
+    def save(self,path):
+        torch.save(self.target_net.state_dict(), path+'DoubleDQN_checkpoint.pth')
 
-    def load_model(self,path):
-        self.target_net.load_state_dict(torch.load(path))  
+    def load(self,path):
+        self.target_net.load_state_dict(torch.load(path+'DoubleDQN_checkpoint.pth'))    
