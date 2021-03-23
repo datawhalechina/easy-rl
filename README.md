@@ -36,7 +36,7 @@
 |        [Q-Learning](./codes/QLearning)         |                                                             | [CliffWalking-v0](./codes/envs/gym_info.md) |                                    |
 |             [Sarsa](./codes/Sarsa)             |                                                             | [Racetrack](./codes/envs/racetrack_env.md)  |                                    |
 |               [DQN](./codes/DQN)               | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./codes/envs/gym_info.md)     |                                    |
-|                 DQN-cnn                  | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./codes/envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
+|                 [DQN-cnn](./codes/DQN_cnn)                  | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./codes/envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
 |         [DoubleDQN](./codes/DoubleDQN)         |                                                             | [CartPole-v0](./codes/envs/gym_info.md)     |          效果不好，待改进          |
 |             Hierarchical DQN             |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                       |                                    |
 |    [PolicyGradient](./codes/PolicyGradient)    |                                                             | [CartPole-v0](./codes/envs/gym_info.md)     |                                    |
