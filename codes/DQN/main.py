@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-03-17 20:35:37
+LastEditTime: 2021-03-26 17:17:17
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -40,7 +40,7 @@ class DQNConfig:
         self.lr = 0.01 # 学习率
         self.memory_capacity = 800 # Replay Memory容量
         self.batch_size = 64
-        self.train_eps = 250 # 训练的episode数目
+        self.train_eps = 300 # 训练的episode数目
         self.train_steps = 200 # 训练每个episode的最大长度
         self.target_update = 2 # target net的更新频率
         self.eval_eps = 20 # 测试的episode数目
@@ -84,9 +84,9 @@ if __name__ == "__main__":
     cfg = DQNConfig()
     env = gym.make('CartPole-v0').unwrapped # 可google为什么unwrapped gym，此处一般不需要
     env.seed(1) # 设置env随机种子
-    n_states = env.observation_space.shape[0]
-    n_actions = env.action_space.n
-    agent = DQN(n_states,n_actions,cfg)
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.n
+    agent = DQN(state_dim,action_dim,cfg)
     rewards,ma_rewards = train(cfg,env,agent)
     agent.save(path=SAVED_MODEL_PATH)
     save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)

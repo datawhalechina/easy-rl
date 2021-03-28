@@ -46,15 +46,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class FCN(nn.Module):
-    def __init__(self, n_states=4, n_actions=18):
+    def __init__(self, state_dim=4, action_dim=18):
         """ 初始化q网络，为全连接网络
-            n_states: 输入的feature即环境的state数目
-            n_actions: 输出的action总个数
+            state_dim: 输入的feature即环境的state数目
+            action_dim: 输出的action总个数
         """
         super(FCN, self).__init__()
-        self.fc1 = nn.Linear(n_states, 128) # 输入层
+        self.fc1 = nn.Linear(state_dim, 128) # 输入层
         self.fc2 = nn.Linear(128, 128) # 隐藏层
-        self.fc3 = nn.Linear(128, n_actions) # 输出层
+        self.fc3 = nn.Linear(128, action_dim) # 输出层
         
     def forward(self, x):
         # 各层对应的激活函数
@@ -66,8 +66,8 @@ class FCN(nn.Module):
 
 在```agent.py```中我们定义强化学习算法，包括```choose_action```和```update```两个主要函数，初始化中：
 ```python
-self.policy_net = FCN(n_states, n_actions).to(self.device)
-self.target_net = FCN(n_states, n_actions).to(self.device)
+self.policy_net = FCN(state_dim, action_dim).to(self.device)
+self.target_net = FCN(state_dim, action_dim).to(self.device)
 # target_net的初始模型参数完全复制policy_net
 self.target_net.load_state_dict(self.policy_net.state_dict())
 self.target_net.eval()  # 不启用 BatchNormalization 和 Dropout

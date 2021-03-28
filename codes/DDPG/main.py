@@ -82,9 +82,9 @@ if __name__ == "__main__":
     cfg = DDPGConfig()
     env = NormalizedActions(gym.make("Pendulum-v0"))
     env.seed(1) # 设置env随机种子
-    n_states = env.observation_space.shape[0]
-    n_actions = env.action_space.shape[0]
-    agent = DDPG(n_states,n_actions,cfg)
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    agent = DDPG(state_dim,action_dim,cfg)
     rewards,ma_rewards = train(cfg,env,agent)
     agent.save(path=SAVED_MODEL_PATH)
     save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)

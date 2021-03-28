@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 21:14:12
 LastEditor: John
-LastEditTime: 2021-03-23 16:35:46
+LastEditTime: 2021-03-24 22:15:00
 Discription: 
 Environment: 
 '''
@@ -14,16 +14,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
-class MLP2(nn.Module):
-    def __init__(self, n_states,n_actions,hidden_dim=128):
+class MLP(nn.Module):
+    def __init__(self, state_dim,action_dim,hidden_dim=128):
         """ 初始化q网络，为全连接网络
-            n_states: 输入的feature即环境的state数目
-            n_actions: 输出的action总个数
+            state_dim: 输入的feature即环境的state数目
+            action_dim: 输出的action总个数
         """
-        super(MLP2, self).__init__()
-        self.fc1 = nn.Linear(n_states, hidden_dim) # 输入层
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(state_dim, hidden_dim) # 输入层
         self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
-        self.fc3 = nn.Linear(hidden_dim, n_actions) # 输出层
+        self.fc3 = nn.Linear(hidden_dim, action_dim) # 输出层
         
     def forward(self, x):
         # 各层对应的激活函数
@@ -32,10 +32,10 @@ class MLP2(nn.Module):
         return self.fc3(x)
 
 class Critic(nn.Module):
-    def __init__(self, n_obs, n_actions, hidden_size, init_w=3e-3):
+    def __init__(self, n_obs, action_dim, hidden_size, init_w=3e-3):
         super(Critic, self).__init__()
         
-        self.linear1 = nn.Linear(n_obs + n_actions, hidden_size)
+        self.linear1 = nn.Linear(n_obs + action_dim, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
         self.linear3 = nn.Linear(hidden_size, 1)
         # 随机初始化为较小的值
@@ -51,11 +51,11 @@ class Critic(nn.Module):
         return x
 
 class Actor(nn.Module):
-    def __init__(self, n_obs, n_actions, hidden_size, init_w=3e-3):
+    def __init__(self, n_obs, action_dim, hidden_size, init_w=3e-3):
         super(Actor, self).__init__()  
         self.linear1 = nn.Linear(n_obs, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
-        self.linear3 = nn.Linear(hidden_size, n_actions)
+        self.linear3 = nn.Linear(hidden_size, action_dim)
         
         self.linear3.weight.data.uniform_(-init_w, init_w)
         self.linear3.bias.data.uniform_(-init_w, init_w)
@@ -67,18 +67,18 @@ class Actor(nn.Module):
         return x
 
 class ActorCritic(nn.Module):
-    def __init__(self, n_states, n_actions, hidden_dim=256):
+    def __init__(self, state_dim, action_dim, hidden_dim=256):
         super(ActorCritic, self).__init__()
         self.critic = nn.Sequential(
-            nn.Linear(n_states, hidden_dim),
+            nn.Linear(state_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         )
         
         self.actor = nn.Sequential(
-            nn.Linear(n_states, hidden_dim),
+            nn.Linear(state_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, n_actions),
+            nn.Linear(hidden_dim, action_dim),
             nn.Softmax(dim=1),
         )
         

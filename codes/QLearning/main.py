@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-03-12 21:16:50
+LastEditTime: 2021-03-26 17:16:07
 Discription: 
 Environment: 
 '''
@@ -35,20 +35,18 @@ if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
 class QlearningConfig:
     '''训练相关参数'''
     def __init__(self):
-        self.n_episodes = 200 # 训练的episode数目
+        self.train_eps = 200 # 训练的episode数目
         self.gamma = 0.9 # reward的衰减率
         self.epsilon_start = 0.99 # e-greedy策略中初始epsilon
         self.epsilon_end = 0.01 # e-greedy策略中的终止epsilon
         self.epsilon_decay = 200 # e-greedy策略中epsilon的衰减率
-        self.lr = 0.1 # 学习率
+        self.lr = 0.1 # learning rate
 
 def train(cfg,env,agent):
-    # env = gym.make("FrozenLake-v0", is_slippery=False)  # 0 left, 1 down, 2 right, 3 up
-    # env = FrozenLakeWapper(env)
-    rewards = []  # 记录所有episode的reward
-    ma_rewards = [] # 滑动平均的reward
+    rewards = []  
+    ma_rewards = [] # moving average reward
     steps = []  # 记录所有episode的steps
-    for i_episode in range(cfg.n_episodes):
+    for i_episode in range(cfg.train_eps):
         ep_reward = 0  # 记录每个episode的reward
         ep_steps = 0  # 记录每个episode走了多少step
         state = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
@@ -63,12 +61,11 @@ def train(cfg,env,agent):
                 break
         steps.append(ep_steps)
         rewards.append(ep_reward)
-        # 计算滑动平均的reward
         if ma_rewards:
             ma_rewards.append(ma_rewards[-1]*0.9+ep_reward*0.1)
         else:
             ma_rewards.append(ep_reward)
-        print("Episode:{}/{}: reward:{:.1f}".format(i_episode+1, cfg.n_episodes,ep_reward))
+        print("Episode:{}/{}: reward:{:.1f}".format(i_episode+1, cfg.train_eps,ep_reward))
     return rewards,ma_rewards
 
 def eval(cfg,env,agent):
@@ -77,7 +74,7 @@ def eval(cfg,env,agent):
     rewards = []  # 记录所有episode的reward
     ma_rewards = [] # 滑动平均的reward
     steps = []  # 记录所有episode的steps
-    for i_episode in range(cfg.n_episodes):
+    for i_episode in range(cfg.train_eps):
         ep_reward = 0  # 记录每个episode的reward
         ep_steps = 0  # 记录每个episode走了多少step
         state = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
@@ -96,15 +93,15 @@ def eval(cfg,env,agent):
             ma_rewards.append(rewards[-1]*0.9+ep_reward*0.1)
         else:
             ma_rewards.append(ep_reward)
-        print("Episode:{}/{}: reward:{:.1f}".format(i_episode+1, cfg.n_episodes,ep_reward))
+        print("Episode:{}/{}: reward:{:.1f}".format(i_episode+1, cfg.train_eps,ep_reward))
     return rewards,ma_rewards
     
 if __name__ == "__main__":
     cfg = QlearningConfig()
     env = gym.make("CliffWalking-v0")  # 0 up, 1 right, 2 down, 3 left
     env = CliffWalkingWapper(env)
-    n_actions = env.action_space.n
-    agent = QLearning(n_actions,cfg)
+    action_dim = env.action_space.n
+    agent = QLearning(action_dim,cfg)
     rewards,ma_rewards = train(cfg,env,agent)
     agent.save(path=SAVED_MODEL_PATH)
     save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)

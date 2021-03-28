@@ -16,10 +16,10 @@ class MLP(nn.Module):
         输入：state维度
         输出：概率
     '''
-    def __init__(self,n_states,hidden_dim = 36):
+    def __init__(self,state_dim,hidden_dim = 36):
         super(MLP, self).__init__()
-        # 24和36为hidden layer的层数，可根据state_dim, n_actions的情况来改变
-        self.fc1 = nn.Linear(n_states, hidden_dim)
+        # 24和36为hidden layer的层数，可根据state_dim, action_dim的情况来改变
+        self.fc1 = nn.Linear(state_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim,hidden_dim)
         self.fc3 = nn.Linear(hidden_dim, 1)  # Prob of Left
 

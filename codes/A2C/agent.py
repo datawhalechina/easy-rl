@@ -13,9 +13,9 @@ from A2C.model import ActorCritic
 import torch.optim as optim
 
 class A2C:
-    def __init__(self,n_states, n_actions, cfg):
+    def __init__(self,state_dim, action_dim, cfg):
         self.gamma = 0.99
-        self.model = ActorCritic(n_states, n_actions, hidden_dim=cfg.hidden_dim).to(cfg.device)
+        self.model = ActorCritic(state_dim, action_dim, hidden_dim=cfg.hidden_dim).to(cfg.device)
         self.optimizer = optim.Adam(self.model.parameters(),lr=cfg.lr)
     def choose_action(self, state):
         dist, value = self.model(state)

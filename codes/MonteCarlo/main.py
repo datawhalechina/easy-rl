@@ -79,8 +79,8 @@ def mc_train(cfg,env,agent):
 if __name__ == "__main__":
     mc_cfg = MCConfig()
     env = RacetrackEnv()
-    n_actions=9
-    agent = FisrtVisitMC(n_actions,mc_cfg)
+    action_dim=9
+    agent = FisrtVisitMC(action_dim,mc_cfg)
     rewards,ma_rewards= mc_train(mc_cfg,env,agent)
     save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)
     plot_rewards(rewards,ma_rewards,tag="train",algo = "On-Policy First-Visit MC Control",path=RESULT_PATH)

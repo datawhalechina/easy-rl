@@ -19,12 +19,12 @@ from common.memory import ReplayBuffer
 
 
 class DDPG:
-    def __init__(self, n_states, n_actions, cfg):
+    def __init__(self, state_dim, action_dim, cfg):
         self.device = cfg.device
-        self.critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
-        self.actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
-        self.target_critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
-        self.target_actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.critic = Critic(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
+        self.actor = Actor(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
+        self.target_critic = Critic(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
+        self.target_actor = Actor(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
 
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
             target_param.data.copy_(param.data)

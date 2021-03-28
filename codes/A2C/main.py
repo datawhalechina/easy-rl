@@ -95,8 +95,8 @@ if __name__ == "__main__":
     cfg = A2CConfig()
     env = gym.make('CartPole-v0')
     env.seed(1) # set random seed for env
-    n_states = env.observation_space.shape[0]
-    n_actions = env.action_space.n
-    agent = A2C(n_states, n_actions, cfg)
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.n
+    agent = A2C(state_dim, action_dim, cfg)
     train(cfg,env,agent)
 
