@@ -2,13 +2,13 @@
 
 ## 1 Keywords
 
-- **DQN(Deep Q-Network)：**  基于深度学习的Q-learninyang算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经验回放（Experience Replay）的方法进行网络的训练。
+- **DQN(Deep Q-Network)：**  基于深度学习的Q-learninyang算法，其结合了 Value Function Approximation（价值函数近似）与神经网络技术，并采用了目标网络（Target Network）和经验回放（Experience Replay）等方法进行网络的训练。
 - **State-value Function：** 本质是一种critic。其输入为actor某一时刻的state，对应的输出为一个标量，即当actor在对应的state时，预期的到过程结束时间段中获得的value的数值。
 - **State-value Function Bellman Equation：** 基于state-value function的Bellman Equation，它表示在状态 $s_t$ 下带来的累积奖励 $G_t$ 的期望。
 - **Q-function:** 其也被称为state-action value function。其input 是一个 state 跟 action 的 pair，即在某一个 state 采取某一个action，假设我们都使用 actor $\pi$ ，得到的 accumulated reward 的期望值有多大。
 - **Target Network：** 为了解决在基于TD的Network的问题时，优化目标 $\mathrm{Q}^{\pi}\left(s_{t}, a_{t}\right) 
-  =r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 左右两侧会同时变化使得训练过程不稳定，从而增大regression的难度。target network选择将上式的右部分即 $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 固定，通过改变上式左部分的network的参数，进行regression。也是一个DQN中比较重要的tip。
-- **Exploration：**  在我们使用Q-function的时候，我们的policy完全取决于Q-function，有可能导致出现对应的action是固定的某几个数值的情况，而不像policy gradient中的output为随机的，我们再从随机的distribution中sample选择action。这样会导致我们继续训练的input的值一样，从而”加重“output的固定性，导致整个模型的表达能力的急剧下降，这也就是`探索-利用窘境(Exploration-Exploitation dilemma)`问题。所以我们使用`Epsilon Greedy`和 `Boltzmann Exploration`等Exploration方法进行优化。
+  =r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 左右两侧会同时变化使得训练过程不稳定，从而增大regression的难度。target network选择将上式的右部分即 $r_{t}+\mathrm{Q}^{\pi}\left(s_{t+1}, \pi\left(s_{t+1}\right)\right)$ 固定，通过改变上式左部分的network的参数，进行regression，这也是一个DQN中比较重要的tip。
+- **Exploration：**  在我们使用Q-function的时候，我们的policy完全取决于Q-function，有可能导致出现对应的action是固定的某几个数值的情况，而不像policy gradient中的output为随机的，我们再从随机的distribution中sample选择action。这样会导致我们继续训练的input的值一样，从而“加重”output的固定性，导致整个模型的表达能力的急剧下降，这也就是`探索-利用窘境难题(Exploration-Exploitation dilemma)`。所以我们使用`Epsilon Greedy`和 `Boltzmann Exploration`等Exploration方法进行优化。
 - **Experience Replay（经验回放）：**  其会构建一个Replay Buffer（Replay Memory），用来保存许多data，每一个data的形式如下：在某一个 state $s_t$，采取某一个action $a_t$，得到了 reward $r_t$，然后跳到 state $s_{t+1}$。我们使用 $\pi$ 去跟环境互动很多次，把收集到的数据都放到这个 replay buffer 中。当我们的buffer”装满“后，就会自动删去最早进入buffer的data。在训练时，对于每一轮迭代都有相对应的batch（与我们训练普通的Network一样通过sample得到），然后用这个batch中的data去update我们的Q-function。综上，Q-function再sample和训练的时候，会用到过去的经验数据，所以这里称这个方法为Experience Replay，其也是DQN中比较重要的tip。
 
 ## 2 Questions
