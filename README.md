@@ -30,27 +30,7 @@
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |                                                              |                                                              |
 ## 算法实战
 
-<<<<<<< HEAD
 [点击](./codes)或者跳转```codes```文件夹下进入算法实战
-=======
-|                 算法名称                 |                        相关论文材料                         | 环境                                  |                备注                |
-| :--------------------------------------: | :---------------------------------------------------------: | ------------------------------------- | :--------------------------------: |
-| [On-Policy First-Visit MC](./codes/MonteCarlo) |                                                             | [Racetrack](./codes/envs/racetrack_env.md)  |                                    |
-|        [Q-Learning](./codes/QLearning)         |                                                             | [CliffWalking-v0](./codes/envs/gym_info.md) |                                    |
-|             [Sarsa](./codes/Sarsa)             |                                                             | [Racetrack](./codes/envs/racetrack_env.md)  |                                    |
-|               [DQN](./codes/DQN)               | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./codes/envs/gym_info.md)     |                                    |
-|                 [DQN-cnn](./codes/DQN_cnn)                  | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./codes/envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
-|         [DoubleDQN](./codes/DoubleDQN)         |                                                             | [CartPole-v0](./codes/envs/gym_info.md)     |          效果不好，待改进          |
-|             Hierarchical DQN             |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                       |                                    |
-|    [PolicyGradient](./codes/PolicyGradient)    |                                                             | [CartPole-v0](./codes/envs/gym_info.md)     |                                    |
-|                   A2C                    |                                                             | [CartPole-v0](./codes/envs/gym_info.md)     |                                    |
-|                   A3C                    |                                                             |                                       |                                    |
-|                   SAC                    |                                                             |                                       |                                    |
-|               [PPO](./codes/PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [CartPole-v0](./codes/envs/gym_info.md)     |                                    |
-|                   DDPG                   |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./codes/envs/gym_info.md)     |                                    |
-|                   TD3                    | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                       |                                    |
-|                   GAIL                   |                                                             |                                       |                                    |
->>>>>>> bf96f8c2982d0be863e90981caf94da888b1589c
 
 ## 贡献者
 
