@@ -30,7 +30,7 @@
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |                                                              |                                                              |
 ## 算法实战
 
-[点击](./codes)或者跳转```codes```文件夹下进入算法实战
+[点击](https://github.com/datawhalechina/easy-rl/tree/master/codes)或者跳转```codes```文件夹下进入算法实战
 
 ## 贡献者
 
