@@ -19,9 +19,10 @@
 ## 运行环境
 
 python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
+
 ## 使用说明
 
-对应算法文件夹下运行```main.py```即可
+运行```main.py```或者```main.ipynb```
 ## 算法进度
 
 |                 算法名称                 |                        相关论文材料                         | 环境                                  |                备注                |
@@ -29,17 +30,17 @@ python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
 | [On-Policy First-Visit MC](./MonteCarlo) |                                                             | [Racetrack](./envs/racetrack_env.md)  |                                    |
 |        [Q-Learning](./QLearning)         |                                                             | [CliffWalking-v0](./envs/gym_info.md) |                                    |
 |             [Sarsa](./Sarsa)             |                                                             | [Racetrack](./envs/racetrack_env.md)  |                                    |
-|               [DQN](./DQN)               | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |                                    |
-|                 [DQN-cnn](./DQN_cnn)                  | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
+|               [DQN](./DQN)               | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|           [DQN-cnn](./DQN_cnn)           | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
 |         [DoubleDQN](./DoubleDQN)         |                                                             | [CartPole-v0](./envs/gym_info.md)     |          效果不好，待改进          |
-|             Hierarchical DQN             |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     |                                       |                                    |
+|             Hierarchical DQN             |       [H-DQN Paper](https://arxiv.org/abs/1604.06057)       |                                       |                                    |
 |    [PolicyGradient](./PolicyGradient)    |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |                   A2C                    |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |                   A3C                    |                                                             |                                       |                                    |
 |                   SAC                    |                                                             |                                       |                                    |
 |               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |                   DDPG                   |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |                                    |
-|                   TD3                    | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                       |                                    |
+|                   TD3                    |        [TD3 Paper](https://arxiv.org/abs/1802.09477)        |                                       |                                    |
 |                   GAIL                   |                                                             |                                       |                                    |
 
 

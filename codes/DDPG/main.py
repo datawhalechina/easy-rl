@@ -5,12 +5,17 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2021-03-19 19:57:00
+LastEditTime: 2021-03-31 01:04:48
 @Discription: 
 @Environment: python 3.7.7
 '''
 import sys,os
-sys.path.append(os.getcwd()) # 添加当前终端路径
+from pathlib import Path
+import sys,os
+curr_path = os.path.dirname(__file__)
+parent_path=os.path.dirname(curr_path) 
+sys.path.append(parent_path) # add current terminal path to sys.path
+
 import torch
 import gym
 import numpy as np
@@ -20,27 +25,23 @@ from DDPG.env import NormalizedActions,OUNoise
 from common.plot import plot_rewards
 from common.utils import save_results
 
-SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # 获取当前时间
-SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/' # 生成保存的模型路径
-if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"): # 检测是否存在文件夹
-    os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/")
-if not os.path.exists(SAVED_MODEL_PATH): # 检测是否存在文件夹
-    os.mkdir(SAVED_MODEL_PATH)
-RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/results/"+SEQUENCE+'/' # 存储reward的路径
-if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/results/"): # 检测是否存在文件夹
-    os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/results/")
-if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
-    os.mkdir(RESULT_PATH)
+SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current time
+SAVED_MODEL_PATH = curr_path+"/saved_model/"+SEQUENCE+'/' # path to save model
+if not os.path.exists(curr_path+"/saved_model/"): os.mkdir(curr_path+"/saved_model/")
+if not os.path.exists(SAVED_MODEL_PATH): os.mkdir(SAVED_MODEL_PATH)
+RESULT_PATH = curr_path+"/results/"+SEQUENCE+'/' # path to save rewards
+if not os.path.exists(curr_path+"/results/"): os.mkdir(curr_path+"/results/")
+if not os.path.exists(RESULT_PATH): os.mkdir(RESULT_PATH)
 
 class DDPGConfig:
     def __init__(self):
+        self.algo = 'DDPG'
         self.gamma = 0.99
         self.critic_lr = 1e-3  
         self.actor_lr = 1e-4 
         self.memory_capacity = 10000
         self.batch_size = 128
         self.train_eps =300
-        self.train_steps = 200
         self.eval_eps = 200
         self.eval_steps = 200
         self.target_update = 4
@@ -56,19 +57,19 @@ def train(cfg,env,agent):
     for i_episode in range(cfg.train_eps):
         state = env.reset()
         ou_noise.reset()
+        done = False
         ep_reward = 0
-        for i_step in range(cfg.train_steps):
+        i_step = 0
+        while not done:
+            i_step += 1
             action = agent.choose_action(state)
-            action = ou_noise.get_action(
-                action, i_step)  # 即paper中的random process
+            action = ou_noise.get_action(action, i_step)  # 即paper中的random process
             next_state, reward, done, _ = env.step(action)
             ep_reward += reward
             agent.memory.push(state, action, reward, next_state, done)
             agent.update()
             state = next_state
-            if done:
-                break
-        print('Episode:{}/{}, Reward:{}, Steps:{}, Done:{}'.format(i_episode+1,cfg.train_eps,ep_reward,i_step+1,done))
+        print('Episode:{}/{}, Reward:{}'.format(i_episode+1,cfg.train_eps,ep_reward))
         ep_steps.append(i_step)
         rewards.append(ep_reward)
         if ma_rewards:

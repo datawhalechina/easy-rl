@@ -5,12 +5,17 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 10:01:09
 @LastEditor: John
-LastEditTime: 2021-03-23 20:43:28
+LastEditTime: 2021-03-29 20:23:48
 @Discription: 
 @Environment: python 3.7.7
 '''
 import sys,os
-sys.path.append(os.getcwd()) # add current terminal path to sys.path
+from pathlib import Path
+import sys,os
+curr_path = os.path.dirname(__file__)
+parent_path=os.path.dirname(curr_path) 
+sys.path.append(parent_path) # add current terminal path to sys.path
+
 import gym
 import torch
 import datetime
@@ -19,17 +24,15 @@ from DQN_cnn.agent import DQNcnn
 from common.plot import plot_rewards
 from common.utils import save_results
 
-sys.path.append(os.getcwd())  # add current terminal path to sys.path
-
 SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current time
-SAVED_MODEL_PATH = os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"+SEQUENCE+'/' # path to save model
-if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/"): 
-    os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/saved_model/")
+SAVED_MODEL_PATH = curr_path+"/saved_model/"+SEQUENCE+'/' # path to save model
+if not os.path.exists(curr_path+"/saved_model/"): 
+    os.mkdir(curr_path+"/saved_model/")
 if not os.path.exists(SAVED_MODEL_PATH): 
     os.mkdir(SAVED_MODEL_PATH)
-RESULT_PATH = os.path.split(os.path.abspath(__file__))[0]+"/results/"+SEQUENCE+'/' # path to save rewards
-if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/results/"): 
-    os.mkdir(os.path.split(os.path.abspath(__file__))[0]+"/results/")
+RESULT_PATH = curr_path+"/results/"+SEQUENCE+'/' # path to save rewards
+if not os.path.exists(curr_path+"/results/"): 
+    os.mkdir(curr_path+"/results/")
 if not os.path.exists(RESULT_PATH): 
     os.mkdir(RESULT_PATH)
 

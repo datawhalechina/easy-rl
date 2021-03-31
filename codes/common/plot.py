@@ -5,13 +5,13 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-10-07 20:57:11
 LastEditor: John
-LastEditTime: 2021-03-13 11:31:49
+LastEditTime: 2021-03-31 14:05:52
 Discription: 
 Environment: 
 '''
 import matplotlib.pyplot as plt
 import seaborn as sns
-def plot_rewards(rewards,ma_rewards,tag="train",algo = "On-Policy First-Visit MC Control",path='./'):
+def plot_rewards(rewards,ma_rewards,tag="train",algo = "DQN",path='./'):
     sns.set()
     plt.title("average learning curve of {}".format(algo))
     plt.xlabel('epsiodes')
@@ -19,5 +19,14 @@ def plot_rewards(rewards,ma_rewards,tag="train",algo = "On-Policy First-Visit MC
     plt.plot(ma_rewards,label='moving average rewards')
     plt.legend()
     plt.savefig(path+"rewards_curve_{}".format(tag))
+    plt.show()
+
+def plot_losses(losses,algo = "DQN",path='./'):
+    sns.set()
+    plt.title("loss curve of {}".format(algo))
+    plt.xlabel('epsiodes')
+    plt.plot(losses,label='rewards')
+    plt.legend()
+    plt.savefig(path+"losses_curve")
     plt.show()
    
