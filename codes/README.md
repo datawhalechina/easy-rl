@@ -32,14 +32,14 @@ python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
 |             [Sarsa](./Sarsa)             |                                                             | [Racetrack](./envs/racetrack_env.md)  |                                    |
 |               [DQN](./DQN)               | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |           [DQN-cnn](./DQN_cnn)           | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     | 与DQN相比使用了CNN而不是全链接网络 |
-|         [DoubleDQN](./DoubleDQN)         |                                                             | [CartPole-v0](./envs/gym_info.md)     |          效果不好，待改进          |
-|             Hierarchical DQN             |       [H-DQN Paper](https://arxiv.org/abs/1604.06057)       |                                       |                                    |
+|         [DoubleDQN](./DoubleDQN)         |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|   [Hierarchical DQN](HierarchicalDQN)    |       [H-DQN Paper](https://arxiv.org/abs/1604.06057)       | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |    [PolicyGradient](./PolicyGradient)    |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |                   A2C                    |                                                             | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |                   A3C                    |                                                             |                                       |                                    |
 |                   SAC                    |                                                             |                                       |                                    |
 |               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [CartPole-v0](./envs/gym_info.md)     |                                    |
-|                   DDPG                   |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |                                    |
+|              [DDPG](./DDPG)              |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |                                    |
 |                   TD3                    |        [TD3 Paper](https://arxiv.org/abs/1802.09477)        |                                       |                                    |
 |                   GAIL                   |                                                             |                                       |                                    |
 

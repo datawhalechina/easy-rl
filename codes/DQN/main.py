@@ -5,12 +5,10 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-03-30 16:59:19
+LastEditTime: 2021-04-04 00:26:47
 @Discription: 
 @Environment: python 3.7.7
 '''
-import sys,os
-from pathlib import Path
 import sys,os
 curr_path = os.path.dirname(__file__)
 parent_path=os.path.dirname(curr_path) 
@@ -21,19 +19,13 @@ import torch
 import datetime
 from DQN.agent import DQN
 from common.plot import plot_rewards
-from common.utils import save_results
+from common.utils import save_results,make_dir,del_empty_dir
 
 SEQUENCE = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current time
 SAVED_MODEL_PATH = curr_path+"/saved_model/"+SEQUENCE+'/' # path to save model
-if not os.path.exists(curr_path+"/saved_model/"): 
-    os.mkdir(curr_path+"/saved_model/")
-if not os.path.exists(SAVED_MODEL_PATH): 
-    os.mkdir(SAVED_MODEL_PATH)
 RESULT_PATH = curr_path+"/results/"+SEQUENCE+'/' # path to save rewards
-if not os.path.exists(curr_path+"/results/"): 
-    os.mkdir(curr_path+"/results/")
-if not os.path.exists(RESULT_PATH): 
-    os.mkdir(RESULT_PATH)
+make_dir(curr_path+"/saved_model/",curr_path+"/results/")
+del_empty_dir(curr_path+"/saved_model/",curr_path+"/results/")
 
 class DQNConfig:
     def __init__(self):
@@ -72,8 +64,7 @@ def train(cfg,env,agent):
         rewards.append(ep_reward)
         # 计算滑动窗口的reward
         if ma_rewards:
-            ma_rewards.append(
-                0.9*ma_rewards[-1]+0.1*ep_reward)
+            ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)   
     print('Complete training！')
@@ -87,6 +78,8 @@ if __name__ == "__main__":
     action_dim = env.action_space.n
     agent = DQN(state_dim,action_dim,cfg)
     rewards,ma_rewards = train(cfg,env,agent)
+    make_dir(SAVED_MODEL_PATH,RESULT_PATH)
     agent.save(path=SAVED_MODEL_PATH)
     save_results(rewards,ma_rewards,tag='train',path=RESULT_PATH)
     plot_rewards(rewards,ma_rewards,tag="train",algo = cfg.algo,path=RESULT_PATH)
+    del_empty_dir(SAVED_MODEL_PATH,RESULT_PATH)
