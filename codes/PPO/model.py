@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-23 15:29:24
 LastEditor: John
-LastEditTime: 2021-03-23 15:29:52
+LastEditTime: 2021-04-08 22:36:43
 Discription: 
 Environment: 
 '''
@@ -13,7 +13,7 @@ import torch.nn as nn
 from torch.distributions.categorical import Categorical
 class Actor(nn.Module):
     def __init__(self,state_dim, action_dim,
-            hidden_dim=256):
+            hidden_dim):
         super(Actor, self).__init__()
 
         self.actor = nn.Sequential(
@@ -30,7 +30,7 @@ class Actor(nn.Module):
         return dist
 
 class Critic(nn.Module):
-    def __init__(self, state_dim,hidden_dim=256):
+    def __init__(self, state_dim,hidden_dim):
         super(Critic, self).__init__()
         self.critic = nn.Sequential(
                 nn.Linear(state_dim, hidden_dim),

@@ -5,12 +5,14 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:02:24
 LastEditor: John
-LastEditTime: 2021-04-03 21:42:13
+LastEditTime: 2021-04-13 18:34:20
 Discription: 
 Environment: 
 '''
 import os
 import numpy as np
+from pathlib import Path
+
 
 
 def save_results(rewards,ma_rewards,tag='train',path='./results'):
@@ -22,8 +24,7 @@ def save_results(rewards,ma_rewards,tag='train',path='./results'):
 
 def make_dir(*paths):
     for path in paths:
-        if not os.path.exists(path): # check if exists
-            os.mkdir(path)
+        Path(path).mkdir(parents=True, exist_ok=True)
 def del_empty_dir(*paths):
     '''del_empty_dir delete empty folders unders "paths"
     '''

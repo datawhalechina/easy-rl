@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2021-03-31 01:04:48
+LastEditTime: 2021-04-08 21:50:13
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -35,6 +35,7 @@ if not os.path.exists(RESULT_PATH): os.mkdir(RESULT_PATH)
 
 class DDPGConfig:
     def __init__(self):
+        self.env = 'Pendulum-v0'
         self.algo = 'DDPG'
         self.gamma = 0.99
         self.critic_lr = 1e-3  
@@ -81,6 +82,7 @@ def train(cfg,env,agent):
 
 if __name__ == "__main__":
     cfg = DDPGConfig()
+    env = 
     env = NormalizedActions(gym.make("Pendulum-v0"))
     env.seed(1) # 设置env随机种子
     state_dim = env.observation_space.shape[0]

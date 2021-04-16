@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-22 16:18:10
 LastEditor: John
-LastEditTime: 2021-04-11 01:24:41
+LastEditTime: 2021-04-11 01:25:43
 Discription: 
 Environment: 
 '''
@@ -35,18 +35,19 @@ if not os.path.exists(RESULT_PATH): # 检测是否存在文件夹
 
 class PPOConfig:
     def __init__(self) -> None:
-        self.env = 'CartPole-v0'
+        self.env = 'LunarLander-v2'
         self.algo = 'PPO'
-        self.batch_size = 5
-        self.gamma=0.99
+        self.batch_size = 128
+        self.gamma=0.95
         self.n_epochs = 4
-        self.actor_lr = 0.0003
-        self.critic_lr = 0.0003
+        self.actor_lr = 0.002
+        self.critic_lr = 0.005
         self.gae_lambda=0.95
         self.policy_clip=0.2
         self.hidden_dim = 256
         self.update_fre = 20 # frequency of agent update
         self.train_eps = 300 # max training episodes
+        self.train_steps = 1000
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # check gpu
         
 def train(cfg,env,agent):
@@ -59,6 +60,7 @@ def train(cfg,env,agent):
         state = env.reset()
         done = False
         ep_reward = 0
+        # for i_step in range(cfg.train_steps):
         while not done:
             action, prob, val = agent.choose_action(state)
             state_, reward, done, _ = env.step(action)
@@ -68,6 +70,8 @@ def train(cfg,env,agent):
             if running_steps % cfg.update_fre == 0:
                 agent.update()
             state = state_
+            # if done:
+            #     break
         rewards.append(ep_reward)
         if ma_rewards:
             ma_rewards.append(
@@ -75,11 +79,10 @@ def train(cfg,env,agent):
         else:
             ma_rewards.append(ep_reward)
         avg_reward = np.mean(rewards[-100:])
-        if avg_rewardself.actor_lr = 0.002
-        self.critic_lr = 0.005 > best_reward:
+        if avg_reward > best_reward:
             best_reward = avg_reward
             agent.save(path=SAVED_MODEL_PATH)
-        print('Episode:{}/{}, Reward:{:.1f}, avg reward:{:.1f}, Done:{}'.format(i_episode+1,cfg.train_eps,ep_reward,avg_reward,done))
+        print('Episode:{}/{}, Reward:{:.1f}, avg reward:{:.1f}, Loss:{}'.format(i_episode+1,cfg.train_eps,ep_reward,avg_reward,agent.loss))
     return rewards,ma_rewards
 
 if __name__ == '__main__':

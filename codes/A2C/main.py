@@ -5,16 +5,20 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2021-03-20 16:58:04
+LastEditTime: 2021-04-05 11:14:39
 @Discription: 
 @Environment: python 3.7.9
 '''
 import sys,os
-sys.path.append(os.getcwd()) # add current terminal path
+curr_path = os.path.dirname(__file__)
+parent_path=os.path.dirname(curr_path) 
+sys.path.append(parent_path) # add current terminal path to sys.path
+
 import torch
 import gym
 import datetime
 from A2C.agent import A2C
+from common.utils import save_results,make_dir,del_empty_dir
 
 
 

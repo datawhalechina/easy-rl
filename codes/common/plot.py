@@ -5,15 +5,15 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-10-07 20:57:11
 LastEditor: John
-LastEditTime: 2021-03-31 18:47:28
+LastEditTime: 2021-04-08 21:45:09
 Discription: 
 Environment: 
 '''
 import matplotlib.pyplot as plt
 import seaborn as sns
-def plot_rewards(rewards,ma_rewards,tag="train",algo = "DQN",save=True,path='./'):
+def plot_rewards(rewards,ma_rewards,tag="train",env='CartPole-v0',algo = "DQN",save=True,path='./'):
     sns.set()
-    plt.title("average learning curve of {}".format(algo))
+    plt.title("average learning curve of {} for {}".format(algo,env))
     plt.xlabel('epsiodes')
     plt.plot(rewards,label='rewards')
     plt.plot(ma_rewards,label='moving average rewards')

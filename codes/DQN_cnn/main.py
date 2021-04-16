@@ -5,12 +5,10 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 10:01:09
 @LastEditor: John
-LastEditTime: 2021-03-29 20:23:48
+LastEditTime: 2021-04-05 11:06:23
 @Discription: 
 @Environment: python 3.7.7
 '''
-import sys,os
-from pathlib import Path
 import sys,os
 curr_path = os.path.dirname(__file__)
 parent_path=os.path.dirname(curr_path) 

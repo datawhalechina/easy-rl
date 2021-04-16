@@ -22,27 +22,27 @@ Note that ```model.py```,```memory.py```,```plot.py``` shall be utilized in diff
 python 3.7.9、pytorch 1.6.0、gym 0.18.0
 ## Usage
 
-run ```main.py``` or ```main.ipynb```
+run ```main.py``` or ```main.ipynb```, or run files with ```task```(like ```task1.py```)
 
 ## Schedule
 
-|                   Name                   |                      Related materials                      | Used Envs                             |  Notes   |
-| :--------------------------------------: | :---------------------------------------------------------: | ------------------------------------- | :------: |
-| [On-Policy First-Visit MC](./MonteCarlo) |                                                             | [Racetrack](./envs/racetrack_env.md)  |          |
-|        [Q-Learning](./QLearning)         |                                                             | [CliffWalking-v0](./envs/gym_info.md) |          |
-|             [Sarsa](./Sarsa)             |                                                             | [Racetrack](./envs/racetrack_env.md)  |          |
-|               [DQN](./DQN)               | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |          |
-|           [DQN-cnn](./DQN_cnn)           | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |          |
-|         [DoubleDQN](./DoubleDQN)         |                                                             | [CartPole-v0](./envs/gym_info.md)     | not well |
-|   [Hierarchical DQN](HierarchicalDQN)    |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     | [CartPole-v0](./envs/gym_info.md)     |          |
-|    [PolicyGradient](./PolicyGradient)    |                                                             | [CartPole-v0](./envs/gym_info.md)     |          |
-|                   A2C                    |                                                             | [CartPole-v0](./envs/gym_info.md)     |          |
-|                   A3C                    |                                                             |                                       |          |
-|                   SAC                    |                                                             |                                       |          |
-|               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [CartPole-v0](./envs/gym_info.md)     |          |
-|              [DDPG](./DDPG)              |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |          |
-|                   TD3                    | [Twin Dueling DDPG Paper](https://arxiv.org/abs/1802.09477) |                                       |          |
-|                   GAIL                   |                                                             |                                       |          |
+|                   Name                   |                      Related materials                      | Used Envs                             | Notes |
+| :--------------------------------------: | :---------------------------------------------------------: | ------------------------------------- | :---: |
+| [On-Policy First-Visit MC](./MonteCarlo) |                                                             | [Racetrack](./envs/racetrack_env.md)  |       |
+|        [Q-Learning](./QLearning)         |                                                             | [CliffWalking-v0](./envs/gym_info.md) |       |
+|             [Sarsa](./Sarsa)             |                                                             | [Racetrack](./envs/racetrack_env.md)  |       |
+|               [DQN](./DQN)               | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |       |
+|           [DQN-cnn](./DQN_cnn)           | [DQN-paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) | [CartPole-v0](./envs/gym_info.md)     |       |
+|         [DoubleDQN](./DoubleDQN)         |                                                             | [CartPole-v0](./envs/gym_info.md)     |       |
+|   [Hierarchical DQN](HierarchicalDQN)    |    [Hierarchical DQN](https://arxiv.org/abs/1604.06057)     | [CartPole-v0](./envs/gym_info.md)     |       |
+|    [PolicyGradient](./PolicyGradient)    |                                                             | [CartPole-v0](./envs/gym_info.md)     |       |
+|                   A2C                    |        [A3C Paper](https://arxiv.org/abs/1602.01783)        | [CartPole-v0](./envs/gym_info.md)     |       |
+|                   A3C                    |        [A3C Paper](https://arxiv.org/abs/1602.01783)        |                                       |       |
+|                   SAC                    |        [SAC Paper](https://arxiv.org/abs/1801.01290)        |                                       |       |
+|               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)        | [CartPole-v0](./envs/gym_info.md)     |       |
+|              [DDPG](./DDPG)              |       [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |       |
+|               [TD3](./TD3)               |        [TD3 Paper](https://arxiv.org/abs/1802.09477)        | HalfCheetah-v2                        |       |
+|                   GAIL                   |                                                             |                                       |       |
 
 
 ## Refs
@@ -52,4 +52,4 @@ run ```main.py``` or ```main.ipynb```
 
 [RL-Adventure](https://github.com/higgsfield/RL-Adventure)
 
-https://www.cnblogs.com/lucifer1997/p/13458563.html
+

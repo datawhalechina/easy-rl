@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-23 15:17:42
 LastEditor: John
-LastEditTime: 2021-03-23 15:52:34
+LastEditTime: 2021-04-11 01:24:24
 Discription: 
 Environment: 
 '''
@@ -17,16 +17,18 @@ from PPO.model import Actor,Critic
 from PPO.memory import PPOMemory
 class PPO:
     def __init__(self, state_dim, action_dim,cfg):
+        self.env = cfg.env
         self.gamma = cfg.gamma
         self.policy_clip = cfg.policy_clip
         self.n_epochs = cfg.n_epochs
         self.gae_lambda = cfg.gae_lambda
         self.device = cfg.device
-        self.actor = Actor(state_dim, action_dim).to(self.device)
-        self.critic = Critic(state_dim).to(self.device)
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=cfg.lr)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=cfg.lr)
+        self.actor = Actor(state_dim, action_dim,cfg.hidden_dim).to(self.device)
+        self.critic = Critic(state_dim,cfg.hidden_dim).to(self.device)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=cfg.actor_lr)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=cfg.critic_lr)
         self.memory = PPOMemory(cfg.batch_size)
+        self.loss = 0
 
     def choose_action(self, observation):
         state = torch.tensor([observation], dtype=torch.float).to(self.device)
@@ -74,6 +76,7 @@ class PPO:
                 critic_loss = (returns-critic_value)**2
                 critic_loss = critic_loss.mean()
                 total_loss = actor_loss + 0.5*critic_loss
+                self.loss  = total_loss
                 self.actor_optimizer.zero_grad()
                 self.critic_optimizer.zero_grad()
                 total_loss.backward()
@@ -81,13 +84,13 @@ class PPO:
                 self.critic_optimizer.step()
         self.memory.clear()  
     def save(self,path):
-        actor_checkpoint = os.path.join(path, 'actor_torch_ppo.pt')
-        critic_checkpoint= os.path.join(path, 'critic_torch_ppo.pt')
+        actor_checkpoint = os.path.join(path, self.env+'_actor.pt')
+        critic_checkpoint= os.path.join(path, self.env+'_critic.pt')
         torch.save(self.actor.state_dict(), actor_checkpoint)
         torch.save(self.critic.state_dict(), critic_checkpoint)
     def load(self,path):
-        actor_checkpoint = os.path.join(path, 'actor_torch_ppo.pt')
-        critic_checkpoint= os.path.join(path, 'critic_torch_ppo.pt')
+        actor_checkpoint = os.path.join(path, self.env+'_actor.pt')
+        critic_checkpoint= os.path.join(path, self.env+'_critic.pt')
         self.actor.load_state_dict(torch.load(actor_checkpoint)) 
         self.critic.load_state_dict(torch.load(critic_checkpoint))  
 
