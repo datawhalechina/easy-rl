@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-23 15:17:42
 LastEditor: John
-LastEditTime: 2021-04-11 01:24:24
+LastEditTime: 2021-04-28 10:11:09
 Discription: 
 Environment: 
 '''
@@ -17,7 +17,6 @@ from PPO.model import Actor,Critic
 from PPO.memory import PPOMemory
 class PPO:
     def __init__(self, state_dim, action_dim,cfg):
-        self.env = cfg.env
         self.gamma = cfg.gamma
         self.policy_clip = cfg.policy_clip
         self.n_epochs = cfg.n_epochs
@@ -84,13 +83,13 @@ class PPO:
                 self.critic_optimizer.step()
         self.memory.clear()  
     def save(self,path):
-        actor_checkpoint = os.path.join(path, self.env+'_actor.pt')
-        critic_checkpoint= os.path.join(path, self.env+'_critic.pt')
+        actor_checkpoint = os.path.join(path, 'ppo_actor.pt')
+        critic_checkpoint= os.path.join(path, 'ppo_critic.pt')
         torch.save(self.actor.state_dict(), actor_checkpoint)
         torch.save(self.critic.state_dict(), critic_checkpoint)
     def load(self,path):
-        actor_checkpoint = os.path.join(path, self.env+'_actor.pt')
-        critic_checkpoint= os.path.join(path, self.env+'_critic.pt')
+        actor_checkpoint = os.path.join(path, 'ppo_actor.pt')
+        critic_checkpoint= os.path.join(path, 'ppo_critic.pt')
         self.actor.load_state_dict(torch.load(actor_checkpoint)) 
         self.critic.load_state_dict(torch.load(critic_checkpoint))  
 

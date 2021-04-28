@@ -1,14 +1,18 @@
 # Policy Gradient
-实现的是Policy Gradient最基本的REINFORCE方法
-## 使用说明
-直接运行```main.py```即可
-## 原理讲解
 
-参考我的博客[Policy Gradient算法实战](https://blog.csdn.net/JohnJim0/article/details/110236851)
 
-## 环境
-python 3.7.9、pytorch 1.6.0
-## 程序运行方法
+Policy-based方法是强化学习中与Value-based(比如Q-learning)相对的方法，其目的是对策略本身进行梯度下降，相关基础知识参考[Datawhale-Policy Gradient](https://datawhalechina.github.io/leedeeprl-notes/#/chapter4/chapter4)。
+其中REINFORCE是一个最基本的Policy Gradient方法，主要解决策略梯度无法直接计算的问题，具体原理参考[CSDN-REINFORCE和Reparameterization Trick](https://blog.csdn.net/JohnJim0/article/details/110230703)
+
+## 伪代码
+
+结合REINFORCE原理，其伪代码如下：
+
+![img](assets/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0pvaG5KaW0w,size_16,color_FFFFFF,t_70-20210428001336032.png)
+
+## 实现
+
+
 
 ## 参考
 

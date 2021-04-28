@@ -92,13 +92,9 @@ class TD3(object):
 		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=3e-4)
 		self.memory = ReplayBuffer(state_dim, action_dim)
 
-		
-
-
 	def choose_action(self, state):
 		state = torch.FloatTensor(state.reshape(1, -1)).to(self.device)
 		return self.actor(state).cpu().data.numpy().flatten()
-
 
 	def update(self):
 		self.total_it += 1
