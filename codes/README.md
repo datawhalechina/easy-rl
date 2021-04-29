@@ -37,13 +37,11 @@ python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
 |         [DoubleDQN](./DoubleDQN)         |                                                              | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |   [Hierarchical DQN](HierarchicalDQN)    |       [H-DQN Paper](https://arxiv.org/abs/1604.06057)        | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |    [PolicyGradient](./PolicyGradient)    |                                                              | [CartPole-v0](./envs/gym_info.md)     |                                    |
-|                   A2C                    |        [A3C Paper](https://arxiv.org/abs/1602.01783)         | [CartPole-v0](./envs/gym_info.md)     |                                    |
-|                   A3C                    |        [A3C Paper](https://arxiv.org/abs/1602.01783)         |                                       |                                    |
-|                   SAC                    |        [SAC Paper](https://arxiv.org/abs/1801.01290)         |                                       |                                    |
+|               [A2C](./A2C)               |        [A3C Paper](https://arxiv.org/abs/1602.01783)         | [CartPole-v0](./envs/gym_info.md)     |                                    |
+|               [SAC](./SAC)               |        [SAC Paper](https://arxiv.org/abs/1801.01290)         | [Pendulum-v0](./envs/gym_info.md)     |                                    |
 |               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)         | [CartPole-v0](./envs/gym_info.md)     |                                    |
 |              [DDPG](./DDPG)              |        [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)     |                                    |
 |               [TD3](./TD3)               |        [TD3 Paper](https://arxiv.org/abs/1802.09477)         | HalfCheetah-v2                        |                                    |
-|                   GAIL                   |        [GAIL Paper](https://arxiv.org/abs/1606.03476)        |                                       |                                    |
 
 
 
