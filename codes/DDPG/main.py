@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2021-04-08 21:50:13
+LastEditTime: 2021-04-29 01:58:50
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -82,7 +82,6 @@ def train(cfg,env,agent):
 
 if __name__ == "__main__":
     cfg = DDPGConfig()
-    env = 
     env = NormalizedActions(gym.make("Pendulum-v0"))
     env.seed(1) # 设置env随机种子
     state_dim = env.observation_space.shape[0]

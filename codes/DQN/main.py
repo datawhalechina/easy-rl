@@ -5,21 +5,23 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-04-18 14:44:45
+LastEditTime: 2021-04-29 02:02:12
 @Discription: 
 @Environment: python 3.7.7
 '''
-from common.utils import save_results, make_dir, del_empty_dir
-from common.plot import plot_rewards
-from DQN.agent import DQN
-import datetime
-import torch
-import gym
-import sys
-import os
+import sys,os
 curr_path = os.path.dirname(__file__)
 parent_path = os.path.dirname(curr_path)
 sys.path.append(parent_path)  # add current terminal path to sys.path
+
+import datetime
+import torch
+import gym
+
+from common.utils import save_results, make_dir, del_empty_dir
+from common.plot import plot_rewards
+from DQN.agent import DQN
+
 
 
 curr_time = datetime.datetime.now().strftime(
