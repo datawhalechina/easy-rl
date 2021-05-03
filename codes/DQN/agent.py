@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2021-03-30 17:01:26
+LastEditTime: 2021-04-29 22:19:18
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -39,6 +39,8 @@ class DQN:
                               hidden_dim=cfg.hidden_dim).to(self.device)
         self.target_net = MLP(state_dim, action_dim,
                               hidden_dim=cfg.hidden_dim).to(self.device)
+        for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
+            target_param.data.copy_(param.data)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
         self.loss = 0
         self.memory = ReplayBuffer(cfg.memory_capacity)
@@ -48,21 +50,16 @@ class DQN:
         '''
         self.frame_idx += 1
         if random.random() > self.epsilon(self.frame_idx):
-            with torch.no_grad():
-                # 先转为张量便于丢给神经网络,state元素数据原本为float64
-                # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
-                state = torch.tensor(
-                    [state], device=self.device, dtype=torch.float32)
-                # 如tensor([[-0.0798, -0.0079]], grad_fn=<AddmmBackward>)
-                q_value = self.policy_net(state)
-                # tensor.max(1)返回每行的最大值以及对应的下标，
-                # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
-                # 所以tensor.max(1)[1]返回最大值对应的下标，即action
-                action = q_value.max(1)[1].item()
+            action = self.predict(state)
         else:
             action = random.randrange(self.action_dim)
         return action
-
+    def predict(self,state):
+        with torch.no_grad():
+            state = torch.tensor([state], device=self.device, dtype=torch.float32)
+            q_values = self.policy_net(state)
+            action = q_values.max(1)[1].item()
+        return action
     def update(self):
 
         if len(self.memory) < self.batch_size:
@@ -109,3 +106,5 @@ class DQN:
 
     def load(self, path):
         self.target_net.load_state_dict(torch.load(path+'dqn_checkpoint.pth'))
+        for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
+            param.data.copy_(target_param.data)

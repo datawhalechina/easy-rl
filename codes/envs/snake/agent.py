@@ -78,7 +78,6 @@ class Agent:
         :param points: float, the current points from environment
         :param dead: boolean, if the snake is dead
         :return: the index of action. 0,1,2,3 indicates up,down,left,right separately
-        TODO: write your function here.
         Return the index of action the snake needs to take, according to the state and points known from environment.
         Tips: you need to discretize the state to the state space defined on the webpage first.
         (Note that [adjoining_wall_x=0, adjoining_wall_y=0] is also the case when snake runs out of the 480x480 board)
