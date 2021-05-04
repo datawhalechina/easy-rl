@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 21:14:12
 LastEditor: John
-LastEditTime: 2021-03-31 13:49:06
+LastEditTime: 2021-05-04 02:45:27
 Discription: 
 Environment: 
 '''
@@ -63,7 +63,7 @@ class Actor(nn.Module):
     def forward(self, x):
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
-        x = F.tanh(self.linear3(x))
+        x = torch.tanh(self.linear3(x))
         return x
 
 class ActorCritic(nn.Module):

@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-05-04 15:01:34
+LastEditTime: 2021-05-04 15:05:37
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -14,87 +14,84 @@ curr_path = os.path.dirname(__file__)
 parent_path = os.path.dirname(curr_path)
 sys.path.append(parent_path)  # add current terminal path to sys.path
 
-import datetime
-import torch
 import gym
-
-from common.utils import save_results, make_dir
+import torch
+import datetime
+from DoubleDQN.agent import DoubleDQN
 from common.plot import plot_rewards
-from DQN.agent import DQN
+from common.utils import save_results, make_dir
 
 curr_time = datetime.datetime.now().strftime(
     "%Y%m%d-%H%M%S")  # obtain current time
 
-class DQNConfig:
+class DoubleDQNConfig:
     def __init__(self):
-        self.algo = "DQN"  # name of algo
-        self.env = 'CartPole-v0'
+        self.algo = "DoubleDQN" # name of algo
+        self.env = 'CartPole-v0'  # env name
         self.result_path = curr_path+"/outputs/" + self.env + \
             '/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" + self.env + \
             '/'+curr_time+'/models/'  # path to save results
-        self.train_eps = 300  # 训练的episode数目
-        self.eval_eps = 50 # number of episodes for evaluating
-        self.gamma = 0.95
-        self.epsilon_start = 0.90  # e-greedy策略的初始epsilon
-        self.epsilon_end = 0.01
-        self.epsilon_decay = 500
-        self.lr = 0.0001  # learning rate
-        self.memory_capacity = 100000  # Replay Memory容量
-        self.batch_size = 64
-        self.target_update = 2  # target net的更新频率
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # 检测gpu
-        self.hidden_dim = 256  # 神经网络隐藏层维度
-
+        self.gamma = 0.99 
+        self.epsilon_start = 0.9 # start epsilon of e-greedy policy
+        self.epsilon_end = 0.01 
+        self.epsilon_decay = 200
+        self.lr = 0.01 # learning rate
+        self.memory_capacity = 10000 # capacity of Replay Memory
+        self.batch_size = 128
+        self.train_eps = 300 # max tranng episodes
+        self.train_steps = 200 # max training steps per episode
+        self.target_update = 2 # update frequency of target net
+        self.eval_eps = 50 # max evaling episodes
+        self.eval_steps = 200 # max evaling steps per episode
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # check gpu
+        self.hidden_dim = 128 # hidden size of net
+ 
 def env_agent_config(cfg,seed=1):
     env = gym.make(cfg.env)  
     env.seed(seed)
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.n
-    agent = DQN(state_dim,action_dim,cfg)
+    agent = DoubleDQN(state_dim,action_dim,cfg)
     return env,agent
     
-def train(cfg, env, agent):
+def train(cfg,env,agent):
     print('Start to train !')
-    print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
-    rewards = []
-    ma_rewards = []  # moveing average reward
-    for i_episode in range(cfg.train_eps):
-        state = env.reset()
-        done = False
+    rewards,ma_rewards = [],[]
+    for i_ep in range(cfg.train_eps):
+        state = env.reset() # reset环境状态
         ep_reward = 0
         while True:
-            action = agent.choose_action(state)
-            next_state, reward, done, _ = env.step(action)
+            action = agent.choose_action(state) # 根据当前环境state选择action
+            next_state, reward, done, _ = env.step(action) # 更新环境参数
             ep_reward += reward
-            agent.memory.push(state, action, reward, next_state, done)
-            state = next_state
-            agent.update()
+            agent.memory.push(state, action, reward, next_state, done) # 将state等这些transition存入memory
+            state = next_state # 跳转到下一个状态
+            agent.update() # 每步更新网络
             if done:
                 break
-        if i_episode % cfg.target_update == 0:
+        if i_ep % cfg.target_update == 0:
             agent.target_net.load_state_dict(agent.policy_net.state_dict())
-        print('Episode:{}/{}, Reward:{}'.format(i_episode+1, cfg.train_eps, ep_reward))
+        print(f'Episode:{i_ep+1}/{cfg.train_eps}, Reward:{ep_reward}')
         rewards.append(ep_reward)
-        # save ma rewards
         if ma_rewards:
-            ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
+            ma_rewards.append(
+                0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
-            ma_rewards.append(ep_reward)
+            ma_rewards.append(ep_reward)   
     print('Complete training！')
-    return rewards, ma_rewards
+    return rewards,ma_rewards
 
 def eval(cfg,env,agent):
-    rewards = []  # 记录所有episode的reward
-    ma_rewards = [] # 滑动平均的reward
+    rewards = []  
+    ma_rewards = []
     for i_ep in range(cfg.eval_eps):
-        ep_reward = 0  # 记录每个episode的reward
-        state = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
+        state = env.reset() 
+        ep_reward = 0   
         while True:
-            action = agent.predict(state)  # 根据算法选择一个动作
-            next_state, reward, done, _ = env.step(action)  # 与环境进行一个交互
-            state = next_state  # 存储上一个观察值
+            action = agent.predict(state)  
+            next_state, reward, done, _ = env.step(action)  
+            state = next_state  
             ep_reward += reward
             if done:
                 break
@@ -104,10 +101,9 @@ def eval(cfg,env,agent):
         else:
             ma_rewards.append(ep_reward)
         print(f"Episode:{i_ep+1}/{cfg.eval_eps}, reward:{ep_reward:.1f}")
-    return rewards,ma_rewards
-
+    return rewards,ma_rewards    
 if __name__ == "__main__":
-    cfg = DQNConfig()
+    cfg = DoubleDQNConfig()
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)

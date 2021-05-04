@@ -21,9 +21,6 @@ Note that ```model.py```,```memory.py```,```plot.py``` shall be utilized in diff
 
 python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
 ## Usage
-运行带有```train```的py文件或ipynb文件进行训练，如果前面带有```task```如```task0_train.py```，表示对task0任务训练
-类似的带有```eval```即为测试。
-
 run python scripts or jupyter notebook file with ```train``` to train the agent, if there is a ```task``` like ```task0_train.py```, it means to train with task 0.
 
 similar to file with ```eval```, which means to evaluate the agent.
@@ -36,7 +33,7 @@ similar to file with ```eval```, which means to evaluate the agent.
 |        [Q-Learning](./QLearning)         | [towardsdatascience blog](https://towardsdatascience.com/simple-reinforcement-learning-q-learning-fcddc4b6fe56),[q learning paper](https://ieeexplore.ieee.org/document/8836506) | [CliffWalking-v0](./envs/gym_info.md)     |                                    |
 |             [Sarsa](./Sarsa)             | [geeksforgeeks blog](https://www.geeksforgeeks.org/sarsa-reinforcement-learning/) | [Racetrack](./envs/racetrack_env.md)      |                                    |
 |               [DQN](./DQN)               | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf),[Nature DQN Paper](https://www.nature.com/articles/nature14236) | [CartPole-v0](./envs/gym_info.md)         |                                    |
-|           [DQN-cnn](./DQN_cnn)           | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)  | [CartPole-v0](./envs/gym_info.md)         | 与DQN相比使用了CNN而不是全链接网络 |
+|           [DQN-cnn](./DQN_cnn)           | [DQN Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)  | [CartPole-v0](./envs/gym_info.md)         |  |
 |         [DoubleDQN](./DoubleDQN)         |     [DoubleDQN Paper](https://arxiv.org/abs/1509.06461)      | [CartPole-v0](./envs/gym_info.md)         |                                    |
 |   [Hierarchical DQN](HierarchicalDQN)    |       [H-DQN Paper](https://arxiv.org/abs/1604.06057)        | [CartPole-v0](./envs/gym_info.md)         |                                    |
 |    [PolicyGradient](./PolicyGradient)    | [Lil'log](https://lilianweng.github.io/lil-log/2018/04/08/policy-gradient-algorithms.html) | [CartPole-v0](./envs/gym_info.md)         |                                    |

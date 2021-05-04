@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2021-03-28 11:07:35
+LastEditTime: 2021-05-04 15:04:45
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -42,15 +42,8 @@ class DoubleDQN:
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
         self.loss = 0
         self.memory = ReplayBuffer(cfg.memory_capacity)
-
-    def choose_action(self, state):
-        '''选择动作
-        '''
-        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            math.exp(-1. * self.actions_count / self.epsilon_decay)
-        self.actions_count += 1
-        if random.random() > self.epsilon:
-            with torch.no_grad():
+    def predict(self,state):
+        with torch.no_grad():
                 # 先转为张量便于丢给神经网络,state元素数据原本为float64
                 # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
                 state = torch.tensor(
@@ -61,6 +54,15 @@ class DoubleDQN:
                 # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
                 # 所以tensor.max(1)[1]返回最大值对应的下标，即action
                 action = q_value.max(1)[1].item()  
+        return action
+    def choose_action(self, state):
+        '''选择动作
+        '''
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+            math.exp(-1. * self.actions_count / self.epsilon_decay)
+        self.actions_count += 1
+        if random.random() > self.epsilon:
+            action  = self.predict(state)
         else:
             action = random.randrange(self.action_dim)
         return action
@@ -113,7 +115,9 @@ class DoubleDQN:
         self.optimizer.step()  # 更新模型
 
     def save(self,path):
-        torch.save(self.target_net.state_dict(), path+'DoubleDQN_checkpoint.pth')
+        torch.save(self.target_net.state_dict(), path+'checkpoint.pth')
 
     def load(self,path):
-        self.target_net.load_state_dict(torch.load(path+'DoubleDQN_checkpoint.pth'))    
+        self.target_net.load_state_dict(torch.load(path+'checkpoint.pth'))  
+        for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
+            param.data.copy_(target_param.data)  

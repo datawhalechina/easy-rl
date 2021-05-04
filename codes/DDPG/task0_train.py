@@ -3,9 +3,9 @@
 '''
 @Author: John
 @Email: johnjim0816@gmail.com
-@Date: 2020-06-12 00:48:57
+@Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2021-05-04 15:01:34
+LastEditTime: 2021-05-04 14:49:45
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -15,69 +15,72 @@ parent_path = os.path.dirname(curr_path)
 sys.path.append(parent_path)  # add current terminal path to sys.path
 
 import datetime
-import torch
 import gym
+import torch
 
-from common.utils import save_results, make_dir
+from DDPG.env import NormalizedActions, OUNoise
+from DDPG.agent import DDPG
+from common.utils import save_results,make_dir
 from common.plot import plot_rewards
-from DQN.agent import DQN
 
 curr_time = datetime.datetime.now().strftime(
     "%Y%m%d-%H%M%S")  # obtain current time
 
-class DQNConfig:
+
+class DDPGConfig:
     def __init__(self):
-        self.algo = "DQN"  # name of algo
-        self.env = 'CartPole-v0'
+        self.algo = 'DDPG'
+        self.env = 'Pendulum-v0' # env name
         self.result_path = curr_path+"/outputs/" + self.env + \
             '/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" + self.env + \
             '/'+curr_time+'/models/'  # path to save results
-        self.train_eps = 300  # 训练的episode数目
-        self.eval_eps = 50 # number of episodes for evaluating
-        self.gamma = 0.95
-        self.epsilon_start = 0.90  # e-greedy策略的初始epsilon
-        self.epsilon_end = 0.01
-        self.epsilon_decay = 500
-        self.lr = 0.0001  # learning rate
-        self.memory_capacity = 100000  # Replay Memory容量
-        self.batch_size = 64
-        self.target_update = 2  # target net的更新频率
+        self.gamma = 0.99
+        self.critic_lr = 1e-3
+        self.actor_lr = 1e-4
+        self.memory_capacity = 10000
+        self.batch_size = 128
+        self.train_eps = 300
+        self.eval_eps = 50
+        self.eval_steps = 200
+        self.target_update = 4
+        self.hidden_dim = 30
+        self.soft_tau = 1e-2
         self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # 检测gpu
-        self.hidden_dim = 256  # 神经网络隐藏层维度
+            "cuda" if torch.cuda.is_available() else "cpu")
 
 def env_agent_config(cfg,seed=1):
-    env = gym.make(cfg.env)  
+    env = NormalizedActions(gym.make(cfg.env)) 
     env.seed(seed)
     state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.n
-    agent = DQN(state_dim,action_dim,cfg)
+    action_dim = env.action_space.shape[0]
+    agent = DDPG(state_dim,action_dim,cfg)
     return env,agent
-    
+
 def train(cfg, env, agent):
-    print('Start to train !')
+    print('Start to train ! ')
     print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
+    ou_noise = OUNoise(env.action_space)  # action noise
     rewards = []
-    ma_rewards = []  # moveing average reward
+    ma_rewards = []  # moving average rewards
     for i_episode in range(cfg.train_eps):
         state = env.reset()
+        ou_noise.reset()
         done = False
         ep_reward = 0
-        while True:
+        i_step = 0
+        while not done:
+            i_step += 1
             action = agent.choose_action(state)
+            action = ou_noise.get_action(
+                action, i_step)  # 即paper中的random process
             next_state, reward, done, _ = env.step(action)
             ep_reward += reward
             agent.memory.push(state, action, reward, next_state, done)
-            state = next_state
             agent.update()
-            if done:
-                break
-        if i_episode % cfg.target_update == 0:
-            agent.target_net.load_state_dict(agent.policy_net.state_dict())
+            state = next_state
         print('Episode:{}/{}, Reward:{}'.format(i_episode+1, cfg.train_eps, ep_reward))
         rewards.append(ep_reward)
-        # save ma rewards
         if ma_rewards:
             ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
@@ -85,29 +88,36 @@ def train(cfg, env, agent):
     print('Complete training！')
     return rewards, ma_rewards
 
-def eval(cfg,env,agent):
-    rewards = []  # 记录所有episode的reward
-    ma_rewards = [] # 滑动平均的reward
-    for i_ep in range(cfg.eval_eps):
-        ep_reward = 0  # 记录每个episode的reward
-        state = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
-        while True:
-            action = agent.predict(state)  # 根据算法选择一个动作
-            next_state, reward, done, _ = env.step(action)  # 与环境进行一个交互
-            state = next_state  # 存储上一个观察值
+def eval(cfg, env, agent):
+    print('Start to Eval ! ')
+    print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
+    rewards = []
+    ma_rewards = []  # moving average rewards
+    for i_episode in range(cfg.eval_eps):
+        state = env.reset()
+        done = False
+        ep_reward = 0
+        i_step = 0
+        while not done:
+            i_step += 1
+            action = agent.choose_action(state)
+            next_state, reward, done, _ = env.step(action)
             ep_reward += reward
-            if done:
-                break
+            state = next_state
+        print('Episode:{}/{}, Reward:{}'.format(i_episode+1, cfg.train_eps, ep_reward))
         rewards.append(ep_reward)
         if ma_rewards:
-            ma_rewards.append(ma_rewards[-1]*0.9+ep_reward*0.1)
+            ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
-        print(f"Episode:{i_ep+1}/{cfg.eval_eps}, reward:{ep_reward:.1f}")
-    return rewards,ma_rewards
+    print('Complete Eval！')
+    return rewards, ma_rewards
+
 
 if __name__ == "__main__":
-    cfg = DQNConfig()
+    cfg = DDPGConfig()
+
+    # train
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)
@@ -115,9 +125,11 @@ if __name__ == "__main__":
     save_results(rewards, ma_rewards, tag='train', path=cfg.result_path)
     plot_rewards(rewards, ma_rewards, tag="train",
                  algo=cfg.algo, path=cfg.result_path)
-
+    
+    # eval
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path)
     rewards,ma_rewards = eval(cfg,env,agent)
     save_results(rewards,ma_rewards,tag='eval',path=cfg.result_path)
     plot_rewards(rewards,ma_rewards,tag="eval",env=cfg.env,algo = cfg.algo,path=cfg.result_path)
+    
