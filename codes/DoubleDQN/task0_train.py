@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-05-04 15:05:37
+LastEditTime: 2021-05-04 22:26:59
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -31,21 +31,19 @@ class DoubleDQNConfig:
         self.result_path = curr_path+"/outputs/" + self.env + \
             '/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" + self.env + \
-            '/'+curr_time+'/models/'  # path to save results
-        self.gamma = 0.99 
-        self.epsilon_start = 0.9 # start epsilon of e-greedy policy
-        self.epsilon_end = 0.01 
-        self.epsilon_decay = 200
-        self.lr = 0.01 # learning rate
-        self.memory_capacity = 10000 # capacity of Replay Memory
-        self.batch_size = 128
-        self.train_eps = 300 # max tranng episodes
-        self.train_steps = 200 # max training steps per episode
-        self.target_update = 2 # update frequency of target net
+            '/'+curr_time+'/models/'  # path to save models
+        self.train_eps = 200 # max tranng episodes
         self.eval_eps = 50 # max evaling episodes
-        self.eval_steps = 200 # max evaling steps per episode
+        self.gamma = 0.95
+        self.epsilon_start = 1 # start epsilon of e-greedy policy
+        self.epsilon_end = 0.01 
+        self.epsilon_decay = 500
+        self.lr = 0.001 # learning rate
+        self.memory_capacity = 100000 # capacity of Replay Memory
+        self.batch_size = 64
+        self.target_update = 2 # update frequency of target net
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # check gpu
-        self.hidden_dim = 128 # hidden size of net
+        self.hidden_dim = 256 # hidden size of net
  
 def env_agent_config(cfg,seed=1):
     env = gym.make(cfg.env)  
@@ -59,20 +57,20 @@ def train(cfg,env,agent):
     print('Start to train !')
     rewards,ma_rewards = [],[]
     for i_ep in range(cfg.train_eps):
-        state = env.reset() # reset环境状态
+        state = env.reset() 
         ep_reward = 0
         while True:
-            action = agent.choose_action(state) # 根据当前环境state选择action
-            next_state, reward, done, _ = env.step(action) # 更新环境参数
+            action = agent.choose_action(state) 
+            next_state, reward, done, _ = env.step(action)
             ep_reward += reward
-            agent.memory.push(state, action, reward, next_state, done) # 将state等这些transition存入memory
-            state = next_state # 跳转到下一个状态
-            agent.update() # 每步更新网络
+            agent.memory.push(state, action, reward, next_state, done) 
+            state = next_state 
+            agent.update() 
             if done:
                 break
         if i_ep % cfg.target_update == 0:
             agent.target_net.load_state_dict(agent.policy_net.state_dict())
-        print(f'Episode:{i_ep+1}/{cfg.train_eps}, Reward:{ep_reward}')
+        print(f'Episode:{i_ep+1}/{cfg.train_eps}, Reward:{ep_reward},Epsilon:{agent.epsilon:.2f}')
         rewards.append(ep_reward)
         if ma_rewards:
             ma_rewards.append(
@@ -83,6 +81,8 @@ def train(cfg,env,agent):
     return rewards,ma_rewards
 
 def eval(cfg,env,agent):
+    print('Start to eval !')
+    print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
     rewards = []  
     ma_rewards = []
     for i_ep in range(cfg.eval_eps):
@@ -101,9 +101,12 @@ def eval(cfg,env,agent):
         else:
             ma_rewards.append(ep_reward)
         print(f"Episode:{i_ep+1}/{cfg.eval_eps}, reward:{ep_reward:.1f}")
+    print('Complete evaling！')
     return rewards,ma_rewards    
+    
 if __name__ == "__main__":
     cfg = DoubleDQNConfig()
+    # train
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)
@@ -112,6 +115,7 @@ if __name__ == "__main__":
     plot_rewards(rewards, ma_rewards, tag="train",
                  algo=cfg.algo, path=cfg.result_path)
 
+    # eval
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path)
     rewards,ma_rewards = eval(cfg,env,agent)
