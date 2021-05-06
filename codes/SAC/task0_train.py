@@ -5,12 +5,10 @@ Author: JiangJi
 Email: johnjim0816@gmail.com
 Date: 2021-04-29 12:59:22
 LastEditor: JiangJi
-LastEditTime: 2021-05-06 01:47:36
+LastEditTime: 2021-05-06 16:58:01
 Discription: 
 Environment: 
 '''
-
-
 import sys,os
 curr_path = os.path.dirname(__file__)
 parent_path = os.path.dirname(curr_path)
