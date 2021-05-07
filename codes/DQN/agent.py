@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2021-04-29 22:19:18
+LastEditTime: 2021-05-07 16:30:05
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -35,15 +35,13 @@ class DQN:
             (cfg.epsilon_start - cfg.epsilon_end) * \
             math.exp(-1. * frame_idx / cfg.epsilon_decay)
         self.batch_size = cfg.batch_size
-        self.policy_net = MLP(state_dim, action_dim,
-                              hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(state_dim, action_dim,
-                              hidden_dim=cfg.hidden_dim).to(self.device)
-        for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
+        self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+        for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): # copy params from policy net
             target_param.data.copy_(param.data)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
-        self.loss = 0
         self.memory = ReplayBuffer(cfg.memory_capacity)
+        
 
     def choose_action(self, state):
         '''选择动作
@@ -92,11 +90,11 @@ class DQN:
         expected_q_values = reward_batch + \
             self.gamma * next_q_values * (1-done_batch)
         # self.loss = F.smooth_l1_loss(q_values,expected_q_values.unsqueeze(1)) # 计算 Huber loss
-        self.loss = nn.MSELoss()(q_values, expected_q_values.unsqueeze(1))  # 计算 均方误差loss
+        loss = nn.MSELoss()(q_values, expected_q_values.unsqueeze(1))  # 计算 均方误差loss
         # 优化模型
         self.optimizer.zero_grad()  # zero_grad清除上一步所有旧的gradients from the last step
         # loss.backward()使用backpropagation计算loss相对于所有parameters(需要gradients)的微分
-        self.loss.backward()
+        loss.backward()
         # for param in self.policy_net.parameters():  # clip防止梯度爆炸
         #     param.grad.data.clamp_(-1, 1)
         self.optimizer.step()  # 更新模型

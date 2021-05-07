@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2021-03-28 11:07:35
+LastEditTime: 2021-05-04 22:28:06
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -35,22 +35,16 @@ class DoubleDQN:
         self.batch_size = cfg.batch_size
         self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
         self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
-        # target_net的初始模型参数完全复制policy_net
-        self.target_net.load_state_dict(self.policy_net.state_dict())
-        self.target_net.eval()  # 不启用 BatchNormalization 和 Dropout
+        # target_net copy from policy_net
+        for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
+            target_param.data.copy_(param.data)
+        # self.target_net.eval()  # 不启用 BatchNormalization 和 Dropout
         # 可查parameters()与state_dict()的区别，前者require_grad=True
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
         self.loss = 0
         self.memory = ReplayBuffer(cfg.memory_capacity)
-
-    def choose_action(self, state):
-        '''选择动作
-        '''
-        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            math.exp(-1. * self.actions_count / self.epsilon_decay)
-        self.actions_count += 1
-        if random.random() > self.epsilon:
-            with torch.no_grad():
+    def predict(self,state):
+        with torch.no_grad():
                 # 先转为张量便于丢给神经网络,state元素数据原本为float64
                 # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
                 state = torch.tensor(
@@ -61,6 +55,15 @@ class DoubleDQN:
                 # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
                 # 所以tensor.max(1)[1]返回最大值对应的下标，即action
                 action = q_value.max(1)[1].item()  
+        return action
+    def choose_action(self, state):
+        '''选择动作
+        '''
+        self.actions_count += 1
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+            math.exp(-1. * self.actions_count / self.epsilon_decay)
+        if random.random() > self.epsilon:
+            action  = self.predict(state)
         else:
             action = random.randrange(self.action_dim)
         return action
@@ -71,7 +74,7 @@ class DoubleDQN:
         # 从memory中随机采样transition
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample(
             self.batch_size)
-        ### 转为张量 ###
+        # convert to tensor
         state_batch = torch.tensor(
             state_batch, device=self.device, dtype=torch.float)
         action_batch = torch.tensor(action_batch, device=self.device).unsqueeze(
@@ -82,8 +85,7 @@ class DoubleDQN:
             next_state_batch, device=self.device, dtype=torch.float)
         
         done_batch = torch.tensor(np.float32(
-            done_batch), device=self.device).unsqueeze(1)  # 将bool转为float然后转为张量
-
+            done_batch), device=self.device)  # 将bool转为float然后转为张量
         # 计算当前(s_t,a)对应的Q(s_t, a)
         q_values = self.policy_net(state_batch) 
         next_q_values = self.policy_net(next_state_batch)
@@ -102,7 +104,7 @@ class DoubleDQN:
             next_state_batch)
         # 选出Q(s_t‘, a)对应的action，代入到next_target_values获得target net对应的next_q_value，即Q’(s_t|a=argmax Q(s_t‘, a))
         next_target_q_value = next_target_values.gather(1, torch.max(next_q_values, 1)[1].unsqueeze(1)).squeeze(1)
-        q_target = reward_batch + self.gamma * next_target_q_value * (1-done_batch[0])
+        q_target = reward_batch + self.gamma * next_target_q_value * (1-done_batch)
         self.loss = nn.MSELoss()(q_value, q_target.unsqueeze(1))  # 计算 均方误差loss
         # 优化模型
         self.optimizer.zero_grad()  # zero_grad清除上一步所有旧的gradients from the last step
@@ -113,7 +115,9 @@ class DoubleDQN:
         self.optimizer.step()  # 更新模型
 
     def save(self,path):
-        torch.save(self.target_net.state_dict(), path+'DoubleDQN_checkpoint.pth')
+        torch.save(self.target_net.state_dict(), path+'checkpoint.pth')
 
     def load(self,path):
-        self.target_net.load_state_dict(torch.load(path+'DoubleDQN_checkpoint.pth'))    
+        self.target_net.load_state_dict(torch.load(path+'checkpoint.pth'))  
+        for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
+            param.data.copy_(target_param.data)  

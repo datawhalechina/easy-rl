@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2021-03-23 16:37:14
+LastEditTime: 2021-05-05 17:33:10
 Discription: 
 Environment: 
 '''
@@ -64,7 +64,7 @@ class PolicyGradient:
             # print(loss)
             loss.backward()
         self.optimizer.step()
-    def save_model(self,path):
+    def save(self,path):
         torch.save(self.policy_net.state_dict(), path+'pg_checkpoint.pt')
-    def load_model(self,path):
+    def load(self,path):
         self.policy_net.load_state_dict(torch.load(path+'pg_checkpoint.pt')) 
