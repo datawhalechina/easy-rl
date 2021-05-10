@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-10-07 20:57:11
 LastEditor: John
-LastEditTime: 2021-04-28 10:13:21
+LastEditTime: 2021-04-29 15:41:48
 Discription: 
 Environment: 
 '''
@@ -19,7 +19,7 @@ def plot_rewards(rewards,ma_rewards,tag="train",env='CartPole-v0',algo = "DQN",s
     plt.plot(ma_rewards,label='ma rewards')
     plt.legend()
     if save:
-        plt.savefig(path+"rewards_curve_{}".format(tag))
+        plt.savefig(path+"{}_rewards_curve".format(tag))
     plt.show()
 # def plot_rewards(dic,tag="train",env='CartPole-v0',algo = "DQN",save=True,path='./'):
 #     sns.set()
