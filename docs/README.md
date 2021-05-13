@@ -44,7 +44,7 @@
       </td>
       <td>
          <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
-         <a href="https://github.com/yyysjz1997">David Young</a> 
+         <a href="https://github.com/yyysjz1997">Yiyuan Yang</a> 
         <p>习题设计&第13章 <br> 清华大学</p>
       </td>
       <td>
