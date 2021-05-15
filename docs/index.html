@@ -43,19 +43,23 @@
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
 
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/external-script.min.js"></script>
-  <script src="https://utteranc.es/client.js"
-        repo="[datawhalechina/easy-rl]"
-        issue-term="title"
-        theme="github-light"
-        crossorigin="anonymous"
-        async>
-  </script>
+  <!-- gitalk for comments -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+  const gitalk = new Gitalk({
+    clientID: '1a90828b637703f6c3d4',
+    clientSecret: '88d1ea6457d8e9554b33e94bb38d61ba9a2070ea',
+    repo: 'easy-rl',
+    owner: 'datawhalechina',
+    admin: ['datawhalechina'],
+    // facebook-like distraction free mode
+    distractionFreeMode: false
+  })
+</script>
 
 
-
-
-  
 
 
   <!-- <script src="//unpkg.com/docsify@4.7.0/lib/docsify.min.js"></script> -->
