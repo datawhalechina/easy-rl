@@ -86,4 +86,4 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 **plot.py**：保存相关绘制函数，可选
 
-[参考代码](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/dqn)
+[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/codes/DQN)
