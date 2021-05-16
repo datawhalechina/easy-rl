@@ -10,9 +10,11 @@
 
 
 ## 在线阅读(内容实时更新)
+
 地址：https://datawhalechina.github.io/easy-rl/
 
-## 最新版PDF下载
+## 最新版PDF电子书下载
+
 地址：https://github.com/datawhalechina/easy-rl/releases
 
 ## 内容导航
