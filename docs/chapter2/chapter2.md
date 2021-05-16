@@ -164,7 +164,7 @@ $$
 
 > Law of total expectation 也被称为 law of iterated expectations(LIE)。如果 $A_i$ 是样本空间的有限或可数的划分(partition)，则全期望公式可以写成如下形式：
 > $$
-> \mathrm{E}(X)=\sum_{i} \mathrm{E}\left(X \mid A_{i}\right) \mathrm{P}\left(A_{i}\right)
+> \mathrm{E}(X)=\sum_{i} \mathrm{E}\left(X \mid A_{i}\right) \mathrm{P}\left(A_{i}\right) \nonumber
 > $$
 
 **证明：**
@@ -276,7 +276,7 @@ $$
 
 ![](img/2.17.png)
 
-**我们也可以用这个动态规划的办法**，一直去迭代它的 Bellman equation，让它最后收敛，我们就可以得到它的一个状态。所以在这里算法二就是一个迭代的算法，通过 `bootstrapping(自举) `的办法，然后去不停地迭代这个 Bellman Equation。当这个最后更新的状态跟你上一个状态变化并不大的时候，更新就可以停止，我们就可以输出最新的 $V'(s)$ 作为它当前的状态。所以这里就是把 Bellman Equation 变成一个 Bellman Update，这样就可以得到它的一个价值。
+**我们也可以用这个动态规划的办法**，一直去迭代它的 Bellman equation，让它最后收敛，我们就可以得到它的一个状态。所以在这里算法二就是一个迭代的算法，通过 `bootstrapping(自举)`的办法，然后去不停地迭代这个 Bellman Equation。当这个最后更新的状态跟你上一个状态变化并不大的时候，更新就可以停止，我们就可以输出最新的 $V'(s)$ 作为它当前的状态。所以这里就是把 Bellman Equation 变成一个 Bellman Update，这样就可以得到它的一个价值。
 
 动态规划的方法基于后继状态值的估计来更新状态值的估计（算法二中的第 3 行用 $V'$ 来更新 $V$ ）。也就是说，它们根据其他估算值来更新估算值。我们称这种基本思想为 bootstrapping。
 
@@ -285,8 +285,6 @@ $$
 ## Markov Decision Process(MDP)
 
 ### MDP
-
-![](img/2.18.png)
 
 **相对于 MRP，`马尔可夫决策过程(Markov Decision Process)`多了一个 `decision`，其它的定义跟 MRP 都是类似的**:
 
@@ -309,9 +307,19 @@ $$
 
 * 假设这个概率函数应该是稳定的(stationary)，不同时间点，你采取的动作其实都是对这个 policy function 进行采样。
 
-![](img/2.20.png)
+我们可以将 MRP 转换成 MDP。已知一个 MDP 和一个 policy $\pi$ 的时候，我们可以把 MDP 转换成 MRP。
 
-**这里说明了 MDP 跟 MRP 的之间的一个转换。**已知一个 MDP 和一个 policy $\pi$ 的时候，我们可以把 MDP 转换成 MRP。在 MDP 里面，转移函数 $P(s'|s,a)$  是基于它当前状态以及它当前的 action。因为我们现在已知它 policy function，就是说在每一个状态，我们知道它可能采取的动作的概率，那么就可以直接把这个 action 进行加和，直接把这个 a 去掉，那我们就可以得到对于 MRP 的一个转移，这里就没有 action。对于这个奖励函数，我们也可以把 action 拿掉，这样就会得到一个类似于 MRP 的奖励函数。
+在 MDP 里面，转移函数 $P(s'|s,a)$  是基于它当前状态以及它当前的 action。因为我们现在已知它 policy function，就是说在每一个状态，我们知道它可能采取的动作的概率，那么就可以直接把这个 action 进行加和，直接把这个 a 去掉，那我们就可以得到对于 MRP 的一个转移，这里就没有 action。
+
+$$
+ P^{\pi}\left(s^{\prime} \mid s\right)=\sum_{a \in A} \pi(a \mid s) P\left(s^{\prime} \mid s, a\right)
+$$
+
+对于这个奖励函数，我们也可以把 action 拿掉，这样就会得到一个类似于 MRP 的奖励函数。
+
+$$
+R^{\pi}(s)=\sum_{a \in A} \pi(a \mid s) R(s, a)
+$$
 
 ### Comparison of MP/MRP and MDP
 
@@ -855,9 +863,7 @@ $$
 * 当它的这个值确定下来过后，它会产生它的最佳状态，这个最佳状态提取的策略跟 policy iteration 得出来的最佳策略是一致的。
 * 在每个状态，我们跟着这个最佳策略走，就会到达可以得到最多奖励的一个状态。
 
-![](img/2.63.png)
-
-[这个 Demo](https://github.com/cuhkrlcourse/RLexample/tree/master/MDP) 里面是一个代码，就是为了解一个叫 `FrozenLake` 的例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个概率。
+我们给出一个[ Demo](https://github.com/cuhkrlcourse/RLexample/tree/master/MDP)，这个 Demo 是为了解一个叫 `FrozenLake` 的例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个概率。
 
 ![](img/2.64.png)
 
