@@ -91,4 +91,5 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 
 **noise.py**：保存噪声相关
 
-[参考代码](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/ddpg)
+[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/codes/DDPG)
+

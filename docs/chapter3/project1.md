@@ -89,7 +89,7 @@
 
 **plot.py**：保存相关绘制函数
 
-[参考代码](https://github.com/datawhalechina/leedeeprl-notes/tree/master/codes/Q-learning)
+[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/codes/QLearning)
 
 ## 备注
 
