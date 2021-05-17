@@ -72,9 +72,7 @@ $$
 
 ## Markov Reward Process(MRP)
 
-![](img/2.7.png)
-
-**`马尔可夫奖励过程(Markov Reward Process, MRP)` 是马尔可夫链再加上了一个奖励函数。**在 MRP 中，转移矩阵跟它的这个状态都是跟马尔可夫链一样的，多了一个`奖励函数(reward function)`。**奖励函数是一个期望**，就是说当你到达某一个状态的时候，可以获得多大的奖励，然后这里另外定义了一个 discount factor $\gamma$ 。
+**`马尔可夫奖励过程(Markov Reward Process, MRP)` 是马尔可夫链再加上了一个奖励函数。**在 MRP 中，转移矩阵和状态都是跟马尔可夫链一样的，多了一个`奖励函数(reward function)`。**奖励函数 $R$ 是一个期望**，就是说当你到达某一个状态的时候，可以获得多大的奖励，然后这里另外定义了一个 discount factor $\gamma$ 。如果状态数是有限的，$R$ 可以是一个向量。
 
 ### Example of MRP
 
