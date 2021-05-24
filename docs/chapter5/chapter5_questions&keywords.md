@@ -35,9 +35,11 @@
 - 高冷的面试官：请问什么是重要性采样呀？
 
   答：使用另外一种数据分布，来逼近所求分布的一种方法，算是一种期望修正的方法，公式是：
-  $$
-  \int f(x) p(x) d x=\int f(x) \frac{p(x)}{q(x)} q(x) d x=E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}]=E_{x \sim p}[f(x)]
-  $$
+  $$\begin{aligned}
+  \int f(x) p(x) d x &= \int f(x) \frac{p(x)}{q(x)} q(x) d x \\
+  &= E_{x \sim q}[f(x){\frac{p(x)}{q(x)}}] \\
+  &= E_{x \sim p}[f(x)]
+  \end{aligned}$$
    我们在已知 $q$ 的分布后，可以使用上述公式计算出从 $p$ 分布的期望值。也就可以使用 $q$ 来对于 $p$ 进行采样了，即为重要性采样。
 
 - 高冷的面试官：请问on-policy跟off-policy的区别是什么？
