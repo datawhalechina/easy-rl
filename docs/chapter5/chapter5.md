@@ -1,6 +1,6 @@
 # PPO
 ## From On-policy to Off-policy
-在讲 PPO 之前，我们先讲一下 on-policy 和 off-policy 这两种训练方法的区别。
+在讲 PPO 之前，我们先回顾下 on-policy 和 off-policy 这两种训练方法的区别。
 在强化学习里面，我们要学习的就是一个 agent。
 
 * 如果要学习的 agent 跟和环境互动的 agent 是同一个的话， 这个叫做`on-policy(同策略)`。 
@@ -146,7 +146,7 @@ $$
 
 ![](img/5.7.png)
 
-我们可以通过重要性采样把 on-policy 换成 off-policy，但重要性采样有一个问题：如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 差太多的话，这两个分布差太多的话，重要性采样的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。**注意，由于在 PPO 中 $\theta'$ 是 $\theta_{\text{old}}$，即 behavior policy 也是 $\theta$，所以 PPO 是 on-policy 的算法**。 
+我们可以通过重要性采样把 on-policy 换成 off-policy，但重要性采样有一个问题：如果 $p_{\theta}\left(a_{t} | s_{t}\right)$ 跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$ 这两个分布差太多的话，重要性采样的结果就会不好。怎么避免它差太多呢？这个就是 `Proximal Policy Optimization (PPO) ` 在做的事情。**注意，由于在 PPO 中 $\theta'$ 是 $\theta_{\text{old}}$，即 behavior policy 也是 $\theta$，所以 PPO 是 on-policy 的算法**。 
 
 PPO 实际上做的事情就是这样，在 off-policy 的方法里要优化的是 $J^{\theta^{\prime}}(\theta)$。但是这个目标函数又牵涉到重要性采样。在做重要性采样的时候，$p_{\theta}\left(a_{t} | s_{t}\right)$ 不能跟 $p_{\theta'}\left(a_{t} | s_{t}\right)$差太多。你做示范的模型不能够跟真正的模型差太多，差太多的话，重要性采样的结果就会不好。我们在训练的时候，多加一个约束(constrain)。这个约束是 $\theta$  跟 $\theta'$ 输出的动作的 KL 散度(KL divergence)，简单来说，这一项的意思就是要衡量说 $\theta$ 跟 $\theta'$ 有多像。
 
@@ -222,7 +222,7 @@ $$
 
 如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 算出来小于 0.8，那就当作 0.8。如果算出来大于 1.2，那就当作1.2。
 
-**我们先看看下面这项这个算出来到底是什么东西：**
+我们先看看下面这项这个算出来到底是什么东西：
 $$
 \operatorname{clip}\left(\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}, 1-\varepsilon, 1+\varepsilon\right)
 $$
