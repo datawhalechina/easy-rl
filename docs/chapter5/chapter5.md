@@ -157,7 +157,7 @@ PPO 有一个前身叫做`信任区域策略优化(Trust Region Policy Optimizat
 $$
 \begin{aligned}
 J_{T R P O}^{\theta^{\prime}}(\theta)=E_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right)\right] \\ \\
-<div align = right> \mathrm{KL}\left(\theta, \theta^{\prime}\right)<\delta </div>
+ \mathrm{KL}\left(\theta, \theta^{\prime}\right)<\delta 
 \end{aligned}
 $$
 
