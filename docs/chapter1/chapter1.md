@@ -405,7 +405,7 @@ Learning 和 Planning 是序列决策的两个基本问题。
 
 ### Gym
 
-![](img/1.44.png)
+![](img/1.44.png ':size=400')
 
 [OpenAI Gym](https://gym.openai.com/) 是一个环境仿真库，里面包含了很多现有的环境。针对不同的场景，我们可以选择不同的环境，
 
@@ -449,7 +449,7 @@ for step in range(100):
 
 几行代码就实现了强化学习的框架。
 
-![](img/1.46.png)
+![](img/1.46.png ':size=400')
 在 OpenAI Gym 里面有很经典的控制类游戏。
 
 * 比如说 Acrobot 就是把两节铁杖甩了立起来。
