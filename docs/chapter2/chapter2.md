@@ -548,8 +548,6 @@ MDP 的 `prediction` 和 `control` 是 MDP 里面的核心问题。
 
 ### Dynamic Programming
 
-![](img/2.32.png)
-
 `动态规划(Dynamic Programming，DP)`适合解决满足如下两个性质的问题：
 
 * `最优子结构(optimal substructure)`。最优子结构意味着，我们的问题可以拆分成一个个的小问题，通过解决这个小问题，最后，我们能够通过组合小问题的答案，得到大问题的答案，即最优的解。
@@ -566,8 +564,6 @@ MDP 是满足动态规划的要求的，
 
 ### Policy Evaluation on MDP
 
-![](img/2.33.png)
-
 **Policy evaluation 就是给定一个 MDP 和一个 policy，我们可以获得多少的价值。**就对于当前这个策略，我们可以得到多大的 value function。
 
 这里有一个方法是说，我们直接把这个 `Bellman Expectation Backup` 拿过来，变成一个迭代的过程，这样反复迭代直到收敛。这个迭代过程可以看作是 `synchronous backup` 的过程。
@@ -581,15 +577,13 @@ $$
 * 当我们得到上一时刻的 $v_t$ 的时候，就可以通过这个递推的关系来推出下一时刻的值。
 * 反复去迭代它，最后它的值就是从 $v_1,v_2$ 到最后收敛过后的这个值。这个值就是当前给定的 policy 对应的价值函数。
 
-![](img/2.34.png)
-
 Policy evaluation 的核心思想就是把如下式所示的 Bellman expectation backup 拿出来反复迭代，然后就会得到一个收敛的价值函数的值。
 $$
-v_{t+1}(s)=\sum_{a \in \mathcal{A}} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in \mathcal{S}} P\left(s^{\prime} \mid s, a\right) v_{t}\left(s^{\prime}\right)\right)
+v_{t+1}(s)=\sum_{a \in \mathcal{A}} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in \mathcal{S}} P\left(s^{\prime} \mid s, a\right) v_{t}\left(s^{\prime}\right)\right) \tag{15}
 $$
 因为已经给定了这个函数的 policy  function，那我们可以直接把它简化成一个 MRP 的表达形式，这样的话，形式就更简洁一些，就相当于我们把这个 $a$  去掉，如下式所示：
 $$
-v_{t+1}(s)=R^{\pi}(s)+\gamma P^{\pi}\left(s^{\prime} \mid s\right) v_{t}\left(s^{\prime}\right)
+v_{t+1}(s)=R^{\pi}(s)+\gamma P^{\pi}\left(s^{\prime} \mid s\right) v_{t}\left(s^{\prime}\right) \tag{16}
 $$
 这样它就只有价值函数跟转移函数了。通过去迭代这个更简化的一个函数，我们也可以得到它每个状态的价值。因为不管是在 MRP 以及 MDP，它的价值函数包含的这个变量都是只跟这个状态有关，就相当于进入某一个状态，未来可能得到多大的价值。
 
