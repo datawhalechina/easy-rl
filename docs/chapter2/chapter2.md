@@ -706,8 +706,6 @@ $$
 
 当一直在采取 arg max 操作的时候，我们会得到一个单调的递增。通过采取这种 greedy，即 arg max 操作，我们就会得到更好的或者不变的 policy，而不会使它这个价值函数变差。所以当这个改进停止过后，我们就会得到一个最佳策略。
 
-![](img/2.48.png)
-
 当改进停止过后，我们取它最大化的这个 action，它直接就会变成它的价值函数，如下式所示：
 $$
 q^{\pi}\left(s, \pi^{\prime}(s)\right)=\max _{a \in \mathcal{A}} q^{\pi}(s, a)=q^{\pi}(s, \pi(s))=v^{\pi}(s)
@@ -863,18 +861,16 @@ $$
 
 我们给出一个[ Demo](https://github.com/cuhkrlcourse/RLexample/tree/master/MDP)，这个 Demo 是为了解一个叫 `FrozenLake` 的例子，这个例子是 OpenAI Gym 里的一个环境，跟 gridworld 很像，不过它每一个状态转移是一个概率。
 
-![](img/2.64.png)
-
 **我们再来对比下 policy iteration 和 value iteration，这两个算法都可以解 MDP 的控制问题。**
 
-* Policy iteration 由两部分组成：policy  evaluation 和 policy improvement。Policy Iteration 分两步，首先对当前已经搜索到的策略函数进行一个估值。得到估值过后，把 Q 函数算出来，我们进一步进行改进。
-*  Value iteration 直接把 Bellman Optimality Equation 拿进来，然后去寻找最佳的 value function，没有 policy function 在这里面。当算出 optimal value function 过后，我们再来提取最佳策略。
+* Policy Iteration 分两步，首先进行 policy evaluation，即对当前已经搜索到的策略函数进行一个估值。得到估值过后，进行 policy improvement，即把 Q 函数算出来，我们进一步进行改进。不断重复这两步，直到策略收敛。
+* Value iteration 直接把 Bellman Optimality Equation 拿进来，然后去寻找最佳的 value function，没有 policy function 在这里面。当算出 optimal value function 过后，我们再来提取最佳策略。
 
 ### Summary for Prediction and Control in MDP
 
 ![](img/2.65.png)
 
-这里是一个总结，就对于 MDP 里面的 prediction 和 control  都是用动态规划来解，我们其实采取了不同的 Bellman Equation。
+总结如上表所示，就对于 MDP 里面的 prediction 和 control  都是用动态规划来解，我们其实采取了不同的 Bellman Equation。
 
 * 如果是一个 prediction 的问题，即 policy evaluation  的问题，直接就是不停地 run 这个 Bellman Expectation Equation，这样我们就可以去估计出给定的这个策略，然后得到价值函数。
 * 对于 control，
