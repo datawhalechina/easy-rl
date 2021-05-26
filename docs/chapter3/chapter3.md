@@ -221,9 +221,7 @@ MC 是通过 empirical mean return （实际得到的收益）来更新它，对
 
 在人的身上是可以建立多级的条件反射的，举个例子，比如说一般我们遇到熊都是这样一个顺序：看到树上有熊爪，然后看到熊之后，突然熊发怒，扑过来了。经历这个过程之后，我们可能最开始看到熊才会瑟瑟发抖，后面就是看到树上有熊爪就已经有害怕的感觉了。也就说在不断的重复试验之后，下一个状态的价值，它是可以不断地去强化影响上一个状态的价值的。
 
-![](img/3.12.png)
-
-**为了让大家更加直观感受下一个状态影响上一个状态**，我们推荐这个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。
+**为了让大家更加直观感受下一个状态影响上一个状态(状态价值迭代)**，我们推荐这个网站：[Temporal Difference Learning Gridworld Demo](https://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html)。
 
 ![](img/3.13.png ':size=500')
 
@@ -260,7 +258,7 @@ MC 是通过 empirical mean return （实际得到的收益）来更新它，对
   \end{aligned}
   $$
   
-* TD目标是估计有两个原因：它在（6.4）中对期望值进行采样，并且使用当前估计V 而不是真实 $v_{\pi}$。
+* TD目标是估计有两个原因：它对期望值进行采样，并且使用当前估计 V 而不是真实 $v_{\pi}$。
 
 * `TD error` $\delta=R_{t+1}+\gamma v(S_{t+1})-v(S_t)$。
 
@@ -407,15 +405,13 @@ $\varepsilon\text{-greedy}$ 的意思是说，我们有 $1-\varepsilon$ 的概�
 
 ![](img/model_free_control_7.png)上图是带 $\varepsilon$-greedy 探索的 MC 算法的伪代码。
 
-![](img/model_free_control_8.png)
-
 与 MC 相比，TD 有如下几个优势：
 
 * 低方差。
 * 能够在线学习。
 * 能够从不完整的序列学习。
 
-所以我们可以把 TD 也放到 control loop 里面去估计 Q-table，再采取这个 $\varepsilon$-greedy improvement。这样就可以在 episode 没结束的时候来更新已经采集到的状态价值。  
+所以我们可以把 TD 也放到 control loop 里面去估计 Q-table，再采取这个 $\varepsilon$-greedy policy improvement。这样就可以在 episode 没结束的时候来更新已经采集到的状态价值。  
 
 ![](img/bias_variance.png ':size=450')
 
@@ -494,7 +490,7 @@ Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略，
 
 ![](img/off_policy_learning.png)
 
-再举个例子。比如环境是一个波涛汹涌的大海，但 learning policy 太胆小了，没法直接跟环境去学习，所以我们有了 exploratory policy，exploratory policy 是一个不畏风浪的海盗，他非常激进，可以在环境中探索。他有很多经验，可以把这些经验写成稿子，然后喂给这个 learning policy。Learning policy 可以通过这个稿子来进行学习。
+再举个例子，如上图所示，比如环境是一个波涛汹涌的大海，但 learning policy 太胆小了，没法直接跟环境去学习，所以我们有了 exploratory policy，exploratory policy 是一个不畏风浪的海盗，他非常激进，可以在环境中探索。他有很多经验，可以把这些经验写成稿子，然后喂给这个 learning policy。Learning policy 可以通过这个稿子来进行学习。
 
 在 off-policy learning 的过程中，我们这些轨迹都是 behavior policy 跟环境交互产生的，产生这些轨迹后，我们使用这些轨迹来更新 target policy $\pi$。
 
@@ -503,8 +499,6 @@ Sarsa 是一种 on-policy 策略。Sarsa 优化的是它实际执行的策略，
 * 我们可以利用 exploratory policy 来学到一个最佳的策略，学习效率高；
 * 可以让我们学习其他 agent 的行为，模仿学习，学习人或者其他 agent 产生的轨迹；
 * 重用老的策略产生的轨迹。探索过程需要很多计算资源，这样的话，可以节省资源。
-
-![](img/Q-learning.png)
 
 Q-learning 有两种 policy：behavior policy 和 target policy。
 
@@ -550,11 +544,9 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 对 Q-learning 进行逐步地拆解的话，跟 Sarsa 唯一一点不一样就是并不需要提前知道 $A_2$ ，我就能更新 $Q(S_1,A_1)$ 。在训练一个 episode 这个流程图当中，Q-learning 在 learn 之前它也不需要去拿到 next action $A'$，它只需要前面四个 $ (S,A,R,S')$ ，这跟 Sarsa 很不一样。 
 ## On-policy vs. Off-policy
 
-![](img/3.20.png)
-
 **总结一下 on-policy 和 off-policy 的区别。**
 
-* Sarsa 是一个典型的 on-policy 策略，它只用了一个 policy $\pi$ 。如果 policy 采用 $\varepsilon$-greedy 算法的话，它需要兼顾探索，为了兼顾探索和利用，它训练的时候会显得有点胆小。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点，也还是在安全区域内。此外，因为采用的是 $\varepsilon$-greedy 算法，策略会不断改变($\varepsilon$ 会不断变小)，所以策略不稳定。
+* Sarsa 是一个典型的 on-policy 策略，它只用了一个 policy $\pi$，它只用了一个 policy $\pi$，它不仅使用策略 $\pi$ 学习，还使用策略 $\pi$ 与环境交互产生经验。如果 policy 采用 $\varepsilon$-greedy 算法的话，它需要兼顾探索，为了兼顾探索和利用，它训练的时候会显得有点胆小。它在解决悬崖问题的时候，会尽可能地离悬崖边上远远的，确保说哪怕自己不小心探索了一点，也还是在安全区域内。此外，因为采用的是 $\varepsilon$-greedy 算法，策略会不断改变($\varepsilon$ 会不断变小)，所以策略不稳定。
 * Q-learning 是一个典型的 off-policy 的策略，它有两种策略：target policy 和 behavior policy。它分离了目标策略跟行为策略。Q-learning 就可以大胆地用 behavior policy 去探索得到的经验轨迹来去优化目标策略，从而更有可能去探索到最优的策略。Behavior policy 可以采用 $\varepsilon$-greedy 算法，但 target policy 采用的是 greedy 算法，直接根据 behavior policy 采集到的数据来采用最优策略，所以 Q-learning 不需要兼顾探索。
 * 比较 Q-learning 和 Sarsa 的更新公式可以发现，Sarsa 并没有选取最大值的 max 操作，因此，
   * Q-learning 是一个非常激进的算法，希望每一步都获得最大的利益；
@@ -578,7 +570,6 @@ Sarsa 是用自己的策略产生了 S,A,R,S',A' 这一条轨迹。然后拿着 
 * [神经网络与深度学习](https://nndl.github.io/)
 * [机器学习](https://book.douban.com/subject/26708119//)
 * [Understanding the Bias-Variance Tradeoff](http://scott.fortmann-roe.com/docs/BiasVariance.html)
-
 
 
 
