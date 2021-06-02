@@ -28,45 +28,32 @@
 
 ```python
   '''初始化环境'''  
-  env = gym.make("CliffWalking-v0")  # 0 up, 1 right, 2 down, 3 left
-  env = CliffWalkingWapper(env)
-  agent = QLearning(
-      obs_dim=env.observation_space.n,
-      action_dim=env.action_space.n,
-      learning_rate=cfg.policy_lr,
-      gamma=cfg.gamma,
-      epsilon_start=cfg.epsilon_start,epsilon_end=cfg.epsilon_end,epsilon_decay=cfg.epsilon_decay)
-  render = False # 是否打开GUI画面
-  rewards = [] # 记录所有episode的reward
-  MA_rewards = []  # 记录滑动平均的reward
-  steps = []# 记录所有episode的steps
-  for i_episode in range(1,cfg.max_episodes+1):
-      ep_reward = 0 # 记录每个episode的reward
-      ep_steps = 0 # 记录每个episode走了多少step
-      obs = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
-      while True:
-          action = agent.sample(obs)  # 根据算法选择一个动作
-          next_obs, reward, done, _ = env.step(action)  # 与环境进行一个交互
-          # 训练 Q-learning算法
-          agent.learn(obs, action, reward, next_obs, done)  # 不需要下一步的action
-          obs = next_obs  # 存储上一个观察值
-          ep_reward += reward
-          ep_steps += 1  # 计算step数
-          if render:
-              env.render()  #渲染新的一帧图形
-          if done:
-              break
-      steps.append(ep_steps)
-      rewards.append(ep_reward)
-      # 计算滑动平均的reward
-      if i_episode == 1:
-          MA_rewards.append(ep_reward)
-      else:
-          MA_rewards.append(
-              0.9*MA_rewards[-1]+0.1*ep_reward) 
-      print('Episode %s: steps = %s , reward = %.1f, explore = %.2f' % (i_episode, ep_steps,
-                                                        ep_reward,agent.epsilon))                                 
-    agent.save() # 训练结束，保存模型
+env = gym.make("CliffWalking-v0")  # 0 up, 1 right, 2 down, 3 left
+env = CliffWalkingWapper(env)
+agent = QLearning(
+    state_dim=env.observation_space.n,
+    action_dim=env.action_space.n,
+    learning_rate=cfg.policy_lr,
+    gamma=cfg.gamma,
+rewards = []  
+ma_rewards = [] # moving average reward
+for i_ep in range(cfg.train_eps): # train_eps: 训练的最大episodes数
+    ep_reward = 0  # 记录每个episode的reward
+    state = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
+    while True:
+        action = agent.choose_action(state)  # 根据算法选择一个动作
+        next_state, reward, done, _ = env.step(action)  # 与环境进行一次动作交互
+        agent.update(state, action, reward, next_state, done)  # Q-learning算法更新
+        state = next_state  # 存储上一个观察值
+        ep_reward += reward
+        if done:
+            break
+    rewards.append(ep_reward)
+    if ma_rewards:
+        ma_rewards.append(ma_rewards[-1]*0.9+ep_reward*0.1)
+    else:
+        ma_rewards.append(ep_reward)
+    print("Episode:{}/{}: reward:{:.1f}".format(i_ep+1, cfg.train_eps,ep_reward))
 ```
 
 ## 任务要求
