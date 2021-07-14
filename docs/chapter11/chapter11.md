@@ -1,6 +1,6 @@
 # Imitation Learning 
 ![](img/11.1.png)
-`Imitation learning` 讨论的问题是：假设我们连奖励都没有，那要怎么办呢？Imitation learning 又叫做 `learning from demonstration(示范学习)` ，`apprenticeship learning(学徒学习)`，`learning by watching(观察学习)`。在 Imitation learning 里面，你有一些专家的 demonstration，那机器也可以跟环境互动，但它没有办法从环境里面得到任何的奖励，它只能看着专家的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的奖励。举例来说，如果是棋类游戏或者是电玩，你有非常明确的奖励。但是其实多数的任务，都是没有奖励的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的奖励。所以很多任务是根本就没有办法给出奖励的。
+`模仿学习(imitation learning，IL)` 讨论的问题是：假设我们连奖励都没有，那要怎么办呢？Imitation learning 又叫做 `learning from demonstration(示范学习)` ，`apprenticeship learning(学徒学习)`，`learning by watching(观察学习)`。在 Imitation learning 里面，你有一些专家的 demonstration，那机器也可以跟环境互动，但它没有办法从环境里面得到任何的奖励，它只能看着专家的 demonstration 来学习什么是好，什么是不好。其实，多数的情况，我们都没有办法真的从环境里面得到非常明确的奖励。举例来说，如果是棋类游戏或者是电玩，你有非常明确的奖励。但是其实多数的任务，都是没有奖励的。以 chat-bot 为例，机器跟人聊天，聊得怎么样算是好，聊得怎么样算是不好，你无法给出明确的奖励。所以很多任务是根本就没有办法给出奖励的。
 
 虽然没有办法给出奖励，但是收集专家的 demonstration 是可以做到的。举例来说，
 
@@ -12,9 +12,9 @@
 ##  Behavior Cloning
 ![](img/11.2.png)
 
-其实 `Behavior Cloning` 跟监督学习是一模一样的。以自动驾驶汽车为例，你可以收集到人开自动驾驶汽车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了。**这个就叫做 Behavior Cloning(BC)，专家做什么，机器就做一模一样的事。**
+其实 `Behavior Cloning` 跟监督学习是一模一样的。以自动驾驶汽车为例，你可以收集到人开自动驾驶汽车的所有资料，比如说可以通过行车记录器进行收集。看到这样子的 observation 的时候，人会决定向前。机器就采取跟人一样的行为，也向前，就结束了。**这个就叫做行为克隆(Behavior Cloning，BC)，专家做什么，机器就做一模一样的事。**
 
-怎么让机器学会跟专家一模一样的行为呢？就把它当作一个监督学习的问题，你去收集很多行车记录器，然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取 action $a_1$，人在 state $s_2$ 会采取 action $a_2$。人在 state, $s_3$ 会采取 action $a_3$。接下来，你就学习一个 network。这个 network 就是你的 actor，它输入 $s_i$ 的时候，你就希望它的输出是 $a_i$，就这样结束了。它就是一个监督学习的问题。
+怎么让机器学会跟专家一模一样的行为呢？就把它当作一个监督学习的问题，你去收集很多行车记录器，然后再收集人在那个情境下会采取什么样的行为。你知道说人在 state $s_1$ 会采取 action $a_1$，人在 state $s_2$ 会采取 action $a_2$。人在 state, $s_3$ 会采取 action $a_3$。接下来，你就学习一个网络。这个网络 就是你的 actor，它输入 $s_i$ 的时候，你就希望它的输出是 $a_i$，就这样结束了。它就是一个监督学习的问题。
 
 ![](img/11.3.png)
 
@@ -34,14 +34,14 @@ Behavior Cloning 虽然非常简单，但它的问题是如果你只收集专家
 
 ![](img/11.5.png)
 
-Behavior Cloning 还有一个问题：机器会完全 copy 专家的行为，不管专家的行为是否有道理，就算没有道理，没有什么用的，就算这是专家本身的习惯，机器也会硬把它记下来。如果机器确实可以记住所有专家的行为，那也许还好，为什么呢？因为如果专家这么做，有些行为是多余的。但是没有问题，假设机器的行为可以完全仿造专家行为，那也就算了，那它是跟专家一样得好，只是做一些多余的事。但问题就是它是一个机器，它是一个 network，network 的 capacity 是有限的。就算给 network 训练数据，它在训练数据上得到的正确率往往也不是 100%，它有些事情是学不起来的。这个时候，什么该学，什么不该学就变得很重要。
+Behavior Cloning 还有一个问题：机器会完全 copy 专家的行为，不管专家的行为是否有道理，就算没有道理，没有什么用的，就算这是专家本身的习惯，机器也会硬把它记下来。如果机器确实可以记住所有专家的行为，那也许还好，为什么呢？因为如果专家这么做，有些行为是多余的。但是没有问题，假设机器的行为可以完全仿造专家行为，那也就算了，那它是跟专家一样得好，只是做一些多余的事。但问题就是它是一个机器，它是一个网络，网络的 capacity 是有限的。就算给网络 训练数据，它在训练数据上得到的正确率往往也不是 100%，它有些事情是学不起来的。这个时候，什么该学，什么不该学就变得很重要。
 
 举例来说，在学习中文的时候，你的老师，它有语音，它也有行为，它也有知识，但其实只有语音部分是重要的，知识的部分是不重要的。也许机器只能够学一件事，也许它就只学到了语音，那没有问题。如果它只学到了手势，这样子就有问题了。所以让机器学习什么东西是需要 copy，什么东西是不需要 copy，这件事情是重要的。而单纯的 Behavior Cloning 就没有把这件事情学进来，因为机器只是复制专家所有的行为而已，它不知道哪些行为是重要，是对接下来有影响的，哪些行为是不重要的，是对接下来是没有影响的。
 
 
 ![](img/11.6.png)
 
-Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候，训练数据跟测试数据是 mismatch 的。我们可以用 Dataset Aggregation 的方法来缓解这个问题。这个问题是：在训练跟测试的时候，数据分布其实是不一样的。因为在 reinforcement learning 里面，action 会影响到接下来所看到的 state。我们是先有 state $s_1$，然后采取 action $a_1$，action $a_1$ 其实会决定接下来你看到什么样的 state $s_2$。所以在 reinforcement learning 里面有一个很重要的特征，就是你采取了 action 会影响你接下来所看到的 state。如果做了 Behavior Cloning 的话，我们只能观察到专家的一堆 state 跟 action 的 pair。然后我们希望可以 learn 一个 $\pi^*$，我们希望 $\pi^*$ 跟 $\hat{\pi}$ 越接近越好。如果 $\pi^*$ 可以跟 $\hat{\pi}$ 一模一样的话，training 的时候看到的 state 跟 testing 的时候所看到的 state 会是一样的。因为虽然 action 会影响我们看到的 state，但假设两个 policy 一模一样， 在同一个 state 都会采取同样的 action，那你接下来所看到的 state 都会是一样的。但问题就是你很难让你的 learn 出来的 policy 跟专家的 policy 一模一样。专家 可是一个人，network 要跟人一模一样，感觉很难吧。
+Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候，训练数据跟测试数据是 mismatch 的。我们可以用 Dataset Aggregation 的方法来缓解这个问题。这个问题是：在训练跟测试的时候，数据分布其实是不一样的。因为在强化学习里面，action 会影响到接下来所看到的 state。我们是先有 state $s_1$，然后采取 action $a_1$，action $a_1$ 其实会决定接下来你看到什么样的 state $s_2$。所以在强化学习里面有一个很重要的特征，就是你采取了 action 会影响你接下来所看到的 state。如果做了 Behavior Cloning 的话，我们只能观察到专家的一堆 state 跟 action 的 pair。然后我们希望可以 learn 一个 $\pi^*$，我们希望 $\pi^*$ 跟 $\hat{\pi}$ 越接近越好。如果 $\pi^*$ 可以跟 $\hat{\pi}$ 一模一样的话，training 的时候看到的 state 跟 testing 的时候所看到的 state 会是一样的。因为虽然 action 会影响我们看到的 state，但假设两个 policy 一模一样， 在同一个 state 都会采取同样的 action，那你接下来所看到的 state 都会是一样的。但问题就是你很难让你的 learn 出来的 policy 跟专家的 policy 一模一样。专家 可是一个人，网络要跟人一模一样，感觉很难吧。
 
 如果你的 $\pi^*$ 跟 $\hat{\pi}$ 有一点误差。这个误差在一般监督学习问题里面，每一个 example 都是 independent 的，也许还好。但对强化学习的问题来说，可能在某个地方就是失之毫厘，差之千里。可能在某个地方，也许机器没有办法完全复制专家的行为，它复制的差了一点点，也许最后得到的结果就会差很多这样。所以 Behavior Cloning 并不能够完全解决 imitation learning 这件事情。所以就有另外一个比较好的做法叫做 `Inverse Reinforcement Learning`。
 
@@ -50,26 +50,26 @@ Behavior Cloning 还有什么样的问题呢？在做 Behavior Cloning 的时候
 
 ![](img/11.7.png)
 
-为什么叫`逆强化学习(Inverse Reinforcement Learning, IRL)`，因为原来的 Reinforcement Learning 里面，有一个环境和一个 奖励函数。根据环境和奖励函数，通过 Reinforcement Learning 这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。**但 Inverse Reinforcement Learning 刚好是相反的，你没有 奖励函数，你只有一堆专家的 demonstration。**但你还是有环境的。IRL 的做法是说假设我们现在有一堆专家的demonstration，我们用 $\hat{\tau}$ 来代表专家 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自动驾驶汽车的话，就是人开自动驾驶汽车的纪录。这一边就是专家的 demonstration，每一个 $\tau$ 是一个轨迹。
+为什么叫`逆强化学习(Inverse Reinforcement Learning, IRL)`，因为原来的强化学习里面，有一个环境和一个 奖励函数。根据环境和奖励函数，通过强化学习这个技术，你会找到一个 actor，你会 learn 出一个optimal actor。**但 Inverse Reinforcement Learning 刚好是相反的，你没有 奖励函数，你只有一堆专家的 demonstration。**但你还是有环境的。IRL 的做法是说假设我们现在有一堆专家的demonstration，我们用 $\hat{\tau}$ 来代表专家 的demonstration。如果是在玩电玩的话，每一个 $\tau$ 就是一个很会玩电玩的人玩一场游戏的纪录，如果是自动驾驶汽车的话，就是人开自动驾驶汽车的纪录。这一边就是专家的 demonstration，每一个 $\tau$ 是一个轨迹。
 
 
-把所有专家 demonstration 收集起来，然后，使用 Inverse Reinforcement Learning 这个技术。使用 Inverse Reinforcement Learning 技术的时候，机器是可以跟环境互动的。但它得不到奖励。它的奖励必须要从专家那边推出来，有了环境和专家 demonstration 以后，去反推出奖励函数长什么样子。之前 reinforcement learning 是由奖励函数反推出什么样的 action、actor 是最好的。Inverse Reinforcement Learning 是反过来，我们有专家 的demonstration，我们相信它是不错的，我就反推说，专家 是因为什么样的奖励函数才会采取这些行为。你有了奖励函数以后，接下来，你就可以套用一般的 reinforcement learning 的方法去找出 optimal actor。所以 Inverse Reinforcement Learning 是先找出 奖励函数，找出奖励函数以后，再去用 Reinforcement Learning 找出 optimal actor。
+把所有专家 demonstration 收集起来，然后，使用 Inverse Reinforcement Learning 这个技术。使用 Inverse Reinforcement Learning 技术的时候，机器是可以跟环境互动的。但它得不到奖励。它的奖励必须要从专家那边推出来，有了环境和专家 demonstration 以后，去反推出奖励函数长什么样子。之前强化学习是由奖励函数反推出什么样的 action、actor 是最好的。Inverse Reinforcement Learning 是反过来，我们有专家 的demonstration，我们相信它是不错的，我就反推说，专家 是因为什么样的奖励函数才会采取这些行为。你有了奖励函数以后，接下来，你就可以套用一般的强化学习的方法去找出 optimal actor。所以 Inverse Reinforcement Learning 是先找出 奖励函数，找出奖励函数以后，再去用强化学习找出 optimal actor。
 
-把这个奖励函数学习出来，相较于原来的 Reinforcement Learning 有什么样好处。一个可能的好处是也许奖励函数是比较简单的。也许，虽然这个专家的行为非常复杂，但也许简单的奖励函数就可以导致非常复杂的行为。一个例子就是也许人类本身的奖励函数就只有活着这样，每多活一秒，你就加一分。但人类有非常复杂的行为，但是这些复杂的行为，都只是围绕着要从这个奖励函数里面得到分数而已。有时候很简单的奖励函数也许可以推导出非常复杂的行为。
+把这个奖励函数学习出来，相较于原来的强化学习有什么样好处。一个可能的好处是也许奖励函数是比较简单的。也许，虽然这个专家的行为非常复杂，但也许简单的奖励函数就可以导致非常复杂的行为。一个例子就是也许人类本身的奖励函数就只有活着这样，每多活一秒，你就加一分。但人类有非常复杂的行为，但是这些复杂的行为，都只是围绕着要从这个奖励函数里面得到分数而已。有时候很简单的奖励函数也许可以推导出非常复杂的行为。
 
 ![](img/11.8.png)
 
 Inverse Reinforcement Learning 实际上是怎么做的呢？首先，我们有一个专家$\hat{\pi}$，这个专家去跟环境互动，给我们很多 $\hat{\tau_1}$ 到 $\hat{\tau_n}$。如果是玩游戏的话，就让某一个电玩高手，去玩 n 场游戏。把 n 场游戏的 state 跟 action 的 sequence 都记录下来。接下来，你有一个actor $\pi$，一开始actor 很烂，这个 actor 也去跟环境互动。它也去玩了n 场游戏，它也有 n 场游戏的纪录。接下来，我们要反推出奖励函数。**怎么推出奖励函数呢？原则就是专家永远是最棒的，是先射箭，再画靶的概念。**
 
-专家 去玩一玩游戏，得到这一些游戏的纪录，你的 actor 也去玩一玩游戏，得到这些游戏的纪录。接下来，你要定一个奖励函数，这个奖励函数的原则就是专家得到的分数要比 actor 得到的分数高，先射箭，再画靶。所以我们就 learn 出一个奖励函数。你就找出一个奖励函数。这个奖励函数会使专家所得到的奖励大过于 actor 所得到的奖励。你有了新的奖励函数以后，就可以套用一般 Reinforcement Learning 的方法去learn 一个actor，这个actor 会针对奖励函数去 maximize 它的奖励。它也会采取一大堆的 action。但是，今天这个 actor 虽然可以 maximize 这个奖励函数，采取一大堆的行为，得到一大堆游戏的纪录。
+专家 去玩一玩游戏，得到这一些游戏的纪录，你的 actor 也去玩一玩游戏，得到这些游戏的纪录。接下来，你要定一个奖励函数，这个奖励函数的原则就是专家得到的分数要比 actor 得到的分数高，先射箭，再画靶。所以我们就 learn 出一个奖励函数。你就找出一个奖励函数。这个奖励函数会使专家所得到的奖励大过于 actor 所得到的奖励。你有了新的奖励函数以后，就可以套用一般强化学习的方法去learn 一个actor，这个 actor 会针对奖励函数去 maximize 它的奖励。它也会采取一大堆的 action。但是，今天这个 actor 虽然可以 maximize 这个奖励函数，采取一大堆的行为，得到一大堆游戏的纪录。
 
 但接下来，我们就改奖励函数。这个 actor 就会很生气，它已经可以在这个奖励函数得到高分。但是它得到高分以后，我们就改奖励函数，仍然让专家可以得到比 actor 更高的分数。这个就是 `Inverse Reinforcement learning`。有了新的奖励函数以后，根据这个新的奖励函数，你就可以得到新的 actor，新的 actor 再去跟环境做一下互动，它跟环境做互动以后， 你又会重新定义你的奖励函数，让专家得到的奖励比 actor 大。
 
-怎么让专家得到的奖励大过 actor 呢？其实你在 learning 的时候，你可以很简单地做一件事就是，奖励函数也许就是 neural network。这个 neural network 就是吃一个 $\tau$，output 就是应该要给这个 $\tau$ 多少的分数。或者说，你假设觉得 input 整个 $\tau$ 太难了。因为 $\tau$ 是 s 和 a 的一个很强的 sequence。也许它就是 input 一个 s 和 a 的 pair，然后 output 一个 real number。把整个 sequence，整个 $\tau$ 会得到的 real number 都加起来就得到 $R(\tau)$。在 training 的时候，对于 $\left\{\hat{\tau}_{1}, \hat{\tau}_{2}, \cdots, \hat{\tau}_{N}\right\}$，我们希望它 output 的 R 越大越好。对于 $\left\{\tau_{1}, \tau_{2}, \cdots, \tau_{N}\right\}$，我们就希望它 R 的值越小越好。
+怎么让专家得到的奖励大过 actor 呢？其实你在 learning 的时候，你可以很简单地做一件事就是，奖励函数也许就是神经网络。这个神经网络就是吃一个 $\tau$，输出就是应该要给这个 $\tau$ 多少的分数。或者说，你假设觉得输入整个 $\tau$ 太难了。因为 $\tau$ 是 s 和 a 的一个很强的 sequence。也许它就是输入一个 s 和 a 的 pair，然后输出一个 real number。把整个 sequence，整个 $\tau$ 会得到的 real number 都加起来就得到 $R(\tau)$。在训练的时候，对于 $\left\{\hat{\tau}_{1}, \hat{\tau}_{2}, \cdots, \hat{\tau}_{N}\right\}$，我们希望它 输出的 R 越大越好。对于 $\left\{\tau_{1}, \tau_{2}, \cdots, \tau_{N}\right\}$，我们就希望它 R 的值越小越好。
 
-什么叫做一个最好的奖励函数。最后你 learn 出来的奖励函数应该就是专家和 actor 在这个奖励函数都会得到一样高的分数。最终你的奖励函数没有办法分辨出谁应该会得到比较高的分数。
+什么叫做一个最好的奖励函数。最后你学习出来的奖励函数应该就是专家和 actor 在这个奖励函数都会得到一样高的分数。最终你的奖励函数没有办法分辨出谁应该会得到比较高的分数。
 
-通常在训练的时候，你会迭代的去做。那今天的状况是这样，最早的 Inverse Reinforcement Learning 对奖励函数有些限制，它是假设奖励函数是 linear 的。如果奖励函数是 linear 的话，你可以证明这个算法会收敛(converge)。但是如果不是 linear 的，你就没有办法证明说它会收敛。你有没有觉得这个东西，看起来还挺熟悉呢？其实你只要把它换个名字，说 actor 就是 generator，然后说奖励函数就是 discriminator，它就是 GAN。所以它会不会收敛这个问题就等于是问说 GAN 会不会收敛。如果你已经实现过，你会知道不一定会收敛。但除非你对 R 下一个非常严格的限制，如果你的 R 是一个 general 的 network 的话，你就会有很大的麻烦。
+通常在训练的时候，你会迭代的去做。那今天的状况是这样，最早的 Inverse Reinforcement Learning 对奖励函数有些限制，它是假设奖励函数是 linear 的。如果奖励函数是 linear 的话，你可以证明这个算法会收敛(converge)。但是如果不是 linear 的，你就没有办法证明说它会收敛。你有没有觉得这个东西，看起来还挺熟悉呢？其实你只要把它换个名字，说 actor 就是 generator，然后说奖励函数就是 discriminator，它就是 GAN。所以它会不会收敛这个问题就等于是问说 GAN 会不会收敛。如果你已经实现过，你会知道不一定会收敛。但除非你对 R 下一个非常严格的限制，如果你的 R 是一个 general 的网络的话，你就会有很大的麻烦。
 
 
 ![](img/11.9.png)
@@ -106,7 +106,7 @@ IRL 有很多的应用，比如可以用开来自动驾驶汽车，有人用这�
 ## Recap: Sentence Generation & Chat-bot
 ![](img/11.15.png)
 
-在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 imitation learning。机器在 imitate 人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给它看唐诗三百首。人类写的文字其实就是专家的 demonstration。每一个词汇其实就是一个 action。你让机器做 Sentence Generation 的时候，其实就是在 imitate 专家的轨迹。Chat-bot 也是一样，在 Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是专家的 demonstration。
+在讲 Sequence GAN 的时候，我们有讲过 Sentence Generation 跟 Chat-bot。那其实 Sentence Generation 或 Chat-bot 也可以想成是 imitation learning。机器在模仿人写的句子，你在写句子的时候，你写下去的每一个 word 都想成是一个 action，所有的 word 合起来就是一个 episode。举例来说， sentence generation 里面，你会给机器看很多人类写的文字。你要让机器学会写诗，那你就要给它看唐诗三百首。人类写的文字其实就是专家的 demonstration。每一个词汇其实就是一个 action。你让机器做 Sentence Generation 的时候，其实就是在模仿专家的轨迹。Chat-bot 也是一样，在 Chat-bot 里面你会收集到很多人互动对话的纪录，那些就是专家的 demonstration。
 
 如果我们单纯用 maximum likelihood 这个技术来 maximize 会得到 likelihood，这个其实就是 behavior cloning。我们做 behavior cloning 就是看到一个 state，接下来预测我们会得到什么样的 action。看到一个 state，然后有一个 ground truth 告诉机器说什么样的 action 是最好的。在做 likelihood 的时候也是一样，given sentence 已经产生的部分。接下来机器要 predict 说接下来要写哪一个word 才是最好的。**所以，其实 maximum likelihood 在做 sequence generation 的时候，它对应到 imitation learning 里面就是 behavior cloning。**只有 maximum likelihood 是不够的，我们想要用 Sequence GAN。**其实 Sequence GAN 就是对应到 Inverse Reinforcement Learning**，Inverse Reinforcement Learning 就是一种 GAN 的技术。你把 Inverse Reinforcement Learning 的技术放在 sentence generation，放到 Chat-bot 里面，其实就是 Sequence GAN 跟它的种种的变形。
 
