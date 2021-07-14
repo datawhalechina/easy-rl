@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 17:59:16
 LastEditor: John
-LastEditTime: 2021-05-06 17:12:37
+LastEditTime: 2021-07-14 17:27:40
 Discription: 
 Environment: 
 '''
@@ -26,8 +26,8 @@ class SarsaConfig:
     ''' parameters for Sarsa
     '''
     def __init__(self):
-        self.algo = 'Qlearning'
-        self.env = 'CliffWalking-v0' # 0 up, 1 right, 2 down, 3 left
+        self.algo = 'Sarsa'
+        self.env = 'RacetrackEnv' # 0 up, 1 right, 2 down, 3 left
         self.result_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/models/'  # path to save models
         self.train_eps = 200
