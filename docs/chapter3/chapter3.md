@@ -259,7 +259,7 @@ MC 是通过 empirical mean return （实际得到的收益）来更新它，对
   
 * TD目标是估计有两个原因：它对期望值进行采样，并且使用当前估计 V 而不是真实 $v_{\pi}$。
 
-* `TD error` $\delta=R_{t+1}+\gamma v(S_{t+1})-v(S_t)$。
+* `TD error(误差)` $\delta=R_{t+1}+\gamma v(S_{t+1})-v(S_t)$。
 
 * 可以类比于 Incremental Monte-Carlo 的方法，写出如下的更新方法：
 
@@ -434,7 +434,7 @@ Sarsa 是直接估计 Q-table，得到 Q-table 后，就可以更新策略。
 
 为了理解这个公式，如上图所示，我们先把 $R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 当作是一个目标值，就是 $Q(S_t,A_t)$ 想要去逼近的一个目标值。$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right.)$ 就是 TD target。
 
-我们想要计算的就是 $Q(S_t,A_t)$ 。因为最开始 Q 值都是随机初始化或者是初始化为零，它需要不断地去逼近它理想中真实的 Q 值(TD target)，$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)-Q\left(S_{t}, A_{t}\right)$ 就是 TD error。
+我们想要计算的就是 $Q(S_t,A_t)$ 。因为最开始 Q 值都是随机初始化或者是初始化为零，它需要不断地去逼近它理想中真实的 Q 值(TD target)，$R_{t+1}+\gamma Q\left(S_{t+1}, A_{t+1}\right)-Q\left(S_{t}, A_{t}\right)$ 就是 TD 误差。
 
 也就是说，我们拿 $Q(S_t,A_t)$ 来逼近 $G_t$，那 $Q(S_{t+1},A_{t+1})$ 其实就是近似 $G_{t+1}$。我就可以用  $Q(S_{t+1},A_{t+1})$ 近似 $G_{t+1}$，然后把  $R_{t+1}+Q(S_{t+1},A_{t+1})$  当成目标值。
 
