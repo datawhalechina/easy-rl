@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 17:59:16
 LastEditor: John
-LastEditTime: 2021-07-15 08:49:31
+LastEditTime: 2021-07-15 08:52:59
 Discription: 
 Environment: 
 '''
@@ -55,7 +55,6 @@ def train(cfg,env,agent):
         action = agent.choose_action(state)
         while True:
         # for t in range(cfg.n_steps):
-            
             next_state, reward, done = env.step(action)
             ep_reward+=reward
             next_action = agent.choose_action(next_state)
