@@ -167,18 +167,23 @@ $$
 
 **证明：**
 
-为了记号简洁并且易读，我们丢掉了下标，令 $s=s_t,g'=G_{t+1},s'=s_{t+1}$。按照惯例，我们可以重写这个回报的期望为：
+为了记号简洁并且易读，我们丢掉了下标，令 $s=s_t,g'=G_{t+1},s'=s_{t+1}$。我们可以根据条件期望的定义来重写这个回报的期望为：
 $$
 \begin{aligned}
 \mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] &=\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \\
 &=\sum_{g^{\prime}} g^{\prime}~p\left(g^{\prime} \mid s^{\prime}\right)
 \end{aligned}
 $$
+> 如果 $X$ 和 $Y$ 都是离散型随机变量，则条件期望（Conditional Expectation）$E(X|Y=y)$的定义如下式所示：
+> $$
+> \mathrm{E}(X \mid Y=y)=\sum_{x} x P(X=x \mid Y=y)
+> $$
+
 令 $s_t=s$，我们对上述表达式求期望可得：
 $$
 \begin{aligned}
 \mathbb{E}\left[\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] \mid s_{t}\right] 
-&=\mathbb{E} \left[\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \mid s\right] \\
+&=\mathbb{E} \left[\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \mid s\right]\\
 &=\mathbb{E} \left[\sum_{g^{\prime}} g^{\prime}~p\left(g^{\prime} \mid s^{\prime}\right)\mid s\right]\\
 &= \sum_{s^{\prime}}\sum_{g^{\prime}} g^{\prime}~p\left(g^{\prime} \mid s^{\prime},s\right)p(s^{\prime} \mid s)\\
 &=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime} \mid s\right) p(s)}{p(s)} \\
