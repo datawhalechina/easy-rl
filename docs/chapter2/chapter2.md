@@ -179,7 +179,7 @@ $$
 > \mathrm{E}(X \mid Y=y)=\sum_{x} x P(X=x \mid Y=y)
 > $$
 
-令 $s_t=s$，我们对上述表达式求期望可得：
+令 $s_t=s$，我们对 $\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right]$ 求期望可得：
 $$
 \begin{aligned}
 \mathbb{E}\left[\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] \mid s_{t}\right] 
