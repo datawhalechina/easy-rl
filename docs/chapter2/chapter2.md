@@ -155,7 +155,7 @@ $$
 
 #### Law of Total Expectation
 
-在推导 Bellman equation 之前，我们先使用`Law of Total Expectation(全期望公式)`来证明下面的式子：
+在推导 Bellman equation 之前，我们可以仿照`Law of Total Expectation(全期望公式)`的证明过程来证明下面的式子：
 $$
 \mathbb{E}[V(s_{t+1})|s_t]=\mathbb{E}[\mathbb{E}[G_{t+1}|s_{t+1}]|s_t]=E[G_{t+1}|s_t]
 $$
@@ -171,14 +171,16 @@ $$
 $$
 \begin{aligned}
 \mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] &=\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \\
-&=\sum_{g^{\prime}} g~p\left(g^{\prime} \mid s^{\prime}\right)
+&=\sum_{g^{\prime}} g^{\prime}~p\left(g^{\prime} \mid s^{\prime}\right)
 \end{aligned}
 $$
 令 $s_t=s$，我们对上述表达式求期望可得：
 $$
 \begin{aligned}
-\mathbb{E}\left[\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] \mid s_{t}\right] &=\mathbb{E} \left[\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \mid s\right] \\
-&=\sum_{s^{\prime}} \sum_{g^{\prime}} g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime} \mid s\right) \\
+\mathbb{E}\left[\mathbb{E}\left[G_{t+1} \mid s_{t+1}\right] \mid s_{t}\right] 
+&=\mathbb{E} \left[\mathbb{E}\left[g^{\prime} \mid s^{\prime}\right] \mid s\right] \\
+&=\mathbb{E} \left[\sum_{g^{\prime}} g^{\prime}~p\left(g^{\prime} \mid s^{\prime}\right)\mid s\right]\\
+&= \sum_{s^{\prime}}\sum_{g^{\prime}} g^{\prime}~p\left(g^{\prime} \mid s^{\prime},s\right)p(s^{\prime} \mid s)\\
 &=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime} \mid s\right) p(s)}{p(s)} \\
 &=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime} \mid s^{\prime}, s\right) p\left(s^{\prime}, s\right)}{p(s)} \\
 &=\sum_{s^{\prime}} \sum_{g^{\prime}} \frac{g^{\prime} p\left(g^{\prime}, s^{\prime}, s\right)}{p(s)} \\
