@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-04-29 16:59:41
+LastEditTime: 2021-09-11 21:53:18
 Discription: use defaultdict to define Q table
 Environment: 
 '''
@@ -30,20 +30,20 @@ class QLearning(object):
     def choose_action(self, state):
         self.sample_count += 1
         self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            math.exp(-1. * self.sample_count / self.epsilon_decay)
-        # e-greedy policy
+            math.exp(-1. * self.sample_count / self.epsilon_decay) # epsilon是会递减的，这里选择指数递减
+        # e-greedy 策略
         if np.random.uniform(0, 1) > self.epsilon:
-            action = self.predict(state)
+            action = np.argmax(self.Q_table[str(state)]) # 选择Q(s,a)最大对应的动作
         else:
-            action = np.random.choice(self.action_dim) 
+            action = np.random.choice(self.action_dim) # 随机选择动作
         return action
     def predict(self,state):
         action = np.argmax(self.Q_table[str(state)])
         return action
     def update(self, state, action, reward, next_state, done):
-        Q_predict = self.Q_table[str(state)][action]
-        if done:
-            Q_target = reward  # terminal state
+        Q_predict = self.Q_table[str(state)][action] 
+        if done: # 终止状态
+            Q_target = reward  
         else:
             Q_target = reward + self.gamma * np.max(self.Q_table[str(next_state)]) 
         self.Q_table[str(state)][action] += self.lr * (Q_target - Q_predict)
@@ -54,6 +54,8 @@ class QLearning(object):
             f=path+"Qleaning_model.pkl",
             pickle_module=dill
         )
+        print("保存模型成功！")
     def load(self, path):
         import dill
         self.Q_table =torch.load(f=path+'Qleaning_model.pkl',pickle_module=dill)
+        print("加载模型成功！")

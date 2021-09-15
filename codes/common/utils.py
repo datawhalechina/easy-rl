@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:02:24
 LastEditor: John
-LastEditTime: 2021-05-04 19:58:31
+LastEditTime: 2021-09-11 21:48:49
 Discription: 
 Environment: 
 '''
@@ -18,7 +18,7 @@ def save_results(rewards,ma_rewards,tag='train',path='./results'):
     '''
     np.save(path+'{}_rewards.npy'.format(tag), rewards)
     np.save(path+'{}_ma_rewards.npy'.format(tag), ma_rewards)
-    print('results saved!')
+    print('结果保存完毕！')
 
 def make_dir(*paths):
     for path in paths:

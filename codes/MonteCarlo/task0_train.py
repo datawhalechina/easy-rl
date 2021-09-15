@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 14:26:44
 LastEditor: John
-LastEditTime: 2021-07-14 17:25:16
+LastEditTime: 2021-05-05 17:27:50
 Discription: 
 Environment: 
 '''
@@ -48,7 +48,7 @@ def env_agent_config(cfg,seed=1):
     return env,agent
     
 def train(cfg, env, agent):
-    print('Start to training !')
+    print('Start to eval !')
     print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
     rewards = []
     ma_rewards = []  # moving average rewards
@@ -102,7 +102,7 @@ def eval(cfg, env, agent):
 if __name__ == "__main__":
     cfg = MCConfig()
     
-    ''' train '''
+    # train
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     save_results(rewards, ma_rewards, tag='train', path=cfg.result_path)
     plot_rewards(rewards, ma_rewards, tag="train",
                  algo=cfg.algo, path=cfg.result_path)
-    ''' eval '''
+    # eval
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path)
     rewards,ma_rewards = eval(cfg,env,agent)

@@ -18,11 +18,11 @@
 
 ## 运行环境
 
-python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.18.0
+python 3.7、pytorch 1.6.0-1.7.1、gym 0.17.0-0.19.0
 
 ## 使用说明
 
-运行带有```train```的py文件或ipynb文件进行训练，如果前面带有```task```如```task0_train.py```，表示对task0任务训练
+运行带有```train```的py文件或ipynb文件进行训练，如果前面带有```task```如```task0_train.py```，表示对task0任务训练，
 类似的带有```eval```即为测试。
 
 ## 算法进度

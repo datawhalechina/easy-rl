@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 17:59:16
 LastEditor: John
-LastEditTime: 2021-07-15 08:52:59
+LastEditTime: 2021-05-06 17:12:37
 Discription: 
 Environment: 
 '''
@@ -26,8 +26,8 @@ class SarsaConfig:
     ''' parameters for Sarsa
     '''
     def __init__(self):
-        self.algo = 'Sarsa'
-        self.env = 'RacetrackEnv' # 0 up, 1 right, 2 down, 3 left
+        self.algo = 'Qlearning'
+        self.env = 'CliffWalking-v0' # 0 up, 1 right, 2 down, 3 left
         self.result_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/models/'  # path to save models
         self.train_eps = 200
@@ -52,15 +52,14 @@ def train(cfg,env,agent):
         # An episode is an array of (state, action, reward) tuples
         state = env.reset()
         ep_reward = 0
-        action = agent.choose_action(state)
         while True:
         # for t in range(cfg.n_steps):
+            action = agent.choose_action(state)
             next_state, reward, done = env.step(action)
             ep_reward+=reward
             next_action = agent.choose_action(next_state)
             agent.update(state, action, reward, next_state, next_action,done)
             state = next_state
-            action = next_action
             if done:
                 break  
         if ma_rewards:
