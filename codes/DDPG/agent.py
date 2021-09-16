@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-09 20:25:52
 @LastEditor: John
-LastEditTime: 2021-05-04 14:50:17
+LastEditTime: 2021-09-16 00:55:30
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -26,7 +26,7 @@ class DDPG:
         self.target_critic = Critic(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
         self.target_actor = Actor(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
 
-        # copy parameters to target net
+        # 复制参数到目标网络
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
             target_param.data.copy_(param.data)
         for target_param, param in zip(self.target_actor.parameters(), self.actor.parameters()):
@@ -37,7 +37,7 @@ class DDPG:
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=cfg.actor_lr)
         self.memory = ReplayBuffer(cfg.memory_capacity)
         self.batch_size = cfg.batch_size
-        self.soft_tau = cfg.soft_tau
+        self.soft_tau = cfg.soft_tau # 软更新参数
         self.gamma = cfg.gamma
 
     def choose_action(self, state):
@@ -46,11 +46,11 @@ class DDPG:
         return action.detach().cpu().numpy()[0, 0]
 
     def update(self):
-        if len(self.memory) < self.batch_size:
+        if len(self.memory) < self.batch_size: # 当 memory 中不满足一个批量时，不更新策略
             return
-        state, action, reward, next_state, done = self.memory.sample(
-            self.batch_size)
-        # convert variables to Tensor
+        # 从经验回放中(replay memory)中随机采样一个批量的转移(transition)
+        state, action, reward, next_state, done = self.memory.sample(self.batch_size)
+        # 转变为张量
         state = torch.FloatTensor(state).to(self.device)
         next_state = torch.FloatTensor(next_state).to(self.device)
         action = torch.FloatTensor(action).to(self.device)
@@ -70,10 +70,10 @@ class DDPG:
         self.actor_optimizer.zero_grad()
         policy_loss.backward()
         self.actor_optimizer.step()
-
         self.critic_optimizer.zero_grad()
         value_loss.backward()
         self.critic_optimizer.step()
+        # 软更新
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
             target_param.data.copy_(
                 target_param.data * (1.0 - self.soft_tau) +

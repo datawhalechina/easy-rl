@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-09-11 21:53:18
+LastEditTime: 2021-09-15 13:18:37
 Discription: use defaultdict to define Q table
 Environment: 
 '''
@@ -26,7 +26,6 @@ class QLearning(object):
         self.epsilon_end = cfg.epsilon_end
         self.epsilon_decay = cfg.epsilon_decay
         self.Q_table  = defaultdict(lambda: np.zeros(action_dim)) # A nested dictionary that maps state -> (action -> action-value)
-        
     def choose_action(self, state):
         self.sample_count += 1
         self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \

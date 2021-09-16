@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-10-07 20:57:11
 LastEditor: John
-LastEditTime: 2021-09-11 21:35:00
+LastEditTime: 2021-09-15 14:56:15
 Discription: 
 Environment: 
 '''
@@ -29,7 +29,7 @@ def plot_rewards_cn(rewards,ma_rewards,tag="train",env='CartPole-v0',algo = "DQN
     ''' 中文画图
     '''
     sns.set()
-    plt.title(u"{}环境下Q学习算法的学习曲线".format(env),fontproperties=chinese_font())
+    plt.title(u"{}环境下{}算法的学习曲线".format(env,algo),fontproperties=chinese_font())
     plt.xlabel(u'回合数',fontproperties=chinese_font())
     plt.plot(rewards)
     plt.plot(ma_rewards)

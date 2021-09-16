@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-09-12 01:29:40
+LastEditTime: 2021-09-15 14:44:25
 Discription: 
 Environment: 
 '''
@@ -57,11 +57,11 @@ def train(cfg,env,agent):
     ma_rewards = [] # 滑动平均奖励
     for i_ep in range(cfg.train_eps):
         ep_reward = 0  # 记录每个回合的奖励
-        state = env.reset()  # 重置环境, 重新开一局（即开始新的一个episode）
+        state = env.reset()  # 重置环境,即开始新的回合
         while True:
             action = agent.choose_action(state)  # 根据算法选择一个动作
             next_state, reward, done, _ = env.step(action)  # 与环境进行一次动作交互
-            agent.update(state, action, reward, next_state, done)  # Q-learning算法更新
+            agent.update(state, action, reward, next_state, done)  # Q学习算法更新
             state = next_state  # 更新状态
             ep_reward += reward
             if done:

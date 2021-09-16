@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-10 15:27:16
 @LastEditor: John
-LastEditTime: 2021-09-15 02:17:59
+LastEditTime: 2021-09-15 14:52:37
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -28,5 +28,9 @@ class ReplayBuffer:
         batch = random.sample(self.buffer, batch_size) # 随机采出小批量转移
         state, action, reward, next_state, done =  zip(*batch) # 解压成状态，动作等
         return state, action, reward, next_state, done
-
+    
+    def __len__(self):
+        ''' 返回当前存储的量
+        '''
+        return len(self.buffer)
 

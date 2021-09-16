@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 21:14:12
 LastEditor: John
-LastEditTime: 2021-05-04 02:45:27
+LastEditTime: 2021-09-15 13:21:03
 Discription: 
 Environment: 
 '''
@@ -17,8 +17,8 @@ from torch.distributions import Categorical
 class MLP(nn.Module):
     def __init__(self, input_dim,output_dim,hidden_dim=128):
         """ 初始化q网络，为全连接网络
-            input_dim: 输入的feature即环境的state数目
-            output_dim: 输出的action总个数
+            input_dim: 输入的特征数即环境的状态数
+            output_dim: 输出的动作维度
         """
         super(MLP, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim) # 输入层
