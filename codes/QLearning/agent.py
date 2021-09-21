@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-09-15 13:18:37
+LastEditTime: 2021-09-19 23:05:45
 Discription: use defaultdict to define Q table
 Environment: 
 '''

@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-09-15 14:44:25
+LastEditTime: 2021-09-20 00:32:59
 Discription: 
 Environment: 
 '''
@@ -31,13 +31,13 @@ class QlearningConfig:
         self.env = 'CliffWalking-v0' # 环境名称
         self.result_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/results/'  # 保存结果的路径
         self.model_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/models/'  # 保存模型的路径
-        self.train_eps = 200 # 训练的回合数
+        self.train_eps = 400 # 训练的回合数
         self.eval_eps = 30 # 测试的回合数
         self.gamma = 0.9 # reward的衰减率
-        self.epsilon_start = 0.90 # e-greedy策略中初始epsilon
+        self.epsilon_start = 0.99 # e-greedy策略中初始epsilon
         self.epsilon_end = 0.01 # e-greedy策略中的终止epsilon
-        self.epsilon_decay = 200 # e-greedy策略中epsilon的衰减率
-        self.lr = 0.05 # 学习率
+        self.epsilon_decay = 300 # e-greedy策略中epsilon的衰减率
+        self.lr = 0.1 # 学习率
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # 检测GPU
 
         
@@ -111,8 +111,8 @@ if __name__ == "__main__":
     plot_rewards_cn(rewards,ma_rewards,tag="train",env=cfg.env,algo = cfg.algo,path=cfg.result_path)
 
     # # 测试
-    # env,agent = env_agent_config(cfg,seed=10)
-    # agent.load(path=cfg.model_path) # 加载模型
+    env,agent = env_agent_config(cfg,seed=10)
+    agent.load(path=cfg.model_path) # 加载模型
     rewards,ma_rewards = eval(cfg,env,agent)
     save_results(rewards,ma_rewards,tag='eval',path=cfg.result_path)
     plot_rewards_cn(rewards,ma_rewards,tag="eval",env=cfg.env,algo = cfg.algo,path=cfg.result_path)
