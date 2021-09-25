@@ -19,7 +19,7 @@
 
 国内地址(推荐国内读者使用)：https://pan.baidu.com/s/1t2jw_vLwHBb15Ah5vcFRzw 提取码: vi2s 
 
-压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)：链接: https://pan.baidu.com/s/1_sbSSt0WjV2YTxepYcAe8g 提取码: c1rx 
+压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)： https://pan.baidu.com/s/1_sbSSt0WjV2YTxepYcAe8g 提取码: c1rx 
 
 ## 内容导航
 | 章节                                                         | 习题                                                         | 相关项目                                                     |
