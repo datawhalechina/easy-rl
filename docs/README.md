@@ -17,9 +17,9 @@
 
 地址：https://github.com/datawhalechina/easy-rl/releases
 
-国内地址(推荐国内读者使用)：https://qiwang067163com.coding.net/s/987e7ca5-aca7-4c7e-b5c8-1d78c93cfd8c
+国内地址(推荐国内读者使用)：https://pan.baidu.com/s/1t2jw_vLwHBb15Ah5vcFRzw 提取码: vi2s 
 
-压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)：https://qiwang067163com.coding.net/s/7421e049-f6c4-49f8-8e15-d7294b690301
+压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)： https://pan.baidu.com/s/1_sbSSt0WjV2YTxepYcAe8g 提取码: c1rx 
 
 ## 内容导航
 | 章节                                                         | 习题                                                         | 相关项目                                                     |
