@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-09-20 00:32:59
+LastEditTime: 2021-09-23 12:22:58
 Discription: 
 Environment: 
 '''
@@ -34,7 +34,7 @@ class QlearningConfig:
         self.train_eps = 400 # 训练的回合数
         self.eval_eps = 30 # 测试的回合数
         self.gamma = 0.9 # reward的衰减率
-        self.epsilon_start = 0.99 # e-greedy策略中初始epsilon
+        self.epsilon_start = 0.95 # e-greedy策略中初始epsilon
         self.epsilon_end = 0.01 # e-greedy策略中的终止epsilon
         self.epsilon_decay = 300 # e-greedy策略中epsilon的衰减率
         self.lr = 0.1 # 学习率
@@ -53,14 +53,15 @@ def env_agent_config(cfg,seed=1):
 def train(cfg,env,agent):
     print('开始训练！')
     print(f'环境:{cfg.env}, 算法:{cfg.algo}, 设备:{cfg.device}')
-    rewards = []  
-    ma_rewards = [] # 滑动平均奖励
+    rewards = []  # 记录奖励
+    ma_rewards = [] # 记录滑动平均奖励
     for i_ep in range(cfg.train_eps):
         ep_reward = 0  # 记录每个回合的奖励
         state = env.reset()  # 重置环境,即开始新的回合
         while True:
             action = agent.choose_action(state)  # 根据算法选择一个动作
             next_state, reward, done, _ = env.step(action)  # 与环境进行一次动作交互
+            print(reward)
             agent.update(state, action, reward, next_state, done)  # Q学习算法更新
             state = next_state  # 更新状态
             ep_reward += reward
@@ -78,6 +79,8 @@ def train(cfg,env,agent):
 def eval(cfg,env,agent):
     print('开始测试！')
     print(f'环境：{cfg.env}, 算法：{cfg.algo}, 设备：{cfg.device}')
+    for item in agent.Q_table.items():
+        print(item)
     rewards = []  # 记录所有回合的奖励
     ma_rewards = [] # 滑动平均的奖励
     for i_ep in range(cfg.eval_eps):
@@ -86,7 +89,7 @@ def eval(cfg,env,agent):
         while True:
             action = agent.predict(state)  # 根据算法选择一个动作
             next_state, reward, done, _ = env.step(action)  # 与环境进行一个交互
-            state = next_state  # 存储上一个观察值
+            state = next_state  # 更新状态
             ep_reward += reward
             if done:
                 break
@@ -103,10 +106,12 @@ if __name__ == "__main__":
     cfg = QlearningConfig()
 
     # 训练
-    env,agent = env_agent_config(cfg,seed=1)
+    env,agent = env_agent_config(cfg,seed=0)
     rewards,ma_rewards = train(cfg,env,agent)
     make_dir(cfg.result_path,cfg.model_path) # 创建文件夹
     agent.save(path=cfg.model_path) # 保存模型
+    for item in agent.Q_table.items():
+        print(item)
     save_results(rewards,ma_rewards,tag='train',path=cfg.result_path) # 保存结果
     plot_rewards_cn(rewards,ma_rewards,tag="train",env=cfg.env,algo = cfg.algo,path=cfg.result_path)
 
@@ -114,6 +119,7 @@ if __name__ == "__main__":
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path) # 加载模型
     rewards,ma_rewards = eval(cfg,env,agent)
+    
     save_results(rewards,ma_rewards,tag='eval',path=cfg.result_path)
     plot_rewards_cn(rewards,ma_rewards,tag="eval",env=cfg.env,algo = cfg.algo,path=cfg.result_path)
     

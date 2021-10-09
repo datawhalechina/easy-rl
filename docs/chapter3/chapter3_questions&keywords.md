@@ -77,7 +77,7 @@
 
   答：
 
-  1. 生成policy上的差异：前者随机，后者确定。Value-Base中的 action-value估计值最终会收敛到对应的true values（通常是不同的有限数，可以转化为0到1之间的概率），因此通常会获得一个确定的策略（deterministic policy）；而Policy-Based不会收敛到一个确定性的值，另外他们会趋向于生成optimal stochastic policy。如果optimal policy是deterministic的，那么optimal action对应的性能函数将远大于suboptimal actions对应的性能函数，性能函数的大小代表了概率的大小。
+  1. 生成policy上的差异：前者确定，后者随机。Value-Base中的 action-value估计值最终会收敛到对应的true values（通常是不同的有限数，可以转化为0到1之间的概率），因此通常会获得一个确定的策略（deterministic policy）；而Policy-Based不会收敛到一个确定性的值，另外他们会趋向于生成optimal stochastic policy。如果optimal policy是deterministic的，那么optimal action对应的性能函数将远大于suboptimal actions对应的性能函数，性能函数的大小代表了概率的大小。
   2. 动作空间是否连续，前者离散，后者连续。Value-Base，对于连续动作空间问题，虽然可以将动作空间离散化处理，但离散间距的选取不易确定。过大的离散间距会导致算法取不到最优action，会在这附近徘徊，过小的离散间距会使得action的维度增大，会和高维度动作空间一样导致维度灾难，影响算法的速度；而Policy-Based适用于连续的动作空间，在连续的动作空间中，可以不用计算每个动作的概率，而是通过Gaussian distribution （正态分布）选择action。
   3. value-based，例如Q-learning，是通过求解最优值函数间接的求解最优策略；policy-based，例如REINFORCE，Monte-Carlo Policy Gradient，等方法直接将策略参数化，通过策略搜索，策略梯度或者进化方法来更新策略的参数以最大化回报。基于值函数的方法不易扩展到连续动作空间，并且当同时采用非线性近似、自举和离策略时会有收敛性问题。策略梯度具有良好的收敛性证明。
   4. 补充：对于值迭代和策略迭代：策略迭代。它有两个循环，一个是在策略估计的时候，为了求当前策略的值函数需要迭代很多次。另外一个是外面的大循环，就是策略评估，策略提升这个循环。值迭代算法则是一步到位，直接估计最优值函数，因此没有策略提升环节。

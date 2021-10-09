@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-23 15:17:42
 LastEditor: John
-LastEditTime: 2021-04-28 10:11:09
+LastEditTime: 2021-09-26 22:02:00
 Discription: 
 Environment: 
 '''
@@ -41,10 +41,8 @@ class PPO:
 
     def update(self):
         for _ in range(self.n_epochs):
-            state_arr, action_arr, old_prob_arr, vals_arr,\
-            reward_arr, dones_arr, batches = \
-                    self.memory.sample()
-            values = vals_arr
+            state_arr, action_arr, old_prob_arr, vals_arr,reward_arr, dones_arr, batches = self.memory.sample()
+            values = vals_arr[:]
             ### compute advantage ###
             advantage = np.zeros(len(reward_arr), dtype=np.float32)
             for t in range(len(reward_arr)-1):
