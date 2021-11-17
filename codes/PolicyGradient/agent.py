@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2021-05-05 17:33:10
+LastEditTime: 2021-10-16 00:43:52
 Discription: 
 Environment: 
 '''
@@ -56,7 +56,6 @@ class PolicyGradient:
             state = state_pool[i]
             action = Variable(torch.FloatTensor([action_pool[i]]))
             reward = reward_pool[i]
-
             state = Variable(torch.from_numpy(state).float())
             probs = self.policy_net(state)
             m = Bernoulli(probs)

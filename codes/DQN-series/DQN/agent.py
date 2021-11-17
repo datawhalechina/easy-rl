@@ -12,9 +12,6 @@ LastEditTime: 2021-09-15 13:35:36
 '''off-policy
 '''
 
-
-
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -24,9 +21,9 @@ import numpy as np
 from common.memory import ReplayBuffer
 from common.model import MLP
 class DQN:
-    def __init__(self, state_dim, action_dim, cfg):
+    def __init__(self, n_states, n_actions, cfg):
 
-        self.action_dim = action_dim  # 总的动作个数
+        self.n_actions = n_actions  # 总的动作个数
         self.device = cfg.device  # 设备，cpu或gpu等
         self.gamma = cfg.gamma  # 奖励的折扣因子
         # e-greedy策略相关参数
@@ -35,15 +32,15 @@ class DQN:
             (cfg.epsilon_start - cfg.epsilon_end) * \
             math.exp(-1. * frame_idx / cfg.epsilon_decay)
         self.batch_size = cfg.batch_size
-        self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.policy_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.target_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
         for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): # 复制参数到目标网路targe_net
             target_param.data.copy_(param.data)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr) # 优化器
-        self.memory = ReplayBuffer(cfg.memory_capacity)
+        self.memory = ReplayBuffer(cfg.memory_capacity) # 经验回放
 
     def choose_action(self, state):
-        '''选择动作
+        ''' 选择动作
         '''
         self.frame_idx += 1
         if random.random() > self.epsilon(self.frame_idx):
@@ -52,13 +49,7 @@ class DQN:
                 q_values = self.policy_net(state)
                 action = q_values.max(1)[1].item() # 选择Q值最大的动作
         else:
-            action = random.randrange(self.action_dim)
-        return action
-    def predict(self,state):
-        with torch.no_grad():
-            state = torch.tensor([state], device=self.device, dtype=torch.float32)
-            q_values = self.policy_net(state)
-            action = q_values.max(1)[1].item()
+            action = random.randrange(self.n_actions)
         return action
     def update(self):
         if len(self.memory) < self.batch_size: # 当memory中不满足一个批量时，不更新策略
@@ -67,16 +58,11 @@ class DQN:
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample(
             self.batch_size)
         # 转为张量
-        state_batch = torch.tensor(
-            state_batch, device=self.device, dtype=torch.float)
-        action_batch = torch.tensor(action_batch, device=self.device).unsqueeze(
-            1)  
-        reward_batch = torch.tensor(
-            reward_batch, device=self.device, dtype=torch.float)  
-        next_state_batch = torch.tensor(
-            next_state_batch, device=self.device, dtype=torch.float)
-        done_batch = torch.tensor(np.float32(
-            done_batch), device=self.device)
+        state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float)
+        action_batch = torch.tensor(action_batch, device=self.device).unsqueeze(1)  
+        reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float)  
+        next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float)
+        done_batch = torch.tensor(np.float32(done_batch), device=self.device)
         q_values = self.policy_net(state_batch).gather(dim=1, index=action_batch) # 计算当前状态(s_t,a)对应的Q(s_t, a)
         next_q_values = self.target_net(next_state_batch).max(1)[0].detach() # 计算下一时刻的状态(s_t_,a)对应的Q值
         # 计算期望的Q值，对于终止状态，此时done_batch[0]=1, 对应的expected_q_value等于reward

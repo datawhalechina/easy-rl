@@ -5,14 +5,14 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:21:53
 LastEditor: John
-LastEditTime: 2021-05-05 17:35:20
+LastEditTime: 2021-10-16 00:34:13
 Discription: 
 Environment: 
 '''
 import sys,os
-curr_path = os.path.dirname(__file__)
-parent_path = os.path.dirname(curr_path)
-sys.path.append(parent_path)  # add current terminal path to sys.path
+curr_path = os.path.dirname(os.path.abspath(__file__)) # 当前文件所在绝对路径
+parent_path = os.path.dirname(curr_path) # 父路径
+sys.path.append(parent_path) # 添加父路径到系统路径sys.path
 
 import gym
 import torch
@@ -23,21 +23,20 @@ from PolicyGradient.agent import PolicyGradient
 from common.plot import plot_rewards
 from common.utils import save_results,make_dir
 
-curr_time = datetime.datetime.now().strftime(
-    "%Y%m%d-%H%M%S")  # obtain current time
+curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
 
 class PGConfig:
     def __init__(self):
-        self.algo = "PolicyGradient"  # name of algo
-        self.env = 'CartPole-v0'
+        self.algo = "PolicyGradient"  # 算法名称
+        self.env = 'CartPole-v0' # 环境名称
         self.result_path = curr_path+"/outputs/" + self.env + \
-            '/'+curr_time+'/results/'  # path to save results
+            '/'+curr_time+'/results/'  # 保存结果的路径
         self.model_path = curr_path+"/outputs/" + self.env + \
-            '/'+curr_time+'/models/'  # path to save models
-        self.train_eps = 300 # 训练的episode数目
-        self.eval_eps = 50
+            '/'+curr_time+'/models/'  # 保存模型的路径
+        self.train_eps = 300 # 训练的回合数
+        self.eval_eps = 30 # 测试的回合数
         self.batch_size = 8
-        self.lr = 0.01 # learning rate
+        self.lr = 0.01 # 学习率
         self.gamma = 0.99
         self.hidden_dim = 36 # dimmension of hidden layer
         self.device = torch.device(
@@ -59,7 +58,7 @@ def train(cfg,env,agent):
     reward_pool = [] 
     rewards = []
     ma_rewards = []
-    for i_episode in range(cfg.train_eps):
+    for i_ep in range(cfg.train_eps):
         state = env.reset()
         ep_reward = 0
         for _ in count():
@@ -73,9 +72,9 @@ def train(cfg,env,agent):
             reward_pool.append(reward)
             state = next_state
             if done:
-                print('Episode:', i_episode, ' Reward:',  ep_reward)
+                print('Episode:', i_ep, ' Reward:',  ep_reward)
                 break
-        if i_episode > 0 and i_episode % cfg.batch_size == 0:
+        if i_ep > 0 and i_ep % cfg.batch_size == 0:
             agent.update(reward_pool,state_pool,action_pool)
             state_pool = [] # 每个episode的state
             action_pool = []
@@ -95,7 +94,7 @@ def eval(cfg,env,agent):
     print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
     rewards = []
     ma_rewards = []
-    for i_episode in range(cfg.eval_eps):
+    for i_ep in range(cfg.eval_eps):
         state = env.reset()
         ep_reward = 0
         for _ in count():
@@ -106,7 +105,7 @@ def eval(cfg,env,agent):
                 reward = 0
             state = next_state
             if done:
-                print('Episode:', i_episode, ' Reward:',  ep_reward)
+                print('Episode:', i_ep, ' Reward:',  ep_reward)
                 break
         rewards.append(ep_reward)
         if ma_rewards:
@@ -116,6 +115,7 @@ def eval(cfg,env,agent):
             ma_rewards.append(ep_reward)
     print('complete evaling！')
     return rewards, ma_rewards
+    
 if __name__ == "__main__":
     cfg = PGConfig()
 

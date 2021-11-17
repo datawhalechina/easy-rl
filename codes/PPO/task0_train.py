@@ -100,7 +100,7 @@ def eval(cfg,env,agent):
                 0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
-        print(f"Episode:{i_ep+1}/{cfg.train_eps}, Reward:{ep_reward:.3f}")
+        print(f"Episode:{i_ep+1}/{cfg.eval_eps}, Reward:{ep_reward:.3f}")
     print('Complete evaling！')
     return rewards,ma_rewards
     
