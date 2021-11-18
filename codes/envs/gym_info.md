@@ -8,11 +8,12 @@
 
 ### [Pendulum-v0](https://github.com/openai/gym/wiki/Pendulum-v0)
 
+注：gym 0.18.0之后版本中Pendulum-v0已经改为Pendulum-v1
 <img src="assets/image-20200820174814084.png" alt="image-20200820174814084" style="zoom:50%;" />
 
 钟摆以随机位置开始，目标是将其摆动，使其保持向上直立。动作空间是连续的，值的区间为[-2,2]。每个step给的reward最低为-16.27，最高为0。目前最好的成绩是100个episode的reward之和为-123.11 ± 6.86。
 
-### CliffWalking-v0
+### 
 
 悬崖寻路问题（CliffWalking）是指在一个4 x 12的网格中，智能体以网格的左下角位置为起点，以网格的下角位置为终点，目标是移动智能体到达终点位置，智能体每次可以在上、下、左、右这4个方向中移动一步，每移动一步会得到-1单位的奖励。
 

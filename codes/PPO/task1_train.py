@@ -25,9 +25,9 @@ curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current t
 
 class PPOConfig:
     def __init__(self) -> None:
-        self.algo = "DQN"  # 算法名称
-        self.env_name = 'CartPole-v0' # 环境名称
-        self.continuous = False # 环境是否为连续动作
+        self.algo = "PPO"  # 算法名称
+        self.env_name = 'Pendulum-v1' # 环境名称
+        self.continuous = True # 环境是否为连续动作
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
         self.train_eps = 200 # 训练的回合数
         self.eval_eps = 20 # 测试的回合数
@@ -43,8 +43,8 @@ class PPOConfig:
 
 class PlotConfig:
     def __init__(self) -> None:
-        self.algo = "DQN"  # 算法名称
-        self.env_name = 'CartPole-v0' # 环境名称
+        self.algo = "PPO"  # 算法名称
+        self.env_name = 'Pendulum-v1' # 环境名称
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
         self.result_path = curr_path+"/outputs/" + self.env_name + \
             '/'+curr_time+'/results/'  # 保存结果的路径
@@ -56,7 +56,7 @@ def env_agent_config(cfg,seed=1):
     env = gym.make(cfg.env_name)  
     env.seed(seed)
     state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.n
+    action_dim = env.action_space.shape[0]
     agent = PPO(state_dim,action_dim,cfg)
     return env,agent
             
@@ -72,6 +72,7 @@ def train(cfg,env,agent):
         ep_reward = 0
         while not done:
             action, prob, val = agent.choose_action(state,continuous=cfg.continuous)
+            print(action)
             state_, reward, done, _ = env.step(action)
             steps += 1
             ep_reward += reward
@@ -99,7 +100,7 @@ def eval(cfg,env,agent):
         done = False
         ep_reward = 0
         while not done:
-            action, prob, val = agent.choose_action(state,cfg.continuous)
+            action, prob, val = agent.choose_action(state,continuous=False)
             state_, reward, done, _ = env.step(action)
             ep_reward += reward
             state = state_

@@ -12,7 +12,7 @@ LastEditTime: 2021-09-16 01:31:33
 import sys,os
 curr_path = os.path.dirname(os.path.abspath(__file__)) # 当前文件所在绝对路径
 parent_path = os.path.dirname(curr_path) # 父路径
-sys.path.append(parent_path) # 添加父路径到系统路径sys.path
+sys.path.append(parent_path) # 添加路径到系统路径sys.path
 
 import datetime
 import gym
@@ -21,44 +21,51 @@ import torch
 from DDPG.env import NormalizedActions, OUNoise
 from DDPG.agent import DDPG
 from common.utils import save_results,make_dir
-from common.plot import plot_rewards, plot_rewards_cn
+from common.plot import plot_rewards
 
 curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
 
 class DDPGConfig:
     def __init__(self):
         self.algo = 'DDPG' # 算法名称
-        self.env = 'Pendulum-v0' # 环境名称
-        self.result_path = curr_path+"/outputs/" + self.env + \
-            '/'+curr_time+'/results/'  # 保存结果的路径
-        self.model_path = curr_path+"/outputs/" + self.env + \
-            '/'+curr_time+'/models/'  # 保存模型的路径
+        self.env_name = 'Pendulum-v0' # 环境名称
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # 检测GPU
         self.train_eps = 300 # 训练的回合数
         self.eval_eps = 50 # 测试的回合数
         self.gamma = 0.99 # 折扣因子
         self.critic_lr = 1e-3 # 评论家网络的学习率
         self.actor_lr = 1e-4 # 演员网络的学习率
-        self.memory_capacity = 8000 
-        self.batch_size = 128
-        self.target_update = 2
-        self.hidden_dim = 256
+        self.memory_capacity = 8000 # 经验回放的容量
+        self.batch_size = 128 # mini-batch SGD中的批量大小
+        self.target_update = 2 # 目标网络的更新频率
+        self.hidden_dim = 256 # 网络隐藏层维度
         self.soft_tau = 1e-2 # 软更新参数
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+class PlotConfig:
+    def __init__(self) -> None:
+        self.algo = "DQN"  # 算法名称
+        self.env_name = 'CartPole-v0' # 环境名称
+        self.result_path = curr_path+"/outputs/" + self.env_name + \
+            '/'+curr_time+'/results/'  # 保存结果的路径
+        self.model_path = curr_path+"/outputs/" + self.env_name + \
+            '/'+curr_time+'/models/'  # 保存模型的路径
+        self.save = True # 是否保存图片
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
 
 def env_agent_config(cfg,seed=1):
-    env = NormalizedActions(gym.make(cfg.env)) 
+    env = NormalizedActions(gym.make(cfg.env_name)) # 装饰action噪声
     env.seed(seed) # 随机种子
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
-    agent = DDPG(state_dim,action_dim,cfg)
+    n_states = env.observation_space.shape[0]
+    n_actions = env.action_space.shape[0]
+    agent = DDPG(n_states,n_actions,cfg)
     return env,agent
 
 def train(cfg, env, agent):
     print('开始训练！')
-    print(f'环境：{cfg.env}，算法：{cfg.algo}，设备：{cfg.device}')
+    print(f'环境：{cfg.env_name}，算法：{cfg.algo}，设备：{cfg.device}')
     ou_noise = OUNoise(env.action_space)  # 动作噪声
-    rewards = [] # 记录奖励
-    ma_rewards = []  # 记录滑动平均奖励
+    rewards = [] # 记录所有回合的奖励
+    ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.train_eps):
         state = env.reset()
         ou_noise.reset()
@@ -86,9 +93,9 @@ def train(cfg, env, agent):
 
 def eval(cfg, env, agent):
     print('开始测试！')
-    print(f'环境：{cfg.env}, 算法：{cfg.algo}, 设备：{cfg.device}')
-    rewards = [] # 记录奖励
-    ma_rewards = []  # 记录滑动平均奖励
+    print(f'环境：{cfg.env_name}, 算法：{cfg.algo}, 设备：{cfg.device}')
+    rewards = [] # 记录所有回合的奖励
+    ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.eval_eps):
         state = env.reset() 
         done = False
@@ -112,17 +119,18 @@ def eval(cfg, env, agent):
 
 if __name__ == "__main__":
     cfg = DDPGConfig()
+    plot_cfg = PlotConfig()
     # 训练
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
-    make_dir(cfg.result_path, cfg.model_path)
-    agent.save(path=cfg.model_path)
-    save_results(rewards, ma_rewards, tag='train', path=cfg.result_path)
-    plot_rewards_cn(rewards, ma_rewards, tag="train", env = cfg.env, algo=cfg.algo, path=cfg.result_path)
+    make_dir(plot_cfg.result_path, plot_cfg.model_path)
+    agent.save(path=plot_cfg.model_path)
+    save_results(rewards, ma_rewards, tag='train', path=plot_cfg.result_path)
+    plot_rewards(rewards, ma_rewards, plot_cfg, tag="train")
     # 测试
     env,agent = env_agent_config(cfg,seed=10)
-    agent.load(path=cfg.model_path)
-    rewards,ma_rewards = eval(cfg,env,agent)
+    agent.load(path=plot_cfg.model_path)
+    rewards,ma_rewards = eval(plot_cfg,env,agent)
     save_results(rewards,ma_rewards,tag = 'eval',path = cfg.result_path)
-    plot_rewards_cn(rewards,ma_rewards,tag = "eval",env = cfg.env,algo = cfg.algo,path=cfg.result_path)
+    plot_rewards(rewards,ma_rewards,plot_cfg,tag = "eval")
     

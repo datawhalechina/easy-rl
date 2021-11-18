@@ -29,9 +29,9 @@ curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current t
 class SACConfig:
     def __init__(self) -> None:
         self.algo = 'SAC'
-        self.env = 'Pendulum-v0'
-        self.result_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/results/'  # path to save results
-        self.model_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/models/'  # path to save models
+        self.env_name = 'Pendulum-v1'
+        self.result_path = curr_path+"/outputs/" +self.env_name+'/'+curr_time+'/results/'  # path to save results
+        self.model_path = curr_path+"/outputs/" +self.env_name+'/'+curr_time+'/models/'  # path to save models
         self.train_eps = 300
         self.train_steps = 500
         self.eval_eps = 50
@@ -50,7 +50,7 @@ class SACConfig:
         self.device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def env_agent_config(cfg,seed=1):
-    env = NormalizedActions(gym.make("Pendulum-v0"))
+    env = NormalizedActions(gym.make(cfg.env_name))
     env.seed(seed)
     action_dim = env.action_space.shape[0]
     state_dim  = env.observation_space.shape[0]
@@ -59,7 +59,7 @@ def env_agent_config(cfg,seed=1):
 
 def train(cfg,env,agent):
     print('Start to train !')
-    print(f'Env: {cfg.env}, Algorithm: {cfg.algo}, Device: {cfg.device}')
+    print(f'Env: {cfg.env_name}, Algorithm: {cfg.algo}, Device: {cfg.device}')
     rewards  = []
     ma_rewards = [] # moveing average reward
     for i_ep in range(cfg.train_eps):
@@ -86,7 +86,7 @@ def train(cfg,env,agent):
 
 def eval(cfg,env,agent):
     print('Start to eval !')
-    print(f'Env: {cfg.env}, Algorithm: {cfg.algo}, Device: {cfg.device}')
+    print(f'Env: {cfg.env_name}, Algorithm: {cfg.algo}, Device: {cfg.device}')
     rewards  = []
     ma_rewards = [] # moveing average reward
     for i_ep in range(cfg.eval_eps):
