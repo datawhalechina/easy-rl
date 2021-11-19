@@ -1,6 +1,3 @@
-
-[Eng](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/README_en.md)|[中文](https://github.com/JohnJim0816/reinforcement-learning-tutorials/blob/master/README.md)
-
 ## 写在前面
 
 本项目用于学习RL基础算法，尽量做到: **注释详细**，**结构清晰**。
@@ -12,7 +9,7 @@
 * ```plot.py``` 利用matplotlib或seaborn绘制rewards图，包括滑动平均的reward，结果保存在result文件夹中
 * ```env.py``` 用于构建强化学习环境，也可以重新自定义环境，比如给action加noise
 * ```agent.py``` RL核心算法，比如dqn等，主要包含update和choose_action两个方法，
-* ```main.py``` 运行主函数
+* ```train.py``` 保存用于训练和测试的函数
 
 其中```model.py```,```memory.py```,```plot.py``` 由于不同算法都会用到，所以放入```common```文件夹中。
 
@@ -22,8 +19,8 @@ python 3.7、pytorch 1.6.0-1.8.1、gym 0.17.0-0.19.0
 
 ## 使用说明
 
-运行带有```train```的py文件或ipynb文件进行训练，如果前面带有```task```如```task0_train.py```，表示对task0任务训练，
-类似的带有```eval```即为测试。
+直接运行带有```train```的py文件或ipynb文件会进行训练默认的任务；  
+也可以运行带有```task```的py文件训练不同的任务
 
 ## 内容导航
 

@@ -10,10 +10,9 @@ Discription:
 Environment: 
 '''
 import sys,os
-curr_path = os.path.dirname(__file__)
-parent_path = os.path.dirname(curr_path)
-sys.path.append(parent_path)  # add current terminal path to sys.path
-
+curr_path = os.path.dirname(os.path.abspath(__file__)) # 当前文件所在绝对路径
+parent_path = os.path.dirname(curr_path) # 父路径
+sys.path.append(parent_path) # 添加路径到系统路径
 
 import gym
 import torch
@@ -24,7 +23,7 @@ from SAC.agent import SAC
 from common.utils import save_results, make_dir
 from common.plot import plot_rewards
 
-curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current time
+curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
 
 class SACConfig:
     def __init__(self) -> None:
@@ -48,6 +47,14 @@ class SACConfig:
         self.hidden_dim = 256
         self.batch_size  = 128
         self.device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+class PlotConfig(SACConfig):
+	def __init__(self) -> None:
+		super().__init__()
+		self.result_path = curr_path+"/outputs/" + self.env_name + \
+            '/'+curr_time+'/results/'  # 保存结果的路径
+		self.model_path = curr_path+"/outputs/" + self.env_name + \
+            '/'+curr_time+'/models/'  # 保存模型的路径
+		self.save = True # 是否保存图片
 
 def env_agent_config(cfg,seed=1):
     env = NormalizedActions(gym.make(cfg.env_name))
@@ -58,13 +65,13 @@ def env_agent_config(cfg,seed=1):
     return env,agent
 
 def train(cfg,env,agent):
-    print('Start to train !')
-    print(f'Env: {cfg.env_name}, Algorithm: {cfg.algo}, Device: {cfg.device}')
-    rewards  = []
-    ma_rewards = [] # moveing average reward
+    print('开始训练!')
+    print(f'环境：{cfg.env_name}, 算法：{cfg.algo}, 设备：{cfg.device}')
+    rewards = [] # 记录所有回合的奖励
+    ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.train_eps):
-        state = env.reset()
-        ep_reward = 0
+        ep_reward = 0 # 记录一回合内的奖励
+        state = env.reset() # 重置环境，返回初始状态
         for i_step in range(cfg.train_steps):
             action = agent.policy_net.get_action(state)
             next_state, reward, done, _ = env.step(action)
@@ -111,21 +118,20 @@ def eval(cfg,env,agent):
 
 if __name__ == "__main__":
     cfg=SACConfig()
-    
+    plot_cfg = PlotConfig()
     # train
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
-    make_dir(cfg.result_path, cfg.model_path)
-    agent.save(path=cfg.model_path)
-    save_results(rewards, ma_rewards, tag='train', path=cfg.result_path)
-    plot_rewards(rewards, ma_rewards, tag="train",
-                 algo=cfg.algo, path=cfg.result_path)
+    make_dir(plot_cfg.result_path, plot_cfg.model_path)
+    agent.save(path=plot_cfg.model_path)
+    save_results(rewards, ma_rewards, tag='train', path=plot_cfg.result_path)
+    plot_rewards(rewards, ma_rewards, plot_cfg, tag="train")
     # eval
     env,agent = env_agent_config(cfg,seed=10)
-    agent.load(path=cfg.model_path)
+    agent.load(path=plot_cfg.model_path)
     rewards,ma_rewards = eval(cfg,env,agent)
-    save_results(rewards,ma_rewards,tag='eval',path=cfg.result_path)
-    plot_rewards(rewards,ma_rewards,tag="eval",env=cfg.env,algo = cfg.algo,path=cfg.result_path)
+    save_results(rewards,ma_rewards,tag='eval',path=plot_cfg.result_path)
+    plot_rewards(rewards,ma_rewards,plot_cfg,tag="eval")
 
 
 
