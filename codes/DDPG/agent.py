@@ -9,22 +9,75 @@ LastEditTime: 2021-09-16 00:55:30
 @Discription: 
 @Environment: python 3.7.7
 '''
+import random
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
-from common.model import Actor, Critic
-from common.memory import ReplayBuffer
-
-
+import torch.nn.functional as F
+class ReplayBuffer:
+    def __init__(self, capacity):
+        self.capacity = capacity # 经验回放的容量
+        self.buffer = [] # 缓冲区
+        self.position = 0 
+    
+    def push(self, state, action, reward, next_state, done):
+        ''' 缓冲区是一个队列，容量超出时去掉开始存入的转移(transition)
+        '''
+        if len(self.buffer) < self.capacity:
+            self.buffer.append(None)
+        self.buffer[self.position] = (state, action, reward, next_state, done)
+        self.position = (self.position + 1) % self.capacity 
+    
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size) # 随机采出小批量转移
+        state, action, reward, next_state, done =  zip(*batch) # 解压成状态，动作等
+        return state, action, reward, next_state, done
+    
+    def __len__(self):
+        ''' 返回当前存储的量
+        '''
+        return len(self.buffer)
+class Actor(nn.Module):
+    def __init__(self, n_states, n_actions, hidden_dim, init_w=3e-3):
+        super(Actor, self).__init__()  
+        self.linear1 = nn.Linear(n_states, hidden_dim)
+        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear3 = nn.Linear(hidden_dim, n_actions)
+        
+        self.linear3.weight.data.uniform_(-init_w, init_w)
+        self.linear3.bias.data.uniform_(-init_w, init_w)
+        
+    def forward(self, x):
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        x = torch.tanh(self.linear3(x))
+        return x
+class Critic(nn.Module):
+    def __init__(self, n_states, n_actions, hidden_dim, init_w=3e-3):
+        super(Critic, self).__init__()
+        
+        self.linear1 = nn.Linear(n_states + n_actions, hidden_dim)
+        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear3 = nn.Linear(hidden_dim, 1)
+        # 随机初始化为较小的值
+        self.linear3.weight.data.uniform_(-init_w, init_w)
+        self.linear3.bias.data.uniform_(-init_w, init_w)
+        
+    def forward(self, state, action):
+        # 按维数1拼接
+        x = torch.cat([state, action], 1)
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        x = self.linear3(x)
+        return x
 class DDPG:
-    def __init__(self, state_dim, action_dim, cfg):
+    def __init__(self, n_states, n_actions, cfg):
         self.device = cfg.device
-        self.critic = Critic(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
-        self.actor = Actor(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
-        self.target_critic = Critic(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
-        self.target_actor = Actor(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
+        self.critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.target_critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.target_actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
 
         # 复制参数到目标网络
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):

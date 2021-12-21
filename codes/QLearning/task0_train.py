@@ -45,9 +45,9 @@ def env_agent_config(cfg,seed=1):
     env = gym.make(cfg.env)  
     env = CliffWalkingWapper(env)
     env.seed(seed) # 设置随机种子
-    n_states = env.observation_space.n # 状态维度
-    n_actions = env.action_space.n # 动作维度
-    agent = QLearning(n_states,n_actions,cfg)
+    state_dim = env.observation_space.n # 状态维度
+    action_dim = env.action_space.n # 动作维度
+    agent = QLearning(state_dim,action_dim,cfg)
     return env,agent
 
 def train(cfg,env,agent):

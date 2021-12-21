@@ -46,3 +46,5 @@ python 3.7、pytorch 1.6.0-1.8.1、gym 0.17.0-0.19.0
 [RL-Adventure-2](https://github.com/higgsfield/RL-Adventure-2)
 
 [RL-Adventure](https://github.com/higgsfield/RL-Adventure)
+
+[Google 开源项目风格指南——中文版](https://zh-google-styleguide.readthedocs.io/en/latest/google-python-styleguide/python_style_rules/#comments)

@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2021-05-04 22:28:06
+LastEditTime: 2021-11-19 18:07:09
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -16,15 +16,55 @@ LastEditTime: 2021-05-04 22:28:06
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 import random
 import math
 import numpy as np
-from common.memory import ReplayBuffer
-from common.model import MLP
-class DoubleDQN:
-    def __init__(self, state_dim, action_dim, cfg):
+
+class ReplayBuffer:
+    def __init__(self, capacity):
+        self.capacity = capacity # 经验回放的容量
+        self.buffer = [] # 缓冲区
+        self.position = 0 
+    
+    def push(self, state, action, reward, next_state, done):
+        ''' 缓冲区是一个队列，容量超出时去掉开始存入的转移(transition)
+        '''
+        if len(self.buffer) < self.capacity:
+            self.buffer.append(None)
+        self.buffer[self.position] = (state, action, reward, next_state, done)
+        self.position = (self.position + 1) % self.capacity 
+    
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size) # 随机采出小批量转移
+        state, action, reward, next_state, done =  zip(*batch) # 解压成状态，动作等
+        return state, action, reward, next_state, done
+    
+    def __len__(self):
+        ''' 返回当前存储的量
+        '''
+        return len(self.buffer)
+
+class MLP(nn.Module):
+    def __init__(self, n_states,n_actions,hidden_dim=128):
+        """ 初始化q网络，为全连接网络
+            n_states: 输入的特征数即环境的状态数
+            n_actions: 输出的动作维度
+        """
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(n_states, hidden_dim) # 输入层
+        self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
+        self.fc3 = nn.Linear(hidden_dim, n_actions) # 输出层
         
-        self.action_dim = action_dim  # 总的动作个数
+    def forward(self, x):
+        # 各层对应的激活函数
+        x = F.relu(self.fc1(x)) 
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+        
+class DoubleDQN:
+    def __init__(self, n_states, n_actions, cfg):
+        self.n_actions = n_actions  # 总的动作个数
         self.device = cfg.device  # 设备，cpu或gpu等
         self.gamma = cfg.gamma
         # e-greedy策略相关参数
@@ -33,8 +73,8 @@ class DoubleDQN:
         self.epsilon_end = cfg.epsilon_end
         self.epsilon_decay = cfg.epsilon_decay
         self.batch_size = cfg.batch_size
-        self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.policy_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.target_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
         # target_net copy from policy_net
         for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
             target_param.data.copy_(param.data)
@@ -43,8 +83,15 @@ class DoubleDQN:
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
         self.loss = 0
         self.memory = ReplayBuffer(cfg.memory_capacity)
-    def predict(self,state):
-        with torch.no_grad():
+        
+    def choose_action(self, state):
+        '''选择动作
+        '''
+        self.actions_count += 1
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+            math.exp(-1. * self.actions_count / self.epsilon_decay)
+        if random.random() > self.epsilon:
+            with torch.no_grad():
                 # 先转为张量便于丢给神经网络,state元素数据原本为float64
                 # 注意state=torch.tensor(state).unsqueeze(0)跟state=torch.tensor([state])等价
                 state = torch.tensor(
@@ -55,17 +102,8 @@ class DoubleDQN:
                 # 如torch.return_types.max(values=tensor([10.3587]),indices=tensor([0]))
                 # 所以tensor.max(1)[1]返回最大值对应的下标，即action
                 action = q_value.max(1)[1].item()  
-        return action
-    def choose_action(self, state):
-        '''选择动作
-        '''
-        self.actions_count += 1
-        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            math.exp(-1. * self.actions_count / self.epsilon_decay)
-        if random.random() > self.epsilon:
-            action  = self.predict(state)
         else:
-            action = random.randrange(self.action_dim)
+            action = random.randrange(self.n_actions)
         return action
     def update(self):
 

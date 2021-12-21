@@ -14,10 +14,10 @@ CartPole-v0是一个经典的入门环境，如下图，它通过向左(动作=0
 import gym
 env = gym.make('CartPole-v0')  # 建立环境
 env.seed(1) # 随机种子
-n_states = env.observation_space.shape[0] # 状态数
-n_actions = env.action_space.n # 动作数
+state_dim = env.observation_space.shape[0] # 状态数
+action_dim = env.action_space.n # 动作数
 state = env.reset() # 初始化环境
-print(f"状态数：{n_states}，动作数：{n_actions}")
+print(f"状态数：{state_dim}，动作数：{action_dim}")
 print(f"初始状态：{state}")
 ```
 
