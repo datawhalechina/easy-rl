@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:48:57
 @LastEditor: John
-LastEditTime: 2021-09-15 15:34:13
+LastEditTime: 2021-12-22 11:08:04
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -30,13 +30,13 @@ def train(cfg, env, agent):
                 break
         if (i_ep+1) % cfg.target_update == 0: # 智能体目标网络更新
             agent.target_net.load_state_dict(agent.policy_net.state_dict())
-        if (i_ep+1)%10 == 0: 
-            print('回合：{}/{}, 奖励：{}'.format(i_ep+1, cfg.train_eps, ep_reward))
         rewards.append(ep_reward)
         if ma_rewards:
             ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
+        if (i_ep+1)%10 == 0: 
+            print('回合：{}/{}, 奖励：{}'.format(i_ep+1, cfg.train_eps, ep_reward))
     print('完成训练！')
     return rewards, ma_rewards
 
@@ -48,7 +48,7 @@ def test(cfg,env,agent):
     cfg.epsilon_end = 0.0 # e-greedy策略中的终止epsilon
     rewards = [] # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
-    for i_ep in range(cfg.eval_eps):
+    for i_ep in range(cfg.test_eps):
         ep_reward = 0 # 记录一回合内的奖励
         state = env.reset() # 重置环境，返回初始状态
         while True:
@@ -63,7 +63,7 @@ def test(cfg,env,agent):
             ma_rewards.append(ma_rewards[-1]*0.9+ep_reward*0.1)
         else:
             ma_rewards.append(ep_reward)
-        print(f"回合：{i_ep+1}/{cfg.eval_eps}，奖励：{ep_reward:.1f}")
+        print(f"回合：{i_ep+1}/{cfg.test_eps}，奖励：{ep_reward:.1f}")
     print('完成测试！')
     return rewards,ma_rewards
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             self.env_name = 'CartPole-v0' # 环境名称
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
             self.train_eps = 200 # 训练的回合数
-            self.eval_eps = 30 # 测试的回合数
+            self.test_eps = 30 # 测试的回合数
             # 超参数
             self.gamma = 0.95 # 强化学习中的折扣因子
             self.epsilon_start = 0.90 # e-greedy策略中初始epsilon

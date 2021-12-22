@@ -34,7 +34,7 @@ class PGConfig:
         self.model_path = curr_path+"/outputs/" + self.env + \
             '/'+curr_time+'/models/'  # 保存模型的路径
         self.train_eps = 300 # 训练的回合数
-        self.eval_eps = 30 # 测试的回合数
+        self.test_eps = 30 # 测试的回合数
         self.batch_size = 8
         self.lr = 0.01 # 学习率
         self.gamma = 0.99
@@ -94,7 +94,7 @@ def eval(cfg,env,agent):
     print(f'Env:{cfg.env}, Algorithm:{cfg.algo}, Device:{cfg.device}')
     rewards = []
     ma_rewards = []
-    for i_ep in range(cfg.eval_eps):
+    for i_ep in range(cfg.test_eps):
         state = env.reset()
         ep_reward = 0
         for _ in count():

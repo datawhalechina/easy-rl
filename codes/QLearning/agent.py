@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2021-09-19 23:05:45
+LastEditTime: 2021-12-22 10:54:57
 Discription: use defaultdict to define Q table
 Environment: 
 '''
@@ -15,17 +15,17 @@ import torch
 from collections import defaultdict
 
 class QLearning(object):
-    def __init__(self,state_dim,
-                 action_dim,cfg):
-        self.action_dim = action_dim  # dimension of acgtion
-        self.lr = cfg.lr  # learning rate
+    def __init__(self,n_states,
+                 n_actions,cfg):
+        self.n_actions = n_actions 
+        self.lr = cfg.lr  # 学习率
         self.gamma = cfg.gamma  
         self.epsilon = 0 
         self.sample_count = 0  
         self.epsilon_start = cfg.epsilon_start
         self.epsilon_end = cfg.epsilon_end
         self.epsilon_decay = cfg.epsilon_decay
-        self.Q_table  = defaultdict(lambda: np.zeros(action_dim)) # A nested dictionary that maps state -> (action -> action-value)
+        self.Q_table  = defaultdict(lambda: np.zeros(n_actions)) # 用嵌套字典存放状态->动作->状态-动作值（Q值）的映射，即Q表
     def choose_action(self, state):
         self.sample_count += 1
         self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
@@ -34,7 +34,7 @@ class QLearning(object):
         if np.random.uniform(0, 1) > self.epsilon:
             action = np.argmax(self.Q_table[str(state)]) # 选择Q(s,a)最大对应的动作
         else:
-            action = np.random.choice(self.action_dim) # 随机选择动作
+            action = np.random.choice(self.n_actions) # 随机选择动作
         return action
     def predict(self,state):
         action = np.argmax(self.Q_table[str(state)])

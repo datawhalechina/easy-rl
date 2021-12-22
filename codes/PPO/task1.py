@@ -20,7 +20,7 @@ class PPOConfig:
         self.continuous = True # 环境是否为连续动作
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
         self.train_eps = 200 # 训练的回合数
-        self.eval_eps = 20 # 测试的回合数
+        self.test_eps = 20 # 测试的回合数
         self.batch_size = 5
         self.gamma=0.99
         self.n_epochs = 4

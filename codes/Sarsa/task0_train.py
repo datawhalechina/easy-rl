@@ -31,7 +31,7 @@ class SarsaConfig:
         self.result_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" +self.env+'/'+curr_time+'/models/'  # path to save models
         self.train_eps = 200
-        self.eval_eps = 50
+        self.test_eps = 50
         self.epsilon = 0.15 # epsilon: The probability to select a random action . 
         self.gamma = 0.9 # gamma: Gamma discount factor.
         self.lr = 0.2 # learning rate: step size parameter
@@ -74,7 +74,7 @@ def train(cfg,env,agent):
 def eval(cfg,env,agent):
     rewards = []
     ma_rewards = []
-    for i_episode in range(cfg.eval_eps):
+    for i_episode in range(cfg.test_eps):
         # Print out which episode we're on, useful for debugging.
         # Generate an episode.
         # An episode is an array of (state, action, reward) tuples
@@ -94,7 +94,7 @@ def eval(cfg,env,agent):
             ma_rewards.append(ep_reward)
         rewards.append(ep_reward)
         if (i_episode+1)%10==0:
-            print("Episode:{}/{}: Reward:{}".format(i_episode+1, cfg.eval_eps,ep_reward))
+            print("Episode:{}/{}: Reward:{}".format(i_episode+1, cfg.test_eps,ep_reward))
     print('Complete evaling！')
     return rewards,ma_rewards
         

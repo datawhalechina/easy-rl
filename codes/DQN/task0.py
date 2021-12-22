@@ -23,7 +23,7 @@ class DQNConfig:
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
         self.train_eps = 200  # 训练的回合数
-        self.eval_eps = 30  # 测试的回合数
+        self.test_eps = 30  # 测试的回合数
         # 超参数
         self.gamma = 0.95  # 强化学习中的折扣因子
         self.epsilon_start = 0.90  # e-greedy策略中初始epsilon

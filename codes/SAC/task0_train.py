@@ -33,7 +33,7 @@ class SACConfig:
         self.model_path = curr_path+"/outputs/" +self.env_name+'/'+curr_time+'/models/'  # path to save models
         self.train_eps = 300
         self.train_steps = 500
-        self.eval_eps = 50
+        self.test_eps = 50
         self.eval_steps = 500
         self.gamma = 0.99
         self.mean_lambda=1e-3
@@ -96,7 +96,7 @@ def eval(cfg,env,agent):
     print(f'Env: {cfg.env_name}, Algorithm: {cfg.algo}, Device: {cfg.device}')
     rewards  = []
     ma_rewards = [] # moveing average reward
-    for i_ep in range(cfg.eval_eps):
+    for i_ep in range(cfg.test_eps):
         state = env.reset()
         ep_reward = 0
         for i_step in range(cfg.eval_steps):

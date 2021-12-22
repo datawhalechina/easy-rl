@@ -34,7 +34,7 @@ class DDPGConfig:
         self.env_name = env_name # 环境名称
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # 检测GPU
         self.train_eps = 300 # 训练的回合数
-        self.eval_eps = 50 # 测试的回合数
+        self.test_eps = 50 # 测试的回合数
         self.gamma = 0.99 # 折扣因子
         self.critic_lr = 1e-3 # 评论家网络的学习率
         self.actor_lr = 1e-4 # 演员网络的学习率

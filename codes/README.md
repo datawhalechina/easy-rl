@@ -13,6 +13,7 @@
 
 其中```model.py```,```memory.py```,```plot.py``` 由于不同算法都会用到，所以放入```common```文件夹中。
 
+**注意：新版本中将```model```,```memory```相关内容全部放到了```agent.py```里面，```plot```放到了```common.utils```中。**
 ## 运行环境
 
 python 3.7、pytorch 1.6.0-1.8.1、gym 0.17.0-0.19.0
