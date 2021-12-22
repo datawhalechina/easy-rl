@@ -32,10 +32,10 @@ class MLP(nn.Module):
         return self.fc3(x)
 
 class Critic(nn.Module):
-    def __init__(self, n_obs, action_dim, hidden_size, init_w=3e-3):
+    def __init__(self, n_obs, n_actions, hidden_size, init_w=3e-3):
         super(Critic, self).__init__()
         
-        self.linear1 = nn.Linear(n_obs + action_dim, hidden_size)
+        self.linear1 = nn.Linear(n_obs + n_actions, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
         self.linear3 = nn.Linear(hidden_size, 1)
         # 随机初始化为较小的值
@@ -51,11 +51,11 @@ class Critic(nn.Module):
         return x
 
 class Actor(nn.Module):
-    def __init__(self, n_obs, action_dim, hidden_size, init_w=3e-3):
+    def __init__(self, n_obs, n_actions, hidden_size, init_w=3e-3):
         super(Actor, self).__init__()  
         self.linear1 = nn.Linear(n_obs, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
-        self.linear3 = nn.Linear(hidden_size, action_dim)
+        self.linear3 = nn.Linear(hidden_size, n_actions)
         
         self.linear3.weight.data.uniform_(-init_w, init_w)
         self.linear3.bias.data.uniform_(-init_w, init_w)
@@ -67,18 +67,18 @@ class Actor(nn.Module):
         return x
 
 class ActorCritic(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim=256):
+    def __init__(self, n_states, n_actions, hidden_dim=256):
         super(ActorCritic, self).__init__()
         self.critic = nn.Sequential(
-            nn.Linear(state_dim, hidden_dim),
+            nn.Linear(n_states, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         )
         
         self.actor = nn.Sequential(
-            nn.Linear(state_dim, hidden_dim),
+            nn.Linear(n_states, hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, action_dim),
+            nn.Linear(hidden_dim, n_actions),
             nn.Softmax(dim=1),
         )
         

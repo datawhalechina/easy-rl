@@ -1,41 +1,49 @@
-#!/usr/bin/env python
-# coding=utf-8
-'''
-@Author: John
-@Email: johnjim0816@gmail.com
-@Date: 2020-06-12 00:50:49
-@LastEditor: John
-LastEditTime: 2021-09-15 13:35:36
-@Discription: 
-@Environment: python 3.7.7
-'''
-'''off-policy
-'''
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
+import torch.autograd as autograd 
 import random
 import math
-import numpy as np
-
-class MLP(nn.Module):
-    def __init__(self, state_dim,action_dim,hidden_dim=128):
-        """ 初始化q网络，为全连接网络
-            state_dim: 输入的特征数即环境的状态数
-            action_dim: 输出的动作维度
-        """
-        super(MLP, self).__init__()
-        self.fc1 = nn.Linear(state_dim, hidden_dim) # 输入层
-        self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
-        self.fc3 = nn.Linear(hidden_dim, action_dim) # 输出层
+class CNN(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(CNN, self).__init__()
+        
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        
+        self.features = nn.Sequential(
+            nn.Conv2d(input_dim[0], 32, kernel_size=8, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.ReLU()
+        )
+        
+        self.fc = nn.Sequential(
+            nn.Linear(self.feature_size(), 512),
+            nn.ReLU(),
+            nn.Linear(512, self.output_dim)
+        )
         
     def forward(self, x):
-        # 各层对应的激活函数
-        x = F.relu(self.fc1(x)) 
-        x = F.relu(self.fc2(x))
-        return self.fc3(x)
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
+    
+    def feature_size(self):
+        return self.features(autograd.Variable(torch.zeros(1, *self.input_dim))).view(1, -1).size(1)
+
+
+    def act(self, state, epsilon):
+        if random.random() > epsilon:
+            state   = Variable(torch.FloatTensor(np.float32(state)).unsqueeze(0), volatile=True)
+            q_value = self.forward(state)
+            action  = q_value.max(1)[1].data[0]
+        else:
+            action = random.randrange(env.action_space.n)
+        return action
 
 class ReplayBuffer:
     def __init__(self, capacity):
@@ -62,9 +70,9 @@ class ReplayBuffer:
         return len(self.buffer)
 
 class DQN:
-    def __init__(self, state_dim, action_dim, cfg):
+    def __init__(self, n_states, n_actions, cfg):
 
-        self.action_dim = action_dim  # 总的动作个数
+        self.n_actions = n_actions  # 总的动作个数
         self.device = cfg.device  # 设备，cpu或gpu等
         self.gamma = cfg.gamma  # 奖励的折扣因子
         # e-greedy策略相关参数
@@ -73,8 +81,8 @@ class DQN:
             (cfg.epsilon_start - cfg.epsilon_end) * \
             math.exp(-1. * frame_idx / cfg.epsilon_decay)
         self.batch_size = cfg.batch_size
-        self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.policy_net = CNN(n_states, n_actions).to(self.device)
+        self.target_net = CNN(n_states, n_actions).to(self.device)
         for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): # 复制参数到目标网路targe_net
             target_param.data.copy_(param.data)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr) # 优化器
@@ -90,7 +98,7 @@ class DQN:
                 q_values = self.policy_net(state)
                 action = q_values.max(1)[1].item() # 选择Q值最大的动作
         else:
-            action = random.randrange(self.action_dim)
+            action = random.randrange(self.n_actions)
         return action
     def update(self):
         if len(self.memory) < self.batch_size: # 当memory中不满足一个批量时，不更新策略

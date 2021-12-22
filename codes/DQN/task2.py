@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# coding=utf-8
+'''
+Author: JiangJi
+Email: johnjim0816@gmail.com
+Date: 2021-12-22 11:14:17
+LastEditor: JiangJi
+LastEditTime: 2021-12-22 15:27:48
+Discription: 使用 DQN-cnn  训练 PongNoFrameskip-v4
+'''
 import sys
 import os
 curr_path = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在绝对路径
@@ -8,20 +18,23 @@ import gym
 import torch
 import datetime
 from common.utils import save_results, make_dir
-from common.utils import plot_rewards
+from common.utils import plot_rewards, plot_rewards_cn
+from common.atari_wrappers import make_atari, wrap_deepmind
 from DQN.dqn import DQN
 
 curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
-algo_name = 'DQN'  # 算法名称
-env_name = 'CartPole-v0'  # 环境名称
-
+algo_name = 'DQN-cnn'  # 算法名称
+env_name = 'PongNoFrameskip-v4'  # 环境名称
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
 class DQNConfig:
+    ''' 算法相关参数设置
+    '''
+
     def __init__(self):
         self.algo_name = algo_name  # 算法名称
         self.env_name = env_name  # 环境名称
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
-        self.train_eps = 200  # 训练的回合数
+        self.device = device # 检测GPU
+        self.train_eps = 500  # 训练的回合数
         self.test_eps = 30  # 测试的回合数
         # 超参数
         self.gamma = 0.95  # 强化学习中的折扣因子
@@ -34,21 +47,26 @@ class DQNConfig:
         self.target_update = 4  # 目标网络的更新频率
         self.hidden_dim = 256  # 网络隐藏层
 class PlotConfig:
+    ''' 绘图相关参数设置
+    '''
+
     def __init__(self) -> None:
-        self.algo = algo_name  # 算法名称
+        self.algo_name = algo_name  # 算法名称
         self.env_name = env_name  # 环境名称
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
+        self.device = device  # 检测GPU
         self.result_path = curr_path + "/outputs/" + self.env_name + \
             '/' + curr_time + '/results/'  # 保存结果的路径
         self.model_path = curr_path + "/outputs/" + self.env_name + \
             '/' + curr_time + '/models/'  # 保存模型的路径
         self.save = True  # 是否保存图片
 
+
 def env_agent_config(cfg, seed=1):
     ''' 创建环境和智能体
     '''
-    env = gym.make(cfg.env_name)  # 创建环境
+    env    = make_atari(cfg.env_name) # 创建环境
+    # env    = wrap_deepmind(env)
+    # env    = wrap_pytorch(env) 
     env.seed(seed)  # 设置随机种子
     n_states = env.observation_space.shape[0]  # 状态数
     n_actions = env.action_space.n  # 动作数
@@ -122,10 +140,11 @@ if __name__ == "__main__":
     agent.save(path=plot_cfg.model_path)  # 保存模型
     save_results(rewards, ma_rewards, tag='train',
                 path=plot_cfg.result_path)  # 保存结果
-    plot_rewards(rewards, ma_rewards, plot_cfg, tag="train")  # 画出结果
+    plot_rewards_cn(rewards, ma_rewards, plot_cfg, tag="train")  # 画出结果
     # 测试
     env, agent = env_agent_config(cfg, seed=10)
     agent.load(path=plot_cfg.model_path)  # 导入模型
     rewards, ma_rewards = test(cfg, env, agent)
-    save_results(rewards, ma_rewards, tag='test', path=plot_cfg.result_path)  # 保存结果
-    plot_rewards(rewards, ma_rewards, plot_cfg, tag="test")  # 画出结果
+    save_results(rewards, ma_rewards, tag='test',
+                path=plot_cfg.result_path)  # 保存结果
+    plot_rewards_cn(rewards, ma_rewards, plot_cfg, tag="test")  # 画出结果

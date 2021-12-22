@@ -17,31 +17,31 @@ class StochasticMDP:
     def __init__(self):
         self.end = False
         self.curr_state = 2
-        self.action_dim = 2
-        self.state_dim = 6
+        self.n_actions = 2
+        self.n_states = 6
         self.p_right = 0.5
 
     def reset(self):
         self.end = False
         self.curr_state = 2
-        state = np.zeros(self.state_dim)
+        state = np.zeros(self.n_states)
         state[self.curr_state - 1] = 1.
         return state
 
     def step(self, action):
         if self.curr_state != 1:
             if action == 1:
-                if random.random() < self.p_right and self.curr_state < self.state_dim:
+                if random.random() < self.p_right and self.curr_state < self.n_states:
                     self.curr_state += 1
                 else:
                     self.curr_state -= 1
 
             if action == 0:
                 self.curr_state -= 1
-        if self.curr_state == self.state_dim:
+        if self.curr_state == self.n_states:
             self.end = True
 
-        state = np.zeros(self.state_dim)
+        state = np.zeros(self.n_states)
         state[self.curr_state - 1] = 1.
 
         if self.curr_state == 1:

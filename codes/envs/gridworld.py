@@ -37,7 +37,7 @@ class GridworldEnv(discrete.DiscreteEnv):
         self.shape = shape
 
         nS = np.prod(shape)
-        action_dim = 4
+        n_actions = 4
 
         MAX_Y = shape[0]
         MAX_X = shape[1]
@@ -51,7 +51,7 @@ class GridworldEnv(discrete.DiscreteEnv):
             y, x = it.multi_index
 
             # P[s][a] = (prob, next_state, reward, is_done)
-            P[s] = {a : [] for a in range(action_dim)}
+            P[s] = {a : [] for a in range(n_actions)}
 
             is_done = lambda s: s == 0 or s == (nS - 1)
             reward = 0.0 if is_done(s) else -1.0
@@ -82,7 +82,7 @@ class GridworldEnv(discrete.DiscreteEnv):
         # This should not be used in any model-free learning algorithm
         self.P = P
 
-        super(GridworldEnv, self).__init__(nS, action_dim, P, isd)
+        super(GridworldEnv, self).__init__(nS, n_actions, P, isd)
 
     def _render(self, mode='human', close=False):
         """ Renders the current gridworld layout

@@ -74,9 +74,9 @@ def train(cfg,envs):
     print(f'环境：{cfg.env_name}, 算法：{cfg.algo}, 设备：{cfg.device}')
     env = gym.make(cfg.env_name) # a single env
     env.seed(10)
-    state_dim  = envs.observation_space.shape[0]
-    action_dim = envs.action_space.n
-    model = ActorCritic(state_dim, action_dim, cfg.hidden_dim).to(cfg.device)
+    n_states  = envs.observation_space.shape[0]
+    n_actions = envs.action_space.n
+    model = ActorCritic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
     optimizer = optim.Adam(model.parameters())
     frame_idx    = 0
     test_rewards = []

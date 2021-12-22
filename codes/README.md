@@ -16,7 +16,7 @@
 **注意：新版本中将```model```,```memory```相关内容全部放到了```agent.py```里面，```plot```放到了```common.utils```中。**
 ## 运行环境
 
-python 3.7、pytorch 1.6.0-1.8.1、gym 0.17.0-0.19.0
+python 3.7、pytorch 1.6.0-1.8.1、gym 0.21.0
 
 ## 使用说明
 
@@ -36,7 +36,7 @@ python 3.7、pytorch 1.6.0-1.8.1、gym 0.17.0-0.19.0
 |   [Hierarchical DQN](HierarchicalDQN)    |       [H-DQN Paper](https://arxiv.org/abs/1604.06057)        | [CartPole-v0](./envs/gym_info.md)         |                                    |
 |    [PolicyGradient](./PolicyGradient)    | [Lil'log](https://lilianweng.github.io/lil-log/2018/04/08/policy-gradient-algorithms.html) | [CartPole-v0](./envs/gym_info.md)         |                                    |
 |               [A2C](./A2C)               |        [A3C Paper](https://arxiv.org/abs/1602.01783)         | [CartPole-v0](./envs/gym_info.md)         |                                    |
-|               [SAC](./SAC)               |        [SAC Paper](https://arxiv.org/abs/1801.01290)         | [Pendulum-v0](./envs/gym_info.md)         |                                    |
+|               [SAC](./SoftActorCritic)               |        [SAC Paper](https://arxiv.org/abs/1801.01290)         | [Pendulum-v0](./envs/gym_info.md)         |                                    |
 |               [PPO](./PPO)               |        [PPO paper](https://arxiv.org/abs/1707.06347)         | [CartPole-v0](./envs/gym_info.md)         |                                    |
 |              [DDPG](./DDPG)              |        [DDPG Paper](https://arxiv.org/abs/1509.02971)        | [Pendulum-v0](./envs/gym_info.md)         |                                    |
 |               [TD3](./TD3)               |        [TD3 Paper](https://arxiv.org/abs/1802.09477)         | [HalfCheetah-v2]((./envs/mujoco_info.md)) |                                    |

@@ -43,8 +43,8 @@ class MCConfig:
 
 def env_agent_config(cfg,seed=1):
     env = RacetrackEnv()
-    action_dim = 9
-    agent = FisrtVisitMC(action_dim, cfg)
+    n_actions = 9
+    agent = FisrtVisitMC(n_actions, cfg)
     return env,agent
     
 def train(cfg, env, agent):
