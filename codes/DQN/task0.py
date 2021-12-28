@@ -35,7 +35,7 @@ class DQNConfig:
         self.hidden_dim = 256  # 网络隐藏层
 class PlotConfig:
     def __init__(self) -> None:
-        self.algo = algo_name  # 算法名称
+        self.algo_name = algo_name  # 算法名称
         self.env_name = env_name  # 环境名称
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
