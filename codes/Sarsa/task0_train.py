@@ -39,8 +39,8 @@ class SarsaConfig:
 
 def env_agent_config(cfg,seed=1):
     env = RacetrackEnv()
-    n_actions=9
-    agent = Sarsa(n_actions,cfg)
+    action_dim=9
+    agent = Sarsa(action_dim,cfg)
     return env,agent
         
 def train(cfg,env,agent):

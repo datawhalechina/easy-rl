@@ -40,10 +40,10 @@ class ActorCritic(nn.Module):
 class A2C:
     ''' A2C算法
     '''
-    def __init__(self,n_states,n_actions,cfg) -> None:
+    def __init__(self,state_dim,action_dim,cfg) -> None:
         self.gamma = cfg.gamma
         self.device = cfg.device
-        self.model = ActorCritic(n_states, n_actions, cfg.hidden_size).to(self.device)
+        self.model = ActorCritic(state_dim, action_dim, cfg.hidden_size).to(self.device)
         self.optimizer = optim.Adam(self.model.parameters())
 
     def compute_returns(self,next_value, rewards, masks):

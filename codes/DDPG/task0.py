@@ -58,9 +58,9 @@ class PlotConfig:
 def env_agent_config(cfg,seed=1):
     env = NormalizedActions(gym.make(cfg.env_name)) # 装饰action噪声
     env.seed(seed) # 随机种子
-    n_states = env.observation_space.shape[0]
-    n_actions = env.action_space.shape[0]
-    agent = DDPG(n_states,n_actions,cfg)
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    agent = DDPG(state_dim,action_dim,cfg)
     return env,agent
 
 cfg = DDPGConfig()

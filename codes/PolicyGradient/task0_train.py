@@ -46,8 +46,8 @@ class PGConfig:
 def env_agent_config(cfg,seed=1):
     env = gym.make(cfg.env)  
     env.seed(seed)
-    n_states = env.observation_space.shape[0]
-    agent = PolicyGradient(n_states,cfg)
+    state_dim = env.observation_space.shape[0]
+    agent = PolicyGradient(state_dim,cfg)
     return env,agent
 
 def train(cfg,env,agent):

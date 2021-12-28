@@ -21,15 +21,15 @@ import math
 import numpy as np
 
 class MLP(nn.Module):
-    def __init__(self, n_states,n_actions,hidden_dim=128):
+    def __init__(self, state_dim,action_dim,hidden_dim=128):
         """ 初始化q网络，为全连接网络
-            n_states: 输入的特征数即环境的状态数
-            n_actions: 输出的动作维度
+            state_dim: 输入的特征数即环境的状态维度
+            action_dim: 输出的动作维度
         """
         super(MLP, self).__init__()
-        self.fc1 = nn.Linear(n_states, hidden_dim) # 输入层
+        self.fc1 = nn.Linear(state_dim, hidden_dim) # 输入层
         self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
-        self.fc3 = nn.Linear(hidden_dim, n_actions) # 输出层
+        self.fc3 = nn.Linear(hidden_dim, action_dim) # 输出层
         
     def forward(self, x):
         # 各层对应的激活函数
@@ -62,9 +62,9 @@ class ReplayBuffer:
         return len(self.buffer)
 
 class DQN:
-    def __init__(self, n_states, n_actions, cfg):
+    def __init__(self, state_dim, action_dim, cfg):
 
-        self.n_actions = n_actions  # 总的动作个数
+        self.action_dim = action_dim  # 总的动作个数
         self.device = cfg.device  # 设备，cpu或gpu等
         self.gamma = cfg.gamma  # 奖励的折扣因子
         # e-greedy策略相关参数
@@ -73,8 +73,8 @@ class DQN:
             (cfg.epsilon_start - cfg.epsilon_end) * \
             math.exp(-1. * frame_idx / cfg.epsilon_decay)
         self.batch_size = cfg.batch_size
-        self.policy_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
         for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): # 复制参数到目标网路targe_net
             target_param.data.copy_(param.data)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr) # 优化器
@@ -90,7 +90,7 @@ class DQN:
                 q_values = self.policy_net(state)
                 action = q_values.max(1)[1].item() # 选择Q值最大的动作
         else:
-            action = random.randrange(self.n_actions)
+            action = random.randrange(self.action_dim)
         return action
     def update(self):
         if len(self.memory) < self.batch_size: # 当memory中不满足一个批量时，不更新策略

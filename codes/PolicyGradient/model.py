@@ -19,7 +19,7 @@ class MLP(nn.Module):
     '''
     def __init__(self,input_dim,hidden_dim = 36):
         super(MLP, self).__init__()
-        # 24和36为hidden layer的层数，可根据input_dim, n_actions的情况来改变
+        # 24和36为hidden layer的层数，可根据input_dim, action_dim的情况来改变
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim,hidden_dim)
         self.fc3 = nn.Linear(hidden_dim, 1)  # Prob of Left

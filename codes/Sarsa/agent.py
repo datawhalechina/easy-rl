@@ -14,17 +14,17 @@ from collections import defaultdict
 import torch
 class Sarsa(object):
     def __init__(self,
-                 n_actions,sarsa_cfg,):
-        self.n_actions = n_actions  # number of actions
+                 action_dim,sarsa_cfg,):
+        self.action_dim = action_dim  # number of actions
         self.lr = sarsa_cfg.lr  # learning rate
         self.gamma = sarsa_cfg.gamma  
         self.epsilon = sarsa_cfg.epsilon  
-        self.Q  = defaultdict(lambda: np.zeros(n_actions))
-        # self.Q = np.zeros((n_states, n_actions))  # Q表
+        self.Q  = defaultdict(lambda: np.zeros(action_dim))
+        # self.Q = np.zeros((state_dim, action_dim))  # Q表
     def choose_action(self, state):
         best_action = np.argmax(self.Q[state])
         # action = best_action
-        action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
+        action_probs = np.ones(self.action_dim, dtype=float) * self.epsilon / self.action_dim
         action_probs[best_action] += (1.0 - self.epsilon)
         action = np.random.choice(np.arange(len(action_probs)), p=action_probs) 
         return action
