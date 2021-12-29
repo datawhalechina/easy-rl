@@ -19,7 +19,6 @@ def train(cfg,env,agent):
             ma_rewards.append(ma_rewards[-1]*0.9+ep_reward*0.1)
         else:
             ma_rewards.append(ep_reward)
-        if ()
         print("回合数：{}/{}，奖励{:.1f}".format(i_ep+1, cfg.train_eps,ep_reward))
     print('完成训练！')
     return rewards,ma_rewards

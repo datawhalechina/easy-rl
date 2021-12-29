@@ -25,6 +25,7 @@ class Config:
         self.env_name = 'CartPole-v0'  # 环境名称
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPUgjgjlkhfsf风刀霜的撒发十
+        self.seed = 10 # 随机种子，置0则不设置随机种子
         self.train_eps = 200  # 训练的回合数
         self.test_eps = 30  # 测试的回合数
         ################################################################################
@@ -41,7 +42,7 @@ class Config:
         self.hidden_dim = 256  # 网络隐藏层
         ################################################################################
 
-        ################################# 保存结果相关参数 ################################
+        ################################# 保存结果相关参数 ##############################
         self.result_path = curr_path + "/outputs/" + self.env_name + \
             '/' + curr_time + '/results/'  # 保存结果的路径
         self.model_path = curr_path + "/outputs/" + self.env_name + \
@@ -50,17 +51,17 @@ class Config:
         ################################################################################
 
 
-def env_agent_config(cfg, seed=1):
+def env_agent_config(cfg):
     ''' 创建环境和智能体
     '''
     env = gym.make(cfg.env_name)  # 创建环境
     state_dim = env.observation_space.shape[0]  # 状态维度
     action_dim = env.action_space.n  # 动作维度
     agent = DQN(state_dim, action_dim, cfg)  # 创建智能体
-    if seed !=0: # 设置随机种子
-        torch.manual_seed(seed)
-        env.seed(seed)
-        np.random.seed(seed)
+    if cfg.seed !=0: # 设置随机种子
+        torch.manual_seed(cfg.seed)
+        env.seed(cfg.seed)
+        np.random.seed(cfg.seed)
     return env, agent
 
 
@@ -94,15 +95,17 @@ def train(cfg, env, agent):
         if (i_ep + 1) % 10 == 0:
             print('回合：{}/{}, 奖励：{}'.format(i_ep + 1, cfg.train_eps, ep_reward))
     print('完成训练！')
+    env.close()
     return rewards, ma_rewards
 
 
 def test(cfg, env, agent):
     print('开始测试!')
     print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
-    # 由于测试不需要使用epsilon-greedy策略，所以相应的值设置为0
+    ############# 由于测试不需要使用epsilon-greedy策略，所以相应的值设置为0 ###############
     cfg.epsilon_start = 0.0  # e-greedy策略中初始epsilon
     cfg.epsilon_end = 0.0  # e-greedy策略中的终止epsilon
+    ################################################################################
     rewards = []  # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.test_eps):
@@ -122,13 +125,14 @@ def test(cfg, env, agent):
             ma_rewards.append(ep_reward)
         print(f"回合：{i_ep+1}/{cfg.test_eps}，奖励：{ep_reward:.1f}")
     print('完成测试！')
+    env.close()
     return rewards, ma_rewards
 
 
 if __name__ == "__main__":
     cfg = Config()
     # 训练
-    env, agent = env_agent_config(cfg, seed=1)
+    env, agent = env_agent_config(cfg)
     rewards, ma_rewards = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)  # 创建保存结果和模型路径的文件夹
     agent.save(path=cfg.model_path)  # 保存模型
@@ -136,7 +140,7 @@ if __name__ == "__main__":
                  path=cfg.result_path)  # 保存结果
     plot_rewards(rewards, ma_rewards, cfg, tag="train")  # 画出结果
     # 测试
-    env, agent = env_agent_config(cfg, seed=10)
+    env, agent = env_agent_config(cfg)
     agent.load(path=cfg.model_path)  # 导入模型
     rewards, ma_rewards = test(cfg, env, agent)
     save_results(rewards, ma_rewards, tag='test',
