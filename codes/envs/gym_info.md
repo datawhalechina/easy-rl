@@ -1,10 +1,22 @@
-## 环境说明
+# OpenAi Gym 环境说明
+## 基础控制
 
 ### [CartPole v0](https://github.com/openai/gym/wiki/CartPole-v0)
 
 <img src="assets/image-20200820174307301.png" alt="image-20200820174307301" style="zoom:50%;" />
 
 通过向左或向右推车能够实现平衡，所以动作空间由两个动作组成。每进行一个step就会给一个reward，如果无法保持平衡那么done等于true，本次episode失败。理想状态下，每个episode至少能进行200个step，也就是说每个episode的reward总和至少为200，step数目至少为200
+
+### CartPole-v1
+
+```CartPole v1```环境其实跟```CartPole v0```是一模一样的，区别在于每回合最大步数（max_episode_steps）以及奖励阈值（reward_threshold），如下是相关源码：  
+
+![](assets/gym_info_20211130180023.png)
+
+这里先解释一下奖励阈值（reward_threshold），即Gym设置的一个合格标准，比如对于```CartPole v0```如果算法能够将奖励收敛到195以上，说明该算法合格。但实际上```CartPole v0```的每回合最大步数（max_episode_steps）是200，每步的奖励最大是1，也就是每回合最大奖励是200，比Gym设置的奖励阈值高。笔者猜测这是Gym可能是给算法学习者们设置的一个参考线，而实际中在写算法时并不会用到这个算法阈值，所以可以忽略。
+
+再看每回合最大步数，可以看到```CartPole v1```的步数更长，相应的奖励要求更高，可以理解为```v1```是```v0```的难度升级版。
+
 
 ### [Pendulum-v0](https://github.com/openai/gym/wiki/Pendulum-v0)
 
@@ -32,3 +44,7 @@
 <img src="./assets/image-20201007211858925.png" alt="image-20201007211858925" style="zoom:50%;" />
 
 由于从起点到终点最少需要13步，每步得到-1的reward，因此最佳训练算法下，每个episode下reward总和应该为-13。
+
+## 参考
+
+[Gym环境相关源码](https://github.com/openai/gym/tree/master/gym/envs)

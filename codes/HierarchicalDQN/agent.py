@@ -11,12 +11,51 @@ Environment:
 '''
 import torch
 import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
 import numpy as np
 import random,math
-import torch.optim as optim
-from common.model import MLP
-from common.memory import ReplayBuffer
 
+class ReplayBuffer:
+    def __init__(self, capacity):
+        self.capacity = capacity # 经验回放的容量
+        self.buffer = [] # 缓冲区
+        self.position = 0 
+    
+    def push(self, state, action, reward, next_state, done):
+        ''' 缓冲区是一个队列，容量超出时去掉开始存入的转移(transition)
+        '''
+        if len(self.buffer) < self.capacity:
+            self.buffer.append(None)
+        self.buffer[self.position] = (state, action, reward, next_state, done)
+        self.position = (self.position + 1) % self.capacity 
+    
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size) # 随机采出小批量转移
+        state, action, reward, next_state, done =  zip(*batch) # 解压成状态，动作等
+        return state, action, reward, next_state, done
+    
+    def __len__(self):
+        ''' 返回当前存储的量
+        '''
+        return len(self.buffer)
+class MLP(nn.Module):
+    def __init__(self, input_dim,output_dim,hidden_dim=128):
+        """ 初始化q网络，为全连接网络
+            input_dim: 输入的特征数即环境的状态维度
+            output_dim: 输出的动作维度
+        """
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim) # 输入层
+        self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
+        self.fc3 = nn.Linear(hidden_dim, output_dim) # 输出层
+        
+    def forward(self, x):
+        # 各层对应的激活函数
+        x = F.relu(self.fc1(x)) 
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+        
 class HierarchicalDQN:
     def __init__(self,state_dim,action_dim,cfg):
         self.state_dim = state_dim
@@ -24,7 +63,7 @@ class HierarchicalDQN:
         self.gamma = cfg.gamma
         self.device = cfg.device
         self.batch_size = cfg.batch_size
-        self.frame_idx = 0 
+        self.frame_idx = 0  # 用于epsilon的衰减计数
         self.epsilon = lambda frame_idx: cfg.epsilon_end + (cfg.epsilon_start - cfg.epsilon_end ) * math.exp(-1. * frame_idx / cfg.epsilon_decay)
         self.policy_net = MLP(2*state_dim, action_dim,cfg.hidden_dim).to(self.device)
         self.meta_policy_net = MLP(state_dim, state_dim,cfg.hidden_dim).to(self.device)

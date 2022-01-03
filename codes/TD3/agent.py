@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# coding=utf-8
+'''
+Author: JiangJi
+Email: johnjim0816@gmail.com
+Date: 2021-12-22 10:40:05
+LastEditor: JiangJi
+LastEditTime: 2021-12-22 10:43:55
+Discription: 
+'''
 import copy
 import numpy as np
 import torch
@@ -5,40 +15,41 @@ import torch.nn as nn
 import torch.nn.functional as F
 from TD3.memory import ReplayBuffer
 
-
-
-# Implementation of Twin Delayed Deep Deterministic Policy Gradients (TD3)
-# Paper: https://arxiv.org/abs/1802.09477
-
-
 class Actor(nn.Module):
-	def __init__(self, state_dim, action_dim, max_action):
+	
+	def __init__(self, input_dim, output_dim, max_action):
+		'''[summary]
+
+		Args:
+			input_dim (int): 输入维度，这里等于state_dim
+			output_dim (int): 输出维度，这里等于action_dim
+			max_action (int): action的最大值
+		'''		
 		super(Actor, self).__init__()
 
-		self.l1 = nn.Linear(state_dim, 256)
+		self.l1 = nn.Linear(input_dim, 256)
 		self.l2 = nn.Linear(256, 256)
-		self.l3 = nn.Linear(256, action_dim)
-		
+		self.l3 = nn.Linear(256, output_dim)
 		self.max_action = max_action
-		
-
+	
 	def forward(self, state):
+		
 		a = F.relu(self.l1(state))
 		a = F.relu(self.l2(a))
 		return self.max_action * torch.tanh(self.l3(a))
 
 
 class Critic(nn.Module):
-	def __init__(self, state_dim, action_dim):
+	def __init__(self, input_dim, output_dim):
 		super(Critic, self).__init__()
 
 		# Q1 architecture
-		self.l1 = nn.Linear(state_dim + action_dim, 256)
+		self.l1 = nn.Linear(input_dim + output_dim, 256)
 		self.l2 = nn.Linear(256, 256)
 		self.l3 = nn.Linear(256, 1)
 
 		# Q2 architecture
-		self.l4 = nn.Linear(state_dim + action_dim, 256)
+		self.l4 = nn.Linear(input_dim + output_dim, 256)
 		self.l5 = nn.Linear(256, 256)
 		self.l6 = nn.Linear(256, 1)
 
@@ -68,8 +79,8 @@ class Critic(nn.Module):
 class TD3(object):
 	def __init__(
 		self,
-		state_dim,
-		action_dim,
+		input_dim,
+		output_dim,
 		max_action,
 		cfg,
 	):
@@ -83,14 +94,14 @@ class TD3(object):
 		self.device = cfg.device
 		self.total_it = 0
 
-		self.actor = Actor(state_dim, action_dim, max_action).to(self.device)
+		self.actor = Actor(input_dim, output_dim, max_action).to(self.device)
 		self.actor_target = copy.deepcopy(self.actor)
 		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=3e-4)
 
-		self.critic = Critic(state_dim, action_dim).to(self.device)
+		self.critic = Critic(input_dim, output_dim).to(self.device)
 		self.critic_target = copy.deepcopy(self.critic)
 		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=3e-4)
-		self.memory = ReplayBuffer(state_dim, action_dim)
+		self.memory = ReplayBuffer(input_dim, output_dim)
 
 	def choose_action(self, state):
 		state = torch.FloatTensor(state.reshape(1, -1)).to(self.device)

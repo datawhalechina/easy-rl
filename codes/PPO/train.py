@@ -32,7 +32,7 @@ def eval(cfg,env,agent):
     print(f'环境：{cfg.env_name}, 算法：{cfg.algo}, 设备：{cfg.device}')
     rewards = [] # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
-    for i_ep in range(cfg.eval_eps):
+    for i_ep in range(cfg.test_eps):
         state = env.reset()
         done = False
         ep_reward = 0
@@ -47,7 +47,7 @@ def eval(cfg,env,agent):
                 0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
-        print('回合：{}/{}, 奖励：{}'.format(i_ep+1, cfg.eval_eps, ep_reward))
+        print('回合：{}/{}, 奖励：{}'.format(i_ep+1, cfg.test_eps, ep_reward))
     print('完成训练！')
     return rewards,ma_rewards
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
             self.continuous = False # 环境是否为连续动作
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
             self.train_eps = 200 # 训练的回合数
-            self.eval_eps = 20 # 测试的回合数
+            self.test_eps = 20 # 测试的回合数
             self.batch_size = 5
             self.gamma=0.99
             self.n_epochs = 4

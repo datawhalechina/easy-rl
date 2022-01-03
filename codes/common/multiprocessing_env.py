@@ -1,5 +1,5 @@
-#This code is from openai baseline
-#https://github.com/openai/baselines/tree/master/baselines/common/vec_env
+# 该代码来自 openai baseline，用于多线程环境
+# https://github.com/openai/baselines/tree/master/baselines/common/vec_env
 
 import numpy as np
 from multiprocessing import Process, Pipe

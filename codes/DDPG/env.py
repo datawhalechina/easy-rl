@@ -16,12 +16,10 @@ class NormalizedActions(gym.ActionWrapper):
     ''' 将action范围重定在[0.1]之间
     '''
     def action(self, action):
-        
         low_bound   = self.action_space.low
         upper_bound = self.action_space.high
         action = low_bound + (action + 1.0) * 0.5 * (upper_bound - low_bound)
         action = np.clip(action, low_bound, upper_bound)
-        
         return action
 
     def reverse_action(self, action):

@@ -14,21 +14,21 @@ CartPole-v0是一个经典的入门环境，如下图，它通过向左(动作=0
 import gym
 env = gym.make('CartPole-v0')  # 建立环境
 env.seed(1) # 随机种子
-n_states = env.observation_space.shape[0] # 状态数
-n_actions = env.action_space.n # 动作数
+state_dim = env.observation_space.shape[0] # 状态维度
+action_dim = env.action_space.n # 动作维度
 state = env.reset() # 初始化环境
-print(f"状态数：{n_states}，动作数：{n_actions}")
+print(f"状态维度：{state_dim}，动作维度：{action_dim}")
 print(f"初始状态：{state}")
 ```
 
 可以得到结果：
 
 ```bash
-状态数：4，动作数：2
+状态维度：4，动作维度：2
 初始状态：[ 0.03073904  0.00145001 -0.03088818 -0.03131252]
 ```
 
-该环境状态数是四个，分别为车的位置、车的速度、杆的角度以及杆顶部的速度，动作数为两个，并且是离散的向左或者向右。理论上达到最优化算法的情况下，推车杆是一直能保持平衡的，也就是每回合的步数是无限，但是这不方便训练，所以环境内部设置了每回合的最大步数为200，也就是说理想情况下，只需要我们每回合的奖励达到200就算训练完成。
+该环境状态维度是四个，分别为车的位置、车的速度、杆的角度以及杆顶部的速度，动作维度为两个，并且是离散的向左或者向右。理论上达到最优化算法的情况下，推车杆是一直能保持平衡的，也就是每回合的步数是无限，但是这不方便训练，所以环境内部设置了每回合的最大步数为200，也就是说理想情况下，只需要我们每回合的奖励达到200就算训练完成。
 
 ## DQN基本接口
 
@@ -125,7 +125,7 @@ class ReplayBuffer:
 class MLP(nn.Module):
     def __init__(self, input_dim,output_dim,hidden_dim=128):
         """ 初始化q网络，为全连接网络
-            input_dim: 输入的特征数即环境的状态数
+            input_dim: 输入的特征数即环境的状态维度
             output_dim: 输出的动作维度
         """
         super(MLP, self).__init__()
