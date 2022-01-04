@@ -6,7 +6,7 @@
 
 * 第 4 章到第 11 章为[李宏毅《深度强化学习》](http://speech.ee.ntu.edu.tw/~tlkagk/courses_MLDS18.html)的部分；
 * 第 1 章和第 2 章根据[《强化学习纲要》](https://github.com/zhoubolei/introRL)整理而来；
-* 第 3 章和第 12 章根据[《百度强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
+* 第 3 章和第 12 章根据[《世界冠军带你从零实践强化学习》](https://aistudio.baidu.com/aistudio/education/group/info/1335) 整理而来。
 
 
 ## 在线阅读(内容实时更新)
