@@ -32,9 +32,7 @@
 
 PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进行了反复修缮，最终诞生了纸质书籍，在此向人民邮电出版社的编辑老师的认真严谨表示衷心的感谢！（附：校对样稿）
 
-<center class="half"><img src="https://github.com/datawhalechina/easy-rl/blob/master/docs/res/yanggao1.png" width="300"><img src="https://github.com/datawhalechina/easy-rl/blob/master/docs/res/yanggao2.png" width="300"></center>
-
-
+<center class="half"><img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/yanggao.png" width="680"></center>
 
 ## 内容导航
 
