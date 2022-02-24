@@ -28,7 +28,16 @@
 
 压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)： https://pan.baidu.com/s/1_sbSSt0WjV2YTxepYcAe8g 提取码: c1rx 
 
+## 纸质版和PDF版的区别
+
+PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进行了反复修缮，最终诞生了纸质书籍，在此向人民邮电出版社的编辑老师的认真严谨表示衷心的感谢！（附：校对样稿）
+
+<center class="half"><img src="https://github.com/datawhalechina/easy-rl/blob/master/docs/res/yanggao1.png" width="300"><img src="https://github.com/datawhalechina/easy-rl/blob/master/docs/res/yanggao2.png" width="300"></center>
+
+
+
 ## 内容导航
+
 | 章节                                                         | 习题                                                         | 相关项目                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [第一章 强化学习概述](https://datawhalechina.github.io/easy-rl/#/chapter1/chapter1) | [第一章 习题](https://datawhalechina.github.io/easy-rl/#/chapter1/chapter1_questions&keywords) |                                                              |
