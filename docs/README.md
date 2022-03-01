@@ -14,6 +14,8 @@
 
 <img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/mogu.png" width="300">
 
+购买链接：[京东](https://item.jd.com/13075567.html) | [当当](http://product.dangdang.com/29374163.html)
+
 勘误表：https://datawhalechina.github.io/easy-rl/#/errata
 
 豆瓣评分：https://book.douban.com/subject/35781275/
