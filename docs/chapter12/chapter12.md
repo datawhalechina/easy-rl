@@ -92,7 +92,7 @@ DDPG 是 DQN 的一个扩展的版本。
 
 我们可以把两个网络的 loss function 构造出来。
 
-策略网络的 loss function 是一个复合函数。我们把 $a = \mu_\theta(s)$ 代进去，最终策略网络要优化的是策略网络的参数 $\theta$ 。Q 网络要优化的是 $Q_w(s,a)$ 和 Q_target 之间的一个均方差。
+策略网络的 loss function 是一个复合函数。我们把 $a = \mu_\theta(s)$ 代进去，最终策略网络要优化的是策略网络的参数 $\theta$ 。Q 网络要优化的是 $Q_w(s,a)$ 和 Q_target 之间的一个均方误差。
 
 但是 Q 网络的优化存在一个和 DQN 一模一样的问题就是它后面的 Q_target 是不稳定的。此外，后面的 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是不稳定的，因为 $Q_{\bar{w}}\left(s^{\prime}, a^{\prime}\right)$ 也是一个预估的值。
 
@@ -121,7 +121,7 @@ DDPG 通过 off-policy 的方式来训练一个确定性策略。因为策略是
 
 `双延迟深度确定性策略梯度(Twin Delayed DDPG，简称 TD3)`通过引入三个关键技巧来解决这个问题：
 
-* **截断的双 Q 学习(Clipped Dobule Q-learning)** 。TD3 学习两个 Q-function（因此名字中有 “twin”）。TD3 通过最小化均方差来同时学习两个 Q-function：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个 Q-function 都使用一个目标，两个 Q-function 中给出较小的值会被作为如下的 Q-target：
+* **截断的双 Q 学习(Clipped Dobule Q-learning)** 。TD3 学习两个 Q-function（因此名字中有 “twin”）。TD3 通过最小化均方误差来同时学习两个 Q-function：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个 Q-function 都使用一个目标，两个 Q-function 中给出较小的值会被作为如下的 Q-target：
 
 $$
 y\left(r, s^{\prime}, d\right)=r+\gamma(1-d) \min _{i=1,2} Q_{\phi_{i, t a r g}}\left(s^{\prime}, a_{T D 3}\left(s^{\prime}\right)\right)
