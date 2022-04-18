@@ -9,6 +9,12 @@
 ![](res/Markov_chain.png ':size=350') 
 
 * 47页，2.3.5节的第3行：称为备份图（backup diagram） → 称为备份图（backup diagram）或回溯图
+* 62页，式(2.55) 前第2行：$H$ 是迭代次数 → $H$ 是让 $V(s)$ 收敛所需的迭代次数
+* 62页，式(2.57) 改为
+$$
+\pi(s)=\underset{a}{\arg \max } \left[R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V_{H+1}\left(s^{\prime}\right)\right]
+$$
+
 * 76页，式(3.1) 中 $G$ 和 $r$ 后面的数字改为下标，即
 
 $$
