@@ -28,6 +28,30 @@ G_8=r_9+\gamma G_9=-1+0.6 \times(-2.176)=-2.3056 \approx-2.3
 \end{array}
 $$
 
+* 101页中间一段下面的代码和102页最上面的代码的缩进有问题，改为
+
+```python
+rewards = []
+ma_rewards = [] # 滑动平均奖励
+for i_ep in range(cfg.train_eps):
+    ep_reward = 0 # 记录每个回合的奖励
+    state = env.reset() # 重置环境, 重新开始（开始一个新的回合）
+    while True:
+        action = agent.choose_action(state) # 根据算法选择一个动作
+        next_state, reward, done, _ = env.step(action) # 与环境进行一次动作交互
+        agent.update(state, action, reward, next_state, done) # Q学习算法更新
+        state = next_state # 存储上一个观察值
+        ep_reward += reward
+        if done:
+            break
+    rewards.append(ep_reward)
+    if ma_rewards:
+        ma_rewards.append(ma_rewards[-1]*0.9+ep_reward*0.1)
+    else:
+        ma_rewards.append(ep_reward)
+```
+
+* 103页，图3.37上面一段：具体可以查看 GitHub 上的源码 → 具体可以查看本书配套代码
 * 149页，式(6.15) 改为
 
 $$
