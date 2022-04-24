@@ -5,30 +5,37 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:58:16
 LastEditor: John
-LastEditTime: 2021-03-13 11:02:50
+LastEditTime: 2022-04-24 21:14:23
 Discription: 
 Environment: 
 '''
 import numpy as np
 from collections import defaultdict
 import torch
+import math
 class Sarsa(object):
     def __init__(self,
-                 action_dim,sarsa_cfg,):
-        self.action_dim = action_dim  # number of actions
-        self.lr = sarsa_cfg.lr  # learning rate
-        self.gamma = sarsa_cfg.gamma  
-        self.epsilon = sarsa_cfg.epsilon  
-        self.Q  = defaultdict(lambda: np.zeros(action_dim))
-        # self.Q = np.zeros((state_dim, action_dim))  # Q表
+                 n_actions,cfg,):
+        self.n_actions = n_actions  # number of actions
+        self.lr = cfg.lr  # learning rate
+        self.gamma = cfg.gamma  
+        self.sample_count = 0 
+        self.epsilon_start = cfg.epsilon_start
+        self.epsilon_end = cfg.epsilon_end
+        self.epsilon_decay = cfg.epsilon_decay 
+        self.Q  = defaultdict(lambda: np.zeros(n_actions))
+        # self.Q = np.zeros((state_dim, n_actions))  # Q表
     def choose_action(self, state):
+        self.sample_count += 1
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+            math.exp(-1. * self.sample_count / self.epsilon_decay) # The probability to select a random action, is is log decayed
         best_action = np.argmax(self.Q[state])
-        # action = best_action
-        action_probs = np.ones(self.action_dim, dtype=float) * self.epsilon / self.action_dim
+        action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
         action_probs[best_action] += (1.0 - self.epsilon)
         action = np.random.choice(np.arange(len(action_probs)), p=action_probs) 
         return action
-            
+    def predict_action(self,state):
+        return np.argmax(self.Q[state])
     def update(self, state, action, reward, next_state, next_action,done):
         Q_predict = self.Q[state][action]
         if done:
