@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 17:59:16
 LastEditor: John
-LastEditTime: 2022-04-24 22:17:05
+LastEditTime: 2022-04-24 23:03:51
 Discription: 
 Environment: 
 '''
@@ -17,7 +17,7 @@ sys.path.append(parent_path)  # add current terminal path to sys.path
 import datetime
 import torch
 from envs.racetrack_env import RacetrackEnv
-from Sarsa.agent import Sarsa
+from Sarsa.sarsa import Sarsa
 from common.utils import save_results,make_dir,plot_rewards
 
 curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # obtain current time
