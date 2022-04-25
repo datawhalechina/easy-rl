@@ -54,15 +54,17 @@ for i_ep in range(cfg.train_eps):
 * 103页，图3.37上面一段：具体可以查看 GitHub 上的源码 → 具体可以查看本书配套代码
 * 140页，6.1节上面添加以下文字：
 
-&ensp;&ensp;深度 Q 网络算法的核心是维护 Q 函数并使用其进行决策。$Q_{\pi}(s,a)$ 为在该策略 $\pi$ 下的动作价值函数，每次到达一个状态 $s_t$ 之后，遍历整个动作空间，使用让 $Q_{\pi}(s,a)$ 最大的动作作为策略：
+&ensp;&ensp;&ensp;&ensp;深度 Q 网络算法的核心是维护 Q 函数并使用其进行决策。$Q_{\pi}(s,a)$ 为在该策略 $\pi$ 下的动作价值函数，每次到达一个状态 $s_t$ 之后，遍历整个动作空间，使用让 $Q_{\pi}(s,a)$ 最大的动作作为策略：
 $$
-a_{t}=\underset{a}{\arg \max } ~Q_{\pi}\left(s_{t}, a\right)
+a_{t}=\underset{a}{\arg \max } ~Q_{\pi}\left(s_{t}, a\right) \tag{6.2}
 $$
-​        深度 Q 网络采用贝尔曼方程来迭代更新 $Q_{\pi}(s,a)$ ：
+&ensp;&ensp;&ensp;&ensp;深度 Q 网络采用贝尔曼方程来迭代更新 $Q_{\pi}(s,a)$ ：
 $$
-Q_{\pi}\left(s_{t}, a_{t}\right) \leftarrow Q_{\pi}\left(s_{t}, a_{t}\right)+\alpha\left(r_{t}+\gamma \max _{a} Q_{\pi}\left(s_{t+1}, a\right)-Q_{\pi}\left(s_{t}, a_{t}\right)\right)
+Q_{\pi}\left(s_{t}, a_{t}\right) \leftarrow Q_{\pi}\left(s_{t}, a_{t}\right)+\alpha\left(r_{t}+\gamma \max _{a} Q_{\pi}\left(s_{t+1}, a\right)-Q_{\pi}\left(s_{t}, a_{t}\right)\right) \tag{6.3}
 $$
-​       通常在简单任务上，使用全连接神经网络（fully connected neural network）来拟合 $Q_{\pi}$，但是在较为复杂的任务上（如玩雅达利游戏），会使用卷积神经网络来拟合从图像到价值函数的映射。由于深度 Q 网络的这种表达形式只能处理有限个动作值，因此其通常用于处理离散动作空间的任务。
+&ensp;&ensp;&ensp;&ensp;通常在简单任务上，使用全连接神经网络（fully connected neural network）来拟合 $Q_{\pi}$，但是在较为复杂的任务上（如玩雅达利游戏），会使用卷积神经网络来拟合从图像到价值函数的映射。由于深度 Q 网络的这种表达形式只能处理有限个动作值，因此其通常用于处理离散动作空间的任务。
+
+* 140页后的公式编号需要进行更新。
 
 * 149页，式(6.15) 改为
 
