@@ -109,6 +109,8 @@ $$
 
 * 191页，图9.6加参考文献：Arthur Juliani的文章“Simple Reinforcement Learning with Tensorflow Part 8: Asynchronous Actor-Critic Agents (A3C)”
 
+* 195页，9.7节的第1段的第1行：生产对抗网络 → 生成对抗网络
+
 * 200页，第6行：它的目标是要让每一场表演都获得观众尽可能多的欢呼声与掌声，也就是要最大化未来的总奖励 → 评论员的最终目标是让演员的表演获得观众尽可能多的欢呼声和掌声，从而最大化未来的总收益
 
 * 201页，图10.7的上面一段的倒数第1行：均方差 → 均方误差（mean squared error，MSE）
