@@ -14,10 +14,10 @@ CartPole-v0是一个经典的入门环境，如下图，它通过向左(动作=0
 import gym
 env = gym.make('CartPole-v0')  # 建立环境
 env.seed(1) # 随机种子
-state_dim = env.observation_space.shape[0] # 状态维度
-action_dim = env.action_space.n # 动作维度
+n_states = env.observation_space.shape[0] # 状态维度
+n_actions = env.action_space.n # 动作维度
 state = env.reset() # 初始化环境
-print(f"状态维度：{state_dim}，动作维度：{action_dim}")
+print(f"状态维度：{n_states}，动作维度：{n_actions}")
 print(f"初始状态：{state}")
 ```
 
@@ -157,7 +157,7 @@ def choose_action(self, state):
                 q_values = self.policy_net(state)
                 action = q_values.max(1)[1].item() # 选择Q值最大的动作
         else:
-            action = random.randrange(self.action_dim)
+            action = random.randrange(self.n_actions)
 ```
 
 可以看到跟Q学习算法其实是一样的，都是用的$\epsilon-greedy$策略，只是使用神经网络的话我们需要通过Torch或者Tensorflow工具来处理相应的数据。

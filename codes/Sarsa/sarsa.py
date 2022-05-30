@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:58:16
 LastEditor: John
-LastEditTime: 2022-04-24 21:14:23
+LastEditTime: 2022-04-29 20:12:57
 Discription: 
 Environment: 
 '''
@@ -16,15 +16,14 @@ import math
 class Sarsa(object):
     def __init__(self,
                  n_actions,cfg,):
-        self.n_actions = n_actions  # number of actions
-        self.lr = cfg.lr  # learning rate
+        self.n_actions = n_actions  
+        self.lr = cfg.lr  
         self.gamma = cfg.gamma  
         self.sample_count = 0 
         self.epsilon_start = cfg.epsilon_start
         self.epsilon_end = cfg.epsilon_end
         self.epsilon_decay = cfg.epsilon_decay 
-        self.Q  = defaultdict(lambda: np.zeros(n_actions))
-        # self.Q = np.zeros((state_dim, n_actions))  # Q表
+        self.Q  = defaultdict(lambda: np.zeros(n_actions)) # Q table
     def choose_action(self, state):
         self.sample_count += 1
         self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \

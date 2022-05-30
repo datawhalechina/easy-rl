@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 17:59:16
 LastEditor: John
-LastEditTime: 2022-04-24 23:03:51
+LastEditTime: 2022-04-29 20:18:13
 Discription: 
 Environment: 
 '''
@@ -31,20 +31,20 @@ class Config:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # check GPU
         self.result_path = curr_path+"/outputs/" +self.env_name+'/'+curr_time+'/results/'  # path to save results
         self.model_path = curr_path+"/outputs/" +self.env_name+'/'+curr_time+'/models/'  # path to save models
-        self.train_eps = 300
-        self.test_eps = 20
+        self.train_eps = 300 # training episodes
+        self.test_eps = 20 # testing episodes
+        self.n_steps = 200 # maximum steps per episode 
         self.epsilon_start = 0.90  # start value of epsilon
         self.epsilon_end = 0.01  # end value of epsilon
         self.epsilon_decay = 200  # decay rate of epsilon
         self.gamma = 0.99 # gamma: Gamma discount factor.
-        self.lr = 0.2 # learning rate: step size parameter
-        self.n_steps = 200
+        self.lr = 0.2 # learning rate: step size parameter 
         self.save = True # if save figures
 
 def env_agent_config(cfg,seed=1):
     env = RacetrackEnv()
-    action_dim = 9
-    agent = Sarsa(action_dim,cfg)
+    n_states = 9 # number of actions
+    agent = Sarsa(n_states,cfg)
     return env,agent
         
 def train(cfg,env,agent):
@@ -73,7 +73,7 @@ def train(cfg,env,agent):
             print(f"Episode:{i_ep+1}, Reward:{ep_reward}, Epsilon:{agent.epsilon}")
     return rewards,ma_rewards
 
-def eval(cfg,env,agent):
+def test(cfg,env,agent):
     rewards = []
     ma_rewards = []
     for i_ep in range(cfg.test_eps):
@@ -97,7 +97,7 @@ def eval(cfg,env,agent):
         rewards.append(ep_reward)
         if (i_ep+1)%1==0:
             print("Episode:{}/{}: Reward:{}".format(i_ep+1, cfg.test_eps,ep_reward))
-    print('Complete evaling！')
+    print('Complete testing！')
     return rewards,ma_rewards
         
 if __name__ == "__main__":
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path)
-    rewards,ma_rewards = eval(cfg,env,agent)
+    rewards,ma_rewards = test(cfg,env,agent)
     save_results(rewards,ma_rewards,tag='test',path=cfg.result_path)
     plot_rewards(rewards, ma_rewards, cfg, tag="test")
     

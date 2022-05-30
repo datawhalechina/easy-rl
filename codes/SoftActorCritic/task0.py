@@ -63,9 +63,9 @@ class PlotConfig:
 def env_agent_config(cfg,seed=1):
     env = NormalizedActions(gym.make(cfg.env_name))
     env.seed(seed)
-    action_dim = env.action_space.shape[0]
-    state_dim  = env.observation_space.shape[0]
-    agent = SAC(state_dim,action_dim,cfg)
+    n_actions = env.action_space.shape[0]
+    n_states  = env.observation_space.shape[0]
+    agent = SAC(n_states,n_actions,cfg)
     return env,agent
 
 def train(cfg,env,agent):

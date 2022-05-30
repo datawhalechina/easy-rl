@@ -17,11 +17,11 @@ import dill
 class FisrtVisitMC:
     ''' On-Policy First-Visit MC Control
     '''
-    def __init__(self,action_dim,cfg):
-        self.action_dim = action_dim
+    def __init__(self,n_actions,cfg):
+        self.n_actions = n_actions
         self.epsilon = cfg.epsilon
         self.gamma = cfg.gamma 
-        self.Q_table = defaultdict(lambda: np.zeros(action_dim))
+        self.Q_table = defaultdict(lambda: np.zeros(n_actions))
         self.returns_sum = defaultdict(float) # sum of returns
         self.returns_count = defaultdict(float)
         
@@ -29,11 +29,11 @@ class FisrtVisitMC:
         ''' e-greed policy '''
         if state in self.Q_table.keys():
             best_action = np.argmax(self.Q_table[state])
-            action_probs = np.ones(self.action_dim, dtype=float) * self.epsilon / self.action_dim
+            action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
             action_probs[best_action] += (1.0 - self.epsilon)
             action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
         else:
-            action = np.random.randint(0,self.action_dim)
+            action = np.random.randint(0,self.n_actions)
         return action
     def update(self,one_ep_transition):
         # Find all (state, action) pairs we've visited in this one_ep_transition

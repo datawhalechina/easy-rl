@@ -70,10 +70,10 @@ if __name__ == "__main__":
 	env.seed(cfg.seed) # Set seeds
 	torch.manual_seed(cfg.seed)
 	np.random.seed(cfg.seed)
-	state_dim = env.observation_space.shape[0]
-	action_dim = env.action_space.shape[0] 
+	n_states = env.observation_space.shape[0]
+	n_actions = env.action_space.shape[0] 
 	max_action = float(env.action_space.high[0])
-	td3= TD3(state_dim,action_dim,max_action,cfg)
+	td3= TD3(n_states,n_actions,max_action,cfg)
 	cfg.model_path = './TD3/results/Pendulum-v0/20210428-092059/models/'
 	cfg.result_path = './TD3/results/Pendulum-v0/20210428-092059/results/'
 	td3.load(cfg.model_path)

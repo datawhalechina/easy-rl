@@ -31,7 +31,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         self.shape = (4, 12)
 
         nS = np.prod(self.shape)
-        action_dim = 4
+        n_actions = 4
 
         # Cliff Location
         self._cliff = np.zeros(self.shape, dtype=np.bool)
@@ -41,7 +41,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         P = {}
         for s in range(nS):
             position = np.unravel_index(s, self.shape)
-            P[s] = { a : [] for a in range(action_dim) }
+            P[s] = { a : [] for a in range(n_actions) }
             P[s][UP] = self._calculate_transition_prob(position, [-1, 0])
             P[s][RIGHT] = self._calculate_transition_prob(position, [0, 1])
             P[s][DOWN] = self._calculate_transition_prob(position, [1, 0])
@@ -51,7 +51,7 @@ class CliffWalkingEnv(discrete.DiscreteEnv):
         isd = np.zeros(nS)
         isd[np.ravel_multi_index((3,0), self.shape)] = 1.0
 
-        super(CliffWalkingEnv, self).__init__(nS, action_dim, P, isd)
+        super(CliffWalkingEnv, self).__init__(nS, n_actions, P, isd)
 
     def render(self, mode='human', close=False):
         self._render(mode, close)

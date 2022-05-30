@@ -50,15 +50,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class FCN(nn.Module):
-    def __init__(self, state_dim=4, action_dim=18):
+    def __init__(self, n_states=4, n_actions=18):
         """ 初始化q网络，为全连接网络
-            state_dim: 输入的feature即环境的state数目
-            action_dim: 输出的action总个数
+            n_states: 输入的feature即环境的state数目
+            n_actions: 输出的action总个数
         """
         super(FCN, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 128) # 输入层
+        self.fc1 = nn.Linear(n_states, 128) # 输入层
         self.fc2 = nn.Linear(128, 128) # 隐藏层
-        self.fc3 = nn.Linear(128, action_dim) # 输出层
+        self.fc3 = nn.Linear(128, n_actions) # 输出层
         
     def forward(self, x):
         # 各层对应的激活函数
@@ -66,7 +66,7 @@ class FCN(nn.Module):
         x = F.relu(self.fc2(x))
         return self.fc3(x)
 ```
-输入为state_dim，输出为action_dim，包含一个128维度的隐藏层，这里根据需要可增加隐藏层维度和数量，然后一般使用relu激活函数，这里跟深度学习的网路设置是一样的。
+输入为n_states，输出为n_actions，包含一个128维度的隐藏层，这里根据需要可增加隐藏层维度和数量，然后一般使用relu激活函数，这里跟深度学习的网路设置是一样的。
 
 ### Replay Buffer
 
@@ -107,8 +107,8 @@ class ReplayBuffer:
 在类中建立两个网络，以及optimizer和memory，
 
 ```python
-self.policy_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
-self.target_net = MLP(state_dim, action_dim,hidden_dim=cfg.hidden_dim).to(self.device)
+self.policy_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
+self.target_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
 for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): # copy params from policy net
     target_param.data.copy_(param.data)
 self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
@@ -124,7 +124,7 @@ def choose_action(self, state):
     if random.random() > self.epsilon(self.frame_idx):
         action = self.predict(state)
     else:
-        action = random.randrange(self.action_dim)
+        action = random.randrange(self.n_actions)
     return action
 ```
 

@@ -63,9 +63,9 @@ class PlotConfig:
 def env_agent_config(cfg,seed=1):
     env = gym.make(cfg.env_name)  
     env.seed(seed)
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.n
-    agent = HierarchicalDQN(state_dim,action_dim,cfg)
+    n_states = env.observation_space.shape[0]
+    n_actions = env.action_space.n
+    agent = HierarchicalDQN(n_states,n_actions,cfg)
     return env,agent
 
 if __name__ == "__main__":
