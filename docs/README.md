@@ -16,7 +16,7 @@
 
 购买链接：[京东](https://item.jd.com/13075567.html) | [当当](http://product.dangdang.com/29374163.html)
 
-勘误表：https://datawhalechina.github.io/easy-rl/#/errata
+勘误修订表：https://datawhalechina.github.io/easy-rl/#/errata
 
 豆瓣评分：https://book.douban.com/subject/35781275/
 
@@ -83,6 +83,23 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
   </tbody>
 </table>
 
+## 引用信息
+
+```
+王琦，杨毅远，江季，Easy RL：强化学习教程，人民邮电出版社，https://github.com/datawhalechina/easy-rl, 2022.
+```
+
+```bibtex
+@book{wang2022easyrl,
+title = {Easy RL：强化学习教程},
+publisher = {人民邮电出版社},
+year = {2022},
+author = {王琦，杨毅远，江季},
+address = {北京},
+isbn = {9787115584700},
+url = {https://github.com/datawhalechina/easy-rl}
+}
+```
 
 ## 致谢
 
