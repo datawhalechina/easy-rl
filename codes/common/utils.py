@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:02:24
 LastEditor: John
-LastEditTime: 2021-11-30 18:39:19
+LastEditTime: 2022-02-28 11:50:11
 Discription: 
 Environment: 
 '''
@@ -68,7 +68,13 @@ def plot_losses(losses, algo="DQN", save=True, path='./'):
         plt.savefig(path+"losses_curve")
     plt.show()
 
-
+def save_results_1(dic, tag='train', path='./results'):
+    ''' 保存奖励
+    '''
+    for key,value in dic.items():
+        np.save(path+'{}_{}.npy'.format(tag,key),value)
+    print('Results saved！')
+    
 def save_results(rewards, ma_rewards, tag='train', path='./results'):
     ''' 保存奖励
     '''

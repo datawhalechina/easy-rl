@@ -30,9 +30,9 @@ env = CliffWalkingWapper(env) # 装饰环境
 这里我们在程序中使用了一个装饰器重新定义环境，但不影响对环境的理解，感兴趣的同学具体看相关代码。可以由于gym环境封装得比较好，所以我们想要使用这个环境只需要使用gym.make命令输入函数名即可，然后我们可以查看环境的状态和动作维度目：
 
 ```python
-state_dim = env.observation_space.n # 状态维度
-action_dim = env.action_space.n # 动作维度
-print(f"状态维度：{state_dim}，动作维度：{action_dim}")
+n_states = env.observation_space.n # 状态维度
+n_actions = env.action_space.n # 动作维度
+print(f"状态维度：{n_states}，动作维度：{n_actions}")
 ```
 
 打印出来的结果如下：
@@ -72,9 +72,9 @@ print(state)
 env = gym.make('CliffWalking-v0')  # 定义环境
 env = CliffWalkingWapper(env) # 装饰环境
 env.seed(1) # 设置随机种子
-state_dim = env.observation_space.n # 状态维度
-action_dim = env.action_space.n # 动作维度
-agent = QLearning(state_dim,action_dim,cfg) # cfg存储算法相关参数
+n_states = env.observation_space.n # 状态维度
+n_actions = env.action_space.n # 动作维度
+agent = QLearning(n_states,n_actions,cfg) # cfg存储算法相关参数
 for i_ep in range(cfg.train_eps): # cfg.train_eps表示最大训练的回合数
     ep_reward = 0  # 记录每个回合的奖励
     state = env.reset()  # 重置环境
@@ -126,7 +126,7 @@ def choose_action(self, state):
       if np.random.uniform(0, 1) > self.epsilon:
           action = np.argmax(self.Q_table[str(state)]) # 选择Q(s,a)最大对应的动作
       else:
-          action = np.random.choice(self.action_dim) # 随机选择动作
+          action = np.random.choice(self.n_actions) # 随机选择动作
       return action
 ```
 

@@ -5,7 +5,7 @@ Author: JiangJi
 Email: johnjim0816@gmail.com
 Date: 2021-12-22 11:14:17
 LastEditor: JiangJi
-LastEditTime: 2021-12-22 11:40:44
+LastEditTime: 2022-02-10 06:17:41
 Discription: 使用 Nature DQN 训练 CartPole-v1
 '''
 import sys
@@ -19,7 +19,7 @@ import torch
 import datetime
 from common.utils import save_results, make_dir
 from common.utils import plot_rewards, plot_rewards_cn
-from DQN.dqn import DQN
+from dqn import DQN
 
 curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
 algo_name = "DQN"  # 算法名称
@@ -66,9 +66,9 @@ def env_agent_config(cfg, seed=1):
     '''
     env = gym.make(cfg.env_name)  # 创建环境
     env.seed(seed)  # 设置随机种子
-    state_dim = env.observation_space.shape[0]  # 状态维度
-    action_dim = env.action_space.n  # 动作维度
-    agent = DQN(state_dim, action_dim, cfg)  # 创建智能体
+    n_states = env.observation_space.shape[0]  # 状态维度
+    n_actions = env.action_space.n  # 动作维度
+    agent = DQN(n_states, n_actions, cfg)  # 创建智能体
     return env, agent
 
 def train(cfg, env, agent):

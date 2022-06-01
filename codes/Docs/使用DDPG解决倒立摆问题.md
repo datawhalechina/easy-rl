@@ -90,15 +90,15 @@ class OUNoise(object):
         self.max_sigma    = max_sigma
         self.min_sigma    = min_sigma
         self.decay_period = decay_period
-        self.action_dim   = action_space.shape[0]
+        self.n_actions   = action_space.shape[0]
         self.low          = action_space.low
         self.high         = action_space.high
         self.reset()
     def reset(self):
-        self.obs = np.ones(self.action_dim) * self.mu
+        self.obs = np.ones(self.n_actions) * self.mu
     def evolve_obs(self):
         x  = self.obs
-        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim)
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.n_actions)
         self.obs = x + dx
         return self.obs
     def get_action(self, action, t=0):

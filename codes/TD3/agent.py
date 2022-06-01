@@ -21,8 +21,8 @@ class Actor(nn.Module):
 		'''[summary]
 
 		Args:
-			input_dim (int): 输入维度，这里等于state_dim
-			output_dim (int): 输出维度，这里等于action_dim
+			input_dim (int): 输入维度，这里等于n_states
+			output_dim (int): 输出维度，这里等于n_actions
 			max_action (int): action的最大值
 		'''		
 		super(Actor, self).__init__()

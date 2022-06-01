@@ -77,7 +77,7 @@ class BlackjackEnv(gym.Env):
         self.natural = natural
         # Start the first game
         self._reset()        # Number of 
-        self.action_dim = 2
+        self.n_actions = 2
 
     def reset(self):
         return self._reset()

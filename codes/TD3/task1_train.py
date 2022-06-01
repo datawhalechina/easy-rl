@@ -79,7 +79,7 @@ def train(cfg,env,agent):
 			else:
 				action = (
 					agent.choose_action(np.array(state))
-					+ np.random.normal(0, max_action * cfg.expl_noise, size=action_dim)
+					+ np.random.normal(0, max_action * cfg.expl_noise, size=n_actions)
 				).clip(-max_action, max_action)
 			# Perform action
 			next_state, reward, done, _ = env.step(action) 
@@ -109,10 +109,10 @@ if __name__ == "__main__":
 	env.seed(1) # 随机种子
 	torch.manual_seed(1)
 	np.random.seed(1)
-	state_dim = env.observation_space.shape[0]
-	action_dim = env.action_space.shape[0] 
+	n_states = env.observation_space.shape[0]
+	n_actions = env.action_space.shape[0] 
 	max_action = float(env.action_space.high[0])
-	agent = TD3(state_dim,action_dim,max_action,cfg)
+	agent = TD3(n_states,n_actions,max_action,cfg)
 	rewards,ma_rewards = train(cfg,env,agent)
 	make_dir(plot_cfg.result_path,plot_cfg.model_path)
 	agent.save(path=plot_cfg.model_path)
