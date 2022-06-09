@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-09 20:25:52
 @LastEditor: John
-LastEditTime: 2021-09-16 00:55:30
+LastEditTime: 2022-06-09 19:04:44
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -104,9 +104,9 @@ class DDPG:
         # 从经验回放中(replay memory)中随机采样一个批量的转移(transition)
         state, action, reward, next_state, done = self.memory.sample(self.batch_size)
         # 转变为张量
-        state = torch.FloatTensor(state).to(self.device)
-        next_state = torch.FloatTensor(next_state).to(self.device)
-        action = torch.FloatTensor(action).to(self.device)
+        state = torch.FloatTensor(np.array(state)).to(self.device)
+        next_state = torch.FloatTensor(np.array(next_state)).to(self.device)
+        action = torch.FloatTensor(np.array(action)).to(self.device)
         reward = torch.FloatTensor(reward).unsqueeze(1).to(self.device)
         done = torch.FloatTensor(np.float32(done)).unsqueeze(1).to(self.device)
        
