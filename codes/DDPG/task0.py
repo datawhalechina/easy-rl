@@ -5,11 +5,12 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2022-02-10 06:23:27
+LastEditTime: 2022-06-09 19:05:20
 @Discription: 
 @Environment: python 3.7.7
 '''
 import sys,os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 curr_path = os.path.dirname(os.path.abspath(__file__)) # 当前文件所在绝对路径
 parent_path = os.path.dirname(curr_path) # 父路径
 sys.path.append(parent_path) # 添加路径到系统路径sys.path
@@ -20,7 +21,6 @@ import torch
 
 from env import NormalizedActions,OUNoise
 from ddpg import DDPG
-from DDPG.train import train,test
 from common.utils import save_results,make_dir
 from common.utils import plot_rewards
 
@@ -37,7 +37,7 @@ class Config:
             "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPUgjgjlkhfsf风刀霜的撒发十
         self.seed = 10 # 随机种子，置0则不设置随机种子
         self.train_eps = 300 # 训练的回合数
-        self.test_eps = 50 # 测试的回合数
+        self.test_eps = 20 # 测试的回合数
         ################################################################################
         
         ################################## 算法超参数 ###################################
@@ -68,7 +68,7 @@ def env_agent_config(cfg,seed=1):
     return env,agent
 def train(cfg, env, agent):
     print('开始训练！')
-    print(f'环境：{cfg.env_name}，算法：{cfg.algo}，设备：{cfg.device}')
+    print(f'环境：{cfg.env_name}，算法：{cfg.algo_name}，设备：{cfg.device}')
     ou_noise = OUNoise(env.action_space)  # 动作噪声
     rewards = [] # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
@@ -99,7 +99,7 @@ def train(cfg, env, agent):
 
 def test(cfg, env, agent):
     print('开始测试！')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo}, 设备：{cfg.device}')
+    print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
     rewards = [] # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.test_eps):
