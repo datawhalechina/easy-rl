@@ -8,7 +8,7 @@ DQN是Q-learning算法的优化和延伸，Q-learning中使用有限的Q表存�
 
 Nature DQN使用了两个Q网络，一个当前Q网络𝑄用来选择动作，更新模型参数，另一个目标Q网络𝑄′用于计算目标Q值。目标Q网络的网络参数不需要迭代更新，而是每隔一段时间从当前Q网络𝑄复制过来，即延时更新，这样可以减少目标Q值和当前的Q值相关性。
 
-要注意的是，两个Q网络的结构是一模一样的。这样才可以复制网络参数。Nature DQN和[Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)相比，除了用一个新的相同结构的目标Q网络来计算目标Q值以外，其余部分基本是完全相同的。细节也可参考[强化学习（九）Deep Q-Learning进阶之Nature DQN](https://www.cnblogs.com/pinard/p/9756075.html)。
+要注意的是，两个Q网络的结构是一模一样的，这样才可以复制网络参数。Nature DQN和[Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)相比，除了用一个新的相同结构的目标Q网络来计算目标Q值以外，其余部分基本是完全相同的。细节也可参考[强化学习（九）Deep Q-Learning进阶之Nature DQN](https://www.cnblogs.com/pinard/p/9756075.html)。
 
 https://blog.csdn.net/JohnJim0/article/details/109557173)
 
