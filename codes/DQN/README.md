@@ -2,13 +2,13 @@
 
 ## 原理简介
 
-DQN是Q-learning算法的优化和延伸，Q-learning中使用有限的Q表存储值的信息，而DQN中则用神经网络替代Q表存储信息，这样更适用于高维的情况，相关知识基础可参考[EasyRL-DQN](https://datawhalechina.github.io/easy-rl/#/chapter6/chapter6)。
+DQN是Q-leanning算法的优化和延伸，Q-leaning中使用有限的Q表存储值的信息，而DQN中则用神经网络替代Q表存储信息，这样更适用于高维的情况，相关知识基础可参考[datawhale李宏毅笔记-Q学习](https://datawhalechina.github.io/easy-rl/#/chapter6/chapter6)。
 
 论文方面主要可以参考两篇，一篇就是2013年谷歌DeepMind团队的[Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)，一篇是也是他们团队后来在Nature杂志上发表的[Human-level control through deep reinforcement learning](https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf)。后者在算法层面增加target q-net，也可以叫做Nature DQN。
 
 Nature DQN使用了两个Q网络，一个当前Q网络𝑄用来选择动作，更新模型参数，另一个目标Q网络𝑄′用于计算目标Q值。目标Q网络的网络参数不需要迭代更新，而是每隔一段时间从当前Q网络𝑄复制过来，即延时更新，这样可以减少目标Q值和当前的Q值相关性。
 
-要注意的是，两个Q网络的结构是一模一样的，这样才可以复制网络参数。Nature DQN和[Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)相比，除了用一个新的相同结构的目标Q网络来计算目标Q值以外，其余部分基本是完全相同的。细节也可参考[强化学习（九）Deep Q-Learning进阶之Nature DQN](https://www.cnblogs.com/pinard/p/9756075.html)。
+要注意的是，两个Q网络的结构是一模一样的。这样才可以复制网络参数。Nature DQN和[Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)相比，除了用一个新的相同结构的目标Q网络来计算目标Q值以外，其余部分基本是完全相同的。细节也可参考[强化学习（九）Deep Q-Learning进阶之Nature DQN](https://www.cnblogs.com/pinard/p/9756075.html)。
 
 https://blog.csdn.net/JohnJim0/article/details/109557173)
 

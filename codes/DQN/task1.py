@@ -5,7 +5,7 @@ Author: JiangJi
 Email: johnjim0816@gmail.com
 Date: 2021-12-22 11:14:17
 LastEditor: JiangJi
-LastEditTime: 2022-02-10 06:17:41
+LastEditTime: 2022-06-18 20:12:20
 Discription: 使用 Nature DQN 训练 CartPole-v1
 '''
 import sys
@@ -17,6 +17,9 @@ sys.path.append(parent_path)  # 添加路径到系统路径
 import gym
 import torch
 import datetime
+import torch.nn as nn
+import torch.nn.functional as F
+
 from common.utils import save_results, make_dir
 from common.utils import plot_rewards, plot_rewards_cn
 from dqn import DQN
@@ -33,18 +36,18 @@ class DQNConfig:
         self.env_name = env_name  # 环境名称
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
-        self.train_eps = 200  # 训练的回合数
-        self.test_eps = 30  # 测试的回合数
+        self.train_eps = 300  # 训练的回合数
+        self.test_eps = 20  # 测试的回合数
         # 超参数
-        self.gamma = 0.95  # 强化学习中的折扣因子
-        self.epsilon_start = 0.90  # e-greedy策略中初始epsilon
-        self.epsilon_end = 0.01  # e-greedy策略中的终止epsilon
+        self.gamma = 0.99  # 强化学习中的折扣因子
+        self.epsilon_start = 0.99  # e-greedy策略中初始epsilon
+        self.epsilon_end = 0.005  # e-greedy策略中的终止epsilon
         self.epsilon_decay = 500  # e-greedy策略中epsilon的衰减率
         self.lr = 0.0001  # 学习率
         self.memory_capacity = 100000  # 经验回放的容量
-        self.batch_size = 64  # mini-batch SGD中的批量大小
+        self.batch_size = 128  # mini-batch SGD中的批量大小
         self.target_update = 4  # 目标网络的更新频率
-        self.hidden_dim = 256  # 网络隐藏层
+        self.hidden_dim = 512  # 网络隐藏层
 class PlotConfig:
     ''' 绘图相关参数设置
     '''
@@ -60,7 +63,23 @@ class PlotConfig:
             '/' + curr_time + '/models/'  # 保存模型的路径
         self.save = True  # 是否保存图片
 
-
+class MLP(nn.Module):
+    def __init__(self, n_states,n_actions,hidden_dim=128):
+        """ 初始化q网络，为全连接网络
+            n_states: 输入的特征数即环境的状态维度
+            n_actions: 输出的动作维度
+        """
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(n_states, hidden_dim) # 输入层
+        self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
+        self.fc3 = nn.Linear(hidden_dim, n_actions) # 输出层
+        
+    def forward(self, x):
+        # 各层对应的激活函数
+        x = F.relu(self.fc1(x)) 
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+        
 def env_agent_config(cfg, seed=1):
     ''' 创建环境和智能体
     '''
@@ -68,7 +87,8 @@ def env_agent_config(cfg, seed=1):
     env.seed(seed)  # 设置随机种子
     n_states = env.observation_space.shape[0]  # 状态维度
     n_actions = env.action_space.n  # 动作维度
-    agent = DQN(n_states, n_actions, cfg)  # 创建智能体
+    model = MLP(n_states,n_actions)
+    agent = DQN(n_actions,model,cfg)  # 创建智能体
     return env, agent
 
 def train(cfg, env, agent):
