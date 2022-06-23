@@ -26,7 +26,17 @@
         noData:'找不到结果',
         paths:'auto',
         depth:6
-      }
+      },
+      plugins: [
+        function(hook, vm) {
+          hook.beforeEach(function(content) {
+            // 每次开始解析 Markdown 内容时调用
+            // 将所有../img替换成img
+            // https://github.com/docsifyjs/docsify/issues/936
+            return content.replace(/..\/img/g, "img");
+          })
+        }
+      ],
     }
   </script>
   <!-- CDN files for docsify-katex -->
