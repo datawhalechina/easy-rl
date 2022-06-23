@@ -39,10 +39,26 @@
       ],
     }
   </script>
-  <!-- CDN files for docsify-katex -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
+  <!-- 公式 -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      extensions: ["tex2jax.js"],
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true,
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"]
+      },
+      "HTML-CSS": { fonts: ["TeX"] }
+    });
+  </script>
+  
+  <!-- <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script> -->
+
   <!-- or <script src="//cdn.jsdelivr.net/gh/upupming/docsify-katex/dist/docsify-katex.js"></script> -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+  <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"> -->
 
   <!-- Put them above docsify.min.js -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
@@ -77,7 +93,7 @@
     }
 </script> -->
 
-
+<script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   <!-- <script src="//unpkg.com/docsify@4.7.0/lib/docsify.min.js"></script> -->
 </body>
 </html>
