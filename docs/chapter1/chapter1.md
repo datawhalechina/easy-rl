@@ -4,7 +4,7 @@
 **强化学习（reinforcement learning，RL）**讨论的问题是智能体（agent）怎么在复杂、不确定的环境（environment）中最大化它能获得的奖励。如图 1.1 所示，强化学习由两部分组成：智能体和环境。在强化学习过程中，智能体与环境一直在交互。智能体在环境中获取某个状态后，它会利用该状态输出一个动作 （action），这个动作也称为决策（decision）。然后这个动作会在环境中被执行，环境会根据智能体采取的动作，输出下一个状态以及当前这个动作带来的奖励。智能体的目的就是尽可能多地从环境中获取奖励。
 
 <div align=center>
-<img width="550" src="img/1.1.png"/>
+<img width="550" src="../img/ch1/1.1.png"/>
 </div>
 <div align=center>图 1.1 强化学习示意</div>
 
@@ -13,7 +13,7 @@
 我们可以把强化学习与监督学习做一个对比。以图片分类为例，如图 1.2 所示，监督学习（supervised learning）假设我们有大量被标注的数据，比如汽车、飞机、椅子这些被标注的图片，这些图片都要满足独立同分布，即它们之间是没有关联关系的。假设我们训练一个分类器，比如神经网络。为了分辨输入的 图片中是汽车还是飞机，在训练过程中，需要把正确的标签信息传递给神经网络。 当神经网络做出错误的预测时，比如输入汽车的图片，它预测出来是飞机，我们就会直接告诉它，该预测是错误的，正确的标签应该是汽车。最后我们根据类似错误写出一个损失函数（loss function），通过反向传播（back propagation）来训练神经网络。
 
 <div align=center>
-<img width="650" src="img/1.2.png"/>
+<img width="650" src="../img/ch1/1.2.png"/>
 </div>
 <div align=center>图 1.2 监督学习</div>
 
@@ -26,14 +26,14 @@
 在强化学习中，监督学习的两个假设其实都不能得到满足。以雅达利（Atari） 游戏 Breakout 为例，如图 1.3 所示，这是一个打砖块的游戏，控制木板左右移 动从而把球反弹到上面来消除砖块。在玩游戏的过程中，我们可以发现智能体得到的观测（observation）不是独立同分布的，上一帧与下一帧间其实有非常强的 连续性。我们得到的数据是相关的时间序列数据，不满足独立同分布。另外，我 们并没有立刻获得反馈，游戏没有告诉我们哪个动作是正确动作。比如现在把木板往右移，这只会使得球往上或者往左一点儿，我们并不会得到即时的反馈。因 此，强化学习之所以困难，是因为智能体不能得到即时的反馈，然而我们依然希望智能体在这个环境中学习。
 
 <div align=center>
-<img width="350" src="img/1.3.png"/>
+<img width="350" src="../img/ch1/1.3.png"/>
 </div>
 <div align=center>图 1.3 雅达利游戏Breakout</div>
 
 如图 1.4 所示，强化学习的训练数据就是一个玩游戏的过程。我们从第 1 步开始，采取一个动作，比如我们把木板往右移，接到球。第 2 步我们又做出动作，得到的训练数据是一个玩游戏的序列。比如现在是在第 3 步，我们把这个序列放进网络，希望网络可以输出一个动作，即在当前的状态应该输出往右移或 者往左移。这里有个问题，我们没有标签来说明现在这个动作是正确还是错误的，必须等到游戏结束才可能知道，这个游戏可能 10s 后才结束。现在这个动作到底对最后游戏是否能赢有无帮助，我们其实是不清楚的。这里我们就面临**延迟奖励（delayed reward）**的问题，延迟奖励使得训练网络非常困难。
 
 <div align=center>
-<img width="500" src="img/1.4.png"/>
+<img width="500" src="../img/ch1/1.4.png"/>
 </div>
 <div align=center>图 1.4 强化学习：玩Breakout</div>
 
@@ -72,21 +72,21 @@
 图 1.5 所示为强化学习的一个经典例子，即雅达利的 Pong 游戏。游戏中右边的选手把球拍到左边， 然后左边的选手需要把球拍到右边。训练好的强化学习智能体和正常的选手有区别：强化学习的智能体会 一直做无意义的振动，而正常的选手不会做出这样的动作。
 
 <div align=center>
-<img width="350" src="img/1.9.png"/>
+<img width="350" src="../img/ch1/1.9.png"/>
 </div>
 <div align=center>图 1.5 Pong游戏</div>
 
 在 Pong 游戏里面，其实只有两个动作：往上或者往下。如图 1.6 所示，如果强化学习通过学习一个 策略网络来进行分类，那么策略网络会输入当前帧的图片，输出所有决策的可能性，比如往上移动的概率。
 
 <div align=center>
-<img width="450" src="img/1.10.png"/>
+<img width="450" src="../img/ch1/1.10.png"/>
 </div>
 <div align=center>图 1.6 强化学习玩 Pong</div>
 
 如图 1.7 所示，对于监督学习，我们可以直接告诉智能体正确动作的标签是什么。但在 Pong 游戏中， 我们并不知道它的正确动作的标签是什么。
 
 <div align=center>
-<img width="500" src="img/1.11.png"/>
+<img width="500" src="../img/ch1/1.11.png"/>
 </div>
 <div align=center>图 1.7 监督学习玩 Pong</div>
 
@@ -97,7 +97,7 @@ $$
 最后结束时，我们会知道到底有没有把这个球拍到对方区域，对方有没有接住，我们是赢了还是输了。我 们可以通过观测序列以及最终奖励（eventual reward）来训练智能体，使它尽可能地采取可以获得最终奖 励的动作。一场游戏称为一个**回合（episode）**或者**试验（trial）**。
 
 <div align=center>
-<img width="500" src="img/1.13.png"/>
+<img width="500" src="../img/ch1/1.13.png"/>
 </div>
 <div align=center>图 1.8 可能的预演序列</div>
 
@@ -113,11 +113,11 @@ $$
 
 
 <div align=center>
-<img width="500" src="img/1.14a.png"/>
+<img width="500" src="../img/ch1/1.14a.png"/>
 </div>
 <div align=center>（a）传统的计算机视觉 </div>
 <div align=center>
-<img width="500" src="img/1.14b.png"/>
+<img width="500" src="../img/ch1/1.14b.png"/>
 </div>
 <div align=center>（b）深度计算机视觉</div>
 
@@ -133,11 +133,11 @@ $$
 * 深度强化学习：自从我们有了深度学习，有了神经网络，就可以把智能体玩游戏的过程改进成一个 端到端训练（end-to-end training）的过程，如图 1.10b 所示。我们不需要设计特征，直接输入状 态就可以输出动作。我们可以用一个神经网络来拟合价值函数或策略网络，省去特征工程（feature engineering）的过程。
 
 <div align=center>
-<img width="550" src="img/1.15a.png"/>
+<img width="550" src="../img/ch1/1.15a.png"/>
 </div>
 <div align=center>（a）标准强化学习</div>
 <div align=center>
-<img width="550" src="img/1.15b.png"/>
+<img width="550" src="../img/ch1/1.15b.png"/>
 </div>
 <div align=center>（b）深度强化学习</div>
 <div align=center>图 1.10 标准强化学习与深度强化学习的区别</div>
@@ -157,7 +157,7 @@ $$
 （4）[穿衣服的智能体](https://www.youtube.com/watch?v=ixmE5nt2o88)。很多时候我们要在电影或者一些动画中实现人穿衣服的场景，通过手写执行命 令让机器人穿衣服非常困难，穿衣服也是一种非常精细的操作。我们可以训练强化学习智能体来实现穿衣 服功能。我们还可以在里面加入一些扰动，智能体可以抵抗扰动。可能会有失败的情况（failure case）出 现，这样智能体就穿不进去衣服。
 
 <div align=center>
-<img width="550" src="img/1.17.png"/>
+<img width="550" src="../img/ch1/1.17.png"/>
 </div>
 <div align=center>图 1.11 强化学习例子</div>
 
@@ -168,7 +168,7 @@ $$
 接下来我们介绍**序列决策（sequential decision making）**过程。强化学习研究的问题是智能体与环 境交互的问题，图 1.12 左边的智能体一直在与图 1.12 右边的环境进行交互。智能体把它的动作输出给环境，环境取得这个动作后会进行下一步，把下一步的观测与这个动作带来的奖励返还给智能体。这样的交 互会产生很多观测，智能体的目的是从这些观测之中学到能最大化奖励的策略。
 
 <div align=center>
-<img width="550" src="img/1.18.png"/>
+<img width="550" src="../img/ch1/1.18.png"/>
 </div>
 <div align=center>图 1.12 智能体和环境</div>
 
@@ -194,7 +194,7 @@ $$
 智能体在采取当前动作的时候会依赖于它之前得到的历史，所以我们可以把整个游戏的状态看成关于这个 历史的函数：
 
 <div align=center>
-<img width="550" src="img/1.21.png"/>
+<img width="550" src="../img/ch1/1.21.png"/>
 </div>
 <div align=center>图 1.13 玩Pong游戏</div>
 
@@ -240,7 +240,7 @@ A：**状态**是对世界的完整描述，不会隐藏世界的信息。**观�
 如图 1.14 所示，从雅达利游戏来看，策略函数的输入就是游戏的一帧，它的输出决定智能体向左移动或者向右移动。
 
 <div align=center>
-<img width="550" src="img/1.26.png"/>
+<img width="550" src="../img/ch1/1.26.png"/>
 </div>
 <div align=center>图 1.14 策略函数</div>
 
@@ -276,7 +276,7 @@ $$
 当我们有了策略、价值函数和模型3个组成部分后，就形成了一个**马尔可夫决策过程（Markov decision process）**。如图 1.15 所示，这个决策过程可视化了状态之间的转移以及采取的动作。
 
 <div align=center>
-<img width="550" src="img/1.29.png"/>
+<img width="550" src="../img/ch1/1.29.png"/>
 </div>
 <div align=center>图 1.15 马尔可夫决策过程</div>
 
@@ -284,7 +284,7 @@ $$
 
 
 <div align=center>
-<img width="550" src="img/1.30.png"/>
+<img width="550" src="../img/ch1/1.30.png"/>
 </div>
 <div align=center>图 1.16 走迷宫的例子</div>
 
@@ -294,7 +294,7 @@ $$
 
 
 <div align=center>
-<img width="550" src="img/1.31.png"/>
+<img width="550" src="../img/ch1/1.31.png"/>
 </div>
 <div align=center>图 1.17 使用基于策略的强化学习方法得到的结果</div>
 
@@ -303,7 +303,7 @@ $$
 当我们快接近终点的时候，这个数字变得越来越大。在拐角的时候，比如现在在第二格，价值是$-$15，智能体会看上、下两格，它看到上面格子的价值变大了，变成 $-$14 了，下面格子的价值是 $-$16，那么智能体就会采取一个往上走的动作。所以通过学习的价值的不同，我们可以抽取出现在最佳的策略。
 
 <div align=center>
-<img width="550" src="img/1.32.png"/>
+<img width="550" src="../img/ch1/1.32.png"/>
 </div>
 <div align=center>图 1.18 使用基于价值的强化学习方法得到的结果</div>
 
@@ -333,7 +333,7 @@ A: 对于一个状态转移概率已知的马尔可夫决策过程，我们可�
 
 
 <div align=center>
-<img width="550" src="img/1.35.png"/>
+<img width="550" src="../img/ch1/1.35.png"/>
 </div>
 <div align=center>图 1.19 有模型强化学习流程</div>
 
@@ -355,7 +355,7 @@ A：针对是否需要对真实环境建模，强化学习可以分为有模型�
 
 
 <div align=center>
-<img width="550" src="img/1.36.png"/>
+<img width="550" src="../img/ch1/1.36.png"/>
 </div>
 <div align=center>图 1.20 强化学习智能体的类型</div>
 
@@ -365,7 +365,7 @@ A：针对是否需要对真实环境建模，强化学习可以分为有模型�
 如图 1.21 所示，在强化学习中，环境初始时是未知的，智能体不知道环境如何工作，它通过不断地与环境交互，逐渐改进策略。
 
 <div align=center>
-<img width="550" src="img/learning.png"/>
+<img width="550" src="../img/ch1/learning.png"/>
 </div>
 <div align=center>图 1.21 学习</div>
 
@@ -377,7 +377,7 @@ A：针对是否需要对真实环境建模，强化学习可以分为有模型�
 
 
 <div align=center>
-<img width="550" src="img/planning.png"/>
+<img width="550" src="../img/ch1/planning.png"/>
 </div>
 <div align=center>图 1.22 规划</div>
 
@@ -410,7 +410,7 @@ A：针对是否需要对真实环境建模，强化学习可以分为有模型�
 事实上，探索（估计摇臂的优劣）和利用（选择当前最优摇臂)这两者是矛盾的，因为尝试次数（总投币数）有限，加强了一方则自然会削弱另一方，这就是强化学习所面临的**探索-利用窘境（exploration-exploitation dilemma）**。显然，想要累积奖励最大，则必须在探索与利用之间达成较好的折中。
 
 <div align=center>
-<img width="550" src="img/1.39.png"/>
+<img width="550" src="../img/ch1/1.39.png"/>
 </div>
 <div align=center>图 1.23 <i>K</i>-臂赌博机图示</div>
 
@@ -424,7 +424,7 @@ OpenAI是一家非营利性的人工智能研究公司，其公布了非常多�
 
 
 <div align=center>
-<img width="550" src="img/1.44.png"/>
+<img width="550" src="../img/ch1/1.44.png"/>
 </div>
 <div align=center>图 1.24 OpenAI 的 Gym 库</div>
 
@@ -463,7 +463,7 @@ for step in range(100):
 如图 1.25 所示，Gym 库里面有很多经典的控制类游戏。比如 Acrobot需要让一个双连杆机器人立起来；CartPole需要通过控制一辆小车，让杆立起来；MountainCar需要通过前后移动车，让它到达旗帜的位置。在刚开始测试强化学习的时候，我们可以选择这些简单环境，因为强化学习在这些环境中可以在一两分钟之内见到效果。
 
 <div align=center>
-<img width="550" src="img/1.46.png"/>
+<img width="550" src="../img/ch1/1.46.png"/>
 </div>
 <div align=center>图1.25 经典控制问题</div>
 
@@ -475,7 +475,7 @@ for step in range(100):
 
 
 <div align=center>
-<img width="550" src="img/1.47.png"/>
+<img width="550" src="../img/ch1/1.47.png"/>
 </div>
 <div align=center>图 1.26 CartPole-v0的例子</div>
 
