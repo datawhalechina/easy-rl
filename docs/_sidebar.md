@@ -1,5 +1,5 @@
 - 目录
-- [第一章 强化学习概述](chapter1/chapter1)
+- [第一章 强化学习基础](chapter1/chapter1)
 - [第一章 习题](chapter1/chapter1_questions&keywords)
 - [第二章 马尔可夫决策过程 (MDP)](chapter2/chapter2)
 - [第二章 习题](chapter2/chapter2_questions&keywords)
@@ -27,7 +27,6 @@
 - [第十二章 习题](chapter12/chapter12_questions&keywords)
 - [项目三 使用 Policy-Based 方法实现 Pendulum-v0](chapter12/project3)
 - [第十三章 AlphaStar 论文解读](chapter13/chapter13)
-
 
 
 
