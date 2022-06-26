@@ -3,8 +3,9 @@
 **如何使用勘误？首先找到你的书的印次，接下来对着下表索引印次，该印次之后所有的勘误都是你的书中所要注意的勘误，印次前的所有勘误在当印次和之后印次均已印刷修正。为方便读者，所有修订内容都列举在此。其中部分修订是为了更便于读者理解，并非原文有误。**
 
 ## 第1版第2次印刷（2022.06）
-* 1页，图1.1删除参考文献：“SUTTON R S, BARTO A G. Reinforcement learning: An introduction (second edition)[M]. London: The MIT Press, 2018”
+* 1页，图1.1删除参考文献：SUTTON R S, BARTO A G. Reinforcement learning: An introduction (second edition)[M]. London: The MIT Press, 2018
 * 7页的图1.9和8页的图1.10加参考文献：Sergey Levine的课程“Deep Reinforcement Learning”
+* 19页，图1.19删除参考文献：David Silver 的课程“UCL Course on RL”
 * 24页，第一段下面的代码下面加入注解：
 
 > 上面这段代码只是示例，其目的是让读者了解强化学习算法代码实现的框架，并非完整代码，load_agent 函数并未定义，所以运行这段代码会报错。
