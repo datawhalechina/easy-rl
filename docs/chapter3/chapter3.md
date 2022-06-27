@@ -275,7 +275,7 @@ $$
 此外，时序差分方法可以从不完整的回合中学习，并且结合了自举的思想。
 
 接下来，我们对时序差分方法进行总结。时序差分方法的目的是对于某个给定的策略 $\pi$，在线（online）地算出它的价值函数 $V_{\pi}$，即一步一步地（step-by-step）算。
-最简单的算法是**一步时序差分（one-step TD）**，即 **TD(0)**。每往前走一步，就做一步自举，用得到的估计回报（estimated return）$r_{t+1}+\gamma V(s_{t+1})$ 来更新上一时刻的值 $V(s_t)$：
+最简单的算法是**一步时序差分（one-step TD）**，即**TD(0)**。每往前走一步，就做一步自举，用得到的估计回报（estimated return）$r_{t+1}+\gamma V(s_{t+1})$ 来更新上一时刻的值 $V(s_t)$：
 $$
   V\left(s_{t}\right) \leftarrow V\left(s_{t}\right)+\alpha\left(r_{t+1}+\gamma V\left(s_{t+1}\right)-V\left(s_{t}\right)\right) \tag{3.1}
 $$
