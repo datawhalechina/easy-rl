@@ -1,0 +1,14 @@
+------------------ start ------------------
+algo_name : A2C
+env_name : CartPole-v0
+n_envs : 8
+max_steps : 30000
+n_steps : 5
+gamma : 0.99
+lr : 0.001
+hidden_dim : 256
+result_path : c:\Users\24438\Desktop\rl-tutorials\codes\A2C/outputs/CartPole-v0/20220713-221850/results/
+model_path : c:\Users\24438\Desktop\rl-tutorials\codes\A2C/outputs/CartPole-v0/20220713-221850/models/
+save_fig : True
+device : cuda
+------------------- end -------------------

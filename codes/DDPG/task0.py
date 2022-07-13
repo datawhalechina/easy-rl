@@ -5,59 +5,51 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2022-06-09 19:05:20
+LastEditTime: 2022-07-13 22:53:11
 @Discription: 
 @Environment: python 3.7.7
 '''
 import sys,os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
-curr_path = os.path.dirname(os.path.abspath(__file__)) # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path) # 父路径
-sys.path.append(parent_path) # 添加路径到系统路径sys.path
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path
+sys.path.append(parent_path)  # add to system path
 
 import datetime
 import gym
 import torch
+import argparse
 
 from env import NormalizedActions,OUNoise
 from ddpg import DDPG
 from common.utils import save_results,make_dir
-from common.utils import plot_rewards
+from common.utils import plot_rewards,save_args
 
-curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
-class Config:
-    '''超参数
-    '''
-
-    def __init__(self):
-        ################################## 环境超参数 ###################################
-        self.algo_name = 'DDPG'  # 算法名称
-        self.env_name = 'Pendulum-v1'  # 环境名称，gym新版本（约0.21.0之后）中Pendulum-v0改为Pendulum-v1
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPUgjgjlkhfsf风刀霜的撒发十
-        self.seed = 10 # 随机种子，置0则不设置随机种子
-        self.train_eps = 300 # 训练的回合数
-        self.test_eps = 20 # 测试的回合数
-        ################################################################################
-        
-        ################################## 算法超参数 ###################################
-        self.gamma = 0.99 # 折扣因子
-        self.critic_lr = 1e-3 # 评论家网络的学习率
-        self.actor_lr = 1e-4 # 演员网络的学习率
-        self.memory_capacity = 8000 # 经验回放的容量
-        self.batch_size = 128 # mini-batch SGD中的批量大小
-        self.target_update = 2 # 目标网络的更新频率
-        self.hidden_dim = 256 # 网络隐藏层维度
-        self.soft_tau = 1e-2 # 软更新参数
-        ################################################################################
-        
-        ################################# 保存结果相关参数 ################################
-        self.result_path = curr_path + "/outputs/" + self.env_name + \
-            '/' + curr_time + '/results/'  # 保存结果的路径
-        self.model_path = curr_path + "/outputs/" + self.env_name + \
-            '/' + curr_time + '/models/'  # 保存模型的路径
-        self.save = True # 是否保存图片
-        ################################################################################
+def get_args():
+    """ Hyperparameters
+    """
+    curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # Obtain current time
+    parser = argparse.ArgumentParser(description="hyperparameters")      
+    parser.add_argument('--algo_name',default='DDPG',type=str,help="name of algorithm")
+    parser.add_argument('--env_name',default='Pendulum-v1',type=str,help="name of environment")
+    parser.add_argument('--train_eps',default=300,type=int,help="episodes of training")
+    parser.add_argument('--test_eps',default=20,type=int,help="episodes of testing")
+    parser.add_argument('--gamma',default=0.99,type=float,help="discounted factor")
+    parser.add_argument('--critic_lr',default=1e-3,type=float,help="learning rate of critic")
+    parser.add_argument('--actor_lr',default=1e-4,type=float,help="learning rate of actor")
+    parser.add_argument('--memory_capacity',default=8000,type=int,help="memory capacity")
+    parser.add_argument('--batch_size',default=128,type=int)
+    parser.add_argument('--target_update',default=2,type=int)
+    parser.add_argument('--soft_tau',default=1e-2,type=float)
+    parser.add_argument('--hidden_dim',default=256,type=int)
+    parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
+            '/' + curr_time + '/results/' )
+    parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
+            '/' + curr_time + '/models/' ) # path to save models
+    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
+    args = parser.parse_args()    
+    args.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")  # check GPU                        
+    return args
 
 def env_agent_config(cfg,seed=1):
     env = NormalizedActions(gym.make(cfg.env_name)) # 装饰action噪声
@@ -67,9 +59,9 @@ def env_agent_config(cfg,seed=1):
     agent = DDPG(n_states,n_actions,cfg)
     return env,agent
 def train(cfg, env, agent):
-    print('开始训练！')
-    print(f'环境：{cfg.env_name}，算法：{cfg.algo_name}，设备：{cfg.device}')
-    ou_noise = OUNoise(env.action_space)  # 动作噪声
+    print('Start training!')
+    print(f'Env:{cfg.env_name}, Algorithm:{cfg.algo_name}, Device:{cfg.device}')
+    ou_noise = OUNoise(env.action_space)  # noise of action
     rewards = [] # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.train_eps):
@@ -88,18 +80,18 @@ def train(cfg, env, agent):
             agent.update()
             state = next_state
         if (i_ep+1)%10 == 0:
-            print('回合：{}/{}，奖励：{:.2f}'.format(i_ep+1, cfg.train_eps, ep_reward))
+            print(f'Env:{i_ep+1}/{cfg.train_eps}, Reward:{ep_reward:.2f}')
         rewards.append(ep_reward)
         if ma_rewards:
             ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
-    print('完成训练！')
+    print('Finish training!')
     return rewards, ma_rewards
 
 def test(cfg, env, agent):
-    print('开始测试！')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
+    print('Start testing')
+    print(f'Env:{cfg.env_name}, Algorithm:{cfg.algo_name}, Device:{cfg.device}')
     rewards = [] # 记录所有回合的奖励
     ma_rewards = []  # 记录所有回合的滑动平均奖励
     for i_ep in range(cfg.test_eps):
@@ -113,25 +105,25 @@ def test(cfg, env, agent):
             next_state, reward, done, _ = env.step(action)
             ep_reward += reward
             state = next_state
-        print('回合：{}/{}, 奖励：{}'.format(i_ep+1, cfg.train_eps, ep_reward))
         rewards.append(ep_reward)
         if ma_rewards:
             ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
-        print(f"回合：{i_ep+1}/{cfg.test_eps}，奖励：{ep_reward:.1f}")
-    print('完成测试！')
+        print(f"Epside:{i_ep+1}/{cfg.test_eps}, Reward:{ep_reward:.1f}")
+    print('Finish testing!')
     return rewards, ma_rewards
 if __name__ == "__main__":
-    cfg = Config()
-    # 训练
+    cfg = get_args()
+    # training
     env,agent = env_agent_config(cfg,seed=1)
     rewards, ma_rewards = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)
+    save_args(cfg)
     agent.save(path=cfg.model_path)
     save_results(rewards, ma_rewards, tag='train', path=cfg.result_path)
     plot_rewards(rewards, ma_rewards, cfg, tag="train")  # 画出结果
-    # 测试
+    # testing
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path)
     rewards,ma_rewards = test(cfg,env,agent)

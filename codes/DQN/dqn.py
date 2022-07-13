@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2022-03-02 11:05:11
+LastEditTime: 2022-07-13 00:08:18
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -20,7 +20,22 @@ import random
 import math
 import numpy as np
 
-
+class MLP(nn.Module):
+    def __init__(self, n_states,n_actions,hidden_dim=128):
+        """ 初始化q网络，为全连接网络
+            n_states: 输入的特征数即环境的状态维度
+            n_actions: 输出的动作维度
+        """
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(n_states, hidden_dim) # 输入层
+        self.fc2 = nn.Linear(hidden_dim,hidden_dim) # 隐藏层
+        self.fc3 = nn.Linear(hidden_dim, n_actions) # 输出层
+        
+    def forward(self, x):
+        # 各层对应的激活函数
+        x = F.relu(self.fc1(x)) 
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
 
 class ReplayBuffer:
     def __init__(self, capacity):
@@ -47,7 +62,7 @@ class ReplayBuffer:
         return len(self.buffer)
 
 class DQN:
-    def __init__(self, n_actions,model,cfg):
+    def __init__(self, n_states,n_actions,cfg):
 
         self.n_actions = n_actions  # 总的动作个数
         self.device = cfg.device  # 设备，cpu或gpu等
@@ -58,8 +73,8 @@ class DQN:
             (cfg.epsilon_start - cfg.epsilon_end) * \
             math.exp(-1. * frame_idx / cfg.epsilon_decay)
         self.batch_size = cfg.batch_size
-        self.policy_net = model.to(self.device)
-        self.target_net = model.to(self.device)
+        self.policy_net = MLP(n_states,n_actions).to(self.device)
+        self.target_net = MLP(n_states,n_actions).to(self.device)
         for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): # 复制参数到目标网路targe_net
             target_param.data.copy_(param.data)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr) # 优化器

@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2022-02-10 00:54:02
+LastEditTime: 2022-06-21 19:36:05
 Discription: 
 Environment: 
 '''
@@ -84,8 +84,6 @@ def train(cfg,env,agent):
 def test(cfg,env,agent):
     print('开始测试！')
     print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
-    for item in agent.Q_table.items():
-        print(item)
     rewards = []  # 记录所有回合的奖励
     ma_rewards = [] # 滑动平均的奖励
     for i_ep in range(cfg.test_eps):
