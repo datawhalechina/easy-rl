@@ -1,45 +1,43 @@
-import sys
-import os
-curr_path = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path)  # 父路径
-sys.path.append(parent_path)  # 添加路径到系统路径
+import sys,os
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path
+sys.path.append(parent_path)  # add to system path
 
 import gym
 import numpy as np
 import torch
 import torch.optim as optim
 import datetime
+import argparse
 from common.multiprocessing_env import SubprocVecEnv
 from a2c import ActorCritic
 from common.utils import save_results, make_dir
-from common.utils import plot_rewards
+from common.utils import plot_rewards, save_args
 
-curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # 获取当前时间
-algo_name = 'A2C'  # 算法名称
-env_name = 'CartPole-v0'  # 环境名称
 
-class A2CConfig:
-    def __init__(self) -> None:
-        self.algo_name = algo_name# 算法名称
-        self.env_name = env_name # 环境名称
-        self.n_envs = 8 # 异步的环境数目
-        self.gamma = 0.99 # 强化学习中的折扣因子
-        self.hidden_dim = 256
-        self.lr = 1e-3 # learning rate
-        self.max_frames = 30000
-        self.n_steps = 5
-        self.device  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-class PlotConfig:
-    def __init__(self) -> None:
-        self.algo_name = algo_name # 算法名称
-        self.env_name = env_name # 环境名称
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
-        self.result_path = curr_path+"/outputs/" + self.env_name + \
-            '/'+curr_time+'/results/'  # 保存结果的路径
-        self.model_path = curr_path+"/outputs/" + self.env_name + \
-            '/'+curr_time+'/models/'  # 保存模型的路径
-        self.save = True # 是否保存图片
-        
+def get_args():
+    """ Hyperparameters
+    """
+    curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # Obtain current time
+    parser = argparse.ArgumentParser(description="hyperparameters")      
+    parser.add_argument('--algo_name',default='A2C',type=str,help="name of algorithm")
+    parser.add_argument('--env_name',default='CartPole-v0',type=str,help="name of environment")
+    parser.add_argument('--n_envs',default=8,type=int,help="numbers of environments")
+
+    parser.add_argument('--max_steps',default=20000,type=int,help="episodes of training")
+    parser.add_argument('--n_steps',default=5,type=int,help="episodes of testing")
+    parser.add_argument('--gamma',default=0.99,type=float,help="discounted factor")
+    parser.add_argument('--lr',default=1e-3,type=float,help="learning rate")
+    parser.add_argument('--hidden_dim',default=256,type=int)
+    parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
+            '/' + curr_time + '/results/' )
+    parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
+            '/' + curr_time + '/models/' ) # path to save models
+    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
+    args = parser.parse_args()    
+    args.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")  # check GPU                        
+    return args
 
 def make_envs(env_name):
     def _thunk():
@@ -60,6 +58,7 @@ def test_env(env,model,vis=False):
         if vis: env.render()
         total_reward += reward
     return total_reward
+
 def compute_returns(next_value, rewards, masks, gamma=0.99):
     R = next_value
     returns = []
@@ -70,19 +69,19 @@ def compute_returns(next_value, rewards, masks, gamma=0.99):
 
 
 def train(cfg,envs):
-    print('开始训练!')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo}, 设备：{cfg.device}')
+    print('Start training!')
+    print(f'Env:{cfg.env_name}, Algorithm:{cfg.algo_name}, Device:{cfg.device}')
     env = gym.make(cfg.env_name) # a single env
     env.seed(10)
     n_states  = envs.observation_space.shape[0]
     n_actions = envs.action_space.n
     model = ActorCritic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
     optimizer = optim.Adam(model.parameters())
-    frame_idx    = 0
+    step_idx    = 0
     test_rewards = []
     test_ma_rewards = []
     state = envs.reset()
-    while frame_idx < cfg.max_frames:
+    while step_idx < cfg.max_steps:
         log_probs = []
         values    = []
         rewards   = []
@@ -101,16 +100,16 @@ def train(cfg,envs):
             rewards.append(torch.FloatTensor(reward).unsqueeze(1).to(cfg.device))
             masks.append(torch.FloatTensor(1 - done).unsqueeze(1).to(cfg.device))
             state = next_state
-            frame_idx += 1
-            if frame_idx % 100 == 0:
+            step_idx += 1
+            if step_idx % 100 == 0:
                 test_reward = np.mean([test_env(env,model) for _ in range(10)])
-                print(f"frame_idx:{frame_idx}, test_reward:{test_reward}")
+                print(f"step_idx:{step_idx}, test_reward:{test_reward}")
                 test_rewards.append(test_reward)
                 if test_ma_rewards:
                     test_ma_rewards.append(0.9*test_ma_rewards[-1]+0.1*test_reward)
                 else:
                     test_ma_rewards.append(test_reward) 
-                # plot(frame_idx, test_rewards)   
+                # plot(step_idx, test_rewards)   
         next_state = torch.FloatTensor(next_state).to(cfg.device)
         _, next_value = model(next_state)
         returns = compute_returns(next_value, rewards, masks)
@@ -124,15 +123,15 @@ def train(cfg,envs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    print('完成训练！')
+    print('Finish training！')
     return test_rewards, test_ma_rewards
 if __name__ == "__main__":
-    cfg = A2CConfig()
-    plot_cfg = PlotConfig()
+    cfg = get_args()
     envs = [make_envs(cfg.env_name) for i in range(cfg.n_envs)]
     envs = SubprocVecEnv(envs) 
-    # 训练
+    # training
     rewards,ma_rewards = train(cfg,envs)
-    make_dir(plot_cfg.result_path,plot_cfg.model_path)
-    save_results(rewards, ma_rewards, tag='train', path=plot_cfg.result_path) # 保存结果
-    plot_rewards(rewards, ma_rewards, plot_cfg, tag="train") # 画出结果
+    make_dir(cfg.result_path,cfg.model_path)
+    save_args(cfg)
+    save_results(rewards, ma_rewards, tag='train', path=cfg.result_path) # 保存结果
+    plot_rewards(rewards, ma_rewards, cfg, tag="train") # 画出结果
