@@ -26,9 +26,9 @@
 
 地址：https://github.com/datawhalechina/easy-rl/releases
 
-国内地址(推荐国内读者使用)：https://pan.baidu.com/s/1y6WLaLM5ChMhK1zZ9RoceQ 提取码: tyxb 
+国内地址(推荐国内读者使用)：https://pan.baidu.com/s/1AqdaaGWmMTBWRaYsO2h9Dw 提取码: ffuu 
 
-压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)：https://pan.baidu.com/s/1DM84K1ckN16jwHU3-3oxGw 提取码: an48 
+压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)：https://pan.baidu.com/s/1aAZ5pDj2LJ2Q2OjXU2Pi3g 提取码: s3yj 
 
 ## 纸质版和PDF版的区别
 
