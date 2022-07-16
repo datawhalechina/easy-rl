@@ -16,6 +16,24 @@
 
 购买链接：[京东](https://item.jd.com/13075567.html) | [当当](http://product.dangdang.com/29374163.html)
 
+<table border="0">
+  <tbody>
+    <tr align="center" >
+      <td>
+         <img width="100" height="100" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_jingdong.png" alt="pic">
+        <br>
+        <p>京东扫码购买</p>
+      </td>
+      <td>
+    <img width="100" height="100" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_dangdang.png" alt="pic"><br>
+        <p>当当扫码购买</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
 勘误修订表：https://datawhalechina.github.io/easy-rl/#/errata
 
 ## 在线阅读(内容实时更新)
