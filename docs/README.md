@@ -20,12 +20,12 @@
   <tbody>
     <tr align="center" >
       <td>
-         <img width="100" height="100" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_jingdong.png" alt="pic">
+         <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_jingdong.png" alt="pic">
         <br>
         <p>京东扫码购买</p>
       </td>
       <td>
-    <img width="100" height="100" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_dangdang.png" alt="pic"><br>
+    <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_dangdang.png" alt="pic"><br>
         <p>当当扫码购买</p>
       </td>
     </tr>
