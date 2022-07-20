@@ -16,6 +16,24 @@
 
 购买链接：[京东](https://item.jd.com/13075567.html) | [当当](http://product.dangdang.com/29374163.html)
 
+<table border="0">
+  <tbody>
+    <tr align="center" >
+      <td>
+         <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_jingdong.png" alt="pic">
+        <br>
+        <p>京东扫码购买</p>
+      </td>
+      <td>
+    <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_dangdang.png" alt="pic"><br>
+        <p>当当扫码购买</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
 勘误修订表：https://datawhalechina.github.io/easy-rl/#/errata
 
 ## 在线阅读(内容实时更新)
@@ -26,9 +44,9 @@
 
 地址：https://github.com/datawhalechina/easy-rl/releases
 
-国内地址(推荐国内读者使用)：https://pan.baidu.com/s/1y6WLaLM5ChMhK1zZ9RoceQ 提取码: tyxb 
+国内地址(推荐国内读者使用)：https://pan.baidu.com/s/1AqdaaGWmMTBWRaYsO2h9Dw 提取码: ffuu 
 
-压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)：https://pan.baidu.com/s/1DM84K1ckN16jwHU3-3oxGw 提取码: an48 
+压缩版(推荐网速较差的读者使用，文件小，图片分辨率较低)：https://pan.baidu.com/s/1aAZ5pDj2LJ2Q2OjXU2Pi3g 提取码: s3yj 
 
 ## 纸质版和PDF版的区别
 
@@ -65,21 +83,22 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
       <td>
          <a href="https://github.com/qiwang067"><img width="70" height="70" src="https://github.com/qiwang067.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/qiwang067">Qi Wang</a> 
-        <p>教程设计(第1~12章)<br> 中国科学院大学</p>
+        <p>教程设计(第1~12章)<br> 中国科学院大学硕士</p>
       </td>
       <td>
          <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/yyysjz1997">Yiyuan Yang</a> 
-        <p>习题设计&第13章 <br> 清华大学</p>
+        <p>习题设计&第13章 <br> 清华大学硕士</p>
       </td>
       <td>
          <a href="https://github.com/JohnJim0816"><img width="70" height="70" src="https://github.com/JohnJim0816.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/JohnJim0816">John Jim</a>
-         <p>算法实战<br> 北京大学</p>
+         <p>算法实战<br> 北京大学硕士</p>
       </td>
     </tr>
   </tbody>
 </table>
+
 
 ## 引用信息
 
