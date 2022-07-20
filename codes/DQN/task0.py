@@ -1,12 +1,9 @@
-from lib2to3.pytree import type_repr
-import sys
-import os
-from parso import parse
+import sys,os
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path
+sys.path.append(parent_path)  # add to system path
 import torch.nn as nn
 import torch.nn.functional as F
-curr_path = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path)  # 父路径
-sys.path.append(parent_path)  # 添加路径到系统路径
 
 import gym
 import torch
@@ -35,14 +32,13 @@ def get_args():
     parser.add_argument('--batch_size',default=64,type=int)
     parser.add_argument('--target_update',default=4,type=int)
     parser.add_argument('--hidden_dim',default=256,type=int)
+    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
     parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/results/' )
     parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/models/' ) # path to save models
     parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()    
-    args.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # check GPU                        
+    args = parser.parse_args()                          
     return args
 
 def env_agent_config(cfg,seed=1):

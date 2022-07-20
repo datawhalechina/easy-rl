@@ -5,10 +5,11 @@ Author: JiangJi
 Email: johnjim0816@gmail.com
 Date: 2021-05-03 22:16:08
 LastEditor: JiangJi
-LastEditTime: 2021-05-03 22:23:48
+LastEditTime: 2022-07-20 23:54:40
 Discription: 
 Environment: 
 '''
+import torch
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
@@ -42,7 +43,7 @@ class A2C:
     '''
     def __init__(self,n_states,n_actions,cfg) -> None:
         self.gamma = cfg.gamma
-        self.device = cfg.device
+        self.device = torch.device(cfg.device)
         self.model = ActorCritic(n_states, n_actions, cfg.hidden_size).to(self.device)
         self.optimizer = optim.Adam(self.model.parameters())
 

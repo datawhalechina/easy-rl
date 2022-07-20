@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2021-11-19 18:07:09
+LastEditTime: 2022-07-21 00:08:26
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -65,7 +65,7 @@ class MLP(nn.Module):
 class DoubleDQN:
     def __init__(self, n_states, n_actions, cfg):
         self.n_actions = n_actions  # 总的动作个数
-        self.device = cfg.device  # 设备，cpu或gpu等
+        self.device = torch.device(cfg.device)  # 设备，cpu或gpu等
         self.gamma = cfg.gamma
         # e-greedy策略相关参数
         self.actions_count = 0
@@ -88,8 +88,7 @@ class DoubleDQN:
         '''选择动作
         '''
         self.actions_count += 1
-        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
-            math.exp(-1. * self.actions_count / self.epsilon_decay)
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(-1. * self.actions_count / self.epsilon_decay)
         if random.random() > self.epsilon:
             with torch.no_grad():
                 # 先转为张量便于丢给神经网络,state元素数据原本为float64

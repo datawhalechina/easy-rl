@@ -29,14 +29,13 @@ def get_args():
     parser.add_argument('--gamma',default=0.99,type=float,help="discounted factor")
     parser.add_argument('--lr',default=1e-3,type=float,help="learning rate")
     parser.add_argument('--hidden_dim',default=256,type=int)
+    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
     parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/results/' )
     parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/models/' ) # path to save models
     parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()    
-    args.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # check GPU                        
+    args = parser.parse_args()                        
     return args
 
 def make_envs(env_name):

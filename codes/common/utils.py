@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:02:24
 LastEditor: John
-LastEditTime: 2022-07-13 22:15:46
+LastEditTime: 2022-07-20 23:53:34
 Discription: 
 Environment: 
 '''
@@ -14,6 +14,7 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
+import json
 
 from matplotlib.font_manager import FontProperties  # 导入字体模块
 
@@ -101,11 +102,8 @@ def del_empty_dir(*paths):
 
 def save_args(args):
     # save parameters    
-    argsDict = args.__dict__
-    with open(args.result_path+'params.txt', 'w') as f:
-        f.writelines('------------------ start ------------------' + '\n')
-        for eachArg, value in argsDict.items():
-            f.writelines(eachArg + ' : ' + str(value) + '\n')
-        f.writelines('------------------- end -------------------')     
+    args_dict = vars(args)   
+    with open(args.result_path+'params.json', 'w') as fp:
+        json.dump(args_dict, fp)   
     print("Parameters saved!")
     
