@@ -5,56 +5,47 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:21:53
 LastEditor: John
-LastEditTime: 2022-02-10 06:13:21
+LastEditTime: 2022-07-21 21:44:00
 Discription: 
 Environment: 
 '''
-import sys
-import os
-curr_path = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path)  # 父路径
-sys.path.append(parent_path)  # 添加路径到系统路径
+import sys,os
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path
+sys.path.append(parent_path)  # add to system path
 
 import gym
 import torch
 import datetime
+import argparse
 from itertools import count
 
 from pg import PolicyGradient
 from common.utils import save_results, make_dir
 from common.utils import plot_rewards
 
-curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
 
-class Config:
-    '''超参数
-    '''
-
-    def __init__(self):
-        ################################## 环境超参数 ###################################
-        self.algo_name = "PolicyGradient"  # 算法名称
-        self.env_name = 'CartPole-v0' # 环境名称
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # 检测GPUgjgjlkhfsf风刀霜的撒发十
-        self.seed = 10 # 随机种子，置0则不设置随机种子
-        self.train_eps = 300 # 训练的回合数
-        self.test_eps = 30 # 测试的回合数
-        ################################################################################
-        
-        ################################## 算法超参数 ###################################
-        self.batch_size = 8 # mini-batch SGD中的批量大小
-        self.lr = 0.01 # 学习率
-        self.gamma = 0.99 # 强化学习中的折扣因子
-        self.hidden_dim = 36 # 网络隐藏层
-        ################################################################################
-        
-        ################################# 保存结果相关参数 ################################
-        self.result_path = curr_path + "/outputs/" + self.env_name + \
-            '/' + curr_time + '/results/'  # 保存结果的路径
-        self.model_path = curr_path + "/outputs/" + self.env_name + \
-            '/' + curr_time + '/models/'  # 保存模型的路径
-        self.save = True # 是否保存图片
-        ################################################################################
+def get_args():
+    """ Hyperparameters
+    """
+    curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # Obtain current time
+    parser = argparse.ArgumentParser(description="hyperparameters")      
+    parser.add_argument('--algo_name',default='PolicyGradient',type=str,help="name of algorithm")
+    parser.add_argument('--env_name',default='CartPole-v0',type=str,help="name of environment")
+    parser.add_argument('--train_eps',default=300,type=int,help="episodes of training")
+    parser.add_argument('--test_eps',default=20,type=int,help="episodes of testing")
+    parser.add_argument('--gamma',default=0.99,type=float,help="discounted factor")
+    parser.add_argument('--lr',default=0.01,type=float,help="learning rate")
+    parser.add_argument('--batch_size',default=8,type=int)
+    parser.add_argument('--hidden_dim',default=36,type=int)
+    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
+    parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
+            '/' + curr_time + '/results/' )
+    parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
+            '/' + curr_time + '/models/' ) # path to save models
+    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
+    args = parser.parse_args()                          
+    return args
 
 
 def env_agent_config(cfg,seed=1):
@@ -65,9 +56,9 @@ def env_agent_config(cfg,seed=1):
     return env,agent
 
 def train(cfg,env,agent):
-    print('开始训练!')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
-    state_pool = [] # 存放每batch_size个episode的state序列
+    print('Start training!')
+    print(f'Env:{cfg.env_name}, Algorithm:{cfg.algo_name}, Device:{cfg.device}')
+    state_pool = [] # temp states pool per several episodes
     action_pool = []
     reward_pool = [] 
     rewards = []
@@ -86,11 +77,11 @@ def train(cfg,env,agent):
             reward_pool.append(reward)
             state = next_state
             if done:
-                print('回合：{}/{}, 奖励：{}'.format(i_ep + 1, cfg.train_eps, ep_reward))
+                print(f'Episode：{i_ep+1}/{cfg.train_eps}, Reward:{ep_reward:.2f}')
                 break
         if i_ep > 0 and i_ep % cfg.batch_size == 0:
             agent.update(reward_pool,state_pool,action_pool)
-            state_pool = [] # 每个episode的state
+            state_pool = [] 
             action_pool = []
             reward_pool = []
         rewards.append(ep_reward)
@@ -99,8 +90,8 @@ def train(cfg,env,agent):
                 0.9*ma_rewards[-1]+0.1*ep_reward)
         else:
             ma_rewards.append(ep_reward)
-    print('完成训练！')
-    env.close()
+    print('Finish training!')
+    env.close() # close environment
     return rewards, ma_rewards
             
 
