@@ -1,0 +1,19 @@
+{
+    "algo_name": "DoubleDQN",
+    "env_name": "CartPole-v0",
+    "train_eps": 200,
+    "test_eps": 20,
+    "gamma": 0.99,
+    "epsilon_start": 0.95,
+    "epsilon_end": 0.01,
+    "epsilon_decay": 500,
+    "lr": 0.0001,
+    "memory_capacity": 100000,
+    "batch_size": 64,
+    "target_update": 2,
+    "hidden_dim": 256,
+    "device": "cuda",
+    "result_path": "C:\\Users\\24438\\Desktop\\rl-tutorials\\codes\\DoubleDQN/outputs/CartPole-v0/20220721-215416/results/",
+    "model_path": "C:\\Users\\24438\\Desktop\\rl-tutorials\\codes\\DoubleDQN/outputs/CartPole-v0/20220721-215416/models/",
+    "save_fig": true
+}

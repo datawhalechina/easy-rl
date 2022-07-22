@@ -1,19 +1,16 @@
-from lib2to3.pytree import type_repr
-import sys
-import os
-from parso import parse
+import sys,os
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path
+sys.path.append(parent_path)  # add to system path
 import torch.nn as nn
 import torch.nn.functional as F
-curr_path = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path)  # 父路径
-sys.path.append(parent_path)  # 添加路径到系统路径
 
 import gym
 import torch
 import datetime
 import numpy as np
 import argparse
-from common.utils import save_results_1, make_dir
+from common.utils import save_results, make_dir
 from common.utils import plot_rewards,save_args
 from dqn import DQN
 
@@ -35,14 +32,13 @@ def get_args():
     parser.add_argument('--batch_size',default=64,type=int)
     parser.add_argument('--target_update',default=4,type=int)
     parser.add_argument('--hidden_dim',default=256,type=int)
+    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
     parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/results/' )
     parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/models/' ) # path to save models
     parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()    
-    args.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # check GPU                        
+    args = parser.parse_args()                          
     return args
 
 def env_agent_config(cfg,seed=1):
@@ -99,8 +95,8 @@ def train(cfg, env, agent):
 
 
 def test(cfg, env, agent):
-    print('开始测试!')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
+    print('Start testing!')
+    print(f'Env:{cfg.env_name}, A{cfg.algo_name}, 设备：{cfg.device}')
     ############# 由于测试不需要使用epsilon-greedy策略，所以相应的值设置为0 ###############
     cfg.epsilon_start = 0.0  # e-greedy策略中初始epsilon
     cfg.epsilon_end = 0.0  # e-greedy策略中的终止epsilon
@@ -127,7 +123,7 @@ def test(cfg, env, agent):
         else:
             ma_rewards.append(ep_reward)
         print(f'Episode：{i_ep+1}/{cfg.test_eps}, Reward:{ep_reward:.2f}, Step:{ep_step:.2f}')
-    print('完成测试！')
+    print('Finish testing')
     env.close()
     return {'rewards':rewards,'ma_rewards':ma_rewards,'steps':steps}
 
@@ -137,16 +133,16 @@ if __name__ == "__main__":
     # 训练
     env, agent = env_agent_config(cfg)
     res_dic = train(cfg, env, agent)
-    make_dir(cfg.result_path, cfg.model_path)  # 创建保存结果和模型路径的文件夹
-    save_args(cfg)
-    agent.save(path=cfg.model_path)  # 保存模型
-    save_results_1(res_dic, tag='train',
-                 path=cfg.result_path)  # 保存结果
-    plot_rewards(res_dic['rewards'], res_dic['ma_rewards'], cfg, tag="train")  # 画出结果
+    make_dir(cfg.result_path, cfg.model_path)  
+    save_args(cfg) # save parameters
+    agent.save(path=cfg.model_path)  # save model
+    save_results(res_dic, tag='train',
+                 path=cfg.result_path)  
+    plot_rewards(res_dic['rewards'], res_dic['ma_rewards'], cfg, tag="train")  
     # 测试
     env, agent = env_agent_config(cfg)
     agent.load(path=cfg.model_path)  # 导入模型
     res_dic = test(cfg, env, agent)
-    save_results_1(res_dic, tag='test',
+    save_results(res_dic, tag='test',
                  path=cfg.result_path)  # 保存结果
     plot_rewards(res_dic['rewards'], res_dic['ma_rewards'],cfg, tag="test")  # 画出结果

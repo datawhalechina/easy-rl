@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2022-07-13 00:08:18
+LastEditTime: 2022-07-20 23:57:16
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -64,8 +64,8 @@ class ReplayBuffer:
 class DQN:
     def __init__(self, n_states,n_actions,cfg):
 
-        self.n_actions = n_actions  # 总的动作个数
-        self.device = cfg.device  # 设备，cpu或gpu等
+        self.n_actions = n_actions  
+        self.device = torch.device(cfg.device)  # cpu or cuda
         self.gamma = cfg.gamma  # 奖励的折扣因子
         # e-greedy策略相关参数
         self.frame_idx = 0  # 用于epsilon的衰减计数

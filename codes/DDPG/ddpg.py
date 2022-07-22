@@ -73,11 +73,11 @@ class Critic(nn.Module):
         return x
 class DDPG:
     def __init__(self, n_states, n_actions, cfg):
-        self.device = cfg.device
-        self.critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
-        self.actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
-        self.target_critic = Critic(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
-        self.target_actor = Actor(n_states, n_actions, cfg.hidden_dim).to(cfg.device)
+        self.device = torch.device(cfg.device)
+        self.critic = Critic(n_states, n_actions, cfg.hidden_dim).to(self.device)
+        self.actor = Actor(n_states, n_actions, cfg.hidden_dim).to(self.device)
+        self.target_critic = Critic(n_states, n_actions, cfg.hidden_dim).to(self.device)
+        self.target_actor = Actor(n_states, n_actions, cfg.hidden_dim).to(self.device)
 
         # 复制参数到目标网络
         for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):

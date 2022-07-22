@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-11 20:58:21
 @LastEditor: John
-LastEditTime: 2022-07-13 22:53:11
+LastEditTime: 2022-07-21 21:51:34
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -41,14 +41,13 @@ def get_args():
     parser.add_argument('--target_update',default=2,type=int)
     parser.add_argument('--soft_tau',default=1e-2,type=float)
     parser.add_argument('--hidden_dim',default=256,type=int)
+    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
     parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/results/' )
     parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
             '/' + curr_time + '/models/' ) # path to save models
-    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()    
-    args.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")  # check GPU                        
+    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")   
+    args = parser.parse_args()                           
     return args
 
 def env_agent_config(cfg,seed=1):
@@ -87,7 +86,7 @@ def train(cfg, env, agent):
         else:
             ma_rewards.append(ep_reward)
     print('Finish training!')
-    return rewards, ma_rewards
+    return {'rewards':rewards,'ma_rewards':ma_rewards}
 
 def test(cfg, env, agent):
     print('Start testing')
@@ -112,21 +111,23 @@ def test(cfg, env, agent):
             ma_rewards.append(ep_reward)
         print(f"Epside:{i_ep+1}/{cfg.test_eps}, Reward:{ep_reward:.1f}")
     print('Finish testing!')
-    return rewards, ma_rewards
+    return {'rewards':rewards,'ma_rewards':ma_rewards}
 if __name__ == "__main__":
     cfg = get_args()
     # training
     env,agent = env_agent_config(cfg,seed=1)
-    rewards, ma_rewards = train(cfg, env, agent)
+    res_dic = train(cfg, env, agent)
     make_dir(cfg.result_path, cfg.model_path)
     save_args(cfg)
     agent.save(path=cfg.model_path)
-    save_results(rewards, ma_rewards, tag='train', path=cfg.result_path)
-    plot_rewards(rewards, ma_rewards, cfg, tag="train")  # 画出结果
+    save_results(res_dic, tag='train',
+                 path=cfg.result_path)  
+    plot_rewards(res_dic['rewards'], res_dic['ma_rewards'], cfg, tag="train")  
     # testing
     env,agent = env_agent_config(cfg,seed=10)
     agent.load(path=cfg.model_path)
-    rewards,ma_rewards = test(cfg,env,agent)
-    save_results(rewards,ma_rewards,tag = 'test',path = cfg.result_path)
-    plot_rewards(rewards, ma_rewards, cfg, tag="test")  # 画出结果
+    res_dic = test(cfg,env,agent)
+    save_results(res_dic, tag='test',
+                 path=cfg.result_path)  
+    plot_rewards(res_dic['rewards'], res_dic['ma_rewards'], cfg, tag="test")   
 

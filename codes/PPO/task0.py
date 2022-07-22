@@ -16,7 +16,7 @@ curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时
 class Config:
     def __init__(self) -> None:
         ################################## 环境超参数 ###################################
-        self.algo_name = "DQN"  # 算法名称
+        self.algo_name = "PPO"  # 算法名称
         self.env_name = 'CartPole-v0' # 环境名称
         self.continuous = False # 环境是否为连续动作
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检测GPU
