@@ -1,0 +1,20 @@
+{
+    "algo_name": "PPO",
+    "env_name": "CartPole-v0",
+    "continuous": false,
+    "train_eps": 200,
+    "test_eps": 20,
+    "gamma": 0.99,
+    "batch_size": 5,
+    "n_epochs": 4,
+    "actor_lr": 0.0003,
+    "critic_lr": 0.0003,
+    "gae_lambda": 0.95,
+    "policy_clip": 0.2,
+    "update_fre": 20,
+    "hidden_dim": 256,
+    "device": "cpu",
+    "result_path": "C:\\Users\\24438\\Desktop\\rl-tutorials\\codes\\PPO/outputs/CartPole-v0/20220731-233512/results/",
+    "model_path": "C:\\Users\\24438\\Desktop\\rl-tutorials\\codes\\PPO/outputs/CartPole-v0/20220731-233512/models/",
+    "save_fig": true
+}
