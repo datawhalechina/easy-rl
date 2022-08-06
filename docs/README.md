@@ -73,7 +73,7 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |                                                              |                                                              |
 ## 算法实战
 
-[点击](https://github.com/datawhalechina/easy-rl/tree/master/codes)或者跳转```codes```文件夹下进入算法实战
+[点击](../projects)或者跳转```projects```文件夹下进入算法实战
 
 ## 贡献者
 
