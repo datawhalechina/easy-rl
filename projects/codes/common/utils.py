@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:02:24
 LastEditor: John
-LastEditTime: 2022-07-31 23:18:04
+LastEditTime: 2022-08-15 18:11:27
 Discription: 
 Environment: 
 '''
@@ -42,21 +42,36 @@ def plot_rewards_cn(rewards, ma_rewards, cfg, tag='train'):
     if cfg.save:
         plt.savefig(cfg.result_path+f"{tag}_rewards_curve_cn")
     # plt.show()
+def smooth(data, weight=0.9):  
+    '''用于平滑曲线，类似于Tensorboard中的smooth
 
+    Args:
+        data (List):输入数据
+        weight (Float): 平滑权重，处于0-1之间，数值越高说明越平滑，一般取0.9
 
-def plot_rewards(rewards, ma_rewards, cfg, tag='train'):
+    Returns:
+        smoothed (List): 平滑后的数据
+    '''
+    last = data[0]  # First value in the plot (first timestep)
+    smoothed = list()
+    for point in data:
+        smoothed_val = last * weight + (1 - weight) * point  # 计算平滑值
+        smoothed.append(smoothed_val)                    
+        last = smoothed_val                                
+    return smoothed
+
+def plot_rewards(rewards,cfg,path=None,tag='train'):
     sns.set()
     plt.figure()  # 创建一个图形实例，方便同时多画几个图
-    plt.title("learning curve on {} of {} for {}".format(
-        cfg.device, cfg.algo_name, cfg.env_name))
+    plt.title(f"{tag}ing curve on {cfg.device} of {cfg.algo_name} for {cfg.env_name}")
     plt.xlabel('epsiodes')
     plt.plot(rewards, label='rewards')
-    plt.plot(ma_rewards, label='ma rewards')
+    plt.plot(smooth(rewards), label='smoothed')
     plt.legend()
     if cfg.save_fig:
-        plt.savefig(cfg.result_path+"{}_rewards_curve".format(tag))
-    plt.show()
-
+        plt.savefig(f"{path}/{tag}ing_curve.png")
+    if cfg.show_fig:
+        plt.show()
 
 def plot_losses(losses, algo="DQN", save=True, path='./'):
     sns.set()
@@ -69,19 +84,13 @@ def plot_losses(losses, algo="DQN", save=True, path='./'):
         plt.savefig(path+"losses_curve")
     plt.show()
 
-def save_results(dic, tag='train', path='./results'):
+def save_results(dic, tag='train', path = None):
     ''' 保存奖励
     '''
+    Path(path).mkdir(parents=True, exist_ok=True)
     for key,value in dic.items():
         np.save(path+'{}_{}.npy'.format(tag,key),value)
     print('Results saved！')
-    
-# def save_results(rewards, ma_rewards, tag='train', path='./results'):
-#     ''' 保存奖励
-#     '''
-#     np.save(path+'{}_rewards.npy'.format(tag), rewards)
-#     np.save(path+'{}_ma_rewards.npy'.format(tag), ma_rewards)
-#     print('Result saved!')
 
 
 def make_dir(*paths):
@@ -100,27 +109,10 @@ def del_empty_dir(*paths):
             if not os.listdir(os.path.join(path, dir)):
                 os.removedirs(os.path.join(path, dir))
 
-def save_args(args):
-    # save parameters    
-    args_dict = vars(args)   
-    with open(args.result_path+'params.json', 'w') as fp:
+def save_args(args,path=None):
+    # 保存参数   
+    args_dict = vars(args)  
+    Path(path).mkdir(parents=True, exist_ok=True) 
+    with open(f"{path}/params.json", 'w') as fp:
         json.dump(args_dict, fp)   
-    print("Parameters saved!")
-def smooth(data, weight=0.9):  
-    '''_summary_
-
-    Args:
-        data (List):输入数据
-        weight (Float): 平滑权重，处于0-1之间，数值越高说明越平滑，一般取0.9
-
-    Returns:
-        smoothed (List): 平滑后的数据
-    '''
-    last = data[0]  # First value in the plot (first timestep)
-    smoothed = list()
-    for point in data:
-        smoothed_val = last * weight + (1 - weight) * point  # 计算平滑值
-        smoothed.append(smoothed_val)                    
-        last = smoothed_val                                
-
-    return smoothed
+    print("参数已保存！")

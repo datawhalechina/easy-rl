@@ -1,0 +1,15 @@
+{
+    "algo_name": "Q-learning",
+    "env_name": "CliffWalking-v0",
+    "train_eps": 400,
+    "test_eps": 20,
+    "gamma": 0.9,
+    "epsilon_start": 0.95,
+    "epsilon_end": 0.01,
+    "epsilon_decay": 300,
+    "lr": 0.1,
+    "device": "cpu",
+    "result_path": "/root/Desktop/rl-tutorials/codes/QLearning/outputs/CliffWalking-v0/20220802-163256/results/",
+    "model_path": "/root/Desktop/rl-tutorials/codes/QLearning/outputs/CliffWalking-v0/20220802-163256/models/",
+    "save_fig": true
+}

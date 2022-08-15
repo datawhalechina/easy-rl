@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2022-08-10 11:25:56
+LastEditTime: 2022-08-04 22:44:00
 Discription: 
 Environment: 
 '''
@@ -20,16 +20,17 @@ import torch
 import datetime
 import argparse
 from envs.gridworld_env import CliffWalkingWapper
-from qlearning import QLearning
+from Sarsa.sarsa import Sarsa
 from common.utils import plot_rewards,save_args
 from common.utils import save_results,make_dir
+
 
 def get_args():
     """ 
     """
     curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
     parser = argparse.ArgumentParser(description="hyperparameters")      
-    parser.add_argument('--algo_name',default='Q-learning',type=str,help="name of algorithm")
+    parser.add_argument('--algo_name',default='Sarsa',type=str,help="name of algorithm")
     parser.add_argument('--env_name',default='CliffWalking-v0',type=str,help="name of environment")
     parser.add_argument('--train_eps',default=400,type=int,help="episodes of training") # 训练的回合数
     parser.add_argument('--test_eps',default=20,type=int,help="episodes of testing") # 测试的回合数
@@ -40,11 +41,11 @@ def get_args():
     parser.add_argument('--lr',default=0.1,type=float,help="learning rate")
     parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
     parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
-            '/' + curr_time + '/results/',type=str )
+            '/' + curr_time + '/results/' )
     parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
-            '/' + curr_time + '/models/',type=str,help="path to save models")
+            '/' + curr_time + '/models/' ) # path to save models
     parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()                          
+    args = parser.parse_args([])                          
     return args
 curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # 获取当前时间
       
@@ -55,11 +56,14 @@ def train(cfg,env,agent):
     for i_ep in range(cfg.train_eps):
         ep_reward = 0  # 记录每个回合的奖励
         state = env.reset()  # 重置环境,即开始新的回合
+        action = agent.sample(state)
         while True:
             action = agent.sample(state)  # 根据算法采样一个动作
             next_state, reward, done, _ = env.step(action)  # 与环境进行一次动作交互
-            agent.update(state, action, reward, next_state, done)  # Q学习算法更新
-            state = next_state  # 更新状态
+            next_action = agent.sample(next_state)
+            agent.update(state, action, reward, next_state, next_action,done) # 算法更新
+            state = next_state # 更新状态
+            action = next_action
             ep_reward += reward
             if done:
                 break
@@ -102,7 +106,7 @@ def env_agent_config(cfg,seed=1):
     n_states = env.observation_space.n # 状态维度
     n_actions = env.action_space.n # 动作维度
     print(f"状态数：{n_states}，动作数：{n_actions}")
-    agent = QLearning(n_actions,cfg)
+    agent = Sarsa(n_actions,cfg)
     return env,agent
 if __name__ == "__main__":
     cfg = get_args()
