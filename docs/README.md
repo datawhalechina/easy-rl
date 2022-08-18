@@ -123,6 +123,7 @@ url = {https://github.com/datawhalechina/easy-rl}
 特别感谢 [@Sm1les](https://github.com/Sm1les)、[@LSGOMYP](https://github.com/LSGOMYP) 对本项目的帮助与支持。
 
 ## 关注我们
+扫描下方二维码关注公众号：Datawhale，回复关键词“强化学习”，即可加入“Easy-RL读者交流群”
 <div align=center><img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode.jpeg" width = "250" height = "270" alt="Datawhale是一个专注AI领域的开源组织，以“for the learner，和学习者一起成长”为愿景，构建对学习者最有价值的开源学习社区。关注我们，一起学习成长。"></div>
 
 ## LICENSE
