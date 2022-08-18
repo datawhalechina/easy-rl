@@ -181,12 +181,10 @@ $$
 
 我们要把每一笔训练数据，都使用 $R(\tau)$ 进行加权。如图 4.9 所示，我们使用 PyTorch 或 TensorFlow 之类的深度学习框架计算梯度就结束了，与一般分类问题差不多。
 
-    
 <div align=center>
 <img width="550" src="../img/ch4/4.10.png"/>
 </div>
 <div align=center>图 4.9 自动求梯度</div>
-
 
 ## 4.2 策略梯度实现技巧
 下面我们介绍一些在实现策略梯度时可以使用的技巧。
