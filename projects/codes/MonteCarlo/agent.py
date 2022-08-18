@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:14:34
 LastEditor: John
-LastEditTime: 2021-05-05 16:58:39
+LastEditTime: 2022-08-15 18:10:13
 Discription: 
 Environment: 
 '''
@@ -22,16 +22,24 @@ class FisrtVisitMC:
         self.epsilon = cfg.epsilon
         self.gamma = cfg.gamma 
         self.Q_table = defaultdict(lambda: np.zeros(n_actions))
-        self.returns_sum = defaultdict(float) # sum of returns
+        self.returns_sum = defaultdict(float) # 保存return之和
         self.returns_count = defaultdict(float)
         
-    def choose_action(self,state):
-        ''' e-greed policy '''
+    def sample(self,state):
         if state in self.Q_table.keys():
             best_action = np.argmax(self.Q_table[state])
             action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
             action_probs[best_action] += (1.0 - self.epsilon)
             action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
+        else:
+            action = np.random.randint(0,self.n_actions)
+        return action
+    def predict(self,state):
+        if state in self.Q_table.keys():
+            best_action = np.argmax(self.Q_table[state])
+            action_probs = np.ones(self.n_actions, dtype=float) * self.epsilon / self.n_actions
+            action_probs[best_action] += (1.0 - self.epsilon)
+            action = np.argmax(self.Q_table[state])
         else:
             action = np.random.randint(0,self.n_actions)
         return action
@@ -50,16 +58,18 @@ class FisrtVisitMC:
             self.returns_sum[sa_pair] += G
             self.returns_count[sa_pair] += 1.0
             self.Q_table[state][action] = self.returns_sum[sa_pair] / self.returns_count[sa_pair]
-    def save(self,path):
+    def save(self,path=None):
         '''把 Q表格 的数据保存到文件中
         '''
+        from pathlib import Path
+        Path(path).mkdir(parents=True, exist_ok=True)
         torch.save(
             obj=self.Q_table,
             f=path+"Q_table",
             pickle_module=dill
         )
 
-    def load(self, path):
+    def load(self, path=None):
         '''从文件中读取数据到 Q表格
         '''
         self.Q_table =torch.load(f=path+"Q_table",pickle_module=dill)

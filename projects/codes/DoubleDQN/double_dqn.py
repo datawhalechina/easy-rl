@@ -63,18 +63,18 @@ class MLP(nn.Module):
         return self.fc3(x)
         
 class DoubleDQN:
-    def __init__(self, n_states, n_actions, cfg):
+    def __init__(self, n_states, n_actions, model, memory, cfg):
         self.n_actions = n_actions  # 总的动作个数
         self.device = torch.device(cfg.device)  # 设备，cpu或gpu等
         self.gamma = cfg.gamma
         # e-greedy策略相关参数
-        self.actions_count = 0
+        self.sample_count = 0
         self.epsilon_start = cfg.epsilon_start
         self.epsilon_end = cfg.epsilon_end
         self.epsilon_decay = cfg.epsilon_decay
         self.batch_size = cfg.batch_size
-        self.policy_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
-        self.target_net = MLP(n_states, n_actions,hidden_dim=cfg.hidden_dim).to(self.device)
+        self.policy_net = model.to(self.device)
+        self.target_net = model.to(self.device)
         # target_net copy from policy_net
         for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
             target_param.data.copy_(param.data)
@@ -82,13 +82,13 @@ class DoubleDQN:
         # 可查parameters()与state_dict()的区别，前者require_grad=True
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr)
         self.loss = 0
-        self.memory = ReplayBuffer(cfg.memory_capacity)
+        self.memory = memory
         
-    def choose_action(self, state):
+    def sample(self, state):
         '''选择动作
         '''
-        self.actions_count += 1
-        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(-1. * self.actions_count / self.epsilon_decay)
+        self.sample_count += 1
+        self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(-1. * self.sample_count / self.epsilon_decay)
         if random.random() > self.epsilon:
             with torch.no_grad():
                 # 先转为张量便于丢给神经网络,state元素数据原本为float64
@@ -104,9 +104,16 @@ class DoubleDQN:
         else:
             action = random.randrange(self.n_actions)
         return action
+    def predict(self, state):
+        '''选择动作
+        '''
+        with torch.no_grad():
+            state = torch.tensor([state], device=self.device, dtype=torch.float32)
+            q_value = self.policy_net(state)
+            action = q_value.max(1)[1].item()  
+        return action
     def update(self):
-
-        if len(self.memory) < self.batch_size:
+        if len(self.memory) < self.batch_size: # 只有memory满了才会更新
             return
         # 从memory中随机采样transition
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample(
@@ -150,7 +157,7 @@ class DoubleDQN:
         for param in self.policy_net.parameters():  # clip防止梯度爆炸
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()  # 更新模型
-
+    
     def save(self,path):
         torch.save(self.target_net.state_dict(), path+'checkpoint.pth')
 

@@ -4,6 +4,7 @@
 # This file contains code for the racetrack environment that you will be using
 # as part of the second part of the CM50270: Reinforcement Learning coursework.
 
+import imp
 import time
 import random
 import numpy as np
@@ -11,7 +12,7 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 from IPython.display import clear_output
-
+from gym.spaces import Discrete
 from matplotlib import colors
 
 class RacetrackEnv(object) :
@@ -61,7 +62,7 @@ class RacetrackEnv(object) :
                 if (self.CELL_TYPES_DICT[self.track[y, x]] == "start") :
                     self.initial_states.append((y, x))
 
-
+        self.action_space = Discrete(9)
         self.is_reset = False
 
         #print("Racetrack Environment File Loaded Successfully.")
