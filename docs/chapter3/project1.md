@@ -76,7 +76,7 @@ for i_ep in range(cfg.train_eps): # train_eps: 训练的最大episodes数
 
 **plot.py**：保存相关绘制函数
 
-[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/codes/QLearning)
+[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/projects/codes/QLearning)
 
 ## 备注
 
