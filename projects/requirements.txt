@@ -1,7 +1,4 @@
 gym==0.21.0
-torch==1.10.0 
-torchvision==0.11.0 
-torchaudio==0.10.0
 ipykernel==6.15.1
 jupyter==1.0.0
 matplotlib==3.5.2

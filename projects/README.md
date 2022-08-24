@@ -23,52 +23,71 @@
 
 注：点击对应的名称会跳到[codes](./codes/)下对应的算法中，其他版本还请读者自行翻阅
 
-|         算法名称          |                           参考文献                           | 环境 | 备注 |
-| :-----------------------: | :----------------------------------------------------------: | :--: | :--: |
-|                           |                                                              |      |      |
-|          DQN-CNN          |                                                              |      | 待更 |
-|   [SoftQ](codes/SoftQ)    |  [Soft Q-learning paper](https://arxiv.org/abs/1702.08165)   |      |      |
-|     [SAC](codes/SAC)      |      [SAC paper](https://arxiv.org/pdf/1812.05905.pdf)       |      |      |
-| [SAC-Discrete](codes/SAC) |  [SAC-Discrete paper](https://arxiv.org/pdf/1910.07207.pdf)  |      |      |
-|           SAC-V           |       [SAC-V paper](https://arxiv.org/abs/1801.01290)        |      |      |
-|           DSAC            | [DSAC paper](https://paperswithcode.com/paper/addressing-value-estimation-errors-in) |      | 待更 |
+|         算法名称          |                           参考文献                           | 备注 |
+| :-----------------------: | :----------------------------------------------------------: | :--: |
+|                           |                                                              |      |
+|          DQN-CNN          |                                                              | 待更 |
+|   [SoftQ](codes/SoftQ)    |  [Soft Q-learning paper](https://arxiv.org/abs/1702.08165)   |      |
+|     [SAC](codes/SAC)      |      [SAC paper](https://arxiv.org/pdf/1812.05905.pdf)       |      |
+| [SAC-Discrete](codes/SAC) |  [SAC-Discrete paper](https://arxiv.org/pdf/1910.07207.pdf)  |      |
+|           SAC-S           |       [SAC-S paper](https://arxiv.org/abs/1801.01290)        |      |
+|           DSAC            | [DSAC paper](https://paperswithcode.com/paper/addressing-value-estimation-errors-in) | 待更 |
 
+## 3、算法环境
 
+算法环境说明请跳转[env](./codes/envs/README.md)
 
-## 3、运行环境
+## 4、运行环境
 
-Python 3.7、PyTorch 1.10.0、Gym 0.21.0
+主要依赖：Python 3.7、PyTorch 1.10.0、Gym 0.21.0。
 
-在项目根目录下执行以下命令复现环境：
+### 4.1、创建Conda环境
+```bash
+conda create -n easyrl python=3.7
+conda activate easyrl # 激活环境
+```
+### 4.2、安装Torch
+
+安装CPU版本：
+```bash
+conda install pytorch==1.10.0 torchvision==0.11.0 torchaudio==0.10.0 cpuonly -c pytorch
+```
+安装CUDA版本：
+```bash
+conda install pytorch==1.10.0 torchvision==0.11.0 torchaudio==0.10.0 cudatoolkit=11.3 -c pytorch -c conda-forge
+```
+如果安装Torch需要镜像加速的话，点击[清华镜像链接](https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/)，选择对应的操作系统，如```win-64```，然后复制链接，执行：
+```bash
+conda install pytorch==1.10.0 torchvision==0.11.0 torchaudio==0.10.0 cudatoolkit=11.3 -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/win-64/
+```
+也可以使用PiP镜像安装（仅限CUDA版本）：
+```bash
+pip install torch==1.10.0+cu113 torchvision==0.11.0+cu113 torchaudio==0.10.0 --extra-index-url https://download.pytorch.org/whl/cu113
+```
+### 4.3、安装其他依赖
+
+项目根目录下执行：
 ```bash
 pip install -r requirements.txt
 ```
-如果需要使用CUDA，则需另外安装```cudatoolkit```，推荐```10.2```或者```11.3```版本的CUDA，如下：
-```bash
-conda install cudatoolkit=11.3 -c pytorch
-```
-如果conda需要镜像加速安装的话，点击[该清华镜像链接](https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/)，选择对应的操作系统，比如```win-64```，然后复制链接，执行如下命令：
-```bash
-conda install cudatoolkit=11.3 -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/win-64/
-```
-执行以下Python脚本，如果返回True说明cuda安装成功:
+### 4.4、检验CUDA版本Torch安装
+
+CPU版本Torch请忽略此步，执行如下Python脚本，如果返回True说明CUDA版本安装成功:
 ```python
 import torch
 print(torch.cuda.is_available())
 ```
-如果还是不成功，可以使用pip安装：
-```bash
-pip install torch==1.10.0+cu113 torchvision==0.11.0+cu113 torchaudio==0.10.0 --extra-index-url https://download.pytorch.org/whl/cu113
-```
-## 4、使用说明
+
+## 5、使用说明
 
 对于[codes](./codes/)：
-* 运行带有task的py脚本
+* 运行带有```main.py```脚本
+* 执行[scripts](codes\scripts)下对应的Bash脚本，例如```sh codes/scripts/DQN_task0.sh```，推荐创建名为"easyrl"的conda环境，否则需要更改sh脚本相关信息。对于Windows系统，建议安装Git(不要更改默认安装路径，否则VS Code可能不会显示Git Bash)然后使用git bash终端，而非PowerShell或者cmd终端！
 
 对于[Jupyter Notebook](./notebooks/)：
 
 * 直接运行对应的ipynb文件就行
 
-## 5、友情说明
+## 6、友情说明
 
 推荐使用VS Code做项目，入门可参考[VSCode上手指南](https://blog.csdn.net/JohnJim0/article/details/126366454)
