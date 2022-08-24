@@ -10,6 +10,7 @@
 \usepackage{titlesec}
 \usepackage{float} % 调用该包能够使用[H]
 % \pagestyle{plain} % 去除页眉，但是保留页脚编号，都去掉plain换empty
+
 \begin{document}
 \tableofcontents % 目录，注意要运行两下或者vscode保存两下才能显示
 % \singlespacing
@@ -88,7 +89,7 @@
 \clearpage
 \section{DQN算法}
 \begin{algorithm}[H] % [H]固定位置
-    \floatname{algorithm}{{DQN算法}}  
+    \floatname{algorithm}{{DQN算法}{\hypersetup{linkcolor=white}\footnotemark}}  
     \renewcommand{\thealgorithm}{} % 去掉算法标号
 	\caption{} 
     \renewcommand{\algorithmicrequire}{\textbf{输入:}}  
@@ -108,13 +109,17 @@
 				\STATE 更新环境状态$s_{t+1} \leftarrow s_t$
 				\STATE {\bfseries 更新策略：}
 				\STATE 从$D$中采样一个batch的transition
-				\STATE 计算实际的$Q$值，即$y_{j}= \begin{cases}r_{j} & \text {对于终止状态} s_{j+1} \\ r_{j}+\gamma \max _{a^{\prime}} Q\left(s_{j+1}, a^{\prime} ; \theta\right) & \text {对于非终止状态} s_{j+1}\end{cases}$
-				\STATE 对损失 $\left(y_{j}-Q\left(s_{j}, a_{j} ; \theta\right)\right)^{2}$关于参数$\theta$做随机梯度下降
+				\STATE 计算实际的$Q$值，即$y_{j}${\hypersetup{linkcolor=white}\footnotemark}
+				\STATE 对损失 $L(\theta)=\left(y_{i}-Q\left(s_{i}, a_{i} ; \theta\right)\right)^{2}$关于参数$\theta$做随机梯度下降{\hypersetup{linkcolor=white}\footnotemark}
 			\ENDFOR
-			\STATE 每$C$个回合复制参数$\hat{Q}\leftarrow Q$(此处也可像原论文中放到小循环中改成每$C$步，但没有每$C$个回合稳定)
+			\STATE 每$C$个回合复制参数$\hat{Q}\leftarrow Q${\hypersetup{linkcolor=white}\footnotemark}
 		\ENDFOR
 	\end{algorithmic}
 \end{algorithm}
+\footnotetext[1]{Playing Atari with Deep Reinforcement Learning}
+\footnotetext[2]{$y_{i}= \begin{cases}r_{i} & \text {对于终止状态} s_{i+1} \\ r_{i}+\gamma \max _{a^{\prime}} Q\left(s_{i+1}, a^{\prime} ; \theta\right) & \text {对于非终止状态} s_{i+1}\end{cases}$}
+\footnotetext[3]{$\theta_i \leftarrow \theta_i - \lambda \nabla_{\theta_{i}} L_{i}\left(\theta_{i}\right)$}
+\footnotetext[4]{此处也可像原论文中放到小循环中改成每$C$步，但没有每$C$个回合稳定}
 \clearpage
 
 \section{SoftQ算法}
@@ -153,13 +158,37 @@
 \footnotetext[2]{$J_{Q}(\theta)=\mathbb{E}_{\mathbf{s}_{t} \sim q_{\mathbf{s}_{t}}, \mathbf{a}_{t} \sim q_{\mathbf{a}_{t}}}\left[\frac{1}{2}\left(\hat{Q}_{\mathrm{soft}}^{\bar{\theta}}\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)-Q_{\mathrm{soft}}^{\theta}\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)\right)^{2}\right]$}
 \footnotetext[3]{$\begin{aligned} \Delta f^{\phi}\left(\cdot ; \mathbf{s}_{t}\right)=& \mathbb{E}_{\mathbf{a}_{t} \sim \pi^{\phi}}\left[\left.\kappa\left(\mathbf{a}_{t}, f^{\phi}\left(\cdot ; \mathbf{s}_{t}\right)\right) \nabla_{\mathbf{a}^{\prime}} Q_{\mathrm{soft}}^{\theta}\left(\mathbf{s}_{t}, \mathbf{a}^{\prime}\right)\right|_{\mathbf{a}^{\prime}=\mathbf{a}_{t}}\right.\\ &\left.+\left.\alpha \nabla_{\mathbf{a}^{\prime}} \kappa\left(\mathbf{a}^{\prime}, f^{\phi}\left(\cdot ; \mathbf{s}_{t}\right)\right)\right|_{\mathbf{a}^{\prime}=\mathbf{a}_{t}}\right] \end{aligned}$}
 \clearpage
+\section{SAC-S算法}
+\begin{algorithm}[H] % [H]固定位置
+    \floatname{algorithm}{{SAC-S算法}\footnotemark[1]} 
+	\renewcommand{\thealgorithm}{} % 去掉算法标号
+	\caption{} 
+	\begin{algorithmic}[1] % [1]显示步数
+		\STATE 初始化参数$\psi, \bar{\psi}, \theta, \phi$
+		\FOR {回合数 = $1,M$}
+			\FOR {时步 = $1,t$}
+				\STATE 根据$\boldsymbol{a}_{t} \sim \pi_{\phi}\left(\boldsymbol{a}_{t} \mid \mathbf{s}_{t}\right)$采样动作$a_t$
+				\STATE 环境反馈奖励和下一个状态，$\mathbf{s}_{t+1} \sim p\left(\mathbf{s}_{t+1} \mid \mathbf{s}_{t}, \mathbf{a}_{t}\right)$
+				\STATE 存储transition到经验回放中，$\mathcal{D} \leftarrow \mathcal{D} \cup\left\{\left(\mathbf{s}_{t}, \mathbf{a}_{t}, r\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right), \mathbf{s}_{t+1}\right)\right\}$
+				\STATE 更新环境状态$s_{t+1} \leftarrow s_t$
+				\STATE {\bfseries 更新策略：}
+				\STATE $\psi \leftarrow \psi-\lambda_{V} \hat{\nabla}_{\psi} J_{V}(\psi)$
+				\STATE $\theta_{i} \leftarrow \theta_{i}-\lambda_{Q} \hat{\nabla}_{\theta_{i}} J_{Q}\left(\theta_{i}\right)$ for $i \in\{1,2\}$
+				\STATE $\phi \leftarrow \phi-\lambda_{\pi} \hat{\nabla}_{\phi} J_{\pi}(\phi)$
+				\STATE $\bar{\psi} \leftarrow \tau \psi+(1-\tau) \bar{\psi}$
+			\ENDFOR
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+\footnotetext[1]{Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor}
+\clearpage
 \section{SAC算法}
 \begin{algorithm}[H] % [H]固定位置
-    \floatname{algorithm}{{Soft Actor Critic算法}}  
+    \floatname{algorithm}{{SAC算法}\footnotemark[1]}  
     \renewcommand{\thealgorithm}{} % 去掉算法标号
 	\caption{} 
 	\begin{algorithmic}[1]
-		\STATE 初始化两个Actor的网络参数$\theta_1,\theta_2$以及一个Critic网络参数$\phi$ % 初始化
+		\STATE 初始化网络参数$\theta_1,\theta_2$以及$\phi$ % 初始化
 		\STATE 复制参数到目标网络$\bar{\theta_1} \leftarrow \theta_1,\bar{\theta_2} \leftarrow \theta_2,$
 		\STATE 初始化经验回放$D$
 		\FOR {回合数 = $1,M$}
@@ -170,18 +199,18 @@
 				\STATE 存储transition到经验回放中，$\mathcal{D} \leftarrow \mathcal{D} \cup\left\{\left(\mathbf{s}_{t}, \mathbf{a}_{t}, r\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right), \mathbf{s}_{t+1}\right)\right\}$
 				\STATE 更新环境状态$s_{t+1} \leftarrow s_t$
 				\STATE {\bfseries 更新策略：}
-				\STATE 更新$Q$函数，$\theta_{i} \leftarrow \theta_{i}-\lambda_{Q} \hat{\nabla}_{\theta_{i}} J_{Q}\left(\theta_{i}\right)$ for $i \in\{1,2\}$\footnotemark[1]\footnotemark[2]
-				\STATE 更新策略权重，$\phi \leftarrow \phi-\lambda_{\pi} \hat{\nabla}_{\phi} J_{\pi}(\phi)$ \footnotemark[3]
-				\STATE 调整temperature，$\alpha \leftarrow \alpha-\lambda \hat{\nabla}_{\alpha} J(\alpha)$ \footnotemark[4]
+				\STATE 更新$Q$函数，$\theta_{i} \leftarrow \theta_{i}-\lambda_{Q} \hat{\nabla}_{\theta_{i}} J_{Q}\left(\theta_{i}\right)$ for $i \in\{1,2\}$\footnotemark[2]\footnotemark[3]
+				\STATE 更新策略权重，$\phi \leftarrow \phi-\lambda_{\pi} \hat{\nabla}_{\phi} J_{\pi}(\phi)$ \footnotemark[4]
+				\STATE 调整temperature，$\alpha \leftarrow \alpha-\lambda \hat{\nabla}_{\alpha} J(\alpha)$ \footnotemark[5]
 				\STATE 更新目标网络权重，$\bar{\theta}_{i} \leftarrow \tau \theta_{i}+(1-\tau) \bar{\theta}_{i}$ for $i \in\{1,2\}$
 			\ENDFOR
 		\ENDFOR
-	\end{algorithmic}
-	
+	\end{algorithmic}	
 \end{algorithm}
-\footnotetext[1]{$J_{Q}(\theta)=\mathbb{E}_{\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right) \sim \mathcal{D}}\left[\frac{1}{2}\left(Q_{\theta}\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)-\left(r\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)+\gamma \mathbb{E}_{\mathbf{s}_{t+1} \sim p}\left[V_{\bar{\theta}}\left(\mathbf{s}_{t+1}\right)\right]\right)\right)^{2}\right]$}
-\footnotetext[2]{$\hat{\nabla}_{\theta} J_{Q}(\theta)=\nabla_{\theta} Q_{\theta}\left(\mathbf{a}_{t}, \mathbf{s}_{t}\right)\left(Q_{\theta}\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)-\left(r\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)+\gamma\left(Q_{\bar{\theta}}\left(\mathbf{s}_{t+1}, \mathbf{a}_{t+1}\right)-\alpha \log \left(\pi_{\phi}\left(\mathbf{a}_{t+1} \mid \mathbf{s}_{t+1}\right)\right)\right)\right)\right.$}
-\footnotetext[3]{$\hat{\nabla}_{\phi} J_{\pi}(\phi)=\nabla_{\phi} \alpha \log \left(\pi_{\phi}\left(\mathbf{a}_{t} \mid \mathbf{s}_{t}\right)\right)+\left(\nabla_{\mathbf{a}_{t}} \alpha \log \left(\pi_{\phi}\left(\mathbf{a}_{t} \mid \mathbf{s}_{t}\right)\right)-\nabla_{\mathbf{a}_{t}} Q\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)\right) \nabla_{\phi} f_{\phi}\left(\epsilon_{t} ; \mathbf{s}_{t}\right)$,$\mathbf{a}_{t}=f_{\phi}\left(\epsilon_{t} ; \mathbf{s}_{t}\right)$}
-\footnotetext[4]{$J(\alpha)=\mathbb{E}_{\mathbf{a}_{t} \sim \pi_{t}}\left[-\alpha \log \pi_{t}\left(\mathbf{a}_{t} \mid \mathbf{s}_{t}\right)-\alpha \overline{\mathcal{H}}\right]$}
+\footnotetext[2]{Soft Actor-Critic Algorithms and Applications}
+\footnotetext[2]{$J_{Q}(\theta)=\mathbb{E}_{\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right) \sim \mathcal{D}}\left[\frac{1}{2}\left(Q_{\theta}\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)-\left(r\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)+\gamma \mathbb{E}_{\mathbf{s}_{t+1} \sim p}\left[V_{\bar{\theta}}\left(\mathbf{s}_{t+1}\right)\right]\right)\right)^{2}\right]$}
+\footnotetext[3]{$\hat{\nabla}_{\theta} J_{Q}(\theta)=\nabla_{\theta} Q_{\theta}\left(\mathbf{a}_{t}, \mathbf{s}_{t}\right)\left(Q_{\theta}\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)-\left(r\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)+\gamma\left(Q_{\bar{\theta}}\left(\mathbf{s}_{t+1}, \mathbf{a}_{t+1}\right)-\alpha \log \left(\pi_{\phi}\left(\mathbf{a}_{t+1} \mid \mathbf{s}_{t+1}\right)\right)\right)\right)\right.$}
+\footnotetext[4]{$\hat{\nabla}_{\phi} J_{\pi}(\phi)=\nabla_{\phi} \alpha \log \left(\pi_{\phi}\left(\mathbf{a}_{t} \mid \mathbf{s}_{t}\right)\right)+\left(\nabla_{\mathbf{a}_{t}} \alpha \log \left(\pi_{\phi}\left(\mathbf{a}_{t} \mid \mathbf{s}_{t}\right)\right)-\nabla_{\mathbf{a}_{t}} Q\left(\mathbf{s}_{t}, \mathbf{a}_{t}\right)\right) \nabla_{\phi} f_{\phi}\left(\epsilon_{t} ; \mathbf{s}_{t}\right)$,$\mathbf{a}_{t}=f_{\phi}\left(\epsilon_{t} ; \mathbf{s}_{t}\right)$}
+\footnotetext[5]{$J(\alpha)=\mathbb{E}_{\mathbf{a}_{t} \sim \pi_{t}}\left[-\alpha \log \pi_{t}\left(\mathbf{a}_{t} \mid \mathbf{s}_{t}\right)-\alpha \overline{\mathcal{H}}\right]$}
 \clearpage
 \end{document}
