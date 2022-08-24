@@ -71,7 +71,7 @@ class DQN:
             return
         else:
             if not self.update_flag:
-                print("begin to update!")
+                print("Begin to update!")
                 self.update_flag = True
         # sample a batch of transitions from replay buffer
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample(

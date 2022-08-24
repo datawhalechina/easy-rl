@@ -27,7 +27,7 @@ def get_args():
     parser.add_argument('--gamma',default=0.95,type=float,help="discounted factor")
     parser.add_argument('--epsilon_start',default=0.95,type=float,help="initial value of epsilon")
     parser.add_argument('--epsilon_end',default=0.01,type=float,help="final value of epsilon")
-    parser.add_argument('--epsilon_decay',default=500,type=int,help="decay rate of epsilon")
+    parser.add_argument('--epsilon_decay',default=500,type=int,help="decay rate of epsilon, the higher value, the slower decay")
     parser.add_argument('--lr',default=0.0001,type=float,help="learning rate")
     parser.add_argument('--memory_capacity',default=100000,type=int,help="memory capacity")
     parser.add_argument('--batch_size',default=64,type=int)
@@ -64,8 +64,8 @@ def env_agent_config(cfg):
 def train(cfg, env, agent):
     ''' 训练
     '''
-    print("start training!")
-    print(f"Env: {cfg['env_name']}, Algo: {cfg['algo_name']}, Device: {cfg['device']}")
+    print("Start training!")
+    print(f"Env: {cfg['env_name']}, Algorithm: {cfg['algo_name']}, Device: {cfg['device']}")
     rewards = []  # record rewards for all episodes
     steps = []
     for i_ep in range(cfg["train_eps"]):
@@ -89,17 +89,17 @@ def train(cfg, env, agent):
         rewards.append(ep_reward)
         if (i_ep + 1) % 10 == 0:
             print(f'Episode: {i_ep+1}/{cfg["train_eps"]}, Reward: {ep_reward:.2f}: Epislon: {agent.epsilon:.3f}')
-    print("finish training!")
+    print("Finish training!")
     env.close()
     res_dic = {'episodes':range(len(rewards)),'rewards':rewards}
     return res_dic
 
 def test(cfg, env, agent):
-    print("start testing!")
-    print(f"Env: {cfg.env_name}, Algo: {cfg.algo_name}, Device: {cfg.device}")
+    print("Start testing!")
+    print(f"Env: {cfg['env_name']}, Algorithm: {cfg['algo_name']}, Device: {cfg['device']}")
     rewards = []  # record rewards for all episodes
     steps = []
-    for i_ep in range(cfg.test_eps):
+    for i_ep in range(cfg['test_eps']):
         ep_reward = 0  # reward per episode
         ep_step = 0
         state = env.reset()  # reset and obtain initial state
@@ -113,8 +113,8 @@ def test(cfg, env, agent):
                 break
         steps.append(ep_step)
         rewards.append(ep_reward)
-        print(f'Episode: {i_ep+1}/{cfg.test_eps}，Reward: {ep_reward:.2f}')
-    print("finish testing!")
+        print(f"Episode: {i_ep+1}/{cfg['test_eps']}，Reward: {ep_reward:.2f}")
+    print("Finish testing!")
     env.close()
     return {'episodes':range(len(rewards)),'rewards':rewards}
 
