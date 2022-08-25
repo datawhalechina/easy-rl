@@ -1,10 +1,3 @@
-# Please do not make changes to this file - it will be overwritten with a clean
-# version when your work is marked.
-#
-# This file contains code for the racetrack environment that you will be using
-# as part of the second part of the CM50270: Reinforcement Learning coursework.
-
-import imp
 import time
 import random
 import numpy as np
@@ -12,22 +5,19 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 from IPython.display import clear_output
-from gym.spaces import Discrete
+from gym.spaces import Discrete,Box
 from matplotlib import colors
+import gym
 
-class RacetrackEnv(object) :
+class RacetrackEnv(gym.Env) :
     """
     Class representing a race-track environment inspired by exercise 5.12 in Sutton & Barto 2018 (p.111).
     Please do not make changes to this class - it will be overwritten with a clean version when it comes to marking.
 
     The dynamics of this environment are detailed in this coursework exercise's jupyter notebook, although I have
     included rather verbose comments here  for those of you who are interested in how the environment has been
-    implemented (though this should not impact your solution code).
-
-    If you find any *bugs* with this code, please let me know immediately - thank you for finding them, sorry that I didn't!
-    However, please do not suggest optimisations - some things have been purposely simplified for readability's sake.
+    implemented (though this should not impact your solution code).ss
     """
-
 
     ACTIONS_DICT = {
         0 : (1, -1),  # Acc Vert., Brake Horiz.
@@ -61,18 +51,15 @@ class RacetrackEnv(object) :
             for x in range(self.track.shape[1]) :
                 if (self.CELL_TYPES_DICT[self.track[y, x]] == "start") :
                     self.initial_states.append((y, x))
-
+        high= np.array([np.finfo(np.float32).max, np.finfo(np.float32).max, np.finfo(np.float32).max, np.finfo(np.float32).max])
+        self.observation_space = Box(low=-high, high=high, shape=(4,), dtype=np.float32)
         self.action_space = Discrete(9)
         self.is_reset = False
-
-        #print("Racetrack Environment File Loaded Successfully.")
-        #print("Be sure to call .reset() before starting to initialise the environment and get an initial state!")
-
 
     def step(self, action : int) :
         """
         Takes a given action in the environment's current state, and returns a next state,
-        reward, and whether the next state is terminal or not.
+        reward, and whether the next state is done or not.
 
         Arguments:
             action {int} -- The action to take in the environment's current state. Should be an integer in the range [0-8].
@@ -86,7 +73,7 @@ class RacetrackEnv(object) :
             A tuple of:\n
                 {(int, int, int, int)} -- The next state, a tuple of (y_pos, x_pos, y_velocity, x_velocity).\n
                 {int} -- The reward earned by taking the given action in the current environment state.\n
-                {bool} -- Whether the environment's next state is terminal or not.\n
+                {bool} -- Whether the environment's next state is done or not.\n
 
         """
 
@@ -131,7 +118,7 @@ class RacetrackEnv(object) :
         new_position = (self.position[0] + self.velocity[0], self.position[1] + self.velocity[1])
 
         reward = 0
-        terminal = False
+        done = False
 
         # If position is out-of-bounds, return to start and set velocity components to zero.
         if (new_position[0] < 0 or new_position[1] < 0 or new_position[0] >= self.track.shape[0] or new_position[1] >= self.track.shape[1]) :
@@ -150,7 +137,7 @@ class RacetrackEnv(object) :
         elif (self.CELL_TYPES_DICT[self.track[new_position]] == "goal") :
             self.position = new_position
             reward += 10
-            terminal = True
+            done = True
         # If this gets reached, then the student has touched something they shouldn't have. Naughty!
         else :
             raise RuntimeError("You've met with a terrible fate, haven't you?\nDon't modify things you shouldn't!")
@@ -158,12 +145,12 @@ class RacetrackEnv(object) :
         # Penalise every timestep.
         reward -= 1
 
-        # Require a reset if the current state is terminal.
-        if (terminal) :
+        # Require a reset if the current state is done.
+        if (done) :
             self.is_reset = False
 
         # Return next state, reward, and whether the episode has ended.
-        return (self.position[0], self.position[1], self.velocity[0], self.velocity[1]), reward, terminal
+        return np.array([self.position[0], self.position[1], self.velocity[0], self.velocity[1]]), reward, done,{}
 
 
     def reset(self) :
@@ -184,10 +171,10 @@ class RacetrackEnv(object) :
 
         self.is_reset = True
 
-        return (self.position[0], self.position[1], self.velocity[0], self.velocity[1])
+        return np.array([self.position[0], self.position[1], self.velocity[0], self.velocity[1]])
 
 
-    def render(self, sleep_time : float = 0.1) :
+    def render(self, mode = 'human') :
         """
         Renders a pretty matplotlib plot representing the current state of the environment.
         Calling this method on subsequent timesteps will update the plot.
@@ -230,13 +217,9 @@ class RacetrackEnv(object) :
         # Draw everything.
         #fig.canvas.draw()
         #fig.canvas.flush_events()
-
         plt.show()
-
-        # Sleep if desired.
-        if (sleep_time > 0) :
-            time.sleep(sleep_time)
-
+        # time sleep
+        time.sleep(0.1)
 
     def get_actions(self) :
         """
@@ -244,18 +227,16 @@ class RacetrackEnv(object) :
         of integers in the range [0-8].
         """
         return [*self.ACTIONS_DICT]
+if __name__ == "__main__":
+    num_steps = 1000000
+    env = RacetrackEnv()
+    state = env.reset()
+    print(state)
+    for _ in range(num_steps) :
 
-# num_steps = 1000000
+        next_state, reward, done,_ = env.step(random.choice(env.get_actions()))
+        print(next_state)
+        env.render()
 
-# env = RacetrackEnv()
-# state = env.reset()
-# print(state)
-
-# for _ in range(num_steps) :
-
-#     next_state, reward, terminal = env.step(random.choice(env.get_actions()))
-#     print(next_state)
-#     env.render()
-
-#     if (terminal) :
-#         _ = env.reset()
+        if (done) :
+            _ = env.reset()

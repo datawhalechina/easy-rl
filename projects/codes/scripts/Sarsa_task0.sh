@@ -1,5 +1,3 @@
-
-# source conda, if you are already in proper conda environment, then comment the codes util "conda activate easyrl" 
 if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
     echo "source file at ~/anaconda3/etc/profile.d/conda.sh"
     source ~/anaconda3/etc/profile.d/conda.sh 
@@ -12,4 +10,4 @@ fi
 conda activate easyrl # easyrl here can be changed to another name of conda env that you have created
 codes_dir=$(dirname $(dirname $(readlink -f "$0"))) # "codes" path
 python $codes_dir/envs/register.py # register environment
-python $codes_dir/QLearning/main.py --env_name FrozenLakeNoSlippery-v1 --train_eps 800 --epsilon_start 0.70 --epsilon_end 0.1 --epsilon_decay 2000 --gamma 0.9 --lr 0.9 --device cpu
+python $codes_dir/Sarsa/main.py

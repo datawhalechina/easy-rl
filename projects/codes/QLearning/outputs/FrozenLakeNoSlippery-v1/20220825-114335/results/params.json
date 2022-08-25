@@ -1,6 +1,6 @@
 {
     "algo_name": "Q-learning",
-    "env_name": "FrozenLake-v1",
+    "env_name": "FrozenLakeNoSlippery-v1",
     "train_eps": 800,
     "test_eps": 20,
     "gamma": 0.9,
@@ -12,8 +12,8 @@
     "seed": 10,
     "show_fig": false,
     "save_fig": true,
-    "result_path": "/Users/jj/Desktop/rl-tutorials/codes/QLearning/outputs/FrozenLake-v1/20220824-112735/results/",
-    "model_path": "/Users/jj/Desktop/rl-tutorials/codes/QLearning/outputs/FrozenLake-v1/20220824-112735/models/",
+    "result_path": "/Users/jj/Desktop/rl-tutorials/codes/QLearning/outputs/FrozenLakeNoSlippery-v1/20220825-114335/results/",
+    "model_path": "/Users/jj/Desktop/rl-tutorials/codes/QLearning/outputs/FrozenLakeNoSlippery-v1/20220825-114335/models/",
     "n_states": 16,
     "n_actions": 4
 }
