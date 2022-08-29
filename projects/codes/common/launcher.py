@@ -24,7 +24,7 @@ class Launcher:
         save_results(res_dic, tag = 'train', path = cfg['result_path']) # save results
         plot_rewards(res_dic['rewards'], cfg, path = cfg['result_path'],tag = "train")  # plot results
         # testing
-        env, agent = self.env_agent_config(cfg) # create new env for testing, sometimes can ignore this step
+        # env, agent = self.env_agent_config(cfg) # create new env for testing, sometimes can ignore this step
         agent.load_model(path = cfg['model_path'])  # load model
         res_dic = self.test(cfg, env, agent)
         save_results(res_dic, tag='test',

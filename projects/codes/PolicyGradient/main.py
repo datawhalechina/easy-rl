@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:21:53
 LastEditor: John
-LastEditTime: 2022-08-25 20:59:23
+LastEditTime: 2022-08-27 00:04:08
 Discription: 
 Environment: 
 '''
@@ -34,7 +34,7 @@ class PGNet(MLP):
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.sigmoid(self.fc3(x))
+        x = torch.sigmoid(self.fc3(x))
         return x
 
 class Main(Launcher):
@@ -47,8 +47,9 @@ class Main(Launcher):
         parser.add_argument('--env_name',default='CartPole-v0',type=str,help="name of environment")
         parser.add_argument('--train_eps',default=200,type=int,help="episodes of training")
         parser.add_argument('--test_eps',default=20,type=int,help="episodes of testing")
+        parser.add_argument('--ep_max_steps',default = 100000,type=int,help="steps per episode, much larger value can simulate infinite steps") 
         parser.add_argument('--gamma',default=0.99,type=float,help="discounted factor")
-        parser.add_argument('--lr',default=0.005,type=float,help="learning rate")
+        parser.add_argument('--lr',default=0.01,type=float,help="learning rate")
         parser.add_argument('--update_fre',default=8,type=int)
         parser.add_argument('--hidden_dim',default=36,type=int)
         parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
@@ -81,7 +82,7 @@ class Main(Launcher):
         for i_ep in range(cfg['train_eps']):
             state = env.reset()
             ep_reward = 0
-            for _ in count():
+            for _ in range(cfg['ep_max_steps']):
                 action = agent.sample_action(state) # sample action
                 next_state, reward, done, _ = env.step(action)
                 ep_reward += reward
@@ -90,8 +91,9 @@ class Main(Launcher):
                 agent.memory.push((state,float(action),reward))
                 state = next_state
                 if done:
-                    print(f"Episode：{i_ep+1}/{cfg['train_eps']}, Reward:{ep_reward:.2f}")
                     break
+            if (i_ep+1) % 10 == 0:
+                print(f"Episode：{i_ep+1}/{cfg['train_eps']}, Reward:{ep_reward:.2f}")
             if (i_ep+1) % cfg['update_fre'] == 0:
                 agent.update()
             rewards.append(ep_reward)
@@ -107,7 +109,7 @@ class Main(Launcher):
         for i_ep in range(cfg['test_eps']):
             state = env.reset()
             ep_reward = 0
-            for _ in count():
+            for _ in range(cfg['ep_max_steps']):
                 action = agent.predict_action(state)
                 next_state, reward, done, _ = env.step(action)
                 ep_reward += reward
@@ -115,9 +117,9 @@ class Main(Launcher):
                     reward = 0
                 state = next_state
                 if done:
-                    print(f"Episode: {i_ep+1}/{cfg['test_eps']}，Reward: {ep_reward:.2f}")
                     break
-            rewards.append(ep_reward)
+            print(f"Episode: {i_ep+1}/{cfg['test_eps']}，Reward: {ep_reward:.2f}")
+            rewards.append(ep_reward)         
         print("Finish testing!")
         env.close()
         return {'episodes':range(len(rewards)),'rewards':rewards}

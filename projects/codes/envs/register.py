@@ -5,7 +5,7 @@ def register_env(env_name):
     if env_name == 'Racetrack-v0':
         register(
             id='Racetrack-v0',
-            entry_point='racetrack:RacetrackEnv',
+            entry_point='envs.racetrack:RacetrackEnv',
             max_episode_steps=1000,
             kwargs={}
         )

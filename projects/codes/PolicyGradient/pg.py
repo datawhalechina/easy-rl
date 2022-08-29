@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2022-08-25 20:58:59
+LastEditTime: 2022-08-27 13:45:26
 Discription: 
 Environment: 
 '''
@@ -31,8 +31,11 @@ class PolicyGradient:
         state = torch.from_numpy(state).float()
         state = Variable(state)
         probs = self.policy_net(state)
+        print("probs")
+        print(probs)
         m = Bernoulli(probs) # 伯努利分布
         action = m.sample()
+        
         action = action.data.numpy().astype(int)[0] # 转为标量
         return action
     def predict_action(self,state):

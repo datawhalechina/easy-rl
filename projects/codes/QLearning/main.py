@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-09-11 23:03:00
 LastEditor: John
-LastEditTime: 2022-08-25 14:59:15
+LastEditTime: 2022-08-26 22:46:21
 Discription: 
 Environment: 
 '''
@@ -57,7 +57,10 @@ class Main(Launcher):
             env = CliffWalkingWapper(env)
         if cfg['seed'] !=0: # set random seed
             all_seed(env,seed=cfg["seed"]) 
-        n_states = env.observation_space.n  # state dimension
+        try: # state dimension
+            n_states = env.observation_space.n # print(hasattr(env.observation_space, 'n'))
+        except AttributeError:
+            n_states = env.observation_space.shape[0] # print(hasattr(env.observation_space, 'shape'))
         n_actions = env.action_space.n  # action dimension
         print(f"n_states: {n_states}, n_actions: {n_actions}")
         cfg.update({"n_states":n_states,"n_actions":n_actions}) # update to cfg paramters

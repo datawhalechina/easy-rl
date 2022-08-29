@@ -22,15 +22,15 @@
 
 注：点击对应的名称会跳到[codes](./codes/)下对应的算法中，其他版本还请读者自行翻阅
 
-|         算法名称          |                           参考文献                           | 备注 |
-| :-----------------------: | :----------------------------------------------------------: | :--: |
-|                           |                                                              |      |
-|          DQN-CNN          |                                                              | 待更 |
-|   [SoftQ](codes/SoftQ)    |  [Soft Q-learning paper](https://arxiv.org/abs/1702.08165)   |      |
-|     [SAC](codes/SAC)      |      [SAC paper](https://arxiv.org/pdf/1812.05905.pdf)       |      |
-| [SAC-Discrete](codes/SAC) |  [SAC-Discrete paper](https://arxiv.org/pdf/1910.07207.pdf)  |      |
-|           SAC-S           |       [SAC-S paper](https://arxiv.org/abs/1801.01290)        |      |
-|           DSAC            | [DSAC paper](https://paperswithcode.com/paper/addressing-value-estimation-errors-in) | 待更 |
+|                算法名称                 |                           参考文献                           | 备注 |
+| :-------------------------------------: | :----------------------------------------------------------: | :--: |
+| [Policy Gradient](codes/PolicyGradient) | [Policy Gradient paper](https://proceedings.neurips.cc/paper/1999/file/464d828b85b0bed98e80ade0a5c43b0f-Paper.pdf) |      |
+|                 DQN-CNN                 |                                                              | 待更 |
+|          [SoftQ](codes/SoftQ)           |  [Soft Q-learning paper](https://arxiv.org/abs/1702.08165)   |      |
+|            [SAC](codes/SAC)             |      [SAC paper](https://arxiv.org/pdf/1812.05905.pdf)       |      |
+|        [SAC-Discrete](codes/SAC)        |  [SAC-Discrete paper](https://arxiv.org/pdf/1910.07207.pdf)  |      |
+|                  SAC-S                  |       [SAC-S paper](https://arxiv.org/abs/1801.01290)        |      |
+|                  DSAC                   | [DSAC paper](https://paperswithcode.com/paper/addressing-value-estimation-errors-in) | 待更 |
 
 ## 3、算法环境
 
