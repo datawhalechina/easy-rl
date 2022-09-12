@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-10 15:27:16
 @LastEditor: John
-LastEditTime: 2022-08-22 17:23:21
+LastEditTime: 2022-08-28 23:44:06
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -39,12 +39,12 @@ class ReplayBufferQue:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.buffer = deque(maxlen=self.capacity)
-    def push(self,trainsitions):
+    def push(self,transitions):
         '''_summary_
         Args:
             trainsitions (tuple): _description_
         '''
-        self.buffer.append(trainsitions)
+        self.buffer.append(transitions)
     def sample(self, batch_size: int, sequential: bool = False):
         if batch_size > len(self.buffer):
             batch_size = len(self.buffer)

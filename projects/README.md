@@ -11,7 +11,6 @@
 项目内容主要包含以下几个部分：
 * [Jupyter Notebook](./notebooks/)：使用Notebook写的算法，有比较详细的实战引导，推荐新手食用
 * [codes](./codes/)：这些是基于Python脚本写的算法，风格比较接近实际项目的写法，推荐有一定代码基础的人阅读，下面会说明其具体的一些架构
-* [parl](./PARL/)：应业务需求，写了一些基于百度飞浆平台和```parl```模块的RL实例
 * [附件](./assets/)：目前包含强化学习各算法的中文伪代码
 
 
@@ -23,15 +22,15 @@
 
 注：点击对应的名称会跳到[codes](./codes/)下对应的算法中，其他版本还请读者自行翻阅
 
-|         算法名称          |                           参考文献                           | 备注 |
-| :-----------------------: | :----------------------------------------------------------: | :--: |
-|                           |                                                              |      |
-|          DQN-CNN          |                                                              | 待更 |
-|   [SoftQ](codes/SoftQ)    |  [Soft Q-learning paper](https://arxiv.org/abs/1702.08165)   |      |
-|     [SAC](codes/SAC)      |      [SAC paper](https://arxiv.org/pdf/1812.05905.pdf)       |      |
-| [SAC-Discrete](codes/SAC) |  [SAC-Discrete paper](https://arxiv.org/pdf/1910.07207.pdf)  |      |
-|           SAC-S           |       [SAC-S paper](https://arxiv.org/abs/1801.01290)        |      |
-|           DSAC            | [DSAC paper](https://paperswithcode.com/paper/addressing-value-estimation-errors-in) | 待更 |
+|                算法名称                 |                           参考文献                           | 备注 |
+| :-------------------------------------: | :----------------------------------------------------------: | :--: |
+| [Policy Gradient](codes/PolicyGradient) | [Policy Gradient paper](https://proceedings.neurips.cc/paper/1999/file/464d828b85b0bed98e80ade0a5c43b0f-Paper.pdf) |      |
+|                 DQN-CNN                 |                                                              | 待更 |
+|          [SoftQ](codes/SoftQ)           |  [Soft Q-learning paper](https://arxiv.org/abs/1702.08165)   |      |
+|            [SAC](codes/SAC)             |      [SAC paper](https://arxiv.org/pdf/1812.05905.pdf)       |      |
+|        [SAC-Discrete](codes/SAC)        |  [SAC-Discrete paper](https://arxiv.org/pdf/1910.07207.pdf)  |      |
+|                  SAC-S                  |       [SAC-S paper](https://arxiv.org/abs/1801.01290)        |      |
+|                  DSAC                   | [DSAC paper](https://paperswithcode.com/paper/addressing-value-estimation-errors-in) | 待更 |
 
 ## 3、算法环境
 

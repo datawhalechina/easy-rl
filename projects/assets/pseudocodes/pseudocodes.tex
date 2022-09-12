@@ -11,6 +11,27 @@
 \usepackage{float} % 调用该包能够使用[H]
 % \pagestyle{plain} % 去除页眉，但是保留页脚编号，都去掉plain换empty
 
+% 更改脚注为圆圈
+\usepackage{pifont}
+\makeatletter
+\newcommand*{\circnum}[1]{%
+  \expandafter\@circnum\csname c@#1\endcsname
+}
+\newcommand*{\@circnum}[1]{%
+  \ifnum#1<1 %
+    \@ctrerr
+  \else
+    \ifnum#1>20 %
+      \@ctrerr
+    \else
+      \ding{\the\numexpr 171+(#1)\relax}%
+    \fi
+  \fi
+}
+\makeatother
+
+\renewcommand*{\thefootnote}{\circnum{footnote}}
+
 \begin{document}
 \tableofcontents % 目录，注意要运行两下或者vscode保存两下才能显示
 % \singlespacing
@@ -69,27 +90,10 @@
 \end{algorithm}
 \footnotetext[1]{Reinforcement Learning: An Introduction}
 \clearpage
-\section{Policy Gradient算法}
-\begin{algorithm}[H] % [H]固定位置
-    \floatname{algorithm}{{REINFORCE算法：Monte-Carlo Policy Gradient}\footnotemark[1]} 
-	\renewcommand{\thealgorithm}{} % 去掉算法标号
-	\caption{} 
-	\begin{algorithmic}[1] % [1]显示步数
-		\STATE 初始化策略参数$\boldsymbol{\theta} \in \mathbb{R}^{d^{\prime}}($ e.g., to $\mathbf{0})$
-		\FOR {回合数 = $1,M$}
-			\STATE 根据策略$\pi(\cdot \mid \cdot, \boldsymbol{\theta})$采样一个(或几个)回合的transition
-			\FOR {时步 = $1,t$}
-				\STATE 计算回报$G \leftarrow \sum_{k=t+1}^{T} \gamma^{k-t-1} R_{k}$
-				\STATE 更新策略$\boldsymbol{\theta} \leftarrow {\boldsymbol{\theta}+\alpha \gamma^{t}} G \nabla \ln \pi\left(A_{t} \mid S_{t}, \boldsymbol{\theta}\right)$
-			\ENDFOR
-		\ENDFOR
-	\end{algorithmic}
-\end{algorithm}
-\footnotetext[1]{Reinforcement Learning: An Introduction}
-\clearpage
+
 \section{DQN算法}
 \begin{algorithm}[H] % [H]固定位置
-    \floatname{algorithm}{{DQN算法}{\hypersetup{linkcolor=white}\footnotemark}}  
+    \floatname{algorithm}{{DQN算法}\footnotemark[1]}  
     \renewcommand{\thealgorithm}{} % 去掉算法标号
 	\caption{} 
     \renewcommand{\algorithmicrequire}{\textbf{输入:}}  
@@ -109,10 +113,10 @@
 				\STATE 更新环境状态$s_{t+1} \leftarrow s_t$
 				\STATE {\bfseries 更新策略：}
 				\STATE 从$D$中采样一个batch的transition
-				\STATE 计算实际的$Q$值，即$y_{j}${\hypersetup{linkcolor=white}\footnotemark}
-				\STATE 对损失 $L(\theta)=\left(y_{i}-Q\left(s_{i}, a_{i} ; \theta\right)\right)^{2}$关于参数$\theta$做随机梯度下降{\hypersetup{linkcolor=white}\footnotemark}
+				\STATE 计算实际的$Q$值，即$y_{j}$\footnotemark[2]
+				\STATE 对损失 $L(\theta)=\left(y_{i}-Q\left(s_{i}, a_{i} ; \theta\right)\right)^{2}$关于参数$\theta$做随机梯度下降\footnotemark[3]
 			\ENDFOR
-			\STATE 每$C$个回合复制参数$\hat{Q}\leftarrow Q${\hypersetup{linkcolor=white}\footnotemark}
+			\STATE 每$C$个回合复制参数$\hat{Q}\leftarrow Q$\footnotemark[4]]
 		\ENDFOR
 	\end{algorithmic}
 \end{algorithm}
@@ -121,7 +125,46 @@
 \footnotetext[3]{$\theta_i \leftarrow \theta_i - \lambda \nabla_{\theta_{i}} L_{i}\left(\theta_{i}\right)$}
 \footnotetext[4]{此处也可像原论文中放到小循环中改成每$C$步，但没有每$C$个回合稳定}
 \clearpage
+\section{Policy Gradient算法}
+\begin{algorithm}[H] % [H]固定位置
+    \floatname{algorithm}{{REINFORCE算法：Monte-Carlo Policy Gradient}\footnotemark[1]} 
+	\renewcommand{\thealgorithm}{} % 去掉算法标号
+	\caption{} 
+	\begin{algorithmic}[1] % [1]显示步数
+		\STATE 初始化策略参数$\boldsymbol{\theta} \in \mathbb{R}^{d^{\prime}}($ e.g., to $\mathbf{0})$
+		\FOR {回合数 = $1,M$}
+			\STATE 根据策略$\pi(\cdot \mid \cdot, \boldsymbol{\theta})$采样一个(或几个)回合的transition
+			\FOR {时步 = $1,t$}
+				\STATE 计算回报$G \leftarrow \sum_{k=t+1}^{T} \gamma^{k-t-1} R_{k}$
+				\STATE 更新策略$\boldsymbol{\theta} \leftarrow {\boldsymbol{\theta}+\alpha \gamma^{t}} G \nabla \ln \pi\left(A_{t} \mid S_{t}, \boldsymbol{\theta}\right)$
+			\ENDFOR
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+\footnotetext[1]{Reinforcement Learning: An Introduction}
+\clearpage
+\section{Advantage Actor Critic算法}
+\begin{algorithm}[H] % [H]固定位置
+    \floatname{algorithm}{{Q Actor Critic算法}} 
+	\renewcommand{\thealgorithm}{} % 去掉算法标号
+	\caption{} 
+	\begin{algorithmic}[1] % [1]显示步数
+		\STATE 初始化Actor参数$\theta$和Critic参数$w$
+		\FOR {回合数 = $1,M$}
+			\STATE 根据策略$\pi_{\theta}(a|s)$采样一个(或几个)回合的transition
+			\STATE  {\bfseries 更新Critic参数\footnotemark[1]}
+			\FOR {时步 = $t+1,1$}
+				\STATE 计算Advantage，即$ \delta_t = r_t + \gamma Q_w(s_{t+1},a_{t+1})-Q_w(s_t,a_t)$
+				\STATE $w \leftarrow w+\alpha_{w} \delta_{t} \nabla_{w} Q_w(s_t,a_t)$
+				\STATE $a_t \leftarrow a_{t+1}$,$s_t \leftarrow s_{t+1}$
+			\ENDFOR
+			\STATE 更新Actor参数$\theta \leftarrow \theta+\alpha_{\theta} Q_{w}(s, a) \nabla_{\theta} \log \pi_{\theta}(a \mid s)$
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+\footnotetext[1]{这里结合TD error的特性按照从$t+1$到$1$计算法Advantage更方便}
 
+\clearpage
 \section{SoftQ算法}
 \begin{algorithm}[H]
     \floatname{algorithm}{{SoftQ算法}}  

@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2020-11-22 23:27:44
 LastEditor: John
-LastEditTime: 2022-08-22 17:35:34
+LastEditTime: 2022-08-27 13:45:26
 Discription: 
 Environment: 
 '''
@@ -19,20 +19,23 @@ import numpy as np
         
 class PolicyGradient:
     
-    def __init__(self, n_states,model,memory,cfg):
-        self.gamma = cfg.gamma
-        self.device = torch.device(cfg.device) 
+    def __init__(self, model,memory,cfg):
+        self.gamma = cfg['gamma']
+        self.device = torch.device(cfg['device']) 
         self.memory = memory
         self.policy_net = model.to(self.device)
-        self.optimizer = torch.optim.RMSprop(self.policy_net.parameters(), lr=cfg.lr)
+        self.optimizer = torch.optim.RMSprop(self.policy_net.parameters(), lr=cfg['lr'])
 
     def sample_action(self,state):
 
         state = torch.from_numpy(state).float()
         state = Variable(state)
         probs = self.policy_net(state)
+        print("probs")
+        print(probs)
         m = Bernoulli(probs) # 伯努利分布
         action = m.sample()
+        
         action = action.data.numpy().astype(int)[0] # 转为标量
         return action
     def predict_action(self,state):

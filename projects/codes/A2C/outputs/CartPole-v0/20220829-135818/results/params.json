@@ -1,0 +1,19 @@
+{
+    "algo_name": "A2C",
+    "env_name": "CartPole-v0",
+    "train_eps": 2000,
+    "test_eps": 20,
+    "ep_max_steps": 100000,
+    "gamma": 0.99,
+    "lr": 0.0003,
+    "actor_hidden_dim": 256,
+    "critic_hidden_dim": 256,
+    "device": "cpu",
+    "seed": 10,
+    "show_fig": false,
+    "save_fig": true,
+    "result_path": "/Users/jj/Desktop/rl-tutorials/codes/A2C/outputs/CartPole-v0/20220829-135818/results/",
+    "model_path": "/Users/jj/Desktop/rl-tutorials/codes/A2C/outputs/CartPole-v0/20220829-135818/models/",
+    "n_states": 4,
+    "n_actions": 2
+}
