@@ -7,8 +7,8 @@
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js"></script>
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css"> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js"></script> -->
   <!-- <link rel="stylesheet" href="//unpkg.com/docsify@4.7.0/lib/themes/vue.css"> -->
   <style>
     .katex-display > .katex {
@@ -30,9 +30,9 @@
         previousText:'上一篇',
         nextText:'下一篇',
       },
-      markdown: {
-        latexRender: katex.renderToString.bind(katex)
-      },
+      // markdown: {
+      //   latexRender: katex.renderToString.bind(katex)
+      // },
       search:{
         placeholder:'搜索',
         noData:'找不到结果',
@@ -70,29 +70,15 @@
     });
   </script> -->
   
-  <!-- <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script> -->
-
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      extensions: ["tex2jax.js"],
-      jax: ["input/TeX", "output/HTML-CSS"],
-      tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-        processEscapes: true,
-        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"]
-      },
-      "HTML-CSS": { fonts: ["TeX"] }
-    });
-  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 
   <!-- or <script src="//cdn.jsdelivr.net/gh/upupming/docsify-katex/dist/docsify-katex.js"></script> -->
 
   <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"> -->
-  <!-- <link
+  <link
     rel="stylesheet"
     href="//cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-  /> -->
+  />
   
   <!-- Put them above docsify.min.js -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
