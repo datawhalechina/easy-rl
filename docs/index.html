@@ -52,15 +52,23 @@
             return content.replace(/..\/img/g, "img");
           })
 
+          // hook.doneEach(function () {
+          //   window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')]);
+          // })
           hook.doneEach(function () {
-            window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')]);
+          // 每次路由切换时数据全部加载完成后调用，没有参数。
+          // ...
+          if (typeof MathJax !== 'undefined') {
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub])
+          }
           })
         }
       ],
     }
   </script>
+
   <!-- 公式 -->
-  <!-- <script type="text/x-mathjax-config">
+  <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       extensions: ["tex2jax.js"],
       jax: ["input/TeX", "output/HTML-CSS"],
@@ -72,22 +80,7 @@
       },
       "HTML-CSS": { fonts: ["TeX"] }
     });
-  </script> -->
-
-
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
-        inlineMath: [['$','$'], ['\\(','\\)']],
-        processEscapes: true
-      },
-      }
-    });
   </script>
-
-
-
 
   <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 
