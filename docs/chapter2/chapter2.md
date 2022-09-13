@@ -71,7 +71,6 @@ $$
 **回报（return）**可以定义为奖励的逐步叠加，假设时刻$t$后的奖励序列为$r_{t+1},r_{t+2},r_{t+3},\cdots$，则回报为
 $$
   G_{t}=r_{t+1}+\gamma r_{t+2}+\gamma^{2} r_{t+3}+\gamma^{3} r_{t+4}+\ldots+\gamma^{T-t-1} r_{T}
-  
 $$
 其中，$T$是最终时刻，$\gamma$ 是折扣因子，越往后得到的奖励，折扣越多。这说明我们更希望得到现有的奖励，对未来的奖励要打折扣。当我们有了回报之后，就可以定义状态的价值了，就是**状态价值函数（state-value function）**。对于马尔可夫奖励过程，状态价值函数被定义成回报的期望，即
 $$
@@ -116,7 +115,6 @@ $$
 但是这里我们采取了另外一种计算方法，从价值函数里面推导出**贝尔曼方程（Bellman equation）**：
 $$
   V(s)=\underbrace{R(s)}_{\text {即时奖励}}+\underbrace{\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s\right) V\left(s^{\prime}\right)}_{\text {未来奖励的折扣总和}}
-  
 $$
 其中，
 * $s'$ 可以看成未来的所有状态，
@@ -131,7 +129,6 @@ $$
 在推导贝尔曼方程之前，我们先仿照**全期望公式（law of total expectation）**的证明过程来证明：
 $$
   \mathbb{E}[V(s_{t+1})|s_t]=\mathbb{E}[\mathbb{E}[G_{t+1}|s_{t+1}]|s_t]=\mathbb{E}[G_{t+1}|s_t]
-  
 $$
 
 
@@ -139,7 +136,6 @@ $$
 如果 $A_i$ 是样本空间的有限或可数的划分（partition），则全期望公式可定义为
 $$
   \mathbb{E}[X]=\sum_{i} \mathbb{E}\left[X \mid A_{i}\right] p\left(A_{i}\right)
-  
 $$
 
 
@@ -181,7 +177,6 @@ $$
 贝尔曼方程的推导过程如下：
 
 $$
-  
   \begin{aligned}
     V(s)&=\mathbb{E}\left[G_{t} \mid s_{t}=s\right]\\
     &=\mathbb{E}\left[r_{t+1}+\gamma r_{t+2}+\gamma^{2} r_{t+3}+\ldots \mid s_{t}=s\right]  \\
@@ -200,7 +195,6 @@ $$
 贝尔曼方程定义了状态之间的迭代关系，即
 $$
   V(s)=R(s)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s\right) V\left(s^{\prime}\right)
-  
 $$
 
 假设有一个马尔可夫链如图 2.5a 所示，贝尔曼方程描述的就是当前状态到未来状态的一个转移。如图 2.5b 所示，假设我们当前在 $s_1$， 那么它只可能去到3个未来的状态：有 0.1 的概率留在它当前位置，有 0.2 的概率去到 $s_2$ 状态，有 0.7 的概率去到 $s_4$ 状态。所以我们把状态转移概率乘它未来的状态的价值，再加上它的即时奖励（immediate reward），就会得到它当前状态的价值。贝尔曼方程定义的就是当前状态与未来状态的迭代关系。
@@ -303,7 +297,6 @@ $$
 ## 2.3 马尔可夫决策过程 
 相对于马尔可夫奖励过程，马尔可夫决策过程多了决策（决策是指动作），其他的定义与马尔可夫奖励过程的是类似的。此外，状态转移也多了一个条件，变成了$p\left(s_{t+1}=s^{\prime} \mid s_{t}=s,a_{t}=a\right)$。未来的状态不仅依赖于当前的状态，也依赖于在当前状态智能体采取的动作。马尔可夫决策过程满足条件：
 $$
-  
   p\left(s_{t+1} \mid s_{t}, a_{t}\right) =p\left(s_{t+1} \mid h_{t}, a_{t}\right)   
 $$
 
@@ -315,20 +308,17 @@ $$
 策略定义了在某一个状态应该采取什么样的动作。知道当前状态后，我们可以把当前状态代入策略函数来得到一个概率，即 
 $$
   \pi(a \mid s)=p\left(a_{t}=a \mid s_{t}=s\right)
-  
 $$
 概率代表在所有可能的动作里面怎样采取行动，比如可能有 0.7 的概率往左走，有 0.3 的概率往右走，这是一个概率的表示。另外策略也可能是确定的，它有可能直接输出一个值，或者直接告诉我们当前应该采取什么样的动作，而不是一个动作的概率。假设概率函数是平稳的（stationary），不同时间点，我们采取的动作其实都是在对策略函数进行采样。
 
 已知马尔可夫决策过程和策略 $\pi$，我们可以把马尔可夫决策过程转换成马尔可夫奖励过程。在马尔可夫决策过程里面，状态转移函数 $P(s'|s,a)$ 基于它当前的状态以及它当前的动作。因为我们现在已知策略函数，也就是已知在每一个状态下，可能采取的动作的概率，所以我们就可以直接把动作进行加和，去掉 $a$，这样我们就可以得到对于马尔可夫奖励过程的转移，这里就没有动作，即
 $$
   P_{\pi}\left(s^{\prime} \mid s\right)=\sum_{a \in A} \pi(a \mid s) p\left(s^{\prime} \mid s, a\right)
-  
 $$
 
 对于奖励函数，我们也可以把动作去掉，这样就会得到类似于马尔可夫奖励过程的奖励函数，即
 $$
   r_{\pi}(s)=\sum_{a \in A} \pi(a \mid s) R(s, a)
-  
 $$
 
 ### 2.3.2 马尔可夫决策过程和马尔可夫过程/马尔可夫奖励过程的区别 
@@ -345,14 +335,12 @@ $$
 马尔可夫决策过程中的价值函数可定义为
 $$
   V_{\pi}(s)=\mathbb{E}_{\pi}\left[G_{t} \mid s_{t}=s\right] \tag{2.3}
-  
 $$
 其中，期望基于我们采取的策略。当策略决定后，我们通过对策略进行采样来得到一个期望，计算出它的价值函数。
 
 这里我们另外引入了一个 **Q 函数（Q-function）**。Q 函数也被称为**动作价值函数（action-value function）**。Q 函数定义的是在某一个状态采取某一个动作，它有可能得到的回报的一个期望，即
 $$
   Q_{\pi}(s, a)=\mathbb{E}_{\pi}\left[G_{t} \mid s_{t}=s, a_{t}=a\right] \tag{2.4}
-  
 $$
 这里的期望其实也是基于策略函数的。所以我们需要对策略函数进行一个加和，然后得到它的价值。
 对 Q 函数中的动作进行加和，就可以得到价值函数：
@@ -371,7 +359,6 @@ $$
     &=R(s,a)+\gamma \mathbb{E}[V(s_{t+1})|s_{t}=s,a_{t}=a]\\
     &=R(s,a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s,a\right) V\left(s^{\prime}\right)
     \end{aligned}
-  
 $$
 
 ### 2.3.4 贝尔曼期望方程 
@@ -380,13 +367,11 @@ $$
 通过对状态价值函数进行分解，我们就可以得到一个类似于之前马尔可夫奖励过程的贝尔曼方程————**贝尔曼期望方程（Bellman expectation equation）**：
 $$
   V_{\pi}(s)=\mathbb{E}_{\pi}\left[r_{t+1}+\gamma V_{\pi}\left(s_{t+1}\right) \mid s_{t}=s\right] \tag{2.6} 
-  
 $$
 
 对于 Q 函数，我们也可以做类似的分解，得到 Q 函数的贝尔曼期望方程：
 $$
   Q_{\pi}(s, a)=\mathbb{E}_{\pi}\left[r_{t+1}+\gamma Q_{\pi}\left(s_{t+1}, a_{t+1}\right) \mid s_{t}=s, a_{t}=a\right] \tag{2.7}
-  
 $$
 贝尔曼期望方程定义了当前状态与未来状态之间的关联。
 
@@ -394,13 +379,11 @@ $$
 
 $$
   V_{\pi}(s)=\sum_{a \in A} \pi(a \mid s) Q_{\pi}(s, a) \tag{2.8} 
-  
 $$
 
 接着，我们再给出式(2.9)：
 $$
   Q_{\pi}(s, a)=R(s,a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V_{\pi}\left(s^{\prime}\right) \tag{2.9} 
-  
 $$
 
 式(2.8)和式(2.9)代表状态价值函数与 Q 函数之间的关联。
@@ -408,7 +391,6 @@ $$
 我们把式(2.9)代入式(2.8)可得
 $$
   V_{\pi}(s)=\sum_{a \in A} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V_{\pi}\left(s^{\prime}\right)\right) \tag{2.10} 
-  
 $$
 
 式(2.10)代表当前状态的价值与未来状态价值之间的关联。
@@ -416,7 +398,6 @@ $$
 我们把式(2.8)代入式(2.9)可得
 $$
   Q_{\pi}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) \sum_{a^{\prime} \in A} \pi\left(a^{\prime} \mid s^{\prime}\right) Q_{\pi}\left(s^{\prime}, a^{\prime}\right) \tag{2.11} 
-  
 $$
 
 式(2.11)代表当前时刻的 Q 函数与未来时刻的 Q 函数之间的关联。
@@ -446,21 +427,18 @@ $$
 图 2.11 所示为状态价值函数的计算分解，图 2.11b 的计算公式为
 $$
   V_{\pi}(s)=\sum_{a \in A} \pi(a \mid s) Q_{\pi}(s, a) \tag{2.13} 
-  
 $$
 
 图 2.11b 给出了状态价值函数与 Q 函数之间的关系。图 2.11c 计算 Q 函数为
 
 $$
   Q_{\pi}(s,a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V_{\pi}\left(s^{\prime}\right) \tag{2.14} 
-  
 $$
 
 
 我们将式(2.14)代入式(2.13)可得
 $$
   V_{\pi}(s)=\sum_{a \in A} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V_{\pi}\left(s^{\prime}\right)\right)
-  
 $$
 
 所以备份图定义了未来下一时刻的状态价值函数与上一时刻的状态价值函数之间的关联。
@@ -531,7 +509,6 @@ $$
 我们可以直接通过贝尔曼方程来得到价值函数：
 $$
   V^{k}_{\pi}(s)=r(s, \pi(s))+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, \pi(s)\right) V^{k-1}_{\pi}\left(s^{\prime}\right)
-  
 $$
 其中，$k$ 是迭代次数。我们可以不停地迭代，最后价值函数会收敛。收敛之后，价值函数的值就是每一个状态的价值。
 
@@ -599,7 +576,6 @@ $$
 策略评估的核心思想就是把如式(2.18)所示的贝尔曼期望备份反复迭代，然后得到一个收敛的价值函数的值。因为已经给定了策略函数，所以我们可以直接把它简化成一个马尔可夫奖励过程的表达形式，相当于把 $a$ 去掉，即
 $$
   V_{t+1}(s)=r_{\pi}(s)+\gamma P_{\pi}\left(s^{\prime} \mid s\right) V_{t}\left(s^{\prime}\right) \tag{2.19}
-  
 $$
 这样迭代的式子中就只有价值函数与状态转移函数了。通过迭代式(2.19)，我们也可以得到每个状态的价值。因为不管是在马尔可夫奖励过程，还是在马尔可夫决策过程中，价值函数$V$包含的变量都是只与状态有关，其表示智能体进入某一个状态，未来可能得到多大的价值。比如现在的环境是一个小网格世界（small gridworld），智能体的目的是从某一个状态开始行走，然后到达终止状态，它的终止状态就是左上角与右下角（如图 2.18（右）所示的阴影方块）。小网格世界总共有 14 个非终止状态：$1,\cdots,14$。我们把它的每个位置用一个状态来表示。如图 2.18（左）所示，在小网格世界中，智能体的策略函数直接给定了，它在每一个状态都是随机行走，即在每一个状态都是上、下、左、右行走，采取均匀的随机策略（uniform random policy），$\pi(\mathrm{l} \mid .)=\pi(\mathrm{r} \mid .)=\pi(\mathrm{u} \mid .)=\pi(\mathrm{d} \mid .)=0.25$。 它在边界状态的时候，比如在第4号状态的时候往左走，依然留在第4号状态。我们对其加了限制，这个限制就是出边界的动作不会改变状态，相应概率设置为1，如 $p(7\mid7,\mathrm{r})=1$。 
 我们给出的奖励函数就是智能体每走一步，就会得到 $-$1 的奖励，也就是到达终止状态之前每走一步获得的奖励都是 $-$1，所以智能体需要尽快地到达终止状态。
@@ -751,14 +727,12 @@ $$
     Q^{*}(s, a)&=R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V^{*}\left(s^{\prime}\right) \\
     &=R(s,a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) \max _{a} Q^{*}(s', a')
     \end{aligned}
-  
 $$
 
 我们就可以得到 Q 函数之间的转移。Q学习是基于贝尔曼最优方程来进行的，当取Q函数值最大的状态（ $\underset{a'}{\max} Q^{*}\left(s^{\prime}, a^{\prime}\right)$ ）的时候可得
 
 $$
   Q^{*}(s, a)=R(s, a)+\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) \max _{a^{\prime}} Q^{*}\left(s^{\prime}, a^{\prime}\right)
-  
 $$
 我们会在第三章介绍Q学习的具体内容。我们还可以把式(2.21)代入式(2.20)可得
 
@@ -772,7 +746,6 @@ $$
     &=\max_{a} R(s,a) + \max_a\gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V^{*}\left(s^{\prime}\right)\\
     &=\max_{a} \left(R(s,a) + \gamma \sum_{s^{\prime} \in S} p\left(s^{\prime} \mid s, a\right) V^{*}\left(s^{\prime}\right)\right)
     \end{aligned}
-  
 $$
 
 我们就可以得到状态价值函数的转移。
