@@ -481,6 +481,7 @@ $$
 <div align=center>
 <img width="550" src="../img/ch3/model_free_control_7.png"/>
 </div>
+
 $\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad$ 图 3.26 基于 $\varepsilon$-贪心探索的蒙特卡洛方法
 
 与蒙特卡洛方法相比，时序差分方法有如下几个优势：低方差，能够在线学习，能够从不完整的序列中学习。
