@@ -244,7 +244,6 @@ $$
 
 分配合适的分数这一技巧可以表达为
 $$
-    
     \nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(\sum_{t^{\prime}=t}^{T_{n}} r_{t^{\prime}}^{n}-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 原来的权重是整场游戏的奖励的总和，现在改成从某个时刻 $t$ 开始，假设这个动作是在 $t$ 开始执行的，从 $t$ 一直到游戏结束所有奖励的总和才能代表这个动作的好坏。 

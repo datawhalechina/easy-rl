@@ -199,7 +199,6 @@ $$
 
 我们再来看一下动态规划方法和蒙特卡洛方法的差异。动态规划也是常用的估计价值函数的方法。在动态规划方法里面，我们使用了自举的思想。自举就是我们基于之前估计的量来估计一个量。此外，动态规划方法使用贝尔曼期望备份（Bellman expectation backup），通过上一时刻的值 $V_{i-1}(s')$ 来更新当前时刻的值 $V_i(s)$ ，即
 $$
-  
 V_{i}(s) \leftarrow \sum_{a \in A} \pi(a \mid s)\left(R(s, a)+\gamma \sum_{s^{\prime} \in S} P\left(s^{\prime} \mid s, a\right) V_{i-1}\left(s^{\prime}\right)\right)
 $$
 将其不停迭代，最后可以收敛。如图 3.12 所示，贝尔曼期望备份有两层加和，即内部加和和外部加和，计算两次期望，得到一个更新。
