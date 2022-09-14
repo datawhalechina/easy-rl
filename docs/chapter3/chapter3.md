@@ -357,7 +357,6 @@ $$
 
 $$
 V\left(s_{t}\right) \leftarrow V\left(s_{t}\right)+\alpha\left(G_{t}^{n}-V\left(s_{t}\right)\right)
-	
 $$
 
 ### 3.3.3 动态规划方法、蒙特卡洛方法以及时序差分方法的自举和采样 
@@ -382,7 +381,6 @@ $$
 
 如图 3.20 所示，蒙特卡洛方法在当前状态下，采取一条支路，在这条路径上进行更新，更新这条路径上的所有状态，即
 $$
-	
 V\left(s_{t}\right) \leftarrow V\left(s_{t}\right)+\alpha\left(G_{t}-V\left(s_{t}\right)\right)
 $$
 

@@ -1,4 +1,4 @@
-# 第 9 章演员-评论员算法
+# 第9章演员-评论员算法
 在REINFORCE算法中，每次需要根据一个策略采集一条完整的轨迹，并计算这条轨迹上的回报。这种采样方式的方差比较大，学习效率也比较低。我们可以借鉴时序差分学习的思想，使用动态规划方法来提高采样效率，即从状态 $s$ 开始的总回报可以通过当前动作的即时奖励 $r(s,a,s')$ 和下一个状态 $s'$ 的值函数来近似估计。
 
 **演员-评论员算法**是一种结合**策略梯度**和**时序差分学习**的强化学习方法，其中，演员是指策略函数 $\pi_{\theta}(a|s)$，即学习一个策略以得到尽可能高的回报。评论员是指价值函数 $V_{\pi}(s)$，对当前策略的值函数进行估计，即评估演员的好坏。借助于价值函数，演员-评论员算法可以进行单步参数更新，不需要等到回合结束才进行更新。在演员-评论员算法里面，最知名的算法就是异步优势演员-评论员算法。如果我们去掉异步，则为**优势演员-评论员（advantage actor-critic，A2C）算法**。A2C算法又被译作优势演员-评论员算法。如果我们加了异步，变成异步优势演员-评论员算法。
@@ -17,7 +17,7 @@ $$
 
 
  <div align=center>
-<img width="550" src="../img/ch9/9.1.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/5706e9cbb7554d04a70614ea0e79372727abad72c9ae40dba1190b958fb8900e"/>
 </div>
  <div align=center>图 9.1 策略梯度回顾</div>
 
@@ -33,7 +33,7 @@ A：这里就需要引入基于价值的（value-based）的方法。基于价�
 
 
  <div align=center>
-<img width="550" src="../img/ch9/9.2.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/393de13e995546ab9d00c0247eff6e78e9dcd58bb97d4430a8baed2d9081fecf"/>
 </div>
  <div align=center>图 9.2 深度Q网络</div>
 
@@ -50,7 +50,7 @@ $V_{\pi_{\theta}}\left(s_{t}^{n}\right)$ 是 $Q_{\pi_{\theta}}\left(s_{t}^{n}, a
 
 
  <div align=center>
-<img width="550" src="../img/ch9/9.3.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/d02364e1abb64a3db51e2e6cbef2322f4497a4eda56d47a3911a0ba517461800"/>
 </div>
  <div align=center>图 9.3 优势演员-评论员算法</div>
 
@@ -84,7 +84,7 @@ $$
 
 
  <div align=center>
-<img width="550" src="../img/ch9/9.5.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/a6096d7cce50414ebc574bccf88630900f7afcf0212e4f96bf675b817e7ec252"/>
 </div>
  <div align=center>图 9.4 优势评论员-评论员算法流程</div>
 
@@ -94,7 +94,7 @@ $$
 图 9.5 所示为离散动作的例子，连续动作的情况也是一样的。输入一个状态，网络决定现在要采取哪一个动作。演员网络和评论员网络的输入都是 $s$，所以它们前面几个层（layer）是可以共享的。
 
  <div align=center>
-<img width="550" src="../img/ch9/9.6.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/d39a829f7e844f03aceb4243c50cb5822811cd85180c4662a77b715fde2f620f"/>
 </div>
  <div align=center>图 9.5 离散动作的例子</div>
 
@@ -108,7 +108,7 @@ $$
 
 
    <div align=center>
-<img width="550" src="../img/ch9/9.7.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/496461ab4b19443197b24664ce9382aebc0f59a7f14442d4b4e841aaa4cf9531"/>
 </div>
    <div align=center>图 9.6 影分身例子</div>
 
@@ -122,7 +122,7 @@ $$
 
 
 <div align=center>
-<img width="550" src="../img/ch9/9.8.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/c36501bcb3ad49c1be3c0486665f6d096e67c00b6d4142a9a00231ae8f299c56"/>
 </div>
 <div align=center>图 9.7 异步优势演员-评论员算法的运作流程</div>
 
@@ -143,7 +143,7 @@ $$
 
 
  <div align=center>
-<img width="550" src="../img/ch9/9.10.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/a782c1f5f1204beaa8f1083d25e8fc097d79a15a179d486994827d9b994fa546"/>
 </div>
  <div align=center>图 9.8 路径衍生策略梯度</div>
 
@@ -152,7 +152,7 @@ $$
 我们来看一下路径衍生策略梯度算法。如图 9.9 所示，一开始会有一个策略 $\pi$，它与环境交互并估计 Q 值。估计完 Q 值以后，我们就把 Q 值固定，只去学习一个演员。假设这个 Q 值估得很准，它知道在某一个状态采取什么样的动作会得到很大的Q值。接下来就学习这个演员，演员在给定 $s$ 的时候，采取了 $a$，可以让最后Q函数算出来的值越大越好。我们用准则（criteria）去更新策略 $\pi$，用新的 $\pi$ 与环境交互，再估计 Q值，得到新的 $\pi$ 去最大化 Q值的输出。深度Q网络 里面的技巧，在这里也几乎都用得上，比如经验回放、探索等技巧。
 
  <div align=center>
-<img width="550" src="../img/ch9/9.11.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/529577a994a6499698a0e51c2ee470836b5d4d2ffccf4e40b4d760babe331944"/>
 </div>
  <div align=center>图 9.9 路径衍生策略梯度算法</div>
 
@@ -160,7 +160,7 @@ $$
 图 9.10 所示为原来深度Q网络的算法。我们有一个Q函数 $Q$ 和另外一个目标Q函数 $\hat{Q}$。每一次训练，在每一个回合的每一个时间点，我们会看到一个状态 $s_t$，会采取某一个动作 $a_{t}$。至于采取哪一个动作是由Q函数所决定的。如果是离散动作，我们看哪一个动作 $a$ 可以让 Q 值最大，就采取哪一个动作。当然，我们需要加一些探索，这样表现才会好。我们会得到奖励 $r_t$，进入新的状态 $s_{t+1}$，然后把 $(s_t$,$a_{t}$,$r_t$,$s_{t+1})$ 放到回放缓冲区里。接下来，我们会从回放缓冲区中采样一个批量的数据，在这个批量数据里面，可能某一笔数据是 $(s_i, a_i, r_i, s_{i+1})$。接下来我们会算一个目标 $y$ ，$y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right)$。怎么学习 Q 呢？我们希望 $Q(s_i,a_i)$ 与 $y$ 越接近越好，这是一个回归问题，最后每 $C$ 步，要用 $Q$ 替代 $\hat{Q}$ 。
 
  <div align=center>
-<img width="550" src="../img/ch9/9.12.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/37f81d6827aa4996884c822f236643255da2f11fa724491bb1cd272a80e7c318"/>
 </div>
  <div align=center>图 9.10 深度Q网络算法</div>
 
@@ -182,7 +182,7 @@ $$
 
 
  <div align=center>
-<img width="550" src="../img/ch9/9.13.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/f3bbec118f5f4e0bb2774cff3111a6c44aae3e670f51406296e6884d92913bcf"/>
 </div>
  <div align=center>图 9.11 从深度Q网络到路径衍生策略梯度</div>
 
@@ -196,7 +196,7 @@ $$
 <div align=center>表 9.1 与生成对抗网络的联系</div>
 
  <div align=center>
-<img width="550" src="../img/ch9/gan_ac.png"/>
+<img width="550" src="https://ai-studio-static-online.cdn.bcebos.com/818c1c2e603341f881dd57fb59e109c81702722156be4e6481b276b894c51290"/>
 </div>
 
 

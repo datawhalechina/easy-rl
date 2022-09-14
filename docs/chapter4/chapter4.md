@@ -98,7 +98,6 @@ $$
 
 如式(4.2)所示，我们对 $\tau$ 进行求和，把 $R(\tau)$  和  $\log p_{\theta}(\tau)$ 这两项使用 $p_{\theta}(\tau)$ 进行加权， 既然使用 $p_{\theta}(\tau)$ 进行加权 ，它们就可以被写成期望的形式。也就是我们从 $p_{\theta}(\tau)$ 这个分布里面采样 $\tau$ ， 去计算 $R(\tau)$ 乘 $\nabla\log p_{\theta}(\tau)$，对所有可能的 $\tau$ 进行求和，就是期望的值（expected value）。
 $$
-    
     \begin{aligned}
         \nabla \bar{R}_{\theta}&=\sum_{\tau} R(\tau) \nabla p_{\theta}(\tau)\\&=\sum_{\tau} R(\tau) p_{\theta}(\tau) \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)} \\&=
         \sum_{\tau} R(\tau) p_{\theta}(\tau) \nabla \log p_{\theta}(\tau) \\
@@ -114,7 +113,6 @@ $$
 $$
 $\nabla \log p_{\theta}(\tau)$ 的具体计算过程可写为
 $$
-    
     \begin{aligned}
         \nabla \log p_{\theta}(\tau) &= \nabla \left(\log p(s_1)+\sum_{t=1}^{T}\log p_{\theta}(a_t|s_t)+ \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t) \right) \\
         &= \nabla \log p(s_1)+ \nabla \sum_{t=1}^{T}\log p_{\theta}(a_t|s_t)+  \nabla \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t) \\
@@ -125,7 +123,6 @@ $$
 注意， $p(s_1)$ 和 $p(s_{t+1}|s_t,a_t)$ 来自环境，$p_\theta(a_t|s_t)$ 来自智能体。$p(s_1)$ 和 $p(s_{t+1}|s_t,a_t)$ 由环境决定，与 $\theta$ 无关，因此 $\nabla \log p(s_1)=0$ ，$\nabla \sum_{t=1}^{T}\log p(s_{t+1}|s_t,a_t)=0$。
 
 $$
-    
     \begin{aligned}
         \nabla \bar{R}_{\theta}&=\sum_{\tau} R(\tau) \nabla p_{\theta}(\tau)\\&=\sum_{\tau} R(\tau) p_{\theta}(\tau) \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)} \\&=
         \sum_{\tau} R(\tau) p_{\theta}(\tau) \nabla \log p_{\theta}(\tau) \\
@@ -169,13 +166,11 @@ $$
     
 我们在解决分类问题的时候，目标函数就是最大化或最小化的对象，因为我们现在是最大化似然（likelihood），所以其实是最大化，我们要最大化
 $$
-    
     \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 
 我们可在 PyTorch 里调用现成的函数来自动计算损失函数，并且把梯度计算出来。这是一般的分类问题，强化学习与分类问题唯一不同的地方是损失前面乘一个权重————整场游戏得到的总奖励 $R(\tau)$，而不是在状态$s$采取动作$a$的时候得到的奖励，即
 $$
-    
     \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} R\left(\tau^{n}\right)  \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right) \tag{4.5}
 $$
 
@@ -220,7 +215,6 @@ $$
 
 为了解决奖励总是正的的问题，我们可以把奖励减 $b$，即
 $$
-    
     \nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(R\left(\tau^{n}\right)-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 
@@ -257,7 +251,6 @@ $$
 
 接下来更进一步，我们把未来的奖励做一个折扣，即
 $$
-    
     \nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}}\left(\sum_{t^{\prime}=t}^{T_{n}} \gamma^{t^{\prime}-t} r_{t^{\prime}}^{n}-b\right) \nabla \log p_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 为什么要把未来的奖励做一个折扣呢？因为虽然在某一时刻，执行某一个动作，会影响接下来所有的结果（有可能在某一时刻执行的动作，接下来得到的奖励都是这个动作的功劳），但在一般的情况下，时间拖得越长，该动作的影响力就越小。 比如在第2个时刻执行某一个动作， 那在第3个时刻得到的奖励可能是在第2个时刻执行某个动作的功劳，但是在第 100 个时刻之后又得到奖励，那可能就不是在第2个时刻执行某一个动作的功劳。实际上，我们会在$R$前面乘一个折扣因子 $\gamma$（$\gamma \in [0,1] $ ，一般会设为 0.9 或 0.99），如果 $\gamma = 0$，这表示我们只关心即时奖励；如果$\gamma = 1$，这表示未来奖励等同于即时奖励。时刻 $t'$ 越大，它前面就多次乘 $\gamma$，就代表现在在某一个状态 $s_t$， 执行某一个动作 $a_t$ 的时候，它真正的分数是执行这个动作之后所有奖励的总和，而且还要乘 $\gamma$。例如，假设游戏有两个回合，我们在游戏的第二回合的某一个 $s_t$ 执行 $a_t$ 得到 +1 分，在 $s_{t+1}$ 执行 $a_{t+1}$ 得到 +3 分，在 $s_{t+2}$ 执行 $a_{t+2}$ 得到 $-$5 分，第二回合结束。$a_t$ 的分数应该是
@@ -284,13 +277,11 @@ $$
 我们介绍一下策略梯度中最简单的也是最经典的一个算法**REINFORCE**。REINFORCE 用的是回合更新的方式，它在代码上的处理上是先获取每个步骤的奖励，然后计算每个步骤的未来总奖励 $G_t$，将每个 $G_t$ 代入
 
 $$
-    
     \nabla \bar{R}_{\theta} \approx \frac{1}{N} \sum_{n=1}^{N} \sum_{t=1}^{T_{n}} G_{t}^{n} \nabla \log \pi_{\theta}\left(a_{t}^{n} \mid s_{t}^{n}\right)
 $$
 
 优化每一个动作的输出。所以我们在编写代码时会设计一个函数，这个函数的输入是每个步骤获取的奖励，输出是每一个步骤的未来总奖励。因为未来总奖励可写为
 $$
-    
     \begin{aligned}
         G_{t} &=\sum_{k=t+1}^{T} \gamma^{k-t-1} r_{k} \\
         &=r_{t+1}+\gamma G_{t+1}
