@@ -10,9 +10,6 @@
   <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css"> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js"></script> -->
   <!-- <link rel="stylesheet" href="//unpkg.com/docsify@4.7.0/lib/themes/vue.css"> -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js"></script>
-
   <style>
     .katex-display > .katex {
       max-width: 100%;
@@ -33,10 +30,9 @@
         previousText:'上一篇',
         nextText:'下一篇',
       },
-      markdown: {
-        latexRender: katex.
-        renderToString.bind(katex)
-      },
+      // markdown: {
+      //   latexRender: katex.renderToString.bind(katex)
+      // },
       search:{
         placeholder:'搜索',
         noData:'找不到结果',
@@ -54,21 +50,13 @@
 
           // hook.doneEach(function () {
           //   window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')]);
-          // })
-          hook.doneEach(function () {
-          // 每次路由切换时数据全部加载完成后调用，没有参数。
-          // ...
-          if (typeof MathJax !== 'undefined') {
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub])
-          }
-          })
+          // }) 
         }
       ],
     }
   </script>
-
   <!-- 公式 -->
-  <script type="text/x-mathjax-config">
+  <!-- <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       extensions: ["tex2jax.js"],
       jax: ["input/TeX", "output/HTML-CSS"],
@@ -80,8 +68,8 @@
       },
       "HTML-CSS": { fonts: ["TeX"] }
     });
-  </script>
-
+  </script> -->
+  
   <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 
   <!-- or <script src="//cdn.jsdelivr.net/gh/upupming/docsify-katex/dist/docsify-katex.js"></script> -->
