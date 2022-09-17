@@ -241,7 +241,9 @@ $$
 </div>
 <div align=center>图 5.4 PPO与其他算法的比较</div>
 
-
+## 参考文献
+* [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#)
+* [百面机器学习](https://book.douban.com/subject/30285146/)
 
 
 
