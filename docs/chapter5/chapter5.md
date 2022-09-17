@@ -1,4 +1,4 @@
-# 第5章 PPO
+# 第5章 PPO 算法
 ## 5.1 从同策略到异策略
 在介绍**近端策略优化（proximal policy optimization，PPO）** 之前，我们先回顾同策略和异策略这两种训练方法的区别。在强化学习里面，要学习的是一个智能体。如果要学习的智能体和与环境交互的智能体是相同的，我们称之为同策略。如果要学习的智能体和与环境交互的智能体不是相同的，我们称之为异策略。
 
@@ -37,7 +37,6 @@ $$
 
 我们可以将 $f(x)$ 和 $f(x) \frac{p(x)}{q(x)}$ 代入方差的公式 $\operatorname{Var}[X]=E\left[X^{2}\right]-(E[X])^{2}$，可得
 $$
-    
     \operatorname{Var}_{x \sim p}[f(x)]=\mathbb{E}_{x \sim p}\left[f(x)^{2}\right]-\left(\mathbb{E}_{x \sim p}[f(x)]\right)^{2}
 $$
 
@@ -98,13 +97,11 @@ $$
 
 于是我们可得
 $$
-    
     \mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} \frac{p_{\theta}\left(s_{t}\right)}{p_{\theta^{\prime}}\left(s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right]
 $$
 
 这里需要做的一件事情是，假设模型是 $\theta$ 的时候，我们看到 $s_t$ 的概率，与模型是 $\theta'$  的时候，我们看到 $s_t$ 的概率是一样的，即 $p_{\theta}(s_t)=p_{\theta'}(s_t)$。因为$p_{\theta}(s_t)$和$p_{\theta'}(s_t)$是一样的，所以我们可得
 $$
-    \label{eq:gradient}
     \mathbb{E}_{\left(s_{t}, a_{t}\right) \sim \pi_{\theta^{\prime}}}\left[\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{\prime}}\left(a_{t} | s_{t}\right)} A^{\theta^{\prime}}\left(s_{t}, a_{t}\right) \nabla \log p_{\theta}\left(a_{t}^{n} | s_{t}^{n}\right)\right] \tag{5.5}  
 $$
 
@@ -222,6 +219,7 @@ $$
 <div align=center>
 <img width="550" src="../img/ch5/5.3.png"/>
 </div>
+
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; 图 5.3 $A$对裁剪函数输出的影响
 
 虽然式(5.8)看起来有点儿复杂，但实现起来是比较简单的，因为式(5.8)想要做的就是希望 $p_{\theta}(a_{t} | s_{t})$ 与 $p_{\theta^k}(a_{t} | s_{t})$比较接近，也就是做示范的模型与实际上学习的模型在优化以后不要差距太大。
@@ -232,7 +230,6 @@ $$
 * 如果 $A < 0$，也就是某一个状态-动作对是不好的，那么我们希望把 $p_{\theta}(a_{t} | s_{t})$ 减小。如果 $p_{\theta}(a_{t} | s_{t})$ 比 $p_{\theta^k}(a_{t} | s_{t})$  还大，那我们就尽量把它减小，减到 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 是 $1-\varepsilon$ 的时候停止，此时不用再减得更小。
 
 这样的好处就是，我们不会让 $p_{\theta}(a_{t} | s_{t})$ 与 $p_{\theta^k}(a_{t} | s_{t})$ 差距太大。要实现这个其实很简单。
-
 
 图 5.4 所示为 PPO 与其他算法的比较。优势演员-评论员和优势演员-评论员+信任区域（trust region）算法是基于演员-评论员的方法。PPO 算法是用紫色线表示，图 5.4 中每张子图表示某一个强化学习的任务，在多数情况中，PPO 都是不错的，即时不是最好的，也是第二好的。
 
