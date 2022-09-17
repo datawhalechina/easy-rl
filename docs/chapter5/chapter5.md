@@ -165,7 +165,7 @@ $$
     J_{\mathrm{PPO}}^{\theta^{k}}(\theta)=J^{\theta^{k}}(\theta)-\beta \mathrm{KL}\left(\theta, \theta^{k}\right) \tag{5.7}
 $$
 
-在 PPO 的论文里面还有一个**自适应KL散度（adaptive KL divergence）**。这里会遇到一个问题就，即$\beta$  要设置为多少。这个问题与正则化一样，正则化前面也要乘一个权重，所以 KL 散度前面也要乘一个权重，但 $\beta$  要设置为多少呢？我们有一个动态调整 $\beta$ 的方法。在这个方法里面，我们先设一个可以接受的 KL 散度的最大值。假设优化完\eqref{eq:ppo1} 以后，KL 散度的值太大，这就代表后面惩罚的项$\beta \mathrm{KL}\left(\theta, \theta^{k}\right)$ 没有发挥作用，我们就把 $\beta$ 增大。另外，我们设一个 KL 散度的最小值。如果优化完\eqref{eq:ppo1} 以后，KL 散度比最小值还要小，就代表后面这一项的效果太强了，我们怕他只优化后一项，使$\theta$ 与 $\theta^k$ 一样，这不是我们想要的，所以我们要减小 $\beta$。$\beta$ 是可以动态调整的，因此我们称之为**自适应KL惩罚（adaptive KL penalty）**。我们可以总结一下自适应KL惩罚：
+在 PPO 的论文里面还有一个**自适应KL散度（adaptive KL divergence）**。这里会遇到一个问题就，即$\beta$  要设置为多少。这个问题与正则化一样，正则化前面也要乘一个权重，所以 KL 散度前面也要乘一个权重，但 $\beta$  要设置为多少呢？我们有一个动态调整 $\beta$ 的方法。在这个方法里面，我们先设一个可以接受的 KL 散度的最大值。假设优化完式(5.7)以后，KL 散度的值太大，这就代表后面惩罚的项$\beta \mathrm{KL}\left(\theta, \theta^{k}\right)$ 没有发挥作用，我们就把 $\beta$ 增大。另外，我们设一个 KL 散度的最小值。如果优化完式(5.7)以后，KL 散度比最小值还要小，就代表后面这一项的效果太强了，我们怕他只优化后一项，使$\theta$ 与 $\theta^k$ 一样，这不是我们想要的，所以我们要减小 $\beta$。$\beta$ 是可以动态调整的，因此我们称之为**自适应KL惩罚（adaptive KL penalty）**。我们可以总结一下自适应KL惩罚：
 * 如果 $\mathrm{KL}(\theta,\theta^k)>\mathrm{KL}_{\max}$，增大 $\beta$；
 * 如果 $\mathrm{KL}(\theta,\theta^k)<\mathrm{KL}_{\min}$，减小 $\beta$。
 
