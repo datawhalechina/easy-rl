@@ -84,7 +84,7 @@ AlphaStar的动作信息主要分为6个部分，如图13.2所示，分别为动
 正如前面介绍的，输出的动作是前后相关联的，如图13.6所示，我们按照顺序一一介绍。
 
 <div align=center>
-<img width="550" src="./img/ch13/13.6.png"/>
+<img width="550" src="../img/ch13/13.6.png"/>
 </div>
 <div align=center>图 13.6 AlphaStar网络结构输出部分</div>
 
@@ -188,7 +188,7 @@ $$
 ### 宏观结果
 
 <div align=center>
-<img width="550" src="./img/ch13/13.7.png"/>
+<img width="550" src="../img/ch13/13.7.png"/>
 </div>
 <div align=center>图 13.7 AlphaStar的实验结果</div>
 
@@ -203,7 +203,7 @@ $$
 AlphaStar的论文中也使用了消融实验，即控制变量法，来进一步分析每一个约束条件对于对战结果的影响。下面举一个特别的例子。
 
 <div align=center>
-<img width="550" src="./img/ch13/13.8.png"/>
+<img width="550" src="../img/ch13/13.8.png"/>
 </div>
 <div align=center>图 13.8 AlphaStar中人类对局数据使用情况</div>
 
