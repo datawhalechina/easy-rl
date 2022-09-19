@@ -15,7 +15,7 @@ AlphaStar是DeepMind与暴雪使用深度强化学习技术实现的计算机与
 AlphaStar将《星际争霸Ⅱ》的环境状态分为4部分，分别为实体（entities）信息、地图（map）信息、玩家数据（player data）信息、游戏统计（game statistics）信息，如图13.1所示。
 
 <div align=center>
-<img width="550" src="img/13.1.png"/>
+<img width="550" src="../img/ch13/13.1.png"/>
 </div>
 <div align=center>图 13.1 环境状态的构成</div>
 
@@ -32,7 +32,7 @@ AlphaStar将《星际争霸Ⅱ》的环境状态分为4部分，分别为实体�
 AlphaStar的动作信息主要分为6个部分，如图13.2所示，分别为动作类型（action type）、选中的单元（selected units）、目标（target）、执行动作的队列（queued）、是否重复（repeat）以及延时（delay），各个部分间是有关联的。
 
 <div align=center>
-<img width="550" src="img/13.2.png"/>
+<img width="550" src="../img/ch13/13.2.png"/>
 </div>
 <div align=center>图 13.2 动作信息的构成</div>
 
@@ -53,14 +53,14 @@ AlphaStar的动作信息主要分为6个部分，如图13.2所示，分别为动
 我们在13.2节说明了AlphaStar网络的输入和输出，即状态和动作，那么从状态怎么得到动作呢？这里我们先给出其网络结构的总览，如图13.3所示，后面对此详细讨论。
 
 <div align=center>
-<img width="550" src="img/13.3.png"/>
+<img width="550" src="../img/ch13/13.3.png"/>
 </div>
 <div align=center>图 13.3 AlphaStar网络结构总览</div>
 
 ### 输入部分
 
 <div align=center>
-<img width="550" src="img/13.4.png"/>
+<img width="550" src="../img/ch13/13.4.png"/>
 </div>
 <div align=center>图 13.4 AlphaStar网络结构输入部分</div>
 
@@ -75,7 +75,7 @@ AlphaStar的动作信息主要分为6个部分，如图13.2所示，分别为动
 中间过程比较简单，即通过一个深度长短期记忆网络模块融合3种当前状态下的嵌入并进行下一时刻的输出，如图13.5所示，并且将该输出分别送入价值网络（value network）、残差多层感知机（residual MLP）以及动作类型的后续的多层感知机中。
 
 <div align=center>
-<img width="550" src="img/13.5.png"/>
+<img width="550" src="../img/ch13/13.5.png"/>
 </div>
 <div align=center>图 13.5 AlphaStar网络结构中的深度长短期记忆网络模块</div>
 
@@ -84,7 +84,7 @@ AlphaStar的动作信息主要分为6个部分，如图13.2所示，分别为动
 正如前面介绍的，输出的动作是前后相关联的，如图13.6所示，我们按照顺序一一介绍。
 
 <div align=center>
-<img width="550" src="img/13.6.png"/>
+<img width="550" src="./img/ch13/13.6.png"/>
 </div>
 <div align=center>图 13.6 AlphaStar网络结构输出部分</div>
 
@@ -188,7 +188,7 @@ $$
 ### 宏观结果
 
 <div align=center>
-<img width="550" src="img/13.7.png"/>
+<img width="550" src="./img/ch13/13.7.png"/>
 </div>
 <div align=center>图 13.7 AlphaStar的实验结果</div>
 
@@ -203,7 +203,7 @@ $$
 AlphaStar的论文中也使用了消融实验，即控制变量法，来进一步分析每一个约束条件对于对战结果的影响。下面举一个特别的例子。
 
 <div align=center>
-<img width="550" src="img/13.8.png"/>
+<img width="550" src="./img/ch13/13.8.png"/>
 </div>
 <div align=center>图 13.8 AlphaStar中人类对局数据使用情况</div>
 
