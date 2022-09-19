@@ -126,10 +126,13 @@ $$
 $$
         
 即当前动作的预期奖励减去当前状态的预期奖励。在 AlphaStar 中，向上移动的策略更新（upgoing policy update，UPGO）也得到了应用，向上移动的策略更新使用一个迭代变量 $G_t$ 来取代原来的动作的预期奖励 $r(s_t,a_t)+V(s_{t+1})$ ，即把未来乐观的信息纳入额外奖励中，上式可改写为：
+
 $$
     A(s_t,a_t)=G_t-V(s_t)
 $$
+
 其中，
+
 $$
     G_t=
     \begin{cases}
@@ -139,16 +142,19 @@ $$
 $$
 
 （2）基于上面计算得到的动作，更新策略梯度，即 $\nabla_{\theta}J = A(s_t,a_t)\nabla_{\theta}\mathrm{log} \pi_{\theta}(a_t|s_t)$。我们在前面介绍了，如果基于 $\pi_{\theta}$ 的分布不好求解，或者说学习策略 $\pi_{\theta}$ 与采集策略 $\pi_{\mu}$ 不同，我们需要使用重要性采样，即 $\nabla_{\theta}J = E_{\pi_{\mu}}\frac{\pi_{\theta} (a_t|s_t)}{\pi_{\mu} (a_t|s_t)} A_{\pi_{\theta}}(s_t,a_t)\nabla_{\theta}\mathrm{log} \pi_{\theta}(a_t|s_t)$。当然我们还需防止 $\frac{\pi_{\theta} (a_t|s_t)}{\pi_{\mu} (a_t|s_t)}$ 出现无穷大的情况，我们需要使用V-trace限制重要性系数。这也是用于免策略的一个更新方法，在 IMPALA 论文中的4.1节有所体现。即将重要性系数的最大值限制为1，公式如下：
+
 $$
     \nabla_{\theta}J = E_{\pi_{\mu}}\rho_t A_{\pi_{\theta}}(s_t,a_t)\nabla_{\theta}\mathrm{log} \pi_{\theta}(a_t|s_t)
 $$
 
 其中，
+
 $$
     \rho_t = \mathrm{min}(\frac{\pi_{\theta} (a_t|s_t)}{\pi_{\mu} (a_t|s_t)},1)
 $$
 
 （3）利用时序差分（$\lambda$）来优化价值网络，并同时输入对手的数据。对于我们的价值函数
+
 $$
     V_{\pi_{\theta}}(s_t)=E_{\pi_{\theta}}\sum_{t'=t}\gamma^{t'-t}r(s_t,a_t)=E_{a_t\sim\pi_{\theta}(\cdot|s_t)}[r(s_t,a_t)+\gamma V(s_{t+1})]
 $$
