@@ -7,7 +7,6 @@
 但深度Q网络其实存在一些问题，最大的问题是它很难处理连续动作。很多时候动作是连续的，比如我们玩雅达利的游戏时，智能体只需要决定如上、下、左、右这4个动作，这种动作是离散的。很多时候动作是连续的，例如，假设智能体要开车，它要决定方向盘要左转几度、右转几度，这种动作就是连续的。假设智能体是一个机器人，身上有 50 个 关节，它的每一个动作就对应身上 50 个关节的角度，而这些角度也是连续的。所以很多时候动作并不是离散的，它是一个向量，这个向量的每一个维度都有一个对应的值，这些值都是实数，它是连续的。如果动作是连续的，我们使用深度Q网络就会有困难。因为在使用深度Q网络时很重要的一步是我们要能够解决优化问题，也就是估计出 Q函数$Q(s,a)$ 以后，我们必须要找到一个 $a$，它可以让 $Q(s,a)$ 最大，即
 
 $$
-  \label{eq:max_q_ch8}
   a=\underset{a}{\arg \max} Q(s, a)
 $$
 
@@ -24,7 +23,6 @@ $$
 
 如图 8.1 所示，通常输入状态 $\boldsymbol{s}$ 是图像，我们可以用向量或矩阵来表示它。输入 $\boldsymbol{s}$，Q函数会输出向量$\pmb{\mu}(\boldsymbol{s})$、矩阵$\pmb{\varSigma}(\boldsymbol{s})$ 和标量 $V(\boldsymbol{s})$。Q函数根据输入$\boldsymbol{s}$与 $\boldsymbol{a}$ 来决定输出值。到目前为止，Q函数只有输入 $\boldsymbol{s}$，它还没有输入$\boldsymbol{a}$，$\boldsymbol{a}$ 在哪里呢？接下来我们可以输入 $\boldsymbol{a}$，用$\boldsymbol{a}$与 $\pmb{\mu}(\boldsymbol{s})$、$\pmb{\varSigma}(\boldsymbol{s})$和$V(\boldsymbol{s})$ 互相作用。Q函数$Q(\boldsymbol{s},\boldsymbol{a})$可定义为
 $$
-  \label{eq:}
   Q(\boldsymbol{s},\boldsymbol{a})=-(\boldsymbol{a}-\pmb{\mu}(\boldsymbol{s}))^{\mathrm{T}} \pmb{\varSigma}(\boldsymbol{s})(\boldsymbol{a}-\pmb{\mu}(\boldsymbol{s}))+V(\boldsymbol{s})
 $$
 
