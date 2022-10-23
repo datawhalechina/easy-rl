@@ -1,27 +1,32 @@
-# Chapter10 Sparse Reward
+# 第十章 稀疏奖励
 
-## 1 Keywords
+## 关键词
 
-- **reward shaping：** 在我们的agent与environment进行交互时，我们人为的设计一些reward，从而“指挥”agent，告诉其采取哪一个action是最优的，而这个reward并不是environment对应的reward，这样可以提高我们estimate Q-function时的准确性。
-- **ICM（intrinsic curiosity module）：** 其代表着curiosity driven这个技术中的增加新的reward function以后的reward function。
-- **curriculum learning：** 一种广义的用在RL的训练agent的方法，其在input训练数据的时候，采取由易到难的顺序进行input，也就是认为设计它的学习过程，这个方法在ML和DL中都会普遍使用。
-- **reverse curriculum learning：** 相较于上面的curriculum learning，其为更general的方法。其从最终最理想的state（我们称之为gold state）开始，依次去寻找距离gold state最近的state作为想让agent达到的阶段性的“理想”的state，当然我们应该在此过程中有意的去掉一些极端的case（太简单、太难的case）。综上，reverse curriculum learning 是从 gold state 去反推，就是说你原来的目标是长这个样子，我们从我们的目标去反推，所以这个叫做 reverse curriculum learning。  
-- **hierarchical （分层） reinforcement learning：** 将一个大型的task，横向或者纵向的拆解成多个 agent去执行。其中，有一些agent 负责比较high level 的东西，负责订目标，然后它订完目标以后，再分配给其他的 agent把它执行完成。（看教程的 hierarchical  reinforcement learning部分的示例就会比较明了）
+- **设计奖励（reward shaping）**：当智能体与环境进行交互时，我们人为设计一些奖励，从而“指挥”智能体，告诉其采取哪一个动作是最优的。需要注意的是，这个奖励区别于环境的奖励。其可以提高我们估算Q函数时的准确性。
 
-## 2 Questions
+- **内在好奇心模块（intrinsic curiosity module，ICM）**：其代表好奇心驱动这个技术中的增加新的奖励函数以后的奖励函数。
 
-- 解决sparse reward的方法有哪些？
+- **课程学习（curriculum learning）**：一种广义的用在强化学习中训练智能体的方法，其在输入训练数据的时候，采取由易到难的顺序进行输入，也可以人为设计它的学习过程。这个方法在机器学习和强化学习中普遍使用。
 
-  答：Reward Shaping、curiosity driven reward、（reverse）curriculum learning 、Hierarchical Reinforcement learning等等。
+- **逆课程学习（reverse curriculum learning）**：相较于课程学习，逆课程学习为更广义的方法。其从最终最理想的状态 [我们称之为黄金状态（gold state）] 开始，依次去寻找距离黄金状态最近的状态作为想让智能体达到的阶段性的“理想”状态。当然，我们会在此过程中有意地去掉一些极端的状态，即太简单、太难的状态。综上，逆课程学习是从黄金状态反推的方法。
 
-- reward shaping方法存在什么主要问题？
+- **分层强化学习（hierarchical reinforcement learning）**：将一个大型的任务，横向或者纵向地拆解成由多个智能体去执行的子任务。其中，有一些智能体负责比较高层次的任务，如负责定目标，定完目标后，再将目标分配给其他的智能体执行。
 
-  答：主要的一个问题是我们人为设计的reward需要domain knowledge，需要我们自己设计出符合environment与agent更好的交互的reward，这需要不少的经验知识，需要我们根据实际的效果进行调整。
 
-- ICM是什么？我们应该如何设计这个ICM？
+## 习题
 
-  答：ICM全称为intrinsic curiosity module。其代表着curiosity driven这个技术中的增加新的reward function以后的reward function。具体来说，ICM在更新计算时会考虑三个新的东西，分别是 state $s_1$、action $a_1$ 和 state $s_2$。根据$s_1$ 、$a_1$、 $a_2$，它会 output 另外一个新的 reward $r_1^i$。所以在ICM中我们total reward 并不是只有 r 而已，还有 $r^i$。它不是只有把所有的 r 都加起来，它还把所有 $r^i$ 加起来当作total reward。所以，它在跟环境互动的时候，它不是只希望 r 越大越好，它还同时希望 $r^i$ 越大越好，它希望从 ICM 的 module 里面得到的 reward 越大越好。ICM 就代表了一种curiosity。
+**10-1** 解决稀疏奖励的方法有哪些？
 
-  对于如何设计ICM，ICM的input就像前面所说的一样包括三部分input 现在的 state $s_1$，input 在这个 state 采取的 action $a_1$，然后接 input 下一个 state $s_{t+1}$，对应的output就是reward $r_1^i$，input到output的映射是通过network构建的，其使用 $s_1$ 和 $a_1$ 去预测 $\hat{s}_{t+1}$ ,然后继续评判预测的$\hat{s}_{t+1}$和真实的$s_{t+1}$像不像，越不相同得到的reward就越大。通俗来说这个reward就是，如果未来的状态越难被预测的话，那么得到的reward就越大。这也就是curiosity的机制，倾向于让agent做一些风险比较大的action，从而增加其machine exploration的能力。
+设计奖励、好奇心驱动的奖励、课程学习、逆课程学习、分层强化学习等。
 
-  同时为了进一步增强network的表达能力，我们通常讲ICM的input优化为feature extractor，这个feature extractor模型的input就是state，output是一个特征向量，其可以表示这个state最主要、重要的特征，把没有意义的东西过滤掉。
+**10-2** 设计奖励存在什么主要问题？
+
+主要的问题是我们人为设计的奖励需要领域知识，需要我们自己设计出让环境与智能体更好地交互的奖励，这需要不少的经验知识，并且需要我们根据实际的效果进行调整。
+
+**10-3** 内在好奇心模块是什么？我们应该如何设计内在好奇心模块？
+
+内在好奇心模块代表好奇心驱动技术中增加新的奖励函数以后的奖励函数。具体来说，其在更新计算时会考虑3个新的部分，分别是状态 $s_1$、动作 $a_1$ 和状态 $s_2$。根据 $s_1$ 、$a_1$、$a_2$，它会输出另外一个新的奖励 $r_1^i$。所以在内在好奇心模块中，我们的总奖励并不是只有 $r$ 而已，还有 $r^i$。它不是只把所有的 $r$ 相加，还把所有 $r^i$ 相加一并当作总奖励。所以，基于内在好奇心模块的智能体在与环境交互的时候，不是只希望 $r$ 越大越好，还同时希望 $r^i$ 越大越好，希望从内在好奇心模块里面得到的总奖励越大越好。
+
+对于如何设计内在好奇心模块，其输入就像前面所说的一样，包括3部分，即现在的状态 $s_1$、在这个状态采取的动作 $a_1$、下一个状态 $s_{t+1}$，对应的输出就是奖励 $r_1^i$。输入、输出的映射是通过网络构建的，其使用状态 $s_1$ 和动作 $a_1$ 去预测下一个状态 $\hat{s}_{t+1}$ ，然后继续评判预测的状态 $\hat{s}_{t+1}$ 和真实状态 $s_{t+1}$ 的相似性，越不相似得到的奖励就越大。通俗来说这个奖励就是，如果未来的状态越难被预测，那么得到的奖励就越大。这就是好奇心机制，其倾向于让智能体做一些风险比较大的动作，从而提高其探索的能力。
+
+同时，为了进一步增强网络的表达能力，我们通常将内在好奇心模块的输入优化为特征提取，特征提取器的输入就是状态，输出是一个特征向量，其可以表示这个状态最主要和最重要的特征，把没有意义的事物过滤。

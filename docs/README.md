@@ -54,6 +54,13 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 
 <center class="half"><img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/yanggao.png" width="680"></center>
 
+## 相关视频内容
+
+* [《Datawhale强化学习教程》出版](https://www.bilibili.com/video/BV1rb4y1x7Zd/?spm_id_from=333.999.0.0&vd_source=642fa389e9e78cff4881c038963ac312)
+* [蘑菇书起源与RL入门指南](https://www.bilibili.com/video/BV1HZ4y1v7eX/?spm_id_from=333.999.0.0&vd_source=642fa389e9e78cff4881c038963ac312)
+* [蘑菇书开源组队学习活动](https://www.bilibili.com/video/BV1Ha41197Pg/?spm_id_from=333.999.0.0&vd_source=642fa389e9e78cff4881c038963ac312)
+* [蘑菇书开源学习与成长](https://www.bilibili.com/video/BV1xW4y1B72o/?spm_id_from=333.999.0.0&vd_source=642fa389e9e78cff4881c038963ac312)
+
 ## 内容导航
 
 | 章节                                                         | 习题                                                         | 相关项目                                                     |
@@ -66,7 +73,7 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 | [第六章 DQN (基本概念)](https://datawhalechina.github.io/easy-rl/#/chapter6/chapter6) | [第六章 习题](https://datawhalechina.github.io/easy-rl/#/chapter6/chapter6_questions&keywords) |                                                              |
 | [第七章 DQN (进阶技巧)](https://datawhalechina.github.io/easy-rl/#/chapter7/chapter7) | [第七章 习题](https://datawhalechina.github.io/easy-rl/#/chapter7/chapter7_questions&keywords) | [DQN算法实战](https://datawhalechina.github.io/easy-rl/#/chapter7/project2) |
 | [第八章 DQN (连续动作)](https://datawhalechina.github.io/easy-rl/#/chapter8/chapter8) | [第八章 习题](https://datawhalechina.github.io/easy-rl/#/chapter8/chapter8_questions&keywords) |                                                              |
-| [第九章 演员-评论家算法](https://datawhalechina.github.io/easy-rl/#/chapter9/chapter9) | [第九章 习题](https://datawhalechina.github.io/easy-rl/#/chapter9/chapter9_questions&keywords) |                                                              |
+| [第九章 演员-评论员算法](https://datawhalechina.github.io/easy-rl/#/chapter9/chapter9) | [第九章 习题](https://datawhalechina.github.io/easy-rl/#/chapter9/chapter9_questions&keywords) |                                                              |
 | [第十章 稀疏奖励](https://datawhalechina.github.io/easy-rl/#/chapter10/chapter10) | [第十章 习题](https://datawhalechina.github.io/easy-rl/#/chapter10/chapter10_questions&keywords) |                                                              |
 | [第十一章 模仿学习](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11_questions&keywords) |                                                              |
 | [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12_questions&keywords) | [DDPG算法实战](https://datawhalechina.github.io/easy-rl/#/chapter12/project3) |
