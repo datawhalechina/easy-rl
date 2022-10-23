@@ -32,7 +32,7 @@ class DoubleDQN:
         self.epsilon_decay = cfg['epsilon_decay']
         self.batch_size = cfg['batch_size']
         self.policy_net = models['Qnet'].to(self.device)
-        self.target_net = models['Qnet'].to(self.device)
+        self.target_net = models['Targetnet'].to(self.device)
         # target_net copy from policy_net
         for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
             target_param.data.copy_(param.data)
@@ -40,7 +40,7 @@ class DoubleDQN:
         # the difference between parameters() and state_dict() is that parameters() require_grad=True
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg['lr'])
         self.memory = memories['Memory']
-        self.update_flag = False 
+        self.update_flag = False
         
     def sample_action(self, state):
         ''' sample action
@@ -61,7 +61,7 @@ class DoubleDQN:
         with torch.no_grad():
             state = torch.tensor(state, device=self.device, dtype=torch.float32).unsqueeze(0)
             q_value = self.policy_net(state)
-            action = q_value.max(1)[1].item()  
+            action = q_value.max(1)[1].item()
         return action
     def update(self):
         if len(self.memory) < self.batch_size: # when transitions in memory donot meet a batch, not update
@@ -84,15 +84,18 @@ class DoubleDQN:
         '''the following is the way of computing Double DQN expected_q_value，a bit different from Nature DQN'''
         next_target_value_batch = self.target_net(next_state_batch)
         # choose action a from Q(s_t‘, a), next_target_values obtain next_q_value，which is Q’(s_t|a=argmax Q(s_t‘, a))
-        next_target_q_value_batch = next_target_value_batch.gather(1, torch.max(next_q_value_batch, 1)[1].unsqueeze(1)) # shape(batchsize,1)
+        # Double DQN
+        next_target_q_value_batch = next_target_value_batch.gather(1, torch.max(next_q_value_batch, 1)[1].unsqueeze(1)).detach() # shape(batchsize,1)]
+        # DQN
+        # next_target_q_value_batch = next_target_value_batch.max(1)[0].unsqueeze(1).detach()
         expected_q_value_batch  = reward_batch + self.gamma * next_target_q_value_batch * (1-done_batch)
-        loss = nn.MSELoss()(q_value_batch , expected_q_value_batch)  
-        self.optimizer.zero_grad()  
+        loss = nn.MSELoss()(q_value_batch , expected_q_value_batch)
+        self.optimizer.zero_grad()
         loss.backward()
         # clip to avoid gradient explosion
         for param in self.policy_net.parameters(): 
             param.grad.data.clamp_(-1, 1)
-        self.optimizer.step()  
+        self.optimizer.step()
     
     def save_model(self,path):
         from pathlib import Path

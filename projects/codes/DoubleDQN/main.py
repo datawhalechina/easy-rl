@@ -67,7 +67,7 @@ class Main(Launcher):
         n_actions = env.action_space.n  # action dimension
         print(f"n_states: {n_states}, n_actions: {n_actions}")
         cfg.update({"n_states":n_states,"n_actions":n_actions}) # update to cfg paramters
-        models = {'Qnet':MLP(n_states,n_actions,hidden_dim=cfg['hidden_dim'])}
+        models = {'Qnet':MLP(n_states,n_actions,hidden_dim=cfg['hidden_dim']), 'Targetnet':MLP(n_states,n_actions,hidden_dim=cfg['hidden_dim'])}
         memories = {'Memory':ReplayBufferQue(cfg['memory_capacity'])}
         agent = DoubleDQN(models,memories,cfg)
         return env,agent
@@ -87,7 +87,7 @@ class Main(Launcher):
                 ep_reward += reward
                 agent.memory.push((state, action, reward, next_state, done)) 
                 state = next_state 
-                agent.update() 
+                agent.update()
                 if done:
                     break
             if i_ep % cfg['target_update'] == 0:
