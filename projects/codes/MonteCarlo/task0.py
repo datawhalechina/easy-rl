@@ -19,7 +19,7 @@ import argparse
 from common.utils import save_results,save_args,plot_rewards
 
 from MonteCarlo.agent import FisrtVisitMC
-from envs.racetrack_env import RacetrackEnv
+from envs.racetrack import RacetrackEnv
 
 curr_time = datetime.datetime.now().strftime(
     "%Y%m%d-%H%M%S")  # obtain current time
