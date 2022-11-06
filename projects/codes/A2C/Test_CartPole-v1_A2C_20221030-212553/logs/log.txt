@@ -1,0 +1,23 @@
+2022-10-30 21:25:53 - r - INFO: - n_states: 4, n_actions: 2
+2022-10-30 21:25:55 - r - INFO: - Start testing!
+2022-10-30 21:25:55 - r - INFO: - Env: CartPole-v1, Algorithm: A2C, Device: cuda
+2022-10-30 21:25:56 - r - INFO: - Episode: 1/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 2/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 3/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 4/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 5/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 6/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 7/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 8/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 9/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:56 - r - INFO: - Episode: 10/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 11/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 12/20, Reward: 190.0, Step: 190
+2022-10-30 21:25:57 - r - INFO: - Episode: 13/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 14/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 15/20, Reward: 96.0, Step: 96
+2022-10-30 21:25:57 - r - INFO: - Episode: 16/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 17/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 18/20, Reward: 200.0, Step: 200
+2022-10-30 21:25:57 - r - INFO: - Episode: 19/20, Reward: 112.0, Step: 112
+2022-10-30 21:25:57 - r - INFO: - Episode: 20/20, Reward: 200.0, Step: 200

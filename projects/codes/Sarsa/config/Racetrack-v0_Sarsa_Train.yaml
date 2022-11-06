@@ -1,0 +1,19 @@
+general_cfg:
+  algo_name: Sarsa
+  device: cpu
+  env_name: Racetrack-v0
+  mode: train
+  load_checkpoint: false
+  load_path: Train_CartPole-v1_DQN_20221026-054757
+  max_steps: 200
+  save_fig: true
+  seed: 10
+  show_fig: false
+  test_eps: 20
+  train_eps: 400
+algo_cfg:
+  epsilon_decay: 200
+  epsilon_end: 0.01
+  epsilon_start: 0.9
+  gamma: 0.99
+  lr: 0.1

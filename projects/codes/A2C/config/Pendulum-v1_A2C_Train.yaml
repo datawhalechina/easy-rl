@@ -1,0 +1,21 @@
+general_cfg:
+  algo_name: A2C
+  device: cuda
+  env_name: Pendulum-v1
+  mode: train
+  eval_per_episode: 200
+  load_checkpoint: false
+  load_path: Train_CartPole-v1_DQN_20221026-054757
+  max_steps: 200
+  save_fig: true
+  seed: 1
+  show_fig: false
+  test_eps: 20
+  train_eps: 1000
+algo_cfg:
+  continuous: true
+  batch_size: 64
+  buffer_size: 100000
+  gamma: 0.0003
+  actor_lr: 0.0003
+  critic_lr: 0.001

@@ -1,0 +1,19 @@
+general_cfg:
+  algo_name: FirstVisitMC
+  device: cpu
+  env_name: Racetrack-v0
+  eval_eps: 10
+  eval_per_episode: 5
+  load_checkpoint: false
+  load_path: tasks
+  max_steps: 200
+  mode: train
+  save_fig: true
+  seed: 1
+  show_fig: false
+  test_eps: 20
+  train_eps: 200
+algo_cfg:
+  epsilon: 0.15
+  gamma: 0.9
+  lr: 0.1

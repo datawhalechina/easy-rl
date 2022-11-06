@@ -1,0 +1,22 @@
+general_cfg:
+  algo_name: DQN
+  device: cuda
+  env_name: Acrobot-v1
+  mode: train
+  load_checkpoint: false
+  load_path: Train_CartPole-v1_DQN_20221026-054757
+  max_steps: 100000
+  save_fig: true
+  seed: 1
+  show_fig: false
+  test_eps: 10
+  train_eps: 100
+algo_cfg:
+  batch_size: 128
+  buffer_size: 200000
+  epsilon_decay: 500
+  epsilon_end: 0.01
+  epsilon_start: 0.95
+  gamma: 0.95
+  lr: 0.002 
+  target_update: 4

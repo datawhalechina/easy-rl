@@ -5,51 +5,82 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 14:26:44
 LastEditor: John
-LastEditTime: 2022-08-15 18:12:13
+LastEditTime: 2022-11-06 00:44:56
 Discription: 
 Environment: 
 '''
 import sys,os
-curr_path = os.path.dirname(os.path.abspath(__file__))  # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path)  # 父路径
-sys.path.append(parent_path)  # 添加路径到系统路径
+os.environ["KMP_DUPLICATE_LIB_OK"]  =  "TRUE" # avoid "OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized."
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path 
+sys.path.append(parent_path)  # add path to system path
 
 import datetime
-import argparse
-from common.utils import save_results,save_args,plot_rewards
-
+import gym
+from envs.wrappers import CliffWalkingWapper
+from envs.register import register_env
+from common.utils import merge_class_attrs,all_seed
+from common.launcher import Launcher
 from MonteCarlo.agent import FisrtVisitMC
-from envs.racetrack import RacetrackEnv
+from MonteCarlo.config.config import GeneralConfigMC,AlgoConfigMC
+
 
 curr_time = datetime.datetime.now().strftime(
     "%Y%m%d-%H%M%S")  # obtain current time
-
-def get_args():
-    """ 超参数
-    """
-    curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") # 获取当前时间
-    parser = argparse.ArgumentParser(description="hyperparameters")      
-    parser.add_argument('--algo_name',default='First-Visit MC',type=str,help="name of algorithm")
-    parser.add_argument('--env_name',default='Racetrack',type=str,help="name of environment")
-    parser.add_argument('--train_eps',default=200,type=int,help="episodes of training")
-    parser.add_argument('--test_eps',default=20,type=int,help="episodes of testing")
-    parser.add_argument('--gamma',default=0.9,type=float,help="discounted factor")
-    parser.add_argument('--epsilon',default=0.15,type=float,help="the probability to select a random action")
-    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
-    parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
-            '/' + curr_time + '/results/' )
-    parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
-            '/' + curr_time + '/models/' ) 
-    parser.add_argument('--show_fig',default=False,type=bool,help="if show figure or not")           
-    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()                          
-    return args
-
-def env_agent_config(cfg,seed=1):
-    env = RacetrackEnv()
-    n_actions = env.action_space.n
-    agent = FisrtVisitMC(n_actions, cfg)
-    return env,agent
+class Main(Launcher):
+    def __init__(self) -> None:
+        super().__init__()
+        self.cfgs['general_cfg'] = merge_class_attrs(self.cfgs['general_cfg'],GeneralConfigMC())
+        self.cfgs['algo_cfg'] = merge_class_attrs(self.cfgs['algo_cfg'],AlgoConfigMC())
+    def env_agent_config(self,cfg,logger):
+        ''' create env and agent
+        '''  
+        register_env(cfg.env_name)
+        env = gym.make(cfg.env_name,new_step_api=False)  # create env
+        if cfg.env_name == 'CliffWalking-v0':
+            env = CliffWalkingWapper(env)
+        if cfg.seed !=0: # set random seed
+            all_seed(env,seed=cfg.seed) 
+        try: # state dimension
+            n_states = env.observation_space.n # print(hasattr(env.observation_space, 'n'))
+        except AttributeError:
+            n_states = env.observation_space.shape[0] # print(hasattr(env.observation_space, 'shape'))
+        n_actions = env.action_space.n  # action dimension
+        logger.info(f"n_states: {n_states}, n_actions: {n_actions}") # print info
+        # update to cfg paramters
+        setattr(cfg, 'n_states', n_states)
+        setattr(cfg, 'n_actions', n_actions)
+        agent = FisrtVisitMC(cfg)
+        return env,agent
+    def train_one_episode(self, env, agent, cfg): 
+        ep_reward = 0  # reward per episode
+        ep_step = 0
+        state = env.reset()  # reset and obtain initial state
+        one_ep_transition = []
+        for _ in range(cfg.max_steps):
+            ep_step += 1
+            action = agent.sample_action(state)  # sample action
+            next_state, reward, terminated, info = env.step(action)  # update env and return transitions under new_step_api of OpenAI Gym
+            one_ep_transition.append((state, action, reward))  # save transitions
+            agent.update(one_ep_transition)  # update agent
+            state = next_state  # update next state for env
+            ep_reward += reward  #
+            if terminated:
+                break
+        return agent,ep_reward,ep_step
+    def test_one_episode(self, env, agent, cfg):
+        ep_reward = 0  # reward per episode
+        ep_step = 0
+        state = env.reset()  # reset and obtain initial state
+        for _ in range(cfg.max_steps):
+            ep_step += 1
+            action = agent.predict_action(state)  # sample action
+            next_state, reward, terminated, info = env.step(action)  # update env and return transitions under new_step_api of OpenAI Gym
+            state = next_state  # update next state for env
+            ep_reward += reward  #
+            if terminated:
+                break
+        return agent,ep_reward,ep_step
     
 def train(cfg, env, agent):
     print("开始训练！")
@@ -93,18 +124,5 @@ def test(cfg, env, agent):
     return {'rewards':rewards}
     
 if __name__ == "__main__":
-    cfg = get_args()
-     # 训练
-    env, agent = env_agent_config(cfg)
-    res_dic = train(cfg, env, agent)
-    save_args(cfg,path = cfg.result_path) # 保存参数到模型路径上
-    agent.save(path = cfg.model_path)  # 保存模型
-    save_results(res_dic, tag = 'train', path = cfg.result_path)  
-    plot_rewards(res_dic['rewards'], cfg, path = cfg.result_path,tag = "train")  
-    # 测试
-    env, agent = env_agent_config(cfg) # 也可以不加，加这一行的是为了避免训练之后环境可能会出现问题，因此新建一个环境用于测试
-    agent.load(path = cfg.model_path)  # 导入模型
-    res_dic = test(cfg, env, agent)
-    save_results(res_dic, tag='test',
-                 path = cfg.result_path)  # 保存结果
-    plot_rewards(res_dic['rewards'], cfg, path = cfg.result_path,tag = "test")  # 画出结果
+    main = Main()
+    main.run()

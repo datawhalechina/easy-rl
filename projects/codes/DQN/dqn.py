@@ -5,7 +5,7 @@
 @Email: johnjim0816@gmail.com
 @Date: 2020-06-12 00:50:49
 @LastEditor: John
-LastEditTime: 2022-08-29 23:30:08
+LastEditTime: 2022-10-31 00:07:19
 @Discription: 
 @Environment: python 3.7.7
 '''
@@ -22,27 +22,28 @@ import numpy as np
 class DQN:
     def __init__(self,model,memory,cfg):
 
-        self.n_actions = cfg['n_actions']  
-        self.device = torch.device(cfg['device']) 
-        self.gamma = cfg['gamma']  
+        self.n_actions = cfg.n_actions  
+        self.device = torch.device(cfg.device) 
+        self.gamma = cfg.gamma  
         ## e-greedy parameters
         self.sample_count = 0  # sample count for epsilon decay
-        self.epsilon = cfg['epsilon_start']
+        self.epsilon = cfg.epsilon_start
         self.sample_count = 0  
-        self.epsilon_start = cfg['epsilon_start']
-        self.epsilon_end = cfg['epsilon_end']
-        self.epsilon_decay = cfg['epsilon_decay']
-        self.batch_size = cfg['batch_size']
+        self.epsilon_start = cfg.epsilon_start
+        self.epsilon_end = cfg.epsilon_end
+        self.epsilon_decay = cfg.epsilon_decay
+        self.batch_size = cfg.batch_size
+        self.target_update = cfg.target_update
         self.policy_net = model.to(self.device)
         self.target_net = model.to(self.device)
         ## copy parameters from policy net to target net
         for target_param, param in zip(self.target_net.parameters(),self.policy_net.parameters()): 
             target_param.data.copy_(param.data)
         # self.target_net.load_state_dict(self.policy_net.state_dict()) # or use this to copy parameters
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg['lr']) 
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=cfg.lr) 
         self.memory = memory 
         self.update_flag = False 
-
+        
     def sample_action(self, state):
         ''' sample action with e-greedy policy
         '''
@@ -58,6 +59,21 @@ class DQN:
         else:
             action = random.randrange(self.n_actions)
         return action
+    # @torch.no_grad()
+    # def sample_action(self, state):
+    #     ''' sample action with e-greedy policy
+    #     '''
+    #     self.sample_count += 1
+    #     # epsilon must decay(linear,exponential and etc.) for balancing exploration and exploitation
+    #     self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+    #         math.exp(-1. * self.sample_count / self.epsilon_decay) 
+    #     if random.random() > self.epsilon:
+    #         state = torch.tensor(state, device=self.device, dtype=torch.float32).unsqueeze(dim=0)
+    #         q_values = self.policy_net(state)
+    #         action = q_values.max(1)[1].item() # choose action corresponding to the maximum q value
+    #     else:
+    #         action = random.randrange(self.n_actions)
+    #     return action
     def predict_action(self,state):
         ''' predict action
         '''
@@ -99,14 +115,16 @@ class DQN:
         for param in self.policy_net.parameters():  
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step() 
+        if self.sample_count % self.target_update == 0: # target net update, target_update means "C" in pseucodes
+            self.target_net.load_state_dict(self.policy_net.state_dict())   
 
-    def save_model(self, path):
+    def save_model(self, fpath):
         from pathlib import Path
         # create path
-        Path(path).mkdir(parents=True, exist_ok=True)
-        torch.save(self.target_net.state_dict(), f"{path}/checkpoint.pt")
+        Path(fpath).mkdir(parents=True, exist_ok=True)
+        torch.save(self.target_net.state_dict(), f"{fpath}/checkpoint.pt")
 
-    def load_model(self, path):
-        self.target_net.load_state_dict(torch.load(f"{path}/checkpoint.pt"))
+    def load_model(self, fpath):
+        self.target_net.load_state_dict(torch.load(f"{fpath}/checkpoint.pt"))
         for target_param, param in zip(self.target_net.parameters(), self.policy_net.parameters()):
             param.data.copy_(target_param.data)

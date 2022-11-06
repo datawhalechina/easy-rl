@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-12 16:58:16
 LastEditor: John
-LastEditTime: 2022-08-25 21:26:08
+LastEditTime: 2022-10-30 02:00:51
 Discription: 
 Environment: 
 '''
@@ -15,14 +15,14 @@ import torch
 import math
 class Sarsa(object):
     def __init__(self,cfg):
-        self.n_actions = cfg['n_actions'] 
-        self.lr = cfg['lr']  
-        self.gamma = cfg['gamma']  
-        self.epsilon = cfg['epsilon_start']
+        self.n_actions = cfg.n_actions 
+        self.lr = cfg.lr 
+        self.gamma = cfg.gamma    
+        self.epsilon = cfg.epsilon_start
         self.sample_count = 0  
-        self.epsilon_start = cfg['epsilon_start']
-        self.epsilon_end = cfg['epsilon_end']
-        self.epsilon_decay = cfg['epsilon_decay']
+        self.epsilon_start = cfg.epsilon_start
+        self.epsilon_end = cfg.epsilon_end
+        self.epsilon_decay = cfg.epsilon_decay
         self.Q_table  = defaultdict(lambda: np.zeros(self.n_actions)) # Q table
     def sample_action(self, state):
         ''' another way to represent e-greedy policy

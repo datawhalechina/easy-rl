@@ -38,13 +38,14 @@
 \clearpage
 \section{模版备用}
 \begin{algorithm}[H] % [H]固定位置
-    \floatname{algorithm}{{算法}} 
+    \floatname{algorithm}{{算法}\footnotemark[1]} 
 	\renewcommand{\thealgorithm}{} % 去掉算法标号
 	\caption{} 
 	\begin{algorithmic}[1] % [1]显示步数
 		\STATE 测试
 	\end{algorithmic}
 \end{algorithm}
+\footnotetext[1]{脚注}
 \clearpage
 \section{Q learning算法}
 \begin{algorithm}[H] % [H]固定位置
@@ -55,7 +56,7 @@
 		\STATE 初始化Q表$Q(s,a)$为任意值，但其中$Q(s_{terminal},)=0$，即终止状态对应的Q值为0
 		\FOR {回合数 = $1,M$}
 			\STATE 重置环境，获得初始状态$s_1$
-			\FOR {时步 = $1,t$}
+			\FOR {时步 = $1,T$}
 				\STATE 根据$\varepsilon-greedy$策略采样动作$a_t$
 				\STATE 环境根据$a_t$反馈奖励$r_t$和下一个状态$s_{t+1}$
 				\STATE {\bfseries 更新策略：}
@@ -134,7 +135,7 @@
 		\STATE 初始化策略参数$\boldsymbol{\theta} \in \mathbb{R}^{d^{\prime}}($ e.g., to $\mathbf{0})$
 		\FOR {回合数 = $1,M$}
 			\STATE 根据策略$\pi(\cdot \mid \cdot, \boldsymbol{\theta})$采样一个(或几个)回合的transition
-			\FOR {时步 = $1,t$}
+			\FOR {时步 = $0,1,2,...,T-1$}
 				\STATE 计算回报$G \leftarrow \sum_{k=t+1}^{T} \gamma^{k-t-1} R_{k}$
 				\STATE 更新策略$\boldsymbol{\theta} \leftarrow {\boldsymbol{\theta}+\alpha \gamma^{t}} G \nabla \ln \pi\left(A_{t} \mid S_{t}, \boldsymbol{\theta}\right)$
 			\ENDFOR
@@ -164,6 +165,65 @@
 \end{algorithm}
 \footnotetext[1]{这里结合TD error的特性按照从$t+1$到$1$计算法Advantage更方便}
 
+\clearpage
+
+\section{PPO-Clip算法}
+\begin{algorithm}[H] % [H]固定位置
+    \floatname{algorithm}{{PPO-Clip算法}\footnotemark[1]\footnotemark[2]} 
+	\renewcommand{\thealgorithm}{} % 去掉算法标号
+	\caption{} 
+	\begin{algorithmic}[1] % [1]显示步数
+		\STATE 初始化策略网络(Actor)参数$\theta$和价值网络(Critic)参数$\phi$
+		\STATE 初始化Clip参数$\epsilon$
+		\STATE 初始化epoch数量$K$
+		\STATE 初始化经验回放$D$
+		\STATE 初始化总时步数$c=0$
+		\FOR {回合数 = $1,2,\cdots,M$}
+			\STATE 重置环境，获得初始状态$s_0$
+			\FOR {时步 $t = 1,2,\cdots,T$}
+				\STATE 计数总时步$c \leftarrow c+1$
+				\STATE 根据策略$\pi_{\theta}$选择$a_t$
+				\STATE 环境根据$a_t$反馈奖励$r_t$和下一个状态$s_{t+1}$
+				\STATE 存储$(s_t,a_t,r_t,s_{t+1})$到经验回放$D$中
+				\IF{$c$被$C$整除\footnotemark[3]}
+					\FOR {$k= 1,2,\cdots,K$}
+						\STATE 测试
+					\ENDFOR
+					\STATE 清空经验回放$D$
+				\ENDIF
+			\ENDFOR
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+\footnotetext[1]{Proximal Policy Optimization Algorithms}
+\footnotetext[2]{https://spinningup.openai.com/en/latest/algorithms/ppo.html}
+\footnotetext[3]{\bfseries 即每$C$个时步更新策略}
+\clearpage
+\section{DDPG算法}
+\begin{algorithm}[H] % [H]固定位置
+    \floatname{algorithm}{{DDPG算法}\footnotemark[1]} 
+	\renewcommand{\thealgorithm}{} % 去掉算法标号
+	\caption{} 
+	\begin{algorithmic}[1] % [1]显示步数
+		\STATE 初始化critic网络$Q\left(s, a \mid \theta^Q\right)$和actor网络$\mu(s|\theta^{\mu})$的参数$\theta^Q$和$\theta^{\mu}$
+		\STATE 初始化对应的目标网络参数，即$\theta^{Q^{\prime}} \leftarrow \theta^Q, \theta^{\mu^{\prime}} \leftarrow \theta^\mu$
+		\STATE 初始化经验回放$R$
+		\FOR {回合数 = $1,M$}
+			\STATE 选择动作$a_t=\mu\left(s_t \mid \theta^\mu\right)+\mathcal{N}_t$，$\mathcal{N}_t$为探索噪声
+			\STATE 环境根据$a_t$反馈奖励$s_t$和下一个状态$s_{t+1}$
+			\STATE 存储transition$(s_t,a_t,r_t,s_{t+1})$到经验回放$R$中
+			\STATE 更新环境状态$s_{t+1} \leftarrow s_t$
+			\STATE {\bfseries 更新策略：}
+			\STATE 从$R$中取出一个随机批量的$(s_i,a_i,r_i,s_{i+1})$
+			\STATE 求得$y_i=r_i+\gamma Q^{\prime}\left(s_{i+1}, \mu^{\prime}\left(s_{i+1} \mid \theta^{\mu^{\prime}}\right) \mid \theta^{Q^{\prime}}\right)$
+			\STATE 更新critic参数，其损失为：$L=\frac{1}{N} \sum_i\left(y_i-Q\left(s_i, a_i \mid \theta^Q\right)\right)^2$
+			\STATE 更新actor参数：$\left.\left.\nabla_{\theta^\mu} J \approx \frac{1}{N} \sum_i \nabla_a Q\left(s, a \mid \theta^Q\right)\right|_{s=s_i, a=\mu\left(s_i\right)} \nabla_{\theta^\mu} \mu\left(s \mid \theta^\mu\right)\right|_{s_i}$
+			\STATE 软更新目标网络：$\theta^{Q^{\prime}} \leftarrow \tau \theta^Q+(1-\tau) \theta^{Q^{\prime}}$，
+			$\theta^{\mu^{\prime}} \leftarrow \tau \theta^\mu+(1-\tau) \theta^{\mu^{\prime}}$
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+\footnotetext[1]{Continuous control with deep reinforcement learning}
 \clearpage
 \section{SoftQ算法}
 \begin{algorithm}[H]

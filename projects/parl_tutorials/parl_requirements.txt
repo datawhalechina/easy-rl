@@ -1,0 +1,7 @@
+gym==0.19.0
+ipykernel==6.0.0
+jupyter==1.0.0
+pyzmq==18.1.1
+jupyter-client==7.0.0
+matplotlib==3.5.3
+seaborn==0.12.0

@@ -1,0 +1,24 @@
+general_cfg:
+  algo_name: A2C
+  device: cuda
+  env_name: CartPole-v1
+  eval_eps: 10
+  load_checkpoint: true
+  load_path: Train_CartPole-v1_A2C_20221030-211435
+  max_steps: 200
+  mode: test
+  save_fig: true
+  seed: 1
+  show_fig: false
+  test_eps: 20
+  train_eps: 1000
+algo_cfg:
+  actor_hidden_dim: 256
+  actor_lr: 0.0003
+  batch_size: 64
+  buffer_size: 100000
+  critic_hidden_dim: 256
+  critic_lr: 0.001
+  gamma: 0.99
+  hidden_dim: 256
+  target_update: 4

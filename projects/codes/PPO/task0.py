@@ -1,132 +1,159 @@
 import sys,os
-curr_path = os.path.dirname(os.path.abspath(__file__)) # 当前文件所在绝对路径
-parent_path = os.path.dirname(curr_path) # 父路径
-sys.path.append(parent_path) # 添加路径到系统路径
+os.environ["KMP_DUPLICATE_LIB_OK"]  =  "TRUE" # avoid "OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized."
+curr_path = os.path.dirname(os.path.abspath(__file__))  # current path
+parent_path = os.path.dirname(curr_path)  # parent path 
+sys.path.append(parent_path)  # add path to system path
 
 import gym
 import torch
-import numpy as np
 import datetime
+import numpy as np
 import argparse
-from common.utils import plot_rewards,save_args,save_results,make_dir
+import torch.nn as nn
+
+
+from common.utils import all_seed,merge_class_attrs
+from common.models import ActorSoftmax, Critic
+from common.memories import PGReplay
+from common.launcher import Launcher
+from envs.register import register_env
 from ppo2 import PPO
+from config,config import GeneralConfigPPO,AlgoConfigPPO
+class PPOMemory:
+    def __init__(self, batch_size):
+        self.states = []
+        self.probs = []
+        self.vals = []
+        self.actions = []
+        self.rewards = []
+        self.terminateds = []
+        self.batch_size = batch_size
+    def sample(self):
+        batch_step = np.arange(0, len(self.states), self.batch_size)
+        indices = np.arange(len(self.states), dtype=np.int64)
+        np.random.shuffle(indices)
+        batches = [indices[i:i+self.batch_size] for i in batch_step]
+        return np.array(self.states),np.array(self.actions),np.array(self.probs),\
+                np.array(self.vals),np.array(self.rewards),np.array(self.terminateds),batches
+                
+    def push(self, state, action, probs, vals, reward, terminated):
+        self.states.append(state)
+        self.actions.append(action)
+        self.probs.append(probs)
+        self.vals.append(vals)
+        self.rewards.append(reward)
+        self.terminateds.append(terminated)
 
-def get_args():
-    """ Hyperparameters
-    """
-    curr_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  # 获取当前时间
-    parser = argparse.ArgumentParser(description="hyperparameters")      
-    parser.add_argument('--algo_name',default='PPO',type=str,help="name of algorithm")
-    parser.add_argument('--env_name',default='CartPole-v0',type=str,help="name of environment")
-    parser.add_argument('--continuous',default=False,type=bool,help="if PPO is continous") # PPO既可适用于连续动作空间，也可以适用于离散动作空间
-    parser.add_argument('--train_eps',default=200,type=int,help="episodes of training")
-    parser.add_argument('--test_eps',default=20,type=int,help="episodes of testing")
-    parser.add_argument('--gamma',default=0.99,type=float,help="discounted factor")
-    parser.add_argument('--batch_size',default=5,type=int) # mini-batch SGD中的批量大小
-    parser.add_argument('--n_epochs',default=4,type=int)
-    parser.add_argument('--actor_lr',default=0.0003,type=float,help="learning rate of actor net")
-    parser.add_argument('--critic_lr',default=0.0003,type=float,help="learning rate of critic net")
-    parser.add_argument('--gae_lambda',default=0.95,type=float)
-    parser.add_argument('--policy_clip',default=0.2,type=float) # PPO-clip中的clip参数，一般是0.1~0.2左右
-    parser.add_argument('--update_fre',default=20,type=int)
-    parser.add_argument('--hidden_dim',default=256,type=int)
-    parser.add_argument('--device',default='cpu',type=str,help="cpu or cuda") 
-    parser.add_argument('--result_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
-            '/' + curr_time + '/results/' )
-    parser.add_argument('--model_path',default=curr_path + "/outputs/" + parser.parse_args().env_name + \
-            '/' + curr_time + '/models/' ) # path to save models
-    parser.add_argument('--save_fig',default=True,type=bool,help="if save figure or not")           
-    args = parser.parse_args()                          
-    return args
-        
-def env_agent_config(cfg,seed = 1):
-    ''' 创建环境和智能体
-    '''
-    env = gym.make(cfg.env_name)  # 创建环境
-    n_states = env.observation_space.shape[0]  # 状态维度
-    if cfg.continuous:
-        n_actions = env.action_space.shape[0] # 动作维度
-    else:
-        n_actions = env.action_space.n  # 动作维度
-    agent = PPO(n_states, n_actions, cfg)  # 创建智能体
-    if seed !=0: # 设置随机种子
-        torch.manual_seed(seed)
-        env.seed(seed)
-        np.random.seed(seed)
-    return env, agent
+    def clear(self):
+        self.states = []
+        self.probs = []
+        self.actions = []
+        self.rewards = []
+        self.terminateds = []
+        self.vals = []
 
-def train(cfg,env,agent):
-    print('开始训练！')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
-    rewards = [] # 记录所有回合的奖励
-    ma_rewards = []  # 记录所有回合的滑动平均奖励
-    steps = 0
-    for i_ep in range(cfg.train_eps):
+
+class Main(Launcher):
+    def __init__(self) -> None:
+        super().__init__()
+        self.cfgs['general_cfg'] = merge_class_attrs(self.cfgs['general_cfg'],GeneralConfigPPO())
+        self.cfgs['algo_cfg'] = merge_class_attrs(self.cfgs['algo_cfg'],AlgoConfigPPO())
+    def env_agent_config(self,cfg,logger):
+        ''' create env and agent
+        '''
+        register_env(cfg.env_name)
+        env = gym.make(cfg.env_name,new_step_api=False)  # create env
+        if cfg.seed !=0: # set random seed
+            all_seed(env,seed=cfg.seed) 
+        try: # state dimension
+            n_states = env.observation_space.n # print(hasattr(env.observation_space, 'n'))
+        except AttributeError:
+            n_states = env.observation_space.shape[0] # print(hasattr(env.observation_space, 'shape'))
+        n_actions = env.action_space.n  # action dimension
+        logger.info(f"n_states: {n_states}, n_actions: {n_actions}") # print info
+        # update to cfg paramters
+        setattr(cfg, 'n_states', n_states)
+        setattr(cfg, 'n_actions', n_actions)
+        models = {'Actor':ActorSoftmax(n_states,n_actions, hidden_dim = cfg.actor_hidden_dim),'Critic':Critic(n_states,1,hidden_dim=cfg.critic_hidden_dim)}
+        memory =  PGReplay # replay buffer
+        agent = PPO(models,memory,cfg)  # create agent
+        return env, agent
+    def train_one_episode(self, env, agent, cfg):
+        ep_reward = 0  # reward per episode
+        ep_step = 0 # step per episode
         state = env.reset()
-        done = False
-        ep_reward = 0
-        while not done:
-            action, prob, val = agent.choose_action(state)
-            state_, reward, done, _ = env.step(action)
-            steps += 1
+        for _ in range(cfg.max_steps):
+            action, prob, val = agent.sample_action(state)
+            next_state, reward, terminated, _ = env.step(action)
             ep_reward += reward
-            agent.memory.push(state, action, prob, val, reward, done)
-            if steps % cfg.update_fre == 0:
+            ep_step += 1
+            agent.memory.push((state, action, prob, val, reward, terminated))
+            if ep_step % cfg['update_fre'] == 0:
                 agent.update()
-            state = state_
-        rewards.append(ep_reward)
-        if ma_rewards:
-            ma_rewards.append(0.9*ma_rewards[-1]+0.1*ep_reward)
-        else:
-            ma_rewards.append(ep_reward)
-        if (i_ep+1)%10 == 0: 
-            print(f"回合：{i_ep+1}/{cfg.train_eps}，奖励：{ep_reward:.2f}")
-    print('完成训练！')
-    env.close()
-    res_dic = {'rewards':rewards,'ma_rewards':ma_rewards}
-    return res_dic
-
-def test(cfg,env,agent):
-    print('开始测试!')
-    print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
-    rewards = [] # 记录所有回合的奖励
-    ma_rewards = []  # 记录所有回合的滑动平均奖励
-    for i_ep in range(cfg.test_eps):
+            state = next_state
+            if terminated:
+                break
+        return agent, ep_reward, ep_step
+    def test_one_episode(self, env, agent, cfg):
+        ep_reward = 0  # reward per episode
+        ep_step = 0 # step per episode
         state = env.reset()
-        done = False
-        ep_reward = 0
-        while not done:
-            action, prob, val = agent.choose_action(state)
-            state_, reward, done, _ = env.step(action)
+        for _ in range(cfg.max_steps):
+            action, prob, val = agent.sample_action(state)
+            next_state, reward, terminated, _ = env.step(action)
             ep_reward += reward
-            state = state_
-        rewards.append(ep_reward)
-        if ma_rewards:
-            ma_rewards.append(
-                0.9*ma_rewards[-1]+0.1*ep_reward)
-        else:
-            ma_rewards.append(ep_reward)
-        print('回合：{}/{}, 奖励：{}'.format(i_ep+1, cfg.test_eps, ep_reward))
-    print('完成训练！')
-    env.close()
-    res_dic = {'rewards':rewards,'ma_rewards':ma_rewards}
-    return res_dic
+            ep_step += 1
+            state = next_state
+            if terminated:
+                break
+        return agent, ep_reward, ep_step
+    def train(self,cfg,env,agent):
+        ''' train agent
+        '''
+        print("Start training!")
+        print(f"Env: {cfg['env_name']}, Algorithm: {cfg['algo_name']}, Device: {cfg['device']}")
+        rewards = []  # record rewards for all episodes
+        steps = 0
+        for i_ep in range(cfg['train_eps']):
+            state = env.reset()
+            ep_reward = 0
+            while True:
+                action, prob, val = agent.sample_action(state)
+                next_state, reward, terminated, _ = env.step(action)
+                steps += 1
+                ep_reward += reward
+                agent.memory.push(state, action, prob, val, reward, terminated)
+                if steps % cfg['update_fre'] == 0:
+                    agent.update()
+                state = next_state
+                if terminated:
+                    break
+            rewards.append(ep_reward)
+            if (i_ep+1)%10==0:
+                print(f"Episode: {i_ep+1}/{cfg['train_eps']}, Reward: {ep_reward:.2f}")
+        print("Finish training!")
+        return {'episodes':range(len(rewards)),'rewards':rewards}
+    def test(self,cfg,env,agent):
+        ''' test agent
+        '''
+        print("Start testing!")
+        print(f"Env: {cfg['env_name']}, Algorithm: {cfg['algo_name']}, Device: {cfg['device']}")
+        rewards = []  # record rewards for all episodes
+        for i_ep in range(cfg['test_eps']):
+            state = env.reset()
+            ep_reward = 0
+            while True:
+                action, prob, val = agent.predict_action(state)
+                next_state, reward, terminated, _ = env.step(action)
+                ep_reward += reward
+                state = next_state
+                if terminated:
+                    break
+            rewards.append(ep_reward)
+            print(f"Episode: {i_ep+1}/{cfg['test_eps']}, Reward: {ep_reward:.2f}")
+        print("Finish testing!")
+        return {'episodes':range(len(rewards)),'rewards':rewards}
 
 if __name__ == "__main__":
-    cfg = get_args()
-    # 训练
-    env, agent = env_agent_config(cfg)
-    res_dic = train(cfg, env, agent)
-    make_dir(cfg.result_path, cfg.model_path)  
-    save_args(cfg) # 保存参数
-    agent.save(path=cfg.model_path)  # save model
-    save_results(res_dic, tag='train',
-                 path=cfg.result_path)  
-    plot_rewards(res_dic['rewards'], res_dic['ma_rewards'], cfg, tag="train")  
-    # 测试
-    env, agent = env_agent_config(cfg)
-    agent.load(path=cfg.model_path)  # 导入模型
-    res_dic = test(cfg, env, agent)
-    save_results(res_dic, tag='test',
-                 path=cfg.result_path)  # 保存结果
-    plot_rewards(res_dic['rewards'], res_dic['ma_rewards'],cfg, tag="test")  # 画出结果
+    main = Main()
+    main.run()

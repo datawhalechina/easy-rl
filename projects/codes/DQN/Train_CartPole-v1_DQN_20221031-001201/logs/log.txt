@@ -1,0 +1,116 @@
+2022-10-31 00:12:01 - r - INFO: - n_states: 4, n_actions: 2
+2022-10-31 00:12:01 - r - INFO: - Start training!
+2022-10-31 00:12:01 - r - INFO: - Env: CartPole-v1, Algorithm: DQN, Device: cuda
+2022-10-31 00:12:04 - r - INFO: - Episode: 1/100, Reward: 18.0, Step: 18
+2022-10-31 00:12:04 - r - INFO: - Episode: 2/100, Reward: 35.0, Step: 35
+2022-10-31 00:12:04 - r - INFO: - Episode: 3/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:04 - r - INFO: - Episode: 4/100, Reward: 32.0, Step: 32
+2022-10-31 00:12:04 - r - INFO: - Episode: 5/100, Reward: 16.0, Step: 16
+2022-10-31 00:12:04 - r - INFO: - Current episode 5 has the best eval reward: 15.30
+2022-10-31 00:12:04 - r - INFO: - Episode: 6/100, Reward: 12.0, Step: 12
+2022-10-31 00:12:04 - r - INFO: - Episode: 7/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:04 - r - INFO: - Episode: 8/100, Reward: 15.0, Step: 15
+2022-10-31 00:12:04 - r - INFO: - Episode: 9/100, Reward: 11.0, Step: 11
+2022-10-31 00:12:04 - r - INFO: - Episode: 10/100, Reward: 15.0, Step: 15
+2022-10-31 00:12:04 - r - INFO: - Episode: 11/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:04 - r - INFO: - Episode: 12/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:04 - r - INFO: - Episode: 13/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:04 - r - INFO: - Episode: 14/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:04 - r - INFO: - Episode: 15/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:04 - r - INFO: - Episode: 16/100, Reward: 24.0, Step: 24
+2022-10-31 00:12:04 - r - INFO: - Episode: 17/100, Reward: 8.0, Step: 8
+2022-10-31 00:12:04 - r - INFO: - Episode: 18/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:04 - r - INFO: - Episode: 19/100, Reward: 11.0, Step: 11
+2022-10-31 00:12:04 - r - INFO: - Episode: 20/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:04 - r - INFO: - Episode: 21/100, Reward: 12.0, Step: 12
+2022-10-31 00:12:04 - r - INFO: - Episode: 22/100, Reward: 11.0, Step: 11
+2022-10-31 00:12:04 - r - INFO: - Episode: 23/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:04 - r - INFO: - Episode: 24/100, Reward: 21.0, Step: 21
+2022-10-31 00:12:05 - r - INFO: - Episode: 25/100, Reward: 14.0, Step: 14
+2022-10-31 00:12:05 - r - INFO: - Episode: 26/100, Reward: 12.0, Step: 12
+2022-10-31 00:12:05 - r - INFO: - Episode: 27/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:05 - r - INFO: - Episode: 28/100, Reward: 11.0, Step: 11
+2022-10-31 00:12:05 - r - INFO: - Episode: 29/100, Reward: 12.0, Step: 12
+2022-10-31 00:12:05 - r - INFO: - Episode: 30/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:05 - r - INFO: - Episode: 31/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:05 - r - INFO: - Episode: 32/100, Reward: 13.0, Step: 13
+2022-10-31 00:12:05 - r - INFO: - Episode: 33/100, Reward: 18.0, Step: 18
+2022-10-31 00:12:05 - r - INFO: - Episode: 34/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:05 - r - INFO: - Episode: 35/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:05 - r - INFO: - Episode: 36/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:05 - r - INFO: - Episode: 37/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:05 - r - INFO: - Episode: 38/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:05 - r - INFO: - Episode: 39/100, Reward: 10.0, Step: 10
+2022-10-31 00:12:05 - r - INFO: - Episode: 40/100, Reward: 8.0, Step: 8
+2022-10-31 00:12:06 - r - INFO: - Episode: 41/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:06 - r - INFO: - Episode: 42/100, Reward: 9.0, Step: 9
+2022-10-31 00:12:06 - r - INFO: - Episode: 43/100, Reward: 20.0, Step: 20
+2022-10-31 00:12:06 - r - INFO: - Episode: 44/100, Reward: 16.0, Step: 16
+2022-10-31 00:12:06 - r - INFO: - Episode: 45/100, Reward: 17.0, Step: 17
+2022-10-31 00:12:06 - r - INFO: - Current episode 45 has the best eval reward: 17.50
+2022-10-31 00:12:06 - r - INFO: - Episode: 46/100, Reward: 17.0, Step: 17
+2022-10-31 00:12:06 - r - INFO: - Episode: 47/100, Reward: 17.0, Step: 17
+2022-10-31 00:12:06 - r - INFO: - Episode: 48/100, Reward: 18.0, Step: 18
+2022-10-31 00:12:06 - r - INFO: - Episode: 49/100, Reward: 25.0, Step: 25
+2022-10-31 00:12:06 - r - INFO: - Episode: 50/100, Reward: 31.0, Step: 31
+2022-10-31 00:12:06 - r - INFO: - Current episode 50 has the best eval reward: 24.80
+2022-10-31 00:12:06 - r - INFO: - Episode: 51/100, Reward: 22.0, Step: 22
+2022-10-31 00:12:06 - r - INFO: - Episode: 52/100, Reward: 39.0, Step: 39
+2022-10-31 00:12:06 - r - INFO: - Episode: 53/100, Reward: 36.0, Step: 36
+2022-10-31 00:12:06 - r - INFO: - Episode: 54/100, Reward: 26.0, Step: 26
+2022-10-31 00:12:07 - r - INFO: - Episode: 55/100, Reward: 33.0, Step: 33
+2022-10-31 00:12:07 - r - INFO: - Current episode 55 has the best eval reward: 38.70
+2022-10-31 00:12:07 - r - INFO: - Episode: 56/100, Reward: 56.0, Step: 56
+2022-10-31 00:12:07 - r - INFO: - Episode: 57/100, Reward: 112.0, Step: 112
+2022-10-31 00:12:07 - r - INFO: - Episode: 58/100, Reward: 101.0, Step: 101
+2022-10-31 00:12:08 - r - INFO: - Episode: 59/100, Reward: 69.0, Step: 69
+2022-10-31 00:12:08 - r - INFO: - Episode: 60/100, Reward: 75.0, Step: 75
+2022-10-31 00:12:08 - r - INFO: - Episode: 61/100, Reward: 182.0, Step: 182
+2022-10-31 00:12:09 - r - INFO: - Episode: 62/100, Reward: 52.0, Step: 52
+2022-10-31 00:12:09 - r - INFO: - Episode: 63/100, Reward: 67.0, Step: 67
+2022-10-31 00:12:09 - r - INFO: - Episode: 64/100, Reward: 53.0, Step: 53
+2022-10-31 00:12:09 - r - INFO: - Episode: 65/100, Reward: 119.0, Step: 119
+2022-10-31 00:12:10 - r - INFO: - Current episode 65 has the best eval reward: 171.90
+2022-10-31 00:12:10 - r - INFO: - Episode: 66/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:10 - r - INFO: - Episode: 67/100, Reward: 74.0, Step: 74
+2022-10-31 00:12:11 - r - INFO: - Episode: 68/100, Reward: 138.0, Step: 138
+2022-10-31 00:12:11 - r - INFO: - Episode: 69/100, Reward: 149.0, Step: 149
+2022-10-31 00:12:12 - r - INFO: - Episode: 70/100, Reward: 144.0, Step: 144
+2022-10-31 00:12:12 - r - INFO: - Current episode 70 has the best eval reward: 173.70
+2022-10-31 00:12:13 - r - INFO: - Episode: 71/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:13 - r - INFO: - Episode: 72/100, Reward: 198.0, Step: 198
+2022-10-31 00:12:14 - r - INFO: - Episode: 73/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:14 - r - INFO: - Episode: 74/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:15 - r - INFO: - Episode: 75/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:16 - r - INFO: - Current episode 75 has the best eval reward: 200.00
+2022-10-31 00:12:16 - r - INFO: - Episode: 76/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:17 - r - INFO: - Episode: 77/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:17 - r - INFO: - Episode: 78/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:18 - r - INFO: - Episode: 79/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:19 - r - INFO: - Episode: 80/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:19 - r - INFO: - Current episode 80 has the best eval reward: 200.00
+2022-10-31 00:12:20 - r - INFO: - Episode: 81/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:20 - r - INFO: - Episode: 82/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:21 - r - INFO: - Episode: 83/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:21 - r - INFO: - Episode: 84/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:22 - r - INFO: - Episode: 85/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:23 - r - INFO: - Current episode 85 has the best eval reward: 200.00
+2022-10-31 00:12:23 - r - INFO: - Episode: 86/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:24 - r - INFO: - Episode: 87/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:25 - r - INFO: - Episode: 88/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:25 - r - INFO: - Episode: 89/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:26 - r - INFO: - Episode: 90/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:27 - r - INFO: - Current episode 90 has the best eval reward: 200.00
+2022-10-31 00:12:27 - r - INFO: - Episode: 91/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:28 - r - INFO: - Episode: 92/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:28 - r - INFO: - Episode: 93/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:29 - r - INFO: - Episode: 94/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:29 - r - INFO: - Episode: 95/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:30 - r - INFO: - Current episode 95 has the best eval reward: 200.00
+2022-10-31 00:12:31 - r - INFO: - Episode: 96/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:31 - r - INFO: - Episode: 97/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:32 - r - INFO: - Episode: 98/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:32 - r - INFO: - Episode: 99/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:33 - r - INFO: - Episode: 100/100, Reward: 200.0, Step: 200
+2022-10-31 00:12:33 - r - INFO: - Current episode 100 has the best eval reward: 200.00
+2022-10-31 00:12:33 - r - INFO: - Finish training!
