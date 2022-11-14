@@ -1,2 +1,0 @@
-codes_dir=$(dirname $(dirname $(readlink -f "$0"))) # "codes" path
-python $codes_dir/QLearning/main.py --env_name FrozenLakeNoSlippery-v1 --train_eps 800 --epsilon_start 0.70 --epsilon_end 0.1 --epsilon_decay 2000 --gamma 0.9 --lr 0.9 --device cpu
