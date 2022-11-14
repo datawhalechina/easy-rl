@@ -126,6 +126,46 @@
 \footnotetext[3]{$\theta_i \leftarrow \theta_i - \lambda \nabla_{\theta_{i}} L_{i}\left(\theta_{i}\right)$}
 \footnotetext[4]{此处也可像原论文中放到小循环中改成每$C$步，但没有每$C$个回合稳定}
 \clearpage
+
+
+\section{PER\_DQN算法}
+\begin{algorithm}[H] % [H]固定位置
+    \floatname{algorithm}{{PER\_DQN算法}\footnotemark[1]}  
+    \renewcommand{\thealgorithm}{} % 去掉算法标号
+	\caption{} 
+    \renewcommand{\algorithmicrequire}{\textbf{输入:}}  
+    \renewcommand{\algorithmicensure}{\textbf{输出:}} 
+	\begin{algorithmic}[1]
+		% \REQUIRE $n \geq 0 \vee x \neq 0$ % 输入
+		% \ENSURE $y = x^n$ % 输出
+		\STATE 初始化策略网络参数$\theta$ % 初始化
+		\STATE 复制参数到目标网络$\hat{Q} \leftarrow Q$
+		\STATE 初始化经验回放$D$
+		\FOR {回合数 = $1,M$}
+			\STATE 重置环境，获得初始状态$s_t$
+			\FOR {时步 = $1,t$}
+				\STATE 根据$\varepsilon-greedy$策略采样动作$a_t$
+				\STATE 环境根据$a_t$反馈奖励$r_t$和下一个状态$s_{t+1}$
+				\STATE 存储transition即$(s_t,a_t,r_t,s_{t+1})$到经验回放$D$，并根据TD-error损失确定其优先级$p_t$
+				\STATE 更新环境状态$s_{t+1} \leftarrow s_t$
+				\STATE {\bfseries 更新策略：}
+				\STATE 按照经验回放中的优先级别，每个样本采样概率为$P(j)=p_j^\alpha / \sum_i p_i^\alpha$，从$D$中采样一个大小为batch的transition
+				\STATE 计算各个样本重要性采样权重 $w_j=(N \cdot P(j))^{-\beta} / \max _i w_i$
+				\STATE 计算TD-error $\delta_j$ ; 并根据TD-error更新优先级$p_j$
+				\STATE 计算实际的$Q$值，即$y_{j}$\footnotemark[2]
+				\STATE 根据重要性采样权重调整损失 $L(\theta)=\left(y_{j}-Q\left(s_{j}, a_{j} ; \theta\right)\cdot w_j \right)^{2}$，并将其关于参数$\theta$做随机梯度下降\footnotemark[3]
+			\ENDFOR
+			\STATE 每$C$个回合复制参数$\hat{Q}\leftarrow Q$\footnotemark[4]]
+		\ENDFOR
+	\end{algorithmic}
+\end{algorithm}
+\footnotetext[1]{Playing Atari with Deep Reinforcement Learning}
+\footnotetext[2]{$y_{i}= \begin{cases}r_{i} & \text {对于终止状态} s_{i+1} \\ r_{i}+\gamma \max _{a^{\prime}} Q\left(s_{i+1}, a^{\prime} ; \theta\right) & \text {对于非终止状态} s_{i+1}\end{cases}$}
+\footnotetext[3]{$\theta_i \leftarrow \theta_i - \lambda \nabla_{\theta_{i}} L_{i}\left(\theta_{i}\right)$}
+\footnotetext[4]{此处也可像原论文中放到小循环中改成每$C$步，但没有每$C$个回合稳定}
+\clearpage
+
+
 \section{Policy Gradient算法}
 \begin{algorithm}[H] % [H]固定位置
     \floatname{algorithm}{{REINFORCE算法：Monte-Carlo Policy Gradient}\footnotemark[1]} 

@@ -1,0 +1,14 @@
+2022-11-14 10:46:49 - r - INFO: - n_states: 4, n_actions: 2
+2022-11-14 10:46:49 - r - INFO: - Start testing!
+2022-11-14 10:46:49 - r - INFO: - Env: CartPole-v1, Algorithm: PER_DQN, Device: cpu
+2022-11-14 10:46:49 - r - INFO: - Episode: 1/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 2/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 3/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 4/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 5/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 6/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 7/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 8/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 9/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Episode: 10/10, Reward: 200.000, Step: 200
+2022-11-14 10:46:49 - r - INFO: - Finish testing!

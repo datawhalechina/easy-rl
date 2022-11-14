@@ -5,7 +5,7 @@ Author: John
 Email: johnjim0816@gmail.com
 Date: 2021-03-11 14:26:44
 LastEditor: John
-LastEditTime: 2022-11-06 00:44:56
+LastEditTime: 2022-11-08 23:35:18
 Discription: 
 Environment: 
 '''
@@ -24,9 +24,6 @@ from common.launcher import Launcher
 from MonteCarlo.agent import FisrtVisitMC
 from MonteCarlo.config.config import GeneralConfigMC,AlgoConfigMC
 
-
-curr_time = datetime.datetime.now().strftime(
-    "%Y%m%d-%H%M%S")  # obtain current time
 class Main(Launcher):
     def __init__(self) -> None:
         super().__init__()

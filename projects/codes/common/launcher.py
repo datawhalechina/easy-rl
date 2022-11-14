@@ -36,11 +36,11 @@ class Launcher:
         ep_reward = 0
         ep_step = 0
         return agent,ep_reward,ep_step
-    def test_one_episode(self,env, agent, cfg):
+    def test_one_episode(self, env, agent, cfg):
         ep_reward = 0
         ep_step = 0
         return agent,ep_reward,ep_step
-    def evaluate(self,env, agent, cfg):
+    def evaluate(self, env, agent, cfg):
         sum_eval_reward = 0
         for _ in range(cfg.eval_eps):
             _,eval_ep_reward,_ = self.test_one_episode(env, agent, cfg)

@@ -1,1 +1,0 @@
-{"algo_name": "First-Visit MC", "env_name": "Racetrack", "train_eps": 200, "test_eps": 20, "gamma": 0.9, "epsilon": 0.15, "device": "cpu", "result_path": "/Users/jj/Desktop/rl-tutorials/codes/MonteCarlo/outputs/Racetrack/20220815-180742/results/", "model_path": "/Users/jj/Desktop/rl-tutorials/codes/MonteCarlo/outputs/Racetrack/20220815-180742/models/", "save_fig": true}
