@@ -429,13 +429,11 @@ OpenAI是一家非营利性的人工智能研究公司，其公布了非常多�
 <div align=center>图 1.24 OpenAI 的 Gym 库</div>
 
 
-我们可以通过 pip 来安装 Gym库:
-
+我们可以通过 pip 来安装 Gym 库，由于 Gym 库 0.26.0 及其之后的版本对之前的代码不兼容，所以我们安装 0.26.0 之前的 Gym，比如 0.25.2。
 
 ```bash
-pip install gym
+pip install gym==0.25.2
 ```
-
 
 在 Python 环境中导入Gym库，如果不报错，就可以认为 Gym 库安装成功。
 
