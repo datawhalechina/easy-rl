@@ -73,17 +73,3 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 也可以[tensorboard](https://pytorch.org/docs/stable/tensorboard.html)查看结果，如下：
 
 ![image-20201015221032985](assets/image-20201015221032985.png)
-
-### 代码清单
-
-**main.py**：保存强化学习基本接口，以及相应的超参数，可使用argparse
-
-**model.py**：保存神经网络，比如全链接网络
-
-**dqn.py**: 保存算法模型，主要包含select_action和update两个函数
-
-**memory.py**：保存Replay Buffer
-
-**plot.py**：保存相关绘制函数，可选
-
-[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/codes/DQN)
