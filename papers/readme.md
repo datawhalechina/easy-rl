@@ -8,7 +8,7 @@
 
 | 类别            | 论文题目                                                     | 原文链接                                      | 其他-视频解读 |
 | --------------- | ------------------------------------------------------------ | --------------------------------------------- | -------------------- |
-| DQN             | Playing Atari with Deep Reinforcement Learning               | https://arxiv.org/abs/1312.5602               |                      |
+| DQN             | Playing Atari with Deep Reinforcement Learning (**DQN**)               | https://arxiv.org/abs/1312.5602               |                      |
 |                 | Deep Recurrent Q-Learning for Partially Observable MDPs      | https://arxiv.org/abs/1507.06527              |                      |
 |                 | Dueling Network Architectures for Deep Reinforcement Learning (**Dueling DQN**) | https://arxiv.org/abs/1511.06581              |                      |
 |                 | Deep Reinforcement Learning with Double Q-learning (**Double DQN**) | https://arxiv.org/abs/1509.06461              |                      |
