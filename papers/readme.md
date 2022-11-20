@@ -21,7 +21,7 @@
 |                 | Emergence of Locomotion Behaviours in Rich Environments (**PPO-Penalty**) | https://arxiv.org/abs/1707.02286              |                      |
 |                 | Scalable trust-region method for deep reinforcement learning using Kronecker-factored approximation (**ACKTP**) | https://arxiv.org/abs/1708.05144              |                      |
 |                 | Sample Efficient Actor-Critic with Experience Replay (**ACER**) | https://arxiv.org/abs/1611.01224              |                      |
-|                 | Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with (**SAC**) | https://arxiv.org/abs/1801.01290              |                      |
+|                 | Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor(**SAC**) | https://arxiv.org/abs/1801.01290              |                      |
 |                 | Deterministic Policy Gradient Algorithms (**DPG**)           | http://proceedings.mlr.press/v32/silver14.pdf |                      |
 |                 | Continuous Control With Deep Reinforcement Learning (**DDPG**) | https://arxiv.org/abs/1509.02971              |                      |
 |                 | Addressing Function Approximation Error in Actor-Critic Methods (**TD3**) | https://arxiv.org/abs/1802.09477              |                      |
