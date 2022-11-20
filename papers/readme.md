@@ -26,5 +26,4 @@
 |                 | Continuous Control With Deep Reinforcement Learning (**DDPG**) | https://arxiv.org/abs/1509.02971              |                      |
 |                 | Addressing Function Approximation Error in Actor-Critic Methods (**TD3**) | https://arxiv.org/abs/1802.09477              |                      |
 |                 | A Distributional Perspective on Reinforcement Learning (**C51**) | https://arxiv.org/abs/1707.06887              |                      |
-|                 |                                                              |                                               |                      |
 
