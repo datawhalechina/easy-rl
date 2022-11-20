@@ -6,7 +6,7 @@
 
 **转发请加上链接&来源（Easy-RL项目）**
 
-| 类别            | 论文题目                                                     | 原文链接                                      | 其他链接（视频解读） |
+| 类别            | 论文题目                                                     | 原文链接                                      | 其他-视频解读 |
 | --------------- | ------------------------------------------------------------ | --------------------------------------------- | -------------------- |
 | DQN             | Playing Atari with Deep Reinforcement Learning               | https://arxiv.org/abs/1312.5602               |                      |
 |                 | Deep Recurrent Q-Learning for Partially Observable MDPs      | https://arxiv.org/abs/1507.06527              |                      |
