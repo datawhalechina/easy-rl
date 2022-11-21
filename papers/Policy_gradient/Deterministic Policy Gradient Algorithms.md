@@ -1,10 +1,14 @@
 # Deterministic Policy Gradient Algorithms（DPG）
+作者：David Silver，Guy Lever，Nicolas Heess, Thomas Degris, Daan Wierstra, Martin Riedmiller <br>
+单位：DeepMind Technologies, London, UK；University College London, UK <br>
+论文发表会议：Proceedings of the 31st International Conference on Machine Learning <br>
+论文发表时间：2014 <br>
 论文地址：https://www.deepmind.com/publications/deterministic-policy-gradient-algorithms <br>
 
 论文贡献：这篇论文提出了确定性的策略梯度算法，是对之前的随机性梯度策略算法的发展。
 
 # 一、研究动机
-在随机策略梯度算法之中，计算其目标函数需要在状态空间和动作空间进行积分，也就是说采样时需要尽可能地覆盖到所有的状态空间和动作空间，所以就需要尽可能多地采样。但是如果策略是一个确定性的策略，那么积分就只需要在状态空间上进行，这样就大大减小了需要采样的数目。
+在随机策略梯度算法之中，计算其目标函数梯度的期望需要在状态空间和动作空间进行积分，也就是说采样时需要尽可能地覆盖到所有的状态空间和动作空间，所以就需要尽可能多地采样。但是如果策略是一个确定性的策略，那么积分就只需要在状态空间上进行，这样就大大减小了需要采样的数目。
 
 # 二、随机策略梯度算法
 ### 一个基本的setting：<br>
@@ -39,7 +43,7 @@ $$ =E_{s\sim\rho^{\pi},a\sim\pi_{\theta}}[\nabla_{\theta}\pi_{\theta}(a|s)Q^{\pi
 2) $\quad$ $Q^{w}(s,a)$的参数w需要满足最小化下面这个均方误差（MSE）：
    $$ \quad \epsilon^{2}(w)=E_{s\sim\rho^{\pi},a\sim\pi_{\theta}}[(Q^{w}(s,a)-Q^{\pi}(s,a))^{2}]$$
 
-### 离线演员-评论员算法（Off-Policy Actor-Critic）
+### 异策略演员-评论员算法（Off-Policy Actor-Critic）
 该算法和原始的演员-评论员算法的区别在于用于采样轨迹的策略（behaviour policy: $\beta(a|s)$）和实际更新的策略（target policy: $\pi_{\theta}(a|s)$）不一致，即
 $$ \beta(a|s)\neq\pi_{\theta}(a|s) $$
 在原始的演员-评论员算法中，每次采样来计算目标函数的时候，由于策略已经进行了更新，都需要重新采样，这样的话采样得到的轨迹的利用率就很低。所以考虑采样和实际更新的策略采用不同的策略，这样就可以提高采样的利用率。具体推导如下：  
@@ -90,7 +94,7 @@ $$ =E_{s\sim\rho^{\beta}}[\nabla_{\theta}\mu_{\theta}(s)\nabla_{a}Q^{\mu_{k}}(s,
 $$ \delta_{t}=r_{t}+\gamma Q^{w}(s_{t+1},a_{t+1})-Q^{w}(s_{t},a_{t})$$
 $$ w_{t+1}=w_{t}+\alpha_{\theta}\delta_{t}\nabla_{w}Q^{w}(s_{t},a_{t})$$
 $$ \theta_{t+1}=\theta_{t}+\alpha_{\theta}\nabla_{\theta}\mu_{\theta}(s_{t})\nabla_{a}Q^{\mu_{k}}(s_{t},a_{t})|_{a=\mu_{\theta}(s)}$$
-注意到，这里的算法更新的形式和同策略演员-评论员算法是完全一样的，这是因为我们更新参数的时候并没有用到策略梯度的期望，而是用单个采样轨迹的目标函数的梯度进行更新的，所以同策略和异策略算法在表现形式上完全一样，不同之处在于用于更新的采样轨迹，异策略算法中的采样轨迹更具有多样性。
+注意到，这里的算法更新的形式和同策略演员-评论员算法是完全一样的，这是因为我们更新参数的时候并没有用到策略梯度的期望，而是用单个采样轨迹的目标函数的梯度进行更新的，所以同策略和异策略算法在表现形式上完全一样，不同之处在于用于更新的采样轨迹，异策略算法中的采样轨迹更具有多样性。但是我们在实际应用的时候，我认为还是应该用期望来更新策略参数，而不是单个样本的梯度。
 
 # 四、算法总结
 这篇论文介绍的核心的算法就是确定性策略的异策略演员-评论员算法，算法的大概流程就是：   
@@ -100,27 +104,41 @@ $$ \theta_{t+1}=\theta_{t}+\alpha_{\theta}\nabla_{\theta}\mu_{\theta}(s_{t})\nab
 4. 循环这个过程   
    
 
-注：关于如何更新$Q^{w}(s,\mu_{\theta}(s,a))$，这里不做具体介绍下。在实际应用算法的时候我们需要考虑如何对$Q^{w}(s,a)$，$\mu_{\theta}(s)$进行建模，可以用特征工程+线性回归的方法进行建模，也可以考虑用神经网络对其进行建模，但是无论用哪种方式，要考虑建模的时候是否会引入偏差，原论文中对于$Q^{w}(s,a)$应该满足何种形式才不会引入偏差进行了详细的讨论，我没有在这篇文章中列出来，有需要的可以去找原论文来看。这篇文章写于2014年，那时候深度学习还没有在RL中广泛的应用，所以原论文有些内容并不是以深度学习广泛应用为大前提来写的，我们要认识到这一点。
+注：关于如何更新$Q^{w}(s,\mu_{\theta}(s,a))$，这里不做具体介绍。在实际应用算法的时候我们需要考虑如何对$Q^{w}(s,a)$，$\mu_{\theta}(s)$进行建模，可以用特征工程+线性回归的方法进行建模，也可以考虑用神经网络对其进行建模，但是无论用哪种方式，要考虑建模的时候是否会引入偏差，原论文中对于$Q^{w}(s,a)$应该满足何种形式才不会引入偏差进行了详细的讨论，我没有在这篇文章中列出来，有需要的可以去找原论文来看。这篇文章写于2014年，那时候深度学习还没有在RL中广泛的应用，所以原论文有些内容并不是以深度学习广泛应用为大前提来写的，我们要认识到这一点。下文提到的COPDAC(compatible off-policy deterministic actorcritic)就理解为对$Q^{w}(s,a)$, $\mu_{\theta}(s)$进行了特殊的建模就好了，至于怎么建模的，其实不太重要，因为现在一般都用神经网络来建模了。
 # 五、实验
 这部分设置了三个情景来验证确定性策略梯度算法的效果。
 ### 连续的老虎机（Continuous Bandit）
 #### 实验设置
-分别在动作空间维数m=10，25，50的setting下应用了stochastic actor-critic (SAC-B)、deterministic actor-critic (COPDAC-B)两种算法。这两种算法的$Q^{w}(s,a)$都是通过基于cost的相匹配特征（compatible features）的线性回归来建模的。SAC-B中的随机策略函数是通过高斯函数建模，COPDAC-B中的探索策略也是通过高斯函数建模，目标策略是一个简单的单位映射。   
+分别在动作空间维数m=10，25，50的setting下应用了stochastic actor-critic (SAC-B)、deterministic actor-critic (COPDAC-B)两种算法。老虎机可以视为一种弱化的强化学习，即一个回合只有一个时间步。这里的cost是衡量目前的策略相比于最优策略，差了多少，所以cost越低越好。   
 
-![](img/DPG_1.png)
+![](img/DPG_1.PNG)
 #### 实验结果
 可以看出，COPDAC-B的效果远远好于SAC-B，而且动作空间的维数越大，其优势越明显。
 ### 连续的强化学习（Continuous Reinforcement Learning）
 #### 实验设置
 三个游戏环境分别为：mountain car、pendulum、2D puddle world，其动作空间都是连续的。分别在这三个游戏环境中应用stochastic on-policy actor-critic (SAC)、 stochastic off-policy actor-critic (OffPAC)、deterministic off-policy actor-critic (COPDAC)三种算法。    
 
-![](img/DPG_2.png)
+![](img/DPG_2.PNG)
 #### 实验结果
-可以看出来，COPDAC-Q在三种环境中均表现最好。
+可以看出来，COPDAC-Q在三种环境中均表现最好。而且COPDAC-Q收敛的更快，这是因为他需要的采样数更少。
 ### 章鱼手控制（Octopus Arm）
 #### 实验设置
 Octopus Arm是一个具有多个自由度的机械手，这个实验的目标是这个机械手触碰到目标。实验过程中的奖励和机械手与目标之间的距离改变成正比（即离目标越近，奖励越多），当触碰到目标或者进行了300步时，一个过程结束。这里用两个感知机来建模$Q^{w}(s,a)$和$\mu_{\theta}(s)$。实验结果如下：    
 
-![](img/DPG_3.png)
+![](img/DPG_3.PNG)
 #### 实验结果
 可以看到，算法学到了较好的策略，触碰到目标需要的步数越来越少，一个完整过程所得到的回报越来越多。
+
+## 参考文献
+1. Silver, D., Lever, G., Heess, N., Degris, T., Wierstra, D. &amp; Riedmiller, M.. (2014). Deterministic Policy Gradient Algorithms.  Available from https://proceedings.mlr.press/v32/silver14.html. <br>
+2. [论文十问-快速理解论文主旨的框架](https://www.cnblogs.com/xuyaowen/p/raad-paper.html)<br>
+3. [蘑菇书EasyRL](https://github.com/datawhalechina/easy-rl)
+   
+
+=============================<br>
+作者：赵世天 <br>
+所属院校：华东师范大学<br>
+研究方向：计算机视觉、深度学习<br>
+联系邮箱：shitian_zhao@163.com
+
+关于我：华东师范大学本科在读，目前在做一些多模态和域泛化的研究，知乎重度使用者。大家一起交流学习吧。
