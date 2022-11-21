@@ -4,6 +4,8 @@
 
 每周更新5篇左右的论文，欢迎关注。
 
+如果在线阅读Markdown文件有问题（例如公式编译错误、图片显示较慢等），请下载到本地阅读，或观看PDF文件夹中的同名文件。
+
 **转发请加上链接&来源[Easy RL项目](https://github.com/datawhalechina/easy-rl)**
 
 | 类别            | 论文题目                                                     | 原文链接                                      | 视频解读 |
@@ -22,7 +24,7 @@
 |                 | Scalable trust-region method for deep reinforcement learning using Kronecker-factored approximation (**ACKTP**) [[Markdown格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/Scalable%20trust-region%20method%20for%20deep%20reinforcement%20learning%20using%20Kronecker-factored.md) | https://arxiv.org/abs/1708.05144              |          |
 |                 | Sample Efficient Actor-Critic with Experience Replay (**ACER**) | https://arxiv.org/abs/1611.01224              |          |
 |                 | Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor(**SAC**) [[Markdown格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/Soft%20Actor-Critic_Off-Policy%20Maximum%20Entropy%20Deep%20Reinforcement%20Learning%20with%20a%20Stochastic%20Actor.md) [[PDF格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/PDF/Soft%20Actor-Critic_Off-Policy%20Maximum%20Entropy%20Deep%20Reinforcement%20Learning%20with%20a%20Stochastic%20Actor.pdf) | https://arxiv.org/abs/1801.01290              |          |
-|                 | Deterministic Policy Gradient Algorithms (**DPG**) [[Markdown格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/Deterministic%20Policy%20Gradient%20Algorithms.md) | http://proceedings.mlr.press/v32/silver14.pdf |          |
+|                 | Deterministic Policy Gradient Algorithms (**DPG**) [[Markdown格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/Deterministic%20Policy%20Gradient%20Algorithms.md) [[PDF格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/PDF/Deterministic%20Policy%20Gradient%20Algorithms.pdf) | http://proceedings.mlr.press/v32/silver14.pdf |          |
 |                 | Continuous Control With Deep Reinforcement Learning (**DDPG**) | https://arxiv.org/abs/1509.02971              |          |
 |                 | Addressing Function Approximation Error in Actor-Critic Methods (**TD3**) [[Markdown格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/Addressing%20Function%20Approximation%20Error%20in%20Actor-Critic%20Methods.md) | https://arxiv.org/abs/1802.09477              |          |
 |                 | A Distributional Perspective on Reinforcement Learning (**C51**) [[Markdown格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/A%20Distributional%20Perspective%20on%20Reinforcement%20Learning.md) [[PDF格式]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/PDF/A%20Distributional%20Perspective%20on%20Reinforcement%20Learning.pdf) | https://arxiv.org/abs/1707.06887              |          |
