@@ -77,19 +77,4 @@ for i_episode in range(1, cfg.max_episodes+1): # cfg.max_episodes为最大训练
 2. 由于本次环境为惯性系统，建议增加Ornstein-Uhlenbeck噪声提高探索率，可参考[知乎文章](https://zhuanlan.zhihu.com/p/96720878)
 3. 推荐多次试验保存rewards，然后使用searborn绘制，可参考[CSDN](https://blog.csdn.net/JohnJim0/article/details/106715402)
 
-### 代码清单
-
-**main.py**：保存强化学习基本接口，以及相应的超参数，可使用argparse
-
-**model.py**：保存神经网络，比如全链接网络
-
-**ddpg.py**: 保存算法模型，主要包含select_action和update两个函数
-
-**memory.py**：保存Replay Buffer
-
-**plot.py**：保存相关绘制函数
-
-**noise.py**：保存噪声相关
-
-[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/codes/DDPG)
 

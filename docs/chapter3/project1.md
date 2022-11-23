@@ -64,20 +64,6 @@ for i_ep in range(cfg.train_eps): # train_eps: 训练的最大episodes数
 
 ![moving_average_rewards](assets/moving_average_rewards.png)
 
-## 主要代码清单
-
-**main.py** 或 **task_train.py**：保存强化学习基本接口，以及相应的超参数
-
-**agent.py**: 保存算法模型，主要包含choose_action(预测动作)和update两个函数，有时会多一个predict_action函数，此时choose_action使用了epsilon-greedy策略便于训练的探索，而测试时用predict_action单纯贪心地选择网络的值输出动作
-
-**model.py**：保存神经网络，比如全连接网络等等，对于一些算法，分为Actor和Critic两个类
-
-**memory.py**：保存replay buffer，根据算法的不同，replay buffer功能有所不同，因此会改写
-
-**plot.py**：保存相关绘制函数
-
-[参考代码](https://github.com/datawhalechina/easy-rl/tree/master/projects/codes/QLearning)
-
 ## 备注
 
 * 注意 $\varepsilon$-greedy 策略的使用，以及相应的参数$\varepsilon$如何衰减
