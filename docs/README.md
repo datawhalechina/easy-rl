@@ -80,7 +80,11 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |                                                              |                                                              |
 ## 算法实战
 
-[点击](https://github.com/johnjim0816/rl-tutorials)或者网页点击```projects```文件夹进入算法实战
+算法实战部分包括附书代码和JoyRL代码：
+
+* [蘑菇书附书代码](https://github.com/datawhalechina/easy-rl/tree/master/notebooks)
+* [JoyRL离线版](https://github.com/johnjim0816/rl-tutorials/tree/master/joyrl)
+* [JoyRL上线版](https://github.com/datawhalechina/joyrl)
 
 ## 经典强化学习论文解读
 
