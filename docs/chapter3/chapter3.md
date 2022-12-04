@@ -598,7 +598,7 @@ Q学习是一种**异策略（off-policy）**算法。如图 3.31 所示，异�
 <div align=center>
 <img width="550" src="../img/ch3/3.17.png"/>
 </div>
-<div align=center>图 3.21 异策略</div>
+<div align=center>图 3.31 异策略</div>
 
 
 再例如，如图 3.32 所示，比如环境是波涛汹涌的大海，但学习策略（learning policy）太“胆小”了，无法直接与环境交互学习，所以我们有了探索策略（exploratory policy），探索策略是一个不畏风浪的海盗，它非常激进，可以在环境中探索。因此探索策略有很多经验，它可以把这些经验“写成稿子”，然后“喂”给学习策略。学习策略可以通过稿子进行学习。
