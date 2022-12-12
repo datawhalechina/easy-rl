@@ -1,5 +1,5 @@
 [![GitHub issues](https://img.shields.io/github/issues/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/issues) [![GitHub stars](https://img.shields.io/github/stars/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/stargazers) [![GitHub forks](https://img.shields.io/github/forks/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/network) [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatawhalechina%2Feasy-rl%2F&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
-(https://img.shields.io/github/license/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/blob/master/LICENSE)
 
 
 # 蘑菇书EasyRL
