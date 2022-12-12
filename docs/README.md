@@ -135,7 +135,10 @@ url = {https://github.com/datawhalechina/easy-rl}
 
 ## 致谢
 
-特别感谢 [@Sm1les](https://github.com/Sm1les)、[@LSGOMYP](https://github.com/LSGOMYP) 对本项目的帮助与支持。
+特别感谢 [@Sm1les](https://github.com/Sm1les)、[@LSGOMYP](https://github.com/LSGOMYP) 对本项目的帮助与支持。另外，十分感谢大家对于Easy-RL的关注、Star和Fork。
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fdatawhalechina%2Feasy-rl%2F&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![Stargazers repo roster for @datawhalechina/easy-rl](https://reporoster.com/stars/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/stargazers)
+[![Forkers repo roster for @datawhalechina/easy-rl](https://reporoster.com/forks/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/network/members)
 
 ## 关注我们
 扫描下方二维码关注公众号：Datawhale，回复关键词“强化学习”，即可加入“Easy-RL读者交流群”
