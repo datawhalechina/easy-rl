@@ -82,7 +82,7 @@ $$
 
 #### 算法
 
-<img src="img/Stein2.png" alt="截屏2022-12-05 19.58.49" style="zoom:67%;" />
+#### <img src="img/Stein2.png" alt="截屏2022-12-05 19.58.49" style="zoom:67%;" />
 
 运用Stein控制变量的PPO算法。
 
