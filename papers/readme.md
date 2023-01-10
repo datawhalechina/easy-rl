@@ -39,7 +39,12 @@
 |                    | Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor (**SAC**) [[Markdown]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/Soft%20Actor-Critic_Off-Policy%20Maximum%20Entropy%20Deep%20Reinforcement%20Learning%20with%20a%20Stochastic%20Actor.md) [[PDF]](https://github.com/datawhalechina/easy-rl/blob/master/papers/Policy_gradient/PDF/Soft%20Actor-Critic_Off-Policy%20Maximum%20Entropy%20Deep%20Reinforcement%20Learning%20with%20a%20Stochastic%20Actor.pdf) | https://arxiv.org/abs/1801.01290                             |          |
 | Multi-Agent        | IQL                                                          | https://web.media.mit.edu/~cynthiab/Readings/tan-MAS-reinfLearn.pdf |          |
 |                    | VDN                                                          | https://arxiv.org/abs/1706.05296                             |          |
+|                    | QTRAN                                                        | http://proceedings.mlr.press/v97/son19a/son19a.pdf           |          |
 |                    | QMIX                                                         | https://arxiv.org/abs/1803.11485                             |          |
+|                    | Weighted QMIX                                                | https://arxiv.org/abs/2006.10800                             |          |
+|                    | COMA                                                         | https://ojs.aaai.org/index.php/AAAI/article/download/11794/11653 |          |
+|                    | MAPPO                                                        | https://arxiv.org/abs/2103.01955                             |          |
+|                    | MADDPG                                                       |                                                              |          |
 | Sparse reward      | Hierarchical DQN                                             | https://arxiv.org/abs/1604.06057                             |          |
 |                    | ICM                                                          | https://arxiv.org/pdf/1705.05363.pdf                         |          |
 |                    | HER                                                          | https://arxiv.org/pdf/1707.01495.pdf                         |          |
