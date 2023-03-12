@@ -76,7 +76,7 @@ pip install gym==0.25.2
 
 ![](res/9-4.png ':size=550')
 
-
+* 203页，倒数第二段的第一行：clipped dobule Q-learning → clipped double Q-learning
 
 ## 第1版第4次印刷（2022.11）
 
