@@ -97,7 +97,7 @@ DDPG通过异策略的方式来训练一个确定性策略。因为策略是确�
 我们可以使用实际的 Q 值与Q网络输出的 Q 值进行对比。实际的 Q 值可以用蒙特卡洛来算。根据当前的策略采样 1000 条轨迹，得到 $G$ 后取平均值，进而得到实际的 Q 值。
 
 **双延迟深度确定性策略梯度（twin delayed DDPG，TD3）**通过引入3个关键技巧来解决这个问题。
-* **截断的双 Q 学习（clipped dobule Q-learning）** 。TD3学习两个Q函数（因此名字中有 “twin”）。TD3通过最小化均方差来同时学习两个Q函数：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个Q函数都使用一个目标，两个Q函数中给出的较小的值会被作为如下的 Q-target：
+* **截断的双 Q 学习（clipped double Q-learning）** 。TD3学习两个Q函数（因此名字中有 “twin”）。TD3通过最小化均方差来同时学习两个Q函数：$Q_{\phi_1}$ 和 $Q_{\phi_2}$。两个Q函数都使用一个目标，两个Q函数中给出的较小的值会被作为如下的 Q-target：
 
 $$
 y\left(r, s^{\prime}, d\right)=r+\gamma(1-d) \min _{i=1,2} Q_{\phi_{i, \text{targ}}}\left(s^{\prime}, a_\text{TD3}\left(s^{\prime}\right)\right)
