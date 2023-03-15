@@ -96,7 +96,7 @@ $$
     \frac{\nabla p_{\theta}(\tau)}{p_{\theta}(\tau)}= \nabla \log p_{\theta}(\tau)
 $$
 
-注：对数函数 $f(x)=\log x$ 的导数为 $\frac{1}{x}$。
+注：上式用了对数函数的求导公式，对数函数 $f(x)=\log x$ 的导数为 $\frac{1}{x}$。
 
 如式(4.2)所示，我们对 $\tau$ 进行求和，把 $R(\tau)$  和  $\log p_{\theta}(\tau)$ 这两项使用 $p_{\theta}(\tau)$ 进行加权， 既然使用 $p_{\theta}(\tau)$ 进行加权 ，它们就可以被写成期望的形式。也就是我们从 $p_{\theta}(\tau)$ 这个分布里面采样 $\tau$ ， 去计算 $R(\tau)$ 乘 $\nabla\log p_{\theta}(\tau)$，对所有可能的 $\tau$ 进行求和，就是期望的值（expected value）。
 $$
