@@ -219,7 +219,7 @@ A：**状态**是对世界的完整描述，不会隐藏世界的信息。**观�
 
 ### 1.4 强化学习智能体的组成成分和类型
 
-**部分可观测马尔可夫决策过程(Partially Observable Markov Decision Processes, POMDP)** 是一个马尔可夫决策过程的泛化。POMDP 依然具对于一个强化学习 agent，它可能有一个或多个如下的组成成分：
+**部分可观测马尔可夫决策过程(Partially Observable Markov Decision Processes, POMDP)** 是一个马尔可夫决策过程的泛化。POMDP 依然具具有马尔可夫性质。
 
 对于一个强化学习智能体，它可能有一个或多个如下的组成成分。
 
