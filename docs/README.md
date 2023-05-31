@@ -121,6 +121,7 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 
 ```
 王琦，杨毅远，江季，Easy RL：强化学习教程，人民邮电出版社，https://github.com/datawhalechina/easy-rl, 2022.
+Qi Wang, Yiyuan Yang, Ji Jiang，Easy RL: Reinforcement Learning Tutorial，Posts & Telecom Press，https://github.com/datawhalechina/easy-rl, 2022.
 ```
 
 ```bibtex
@@ -135,10 +136,10 @@ url = {https://github.com/datawhalechina/easy-rl}
 }
 
 @book{wang2022easyrl,
-title = {Easy RL：Reinforcement Learning Tutorial},
+title = {Easy RL: Reinforcement Learning Tutorial},
 publisher = {Posts & Telecom Press},
 year = {2022},
-author = {Qi Wang,Yiyuan Yang,Ji Jiang},
+author = {Qi Wang, Yiyuan Yang, Ji Jiang},
 address = {Beijing},
 isbn = {9787115584700},
 url = {https://github.com/datawhalechina/easy-rl}
