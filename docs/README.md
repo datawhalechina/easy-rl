@@ -133,6 +133,16 @@ address = {北京},
 isbn = {9787115584700},
 url = {https://github.com/datawhalechina/easy-rl}
 }
+
+@book{wang2022easyrl,
+title = {Easy RL：Reinforcement Learning Tutorial},
+publisher = {Posts & Telecom Press},
+year = {2022},
+author = {Qi Wang,Yiyuan Yang,Ji Jiang},
+address = {Beijing},
+isbn = {9787115584700},
+url = {https://github.com/datawhalechina/easy-rl}
+}
 ```
 
 ## 致谢
