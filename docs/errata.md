@@ -20,8 +20,9 @@ pip install pygame
 * 28页，倒数第一段改为：SimpleAgent 类的 decide()方法用于决策，learn() 方法用于学习，该智能体不是强化学习智能体，不能学习，只能根据给定的数学表达式进行决策。
 * 29页，第一个代码框第1行：play_montecarlo → play
 * 29页，第二段第1行：play_montecarlo → play
-* 29页，倒数第一个代码框的第1行：env.seed(0) → env.seed(3)
+* 29页，倒数第一个代码框的第1行改为：env.seed(3) # 设置随机种子，让结果可复现
 * 29页，倒数第一个代码框第2行：play_montecarlo → play
+* 29页，倒数第一个代码框的倒数第1行改为：此语句可关闭图形界面 → 关闭图形界面
 * 30页，第二个代码框第1行：play_montecarlo → play
 * 30页，第三个代码框：-102.61 → -106.63
 * 30页，第三段第2行：BespokeAgent → SimpleAgent
