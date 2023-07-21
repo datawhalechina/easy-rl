@@ -41,7 +41,6 @@ def play_montecarlo(env, agent, render=False, train=False):
 env = gym.make('MountainCar-v0')
 env.seed(3) # 设置随机数种子,只是为了让结果可以精确复现,一般情况下可删去
 agent = BespokeAgent(env)
-print(type(env.observation_space))
 print('观测空间 = {}'.format(env.observation_space))
 print('动作空间 = {}'.format(env.action_space))
 print('观测范围 = {} ~ {}'.format(env.observation_space.low,
