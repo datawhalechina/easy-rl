@@ -47,7 +47,7 @@ print('观测范围 = {} ~ {}'.format(env.observation_space.low,
         env.observation_space.high))
 print('动作数 = {}'.format(env.action_space.n))
 
-episode_reward = play_montecarlo(env, agent)
+episode_reward = play_montecarlo(env, agent, render=True)
 print('回合奖励 = {}'.format(episode_reward))
 
 episode_rewards = [play_montecarlo(env, agent) for _ in range(100)]
