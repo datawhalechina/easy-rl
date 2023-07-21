@@ -2,7 +2,7 @@ import gym
 import numpy as np
 
 
-class Agent:
+class SimpleAgent:
     def __init__(self, env):
         pass
     
@@ -40,7 +40,7 @@ def play(env, agent, render=False, train=False):
 
 env = gym.make('MountainCar-v0')
 env.seed(3) # 设置随机种子，让结果可复现
-agent = Agent(env)
+agent = SimpleAgent(env)
 print('观测空间 = {}'.format(env.observation_space))
 print('动作空间 = {}'.format(env.action_space))
 print('观测范围 = {} ~ {}'.format(env.observation_space.low,
