@@ -566,7 +566,7 @@ print('动作数 = {}'.format(env.action_space.n))
 
 观测是长度为 2 的数组，动作是整数，其取值范围为{0,1,2}。
 
-接下来实现智能体来控制小车移动，对应代码如下：
+接下来实现智能体来控制小车移动，对应代码如下。
 
 ```python
 class SimpleAgent:
@@ -612,7 +612,7 @@ def play(env, agent, render=False, train=False):
     return episode_reward # 返回回合总奖励
 ```
 
-上面代码中的 play\_montecarlo()函数可以让智能体和环境交互一个回合，这个函数有 4 个参数。
+上面代码中的 play 函数可以让智能体和环境交互一个回合，这个函数有 4 个参数。
 env 是环境类。agent 是智能体类。render 是 bool 型变量，指示在运行过程中是否要图形化显示，如果函数参数 render为 True，那么在交互过程中会调用 env.render() 以显示图形界面，而这个界面可以通过调用 env.close()关闭。
 train是 bool 型的变量，指示在运行过程中是否训练智能体，在训练过程中应当设置为 True，以调用 agent.learn()函数；在测试过程中应当设置为 False，使得智能体不变。
 这个函数有一个返回值episode\_reward，是 float 型的数值，表示智能体与环境交互一个回合的回合总奖励。
