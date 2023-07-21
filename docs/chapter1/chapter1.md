@@ -566,10 +566,10 @@ print('动作数 = {}'.format(env.action_space.n))
 
 由输出可知，观测是形状为 (2,) 的浮点型 np.array，动作空间是取 {0,1,2} 的 int 型数值。
 
-接下来考虑智能体。智能体往往是我们自己实现的。我们可以实现一个智能体类————BespokeAgent 类，代码如下：
+接下来考虑智能体。智能体往往是我们自己实现的。我们可以实现一个智能体类————Agent 类，代码如下：
 
 ```python
-class BespokeAgent:
+class Agent:
     def __init__(self, env):
         pass
     
@@ -587,15 +587,15 @@ class BespokeAgent:
     def learn(self, *args): # 学习
         pass
     
-agent = BespokeAgent(env)
+agent = Agent(env)
 ```
 
-智能体的decide()方法实现了决策功能，而learn()方法实现了学习功能。BespokeAgent类是一个比较简单的类，它只能根据给定的数学表达式进行决策，不能有效学习，所以它并不是一个真正意义上的强化学习智能体类。但是，它用于演示智能体和环境的交互已经足够了。
+智能体的decide()方法实现了决策功能，而learn()方法实现了学习功能。Agent类是一个比较简单的类，它只能根据给定的数学表达式进行决策，不能有效学习，所以它并不是一个真正意义上的强化学习智能体类。但是，它用于演示智能体和环境的交互已经足够了。
 
 接下来我们试图让智能体与环境交互，代码如下。
 
 ```python
-def play_montecarlo(env, agent, render=False, train=False):
+def play(env, agent, render=False, train=False):
     episode_reward = 0. # 记录回合总奖励，初始化为0
     observation = env.reset() # 重置游戏环境，开始新回合
     while True: # 不断循环，直到回合结束
@@ -620,10 +620,10 @@ train是 bool 型的变量，指示在运行过程中是否训练智能体，在
 接下来，我们使用下面的代码让智能体和环境交互一个回合，并在交互过程中进行图形化显示，可用 env.close()语句关闭图形界面。
 
 ```python
-env.seed(3) # 设置随机数种子,只是为了让结果可以精确复现,一般情况下可删去
-episode_reward = play_montecarlo(env, agent, render=True)
+env.seed(3) # 设置随机种子，让结果可复现
+episode_reward = play(env, agent, render=True)
 print('回合奖励 = {}'.format(episode_reward))
-env.close() # 此语句可关闭图形界面
+env.close() # 关闭图形界面
 ```
 
 输出：
@@ -633,7 +633,7 @@ env.close() # 此语句可关闭图形界面
 
 为了系统评估智能体的性能，下列代码求出了连续交互 100 回合的平均回合奖励。
 ```python
-episode_rewards = [play_montecarlo(env, agent) for _ in range(100)]
+episode_rewards = [play(env, agent) for _ in range(100)]
 print('平均回合奖励 = {}'.format(np.mean(episode_rewards)))
 ```
 
@@ -642,7 +642,7 @@ print('平均回合奖励 = {}'.format(np.mean(episode_rewards)))
 平均回合奖励 = -106.63
 ```
 
-小车上山环境有一个参考的回合奖励值 $-$110，如果连续 100 个回合的平均回合奖励大于 $-$110，则认为这个任务被解决了。BespokeAgent 类对应的策略的平均回合奖励就在 $-$110 左右。完整代码实现可参考[小车上山代码](https://github.com/datawhalechina/easy-rl/blob/master/docs/chapter1/RL_example.py)。
+小车上山环境有一个参考的回合奖励值 $-$110，如果连续 100 个回合的平均回合奖励大于 $-$110，则认为这个任务被解决了。Agent 类对应的策略的平均回合奖励就在 $-$110 左右。完整代码实现可参考[小车上山代码](https://github.com/datawhalechina/easy-rl/blob/master/docs/chapter1/RL_example.py)。
 
 测试智能体在 Gym 库中某个任务的性能时，学术界一般最关心 100 个回合的平均回合奖励。至于为什么是 100 个回合而不是其他回合数（比如 128 个回合），完全是习惯使然，没有什么特别的原因。对于有些任务，还会指定一个参考的回合奖励值，当连续 100 个回合的奖励大于指定的值时，就认为这个任务被解决了。但是，并不是所有的任务都指定了这样的值。对于没有指定值的任务，就无所谓任务被解决了或者没有被解决。
 
