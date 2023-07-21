@@ -527,17 +527,14 @@ env.close()
 
 env.step()完成了一个完整的 $S \to A \to R \to S'$ 过程。我们只要不断观测这样的过程，并让智能体在其中用相应的算法完成训练，就能得到一个高质量的强化学习模型。
 
-我们想要查看当前 Gym 库已经注册了哪些环境，可以使用以下代码：
+Gym 库已注册的环境可以通过以下代码查看：
 ```python
 from gym import envs
 env_specs = envs.registry.all()
 envs_ids = [env_spec.id for env_spec in env_specs]
 print(envs_ids)
 ```
-
-每个环境都定义了自己的观测空间和动作空间。环境 env 的观测空间用 env.observation\_space 表示，动作空间用 env.action\_space 表示。观测空间和动作空间既可以是离散空间（取值是有限个离散的值），也可以是连续空间（取值是连续的值）。在 Gym 库中，一般离散空间用 gym.spaces.Discrete 类表示，连续空间用 gym.spaces.Box 类表示。
-
-例如，环境MountainCar-v0的观测空间是Box(2,)，表示观测可以用  2  个 float 值表示；环境MountainCar-v0的动作空间是Discrete(3)，表示动作取值自{0,1,2}。对于离散空间，Discrete 类实例的成员 n 表示有几个可能的取值；对于连续空间，Box类实例的成员 low 和 high 表示每个浮点数的取值范围。
+Gym 库中的每个环境都定义了观测空间和动作空间。观测空间和动作空间可以是离散的（取值为有限个离散的值），也可以是连续的（取值为连续的值）。
 
 ###   1.7.2 MountainCar-v0 例子
 
@@ -563,8 +560,7 @@ print('动作数 = {}'.format(env.action_space.n))
 动作数 = 3    
 ```
 
-
-观测是长度为 2 的数组，动作是整数，其取值范围为{0,1,2}。
+在 Gym 库中，环境的观测空间用 env.observation\_space 表示，动作空间用 env.action\_space 表示。离散空间用 gym.spaces.Discrete 类表示，连续空间用 gym.spaces.Box 类表示。对于离散空间，Discrete (n) 表示可能取值的数量为 n；对于连续空间，Box类实例成员中的 low 和 high 表示每个浮点数的取值范围。MountainCar-v0 中的观测是长度为 2 的 numpy 数组，数组中值的类型为 float。MountainCar-v0 中的动作是整数，取值范围为 {0,1,2}。
 
 接下来实现智能体来控制小车移动，对应代码如下。
 
