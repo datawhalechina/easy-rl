@@ -592,11 +592,11 @@ SimpleAgent 类的 decide()方法用于决策，learn() 方法用于学习，该
 
 ```python
 def play(env, agent, render=False, train=False):
-    episode_reward = 0. # 记录回合总奖励，初始化为0
+    episode_reward = 0. # 记录回合总奖励，初始值为0
     observation = env.reset() # 重置游戏环境，开始新回合
     while True: # 不断循环，直到回合结束
         if render: # 判断是否显示
-            env.render() # 显示图形界面，图形界面可以用 env.close() 语句关闭
+            env.render() # 显示图形界面
         action = agent.decide(observation)
         next_observation, reward, done, _ = env.step(action) # 执行动作
         episode_reward += reward # 收集回合奖励
@@ -608,12 +608,9 @@ def play(env, agent, render=False, train=False):
     return episode_reward # 返回回合总奖励
 ```
 
-上面代码中的 play 函数可以让智能体和环境交互一个回合，这个函数有 4 个参数。
-env 是环境类。agent 是智能体类。render 是 bool 型变量，指示在运行过程中是否要图形化显示，如果函数参数 render为 True，那么在交互过程中会调用 env.render() 以显示图形界面，而这个界面可以通过调用 env.close()关闭。
-train是 bool 型的变量，指示在运行过程中是否训练智能体，在训练过程中应当设置为 True，以调用 agent.learn()函数；在测试过程中应当设置为 False，使得智能体不变。
-这个函数有一个返回值episode\_reward，是 float 型的数值，表示智能体与环境交互一个回合的回合总奖励。
+上面代码中的 play 函数可以让智能体和环境交互一个回合，该函数有 4 个参数。env 是环境类。agent 是智能体类。render 是 bool 型变量，其用于判断是否需要图形化显示。如果 render 为 True，则在交互过程中会调用 env.render() 以显示图形界面，通过调用 env.close() 可关闭图形界面。train 是 bool 型变量，其用于判断是否训练智能体，在训练过程中设置为 True，让智能体学习；在测试过程中设置为 False，让智能体保持不变。该函数的返回值 episode\_reward 是 float 型的数值，其表示智能体与环境交互一个回合的回合总奖励。
 
-接下来，我们使用下面的代码让智能体和环境交互一个回合，并在交互过程中进行图形化显示，可用 env.close()语句关闭图形界面。
+接下来，我们使用下面的代码让智能体和环境交互一个回合，并且显示图像界面。
 
 ```python
 env.seed(3) # 设置随机种子，让结果可复现
@@ -627,7 +624,7 @@ env.close() # 关闭图形界面
 回合奖励 = -105.0    
 ```
 
-为了系统评估智能体的性能，下列代码求出了连续交互 100 回合的平均回合奖励。
+为了评估智能体的性能，需要计算出连续交互 100 回合的平均回合奖励，代码如下。
 ```python
 episode_rewards = [play(env, agent) for _ in range(100)]
 print('平均回合奖励 = {}'.format(np.mean(episode_rewards)))
@@ -638,9 +635,9 @@ print('平均回合奖励 = {}'.format(np.mean(episode_rewards)))
 平均回合奖励 = -106.63
 ```
 
-小车上山环境有一个参考的回合奖励值 $-$110，如果连续 100 个回合的平均回合奖励大于 $-$110，则认为这个任务被解决了。SimpleAgent 类对应的策略的平均回合奖励就在 $-$110 左右。完整代码实现可参考[小车上山代码](https://github.com/datawhalechina/easy-rl/blob/master/docs/chapter1/RL_example.py)。
+SimpleAgent 类对应策略的平均回合奖励在 $-$110 左右，而对于小车上山任务，只要连续 100 个回合的平均回合奖励大于 $-$110，就可以认为该任务被解决了。完整代码实现可参考[小车上山代码](https://github.com/datawhalechina/easy-rl/blob/master/docs/chapter1/RL_example.py)。
 
-测试智能体在 Gym 库中某个任务的性能时，学术界一般最关心 100 个回合的平均回合奖励。至于为什么是 100 个回合而不是其他回合数（比如 128 个回合），完全是习惯使然，没有什么特别的原因。对于有些任务，还会指定一个参考的回合奖励值，当连续 100 个回合的奖励大于指定的值时，就认为这个任务被解决了。但是，并不是所有的任务都指定了这样的值。对于没有指定值的任务，就无所谓任务被解决了或者没有被解决。
+测试智能体在 Gym 库中某个任务的性能时，出于习惯使然，学术界一般最关心 100 个回合的平均回合奖励。对于有些任务，还会指定一个参考的回合奖励值，当连续 100 个回合的奖励大于指定的值时，则认为该任务被解决了。而对于没有指定值的任务，就无所谓任务被解决了或没有被解决。
 
 我们对 Gym 库的用法进行总结：使用 env=gym.make(环境名)取出环境，使用 env.reset()初始化环境，使用 env.step(动作)执行一步环境，使用 env.render()显示环境，使用 env.close()关闭环境。Gym库 有对应的[官方文档](https://www.gymlibrary.dev/)，读者可以阅读文档来学习 Gym库 。
 
