@@ -34,7 +34,7 @@ agent = QLearning(
     state_dim=env.observation_space.n,
     action_dim=env.action_space.n,
     learning_rate=cfg.policy_lr,
-    gamma=cfg.gamma,
+    gamma=cfg.gamma,)
 rewards = []  
 ma_rewards = [] # moving average reward
 for i_ep in range(cfg.train_eps): # train_eps: 训练的最大episodes数
