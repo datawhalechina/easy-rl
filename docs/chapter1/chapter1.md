@@ -217,7 +217,7 @@ A：**状态**是对世界的完整描述，不会隐藏世界的信息。**观�
 
 例如，走迷宫机器人如果只有往东、往南、往西、往北这 4 种移动方式，则其动作空间为离散动作空 间；如果机器人可以向 360 度中的任意角度进行移动，则其动作空间为连续动作空间。
 
-### 1.4 强化学习智能体的组成成分和类型
+## 1.4 强化学习智能体的组成成分和类型
 
 对于一个强化学习智能体，它可能有一个或多个如下的组成成分。
 
@@ -558,7 +558,7 @@ print('动作数 = {}'.format(env.action_space.n))
 动作数 = 3    
 ```
 
-在 Gym 库中，环境的观测空间用 env.observation\_space 表示，动作空间用 env.action\_space 表示。离散空间用 gym.spaces.Discrete 类表示，连续空间用 gym.spaces.Box 类表示。对于离散空间，Discrete (n) 表示可能取值的数量为 n；对于连续空间，Box类实例成员中的 low 和 high 表示每个浮点数的取值范围。MountainCar-v0 中的观测是长度为 2 的 numpy 数组，数组中值的类型为 float。MountainCar-v0 中的动作是整数，取值范围为 {0,1,2}。
+在 Gym 库中，环境的观测空间用 env.observation\_space 表示，动作空间用 env.action\_space 表示。离散空间 gym.spaces.Discrete 类表示，连续空间用 gym.spaces.Box 类表示。对于离散空间，Discrete (n) 表示可能取值的数量为 n；对于连续空间，Box类实例成员中的 low 和 high 表示每个浮点数的取值范围。MountainCar-v0 中的观测是长度为 2 的 numpy 数组，数组中值的类型为 float。MountainCar-v0 中的动作是整数，取值范围为 {0,1,2}。
 
 接下来实现智能体来控制小车移动，对应代码如下。
 
