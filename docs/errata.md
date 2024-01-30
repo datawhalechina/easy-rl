@@ -1,6 +1,22 @@
 # 纸质版勘误修订表
 
 **如何使用勘误？首先找到你的书的印次，接下来对着下表索引印次，该印次之后所有的勘误都是你的书中所要注意的勘误，印次前的所有勘误在当印次和之后印次均已印刷修正。为方便读者，所有修订内容都列举在此。其中部分修订是为了更便于读者理解，并非原文有误。**
+
+## 第1版第9次印刷（2024.01）
+* 135页，第一段1~2行：我们来看一下 **PPO1** 算法，即近端策略优化惩罚算法。它先初始化一个策略的参数 $\theta^{0}$。在每一个迭代中 → 我们先看一下近端策略优化惩罚算法，其先初始化一个策略的参数 $\theta^{0}$，在每一个迭代中
+* 135页，第二段第2行：这里会遇到一个问题就，即 $\beta$ 要设置为多少？→ 这里会有一个问题：$\beta$ 要设置为多少。
+* 135页，倒数第一段：如果我们觉得计算 KL 散度很复杂，那么还有一个 PPO2 算法，PPO2 即近端策略优化裁剪算法。→ 如果我们觉得计算 KL 散度很复杂，可以使用近端策略优化裁剪算法。
+
+* 136页，式(5.19) 改为：
+
+$$
+\begin{aligned}
+J_{\mathrm{PPO}}^{\theta^k}(\theta) \approx \sum_{\left(s_t, a_t\right)} \min & \left(\frac{p_\theta\left(a_t \mid s_t\right)}{p_{\theta^k}\left(a_t \mid s_t\right)} A^{\theta^k}\left(s_t, a_t\right),\right. \\
+& \left.\operatorname{clip}\left(\frac{p_\theta\left(a_t \mid s_t\right)}{p_{\theta^k}\left(a_t \mid s_t\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^k}\left(s_t, a_t\right)\right) 
+\end{aligned}
+\tag{5.19}
+$$
+
 ## 第1版第8次印刷（2023.11）
 
 * 主要符号表在 $r$ 后面添加 4 行：
