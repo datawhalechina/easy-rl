@@ -27,6 +27,7 @@
 - [第十二章 习题](chapter12/chapter12_questions&keywords)
 - [项目三 使用 Policy-Based 方法实现 Pendulum-v0](chapter12/project3)
 - [第十三章 AlphaStar 论文解读](chapter13/chapter13)
+- [视觉强化学习论文清单（Awesome Visual RL）](chapter14/chapter14)
 
 
 
