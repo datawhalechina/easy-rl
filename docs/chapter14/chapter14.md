@@ -1,1 +1,1 @@
-视觉强化学习（Visual Reinforcement Learning，VRL）是强化学习非常有潜力的强化学习方向，与之前传统的基于状态的强化学习方法不同，其根据图片来直接学习控制策略，感兴趣的同学可阅读相关的论文：[Awesome Visual RL](https://github.com/qiwang067/awesome-visual-rl)。
+视觉强化学习（Visual Reinforcement Learning，VRL）是强化学习中非常有潜力的强化学习方向，与之前传统的基于状态的强化学习方法不同，其根据图片来直接学习控制策略，感兴趣的同学可阅读相关的论文：[Awesome Visual RL](https://github.com/qiwang067/awesome-visual-rl)。
