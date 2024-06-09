@@ -74,6 +74,7 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 | [第十一章 模仿学习](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11) | [第十一章 习题](https://datawhalechina.github.io/easy-rl/#/chapter11/chapter11_questions&keywords) |                                                              |                                                              |
 | [第十二章 深度确定性策略梯度 (DDPG) 算法](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12) | [第十二章 习题](https://datawhalechina.github.io/easy-rl/#/chapter12/chapter12_questions&keywords) | [DDPG算法实战](https://datawhalechina.github.io/easy-rl/#/chapter12/project3) | [DDPG](https://github.com/datawhalechina/easy-rl/blob/master/notebooks/DDPG.ipynb) |
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |                                                              |                                                              |                                                              |
+| [视觉强化学习论文清单（Awesome Visual RL）](https://github.com/qiwang067/awesome-visual-rl) |                                                              |                                                              |                                                              |
 ## 算法实战
 
 算法实战部分包括附书代码和JoyRL代码：
