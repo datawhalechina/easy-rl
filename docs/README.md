@@ -17,23 +17,20 @@
 
 <img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/mogu.png" width="300">
 
-购买链接：[京东](https://item.jd.com/13075567.html) | [当当](http://product.dangdang.com/29374163.html)
+推荐购买链接：[京东](https://u.jd.com/tG2sxLb) 
 
 <table border="0">
   <tbody>
     <tr align="center" >
       <td>
-         <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_jingdong.png" alt="pic">
+         <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_jingdong.jpg" alt="pic">
         <br>
-        <p>京东扫码购买</p>
-      </td>
-      <td>
-    <img width="120" height="120" src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode_dangdang.png" alt="pic"><br>
-        <p>当当扫码购买</p>
+        <p>推荐京东扫码购买</p>
       </td>
     </tr>
   </tbody>
 </table>
+
 
 豆瓣评分：https://book.douban.com/subject/35781275/
 
