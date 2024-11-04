@@ -81,15 +81,15 @@ $$
 
 例如，我们有不同的约束，一个最直觉的约束是必须要让 $\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$ 的每一列的和都是 0，所以看我这边举的例子，列的和都是 0。如果这边列的和都是 0，我们就可以把$V(\boldsymbol{s})$的值想成是上面 Q 的每一列的平均值。这个平均值，加上$\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$的值才会变成是 Q 的值。所以假设在更新参数的时候，要让整个列一起被更新，更新  $\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$ 的某一列比较麻烦，所以我们就不会想要更新 $\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$ 的某一列。因为 $\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$ 的每一列的和都要是 0，所以我们无法让$\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$的某列的值都加1，这是做不到的，因为它的约束就是和永远都是 0，所以不可以都加1，这时候就会强迫网络去更新$V(\boldsymbol{s})$的值，让我们可以用比较有效率的方法去使用数据。
 
-实现时，我们要给这个$\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$一个约束。例如，如图 7.5 所示，假设有 3 个动作，输出的向量是 $[7,3,2]^{\mathrm{T}}$，我们在把 $\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$与 $V(\boldsymbol{s})$ 加起来之前，先进行归一化（normalization）。
+实现时，我们要给这个$\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$一个约束。例如，如图 7.5 所示，假设有 3 个动作，输出的向量是 $[7,3,2]^{\mathrm{T}}$，我们在把 $\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$与 $V(\boldsymbol{s})$ 加起来之前，先进行零均值化。
 
-归一化的过程如下：
+零均值化的过程如下：
 
 （1）计算均值（7+3+2）/3=4；
 
-（2）向量$[7,3,2]^{\mathrm{T}}$的每个元素的值都减去均值4，于是归一化的向量为 $[3,-1,2]^{\mathrm{T}}$。
+（2）向量$[7,3,2]^{\mathrm{T}}$的每个元素的值都减去均值4，于是零均值化的向量为 $[3,-1,2]^{\mathrm{T}}$。
 
-接着我们将向量$[3,-1,2]^{\mathrm{T}}$中的每个元素的值加上 1，就可以得到最后的 Q 值。这个归一化的步骤就是网络的其中一部分，在训练的时候，我们也使用反向传播，只是归一化是没有参数的，它只是一个操作，可以把它放到网络里面，与网络的其他部分共同训练，这样$\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$就会有比较大的约束，网络就会给它一些好处，让它倾向于去更新$V(\boldsymbol{s})$的值，这就是竞争深度Q网络。
+接着我们将向量$[3,-1,2]^{\mathrm{T}}$中的每个元素的值加上 1，就可以得到最后的 Q 值。这个零均值化的步骤就是网络的其中一部分，在训练的时候，我们也使用反向传播，只是零均值化是没有参数的，它只是一个操作，可以把它放到网络里面，与网络的其他部分共同训练，这样$\boldsymbol{A}(\boldsymbol{s},\boldsymbol{a})$就会有比较大的约束，网络就会给它一些好处，让它倾向于去更新$V(\boldsymbol{s})$的值，这就是竞争深度Q网络。
 
 
 <div align=center>
