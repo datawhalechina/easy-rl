@@ -18,7 +18,7 @@
 
 <img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/mogu.png" width="300">
 
-推荐购买链接：[京东](https://u.jd.com/tG2sxLb) | [当当](http://product.dangdang.com/29374163.html) 
+推荐购买链接：[京东](https://item.jd.com/13075567.html) | [当当](http://product.dangdang.com/29374163.html) 
 
 <table border="0">
   <tbody>
