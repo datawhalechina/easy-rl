@@ -21,6 +21,7 @@ J_{\mathrm{PPO}}^{\theta^k}(\theta) \approx \sum_{\left(s_t, a_t\right)} \min & 
 \tag{5.19}
 $$
 
+* 136页，倒数第2段：如果介于 $1+\varepsilon \sim 1-\varepsilon$ → 如果介于 $1-\varepsilon \sim 1+\varepsilon$
 * 140页，第一段最前面加上：本章介绍基于价值的典型强化学习算法——**深度Q网络（deep Q-network，DQN）**。
 * 140页，第三段第一行：深度 Q 网络（deep Q-network，DQN）→ 深度 Q 网络。
 * 165页，第一段第2行：归一化（normalization）。归一化的过程 → 零均值化。零均值化的过程
