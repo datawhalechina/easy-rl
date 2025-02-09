@@ -207,7 +207,7 @@ $$
 图 5.2 的横轴代表 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$，纵轴代表裁剪函数的输出。
 * 如果 $\frac{p_{\theta}\left(a_{t} | s_{t}\right)}{p_{\theta^{k}}\left(a_{t} | s_{t}\right)}$ 大于$1+\varepsilon$，输出就是 $1+\varepsilon$；
 * 如果小于 $1-\varepsilon$，输出就是 $1-\varepsilon$；
-* 如果介于 $1+\varepsilon$ \~{} $1-\varepsilon$，输出等于输入。
+* 如果介于 $1-\varepsilon \sim 1+\varepsilon$，输出等于输入。
 
 <div align=center>
 <img width="550" src="../img/ch5/5.2.png"/>
@@ -242,7 +242,6 @@ $$
 ## 参考文献
 * [OpenAI Spinning Up ](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#)
 * [百面机器学习](https://book.douban.com/subject/30285146/)
-
 
 
 
