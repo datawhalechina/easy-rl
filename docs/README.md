@@ -39,7 +39,8 @@
 
 豆瓣评分：https://book.douban.com/subject/35781275/
 
-ℹ️ **勘误修订表**：https://datawhalechina.github.io/easy-rl/#/errata
+> [!IMPORTANT]
+**勘误修订表**：https://datawhalechina.github.io/easy-rl/#/errata
 
 ## 在线阅读(内容实时更新)
 
