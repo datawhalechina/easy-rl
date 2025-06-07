@@ -8,6 +8,31 @@
 
 本教程也称为“蘑菇书”，寓意是希望此书能够为读者注入活力，让读者“吃”下这本蘑菇之后，能够饶有兴致地探索强化学习，像马里奥那样愈加强大，继而在人工智能领域觅得意外的收获。
 
+## 贡献者
+
+<table border="0">
+  <tbody>
+    <tr align="center" >
+      <td>
+         <a href="https://github.com/qiwang067"><img width="70" height="70" src="https://github.com/qiwang067.png?s=40" alt="pic"></a><br>
+         <a href="https://github.com/qiwang067">Qi Wang</a> 
+        <p>教程设计(第1~12章)<br> 上海交通大学博士生<br> 中国科学院大学硕士</p>
+      </td>
+      <td>
+         <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
+         <a href="https://github.com/yyysjz1997">Yiyuan Yang</a> 
+        <p>习题设计&第13章 <br> 牛津大学博士生<br> 清华大学硕士</p>
+      </td>
+      <td>
+         <a href="https://github.com/JohnJim0816"><img width="70" height="70" src="https://github.com/JohnJim0816.png?s=40" alt="pic"></a><br>
+         <a href="https://github.com/JohnJim0816">John Jim</a>
+         <p>算法实战<br> 北京大学硕士</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
 ## 使用说明
 
 * 第 4 章到第 11 章为[李宏毅《深度强化学习》](http://speech.ee.ntu.edu.tw/~tlkagk/courses_MLDS18.html)的部分；
@@ -103,29 +128,6 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 * [蘑菇书开源组队学习活动](https://www.bilibili.com/video/BV1Ha41197Pg/?spm_id_from=333.999.0.0&vd_source=642fa389e9e78cff4881c038963ac312)
 * [蘑菇书开源学习与成长](https://www.bilibili.com/video/BV1xW4y1B72o/?spm_id_from=333.999.0.0&vd_source=642fa389e9e78cff4881c038963ac312)
 
-## 贡献者
-
-<table border="0">
-  <tbody>
-    <tr align="center" >
-      <td>
-         <a href="https://github.com/qiwang067"><img width="70" height="70" src="https://github.com/qiwang067.png?s=40" alt="pic"></a><br>
-         <a href="https://github.com/qiwang067">Qi Wang</a> 
-        <p>教程设计(第1~12章)<br> 上海交通大学博士生<br> 中国科学院大学硕士</p>
-      </td>
-      <td>
-         <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
-         <a href="https://github.com/yyysjz1997">Yiyuan Yang</a> 
-        <p>习题设计&第13章 <br> 牛津大学博士生<br> 清华大学硕士</p>
-      </td>
-      <td>
-         <a href="https://github.com/JohnJim0816"><img width="70" height="70" src="https://github.com/JohnJim0816.png?s=40" alt="pic"></a><br>
-         <a href="https://github.com/JohnJim0816">John Jim</a>
-         <p>算法实战<br> 北京大学硕士</p>
-      </td>
-    </tr>
-  </tbody>
-</table>
 
 ## 引用信息
 
