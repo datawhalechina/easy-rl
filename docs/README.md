@@ -171,7 +171,7 @@ url = {https://github.com/datawhalechina/easy-rl}
 [![Forkers repo roster for @datawhalechina/easy-rl](https://reporoster.com/forks/datawhalechina/easy-rl)](https://github.com/datawhalechina/easy-rl/network/members)
 
 ## 关注我们
-扫描下方二维码关注公众号：Datawhale，回复关键词“Easy-RL读者交流群”，即可加入“Easy-RL读者交流群”
+扫描下方二维码关注公众号：Datawhale，回复关键词“Easy-RL”，即可加入“Easy-RL读者交流群”
 <div align=center><img src="https://raw.githubusercontent.com/datawhalechina/easy-rl/master/docs/res/qrcode.jpeg" width = "250" height = "270" alt="Datawhale是一个专注AI领域的开源组织，以“for the learner，和学习者一起成长”为愿景，构建对学习者最有价值的开源学习社区。关注我们，一起学习成长。"></div>
 
 ## LICENSE
