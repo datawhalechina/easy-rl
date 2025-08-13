@@ -104,6 +104,7 @@ PDF版本是全书初稿，人民邮电出版社的编辑老师们对初稿进�
 | [第十三章 AlphaStar 论文解读](https://datawhalechina.github.io/easy-rl/#/chapter13/chapter13) |                                                              |                                                              |                                                              |
 | [ICLR'25 Oral 强化学习玩MineCraft](https://datawhalechina.github.io/easy-rl/#/chapter14/ls-imagine) |                                                              |                                                              |                                                              |
 | [视觉强化学习论文清单（Awesome Visual RL）](https://github.com/qiwang067/awesome-visual-rl) |                                                              |                                                              |                                                              |
+| [世界模型的本质](https://datawhalechina.github.io/easy-rl/#/chapter16/chapter16) |                                                              |                                                              |                                                              |
 ## 算法实战
 
 算法实战部分包括附书代码和JoyRL代码：
