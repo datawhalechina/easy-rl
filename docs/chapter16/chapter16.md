@@ -17,7 +17,7 @@
 
 <div align=center> <img width="550" src="../img/ch16/image 3.png"/> </div> <div align=center></div>
 
-- **M 模型（MDN-RNN）**的作用是预测未来，具体来说，M 模型根据当前时刻 $t$ 的隐向量（latent vector） $$z_t$$ 、隐状态（hidden state） $h_t$ 以及动作$a_t$来预测下一时刻的隐向量 $$z_{t+1}$$ 。它使用**混合密度网络（Mixture Density Network，MDN）**与**循环神经网络（Recurrent Neural Network，RNN）**结合的方式，输出下一个隐向量 $$z$$ 的概率分布。温度参数 $$\tau$$ 用来控制模型的不确定性。
+- **M 模型（MDN-RNN）**的作用是预测未来，具体来说，M 模型根据当前时刻 $t$ 的隐向量（latent vector） $$z_t$$ 、隐状态（hidden state） $h_t$ 以及动作$a_t$来预测下一时刻的隐向量 $z_{t+1}$ 。它使用**混合密度网络（Mixture Density Network，MDN）**与**循环神经网络（Recurrent Neural Network，RNN）**结合的方式，输出下一个隐向量 $z$ 的概率分布。温度参数 $\tau$ 用来控制模型的不确定性。
 
 $$
 P\left(z_{t+1} \mid a_t, z_t, h_t\right)
@@ -25,13 +25,13 @@ $$
 
 <div align=center> <img width="550" src="../img/ch16/image 4.png"/> </div> <div align=center></div>
 
-- **C 模型（Controller，控制器）**使用来自V模型和M模型的表示来选择合适的动作。控制器的目的是最大化期望的累积奖励。C是一个简单的单层线性模型，它将$$z_t$$和$$h_t$$直接映射到每个时间步的行动$$a _t$$，$$ \left[z_t h_t\right] $$是把 $$z_t$$和$$h_t$$拼接在一起
+- **C 模型（Controller，控制器）**使用来自V模型和M模型的表示来选择合适的动作。控制器的目的是最大化期望的累积奖励。C是一个简单的单层线性模型，它将$z_t$和$h_t$直接映射到每个时间步的行动$a _t$，$ \left[z_t h_t\right] $是把 $z_t$和$h_t$拼接在一起
 
 $$
 a_t=W_c\left[z_t h_t\right]+b_c
 $$
 
-把 V、M、C 模型放一起，**整体运作的流程**是：在每个时间步$$t$$，原始观测输入到V，输出 $$z_t $$。输入到C的是隐向量$$z_t $$与M的隐状态$$h_t $$的拼接。接着，C会输出一个动作向量$$a_t $$用于运动控制，并且会影响环境。接着，M将当前的$$z_t $$和动作$$a_t $$作为输入，更新自身的隐状态，生成$$h_{t+1} $$。值得注意的是，论文中是通过随机策略跟环境进行交互收集到的预演（rollouts）来训练世界模型。
+把 V、M、C 模型放一起，**整体运作的流程**是：在每个时间步$t$，原始观测输入到V，输出 $z_t $。输入到C的是隐向量$z_t $与M的隐状态$h_t $的拼接。接着，C会输出一个动作向量$a_t $用于运动控制，并且会影响环境。接着，M将当前的$z_t $和动作$a_t $作为输入，更新自身的隐状态，生成$h_{t+1} $。值得注意的是，论文中是通过随机策略跟环境进行交互收集到的预演（rollouts）来训练世界模型。
 
 <div align=center> <img width="550" src="../img/ch16/image 5.png"/> </div> <div align=center></div>
 
