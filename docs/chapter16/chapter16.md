@@ -42,7 +42,11 @@ $$
 
 
 
-原论文给出了对应的世界模型 demo：https://worldmodels.github.io/，大家可以试玩下。也欢迎大家看我主页上世界模型相关的 paper（https://qiwang067.github.io/），最后宣传下我们 NeurIPS 组织的 Workshop “**Embodied World Models for Decision Making**”（https://embodied-world-models.github.io/）”，**Genie 3 的核心贡献者** Philip Ball 也会给 Talk，欢迎大家参加、投稿~，希望本文能对大家理解世界模型有所帮助。
+原论文给出了对应的世界模型 demo：[https://worldmodels.github.io/](https://worldmodels.github.io/)，大家可以试玩下~
+
+
+
+也欢迎大家看我主页上世界模型相关的 paper（https://qiwang067.github.io/），最后宣传下我们 NeurIPS 组织的 Workshop “**Embodied World Models for Decision Making**”（https://embodied-world-models.github.io/）”，**Genie 3 的核心贡献者** Philip Ball 也会给 Talk，欢迎大家参加、投稿~，希望本文能对大家理解世界模型有所帮助。
 
 <div align=center> <img width="550" src="../img/ch16/image 7.png"/> </div> <div align=center></div>
 
