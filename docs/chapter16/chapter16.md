@@ -17,7 +17,7 @@
 
 <div align=center> <img width="550" src="../img/ch16/image 3.png"/> </div> <div align=center></div>
 
-- **M 模型（MDN-RNN）**的作用是预测未来，具体来说，M 模型根据当前时刻 $t$ 的隐向量（latent vector） $$z_t$$ 、隐状态（hidden state） $h_t$ 以及动作$a_t$来预测下一时刻的隐向量 $z_{t+1}$ 。它使用**混合密度网络（Mixture Density Network，MDN）**与**循环神经网络（Recurrent Neural Network，RNN）**结合的方式，输出下一个隐向量 $z$ 的概率分布。温度参数 $\tau$ 用来控制模型的不确定性。
+- **M 模型（MDN-RNN）**的作用是预测未来，具体来说，M 模型根据当前时刻 $t$ 的隐向量（latent vector） $z_t$ 、隐状态（hidden state） $h_t$ 以及动作$a_t$来预测下一时刻的隐向量 $z_{t+1}$ 。它使用**混合密度网络（Mixture Density Network，MDN）**与**循环神经网络（Recurrent Neural Network，RNN）**结合的方式，输出下一个隐向量 $z$ 的概率分布。温度参数 $\tau$ 用来控制模型的不确定性。
 
 $$
 P\left(z_{t+1} \mid a_t, z_t, h_t\right)
