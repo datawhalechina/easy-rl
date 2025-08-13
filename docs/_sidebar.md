@@ -29,6 +29,7 @@
 - [第十三章 AlphaStar 论文解读](chapter13/chapter13)
 - [ICLR'25 Oral 强化学习玩MineCraft](chapter14/ls-imagine)
 - [视觉强化学习论文清单（Awesome Visual RL）](chapter15/chapter15)
+- [世界模型的本质](chapter16/chapter16)
 
 
 
