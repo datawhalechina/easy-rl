@@ -26,7 +26,7 @@
 $$
 \begin{aligned}
 J_{\mathrm{PPO}}^{\theta^k}(\theta) \approx \sum_{\left(s_t, a_t\right)} \min & \left(\frac{p_\theta\left(a_t \mid s_t\right)}{p_{\theta^k}\left(a_t \mid s_t\right)} A^{\theta^k}\left(s_t, a_t\right),\right. \\
-& \left.\operatorname{clip}\left(\frac{p_\theta\left(a_t \mid s_t\right)}{p_{\theta^k}\left(a_t \mid s_t\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^k}\left(s_t, a_t\right)\right) 
+& \left.\operatorname{clip}\left(\frac{p_\theta\left(a_t \mid s_t\right)}{p_{\theta^k}\left(a_t \mid s_t\right)}, 1-\varepsilon, 1+\varepsilon\right) A^{\theta^k}\left(s_t, a_t\right)\right)
 \end{aligned}
 \tag{5.19}
 $$
@@ -47,7 +47,7 @@ $$
   * $\mathcal{S}$          所有非终止状态的集合
   * $\mathcal{S}^{+}$       所有状态的集合
   * $\mathcal{A}(s)$    在状态 $s$ 可执行动作的集合
-  * $\mathcal{R}$         所有可能奖励的集合     
+  * $\mathcal{R}$         所有可能奖励的集合
 * 前勒口作者简介：
   * 王琦：
     * 主要研究方向为深度学习、数据挖掘 → 主要研究方向为强化学习、计算机视觉
@@ -68,7 +68,7 @@ $$
 $$
 \begin{aligned}
 V^t(s) & =\mathbb{E}\left[G_t \mid s_t=s\right] \\
-& =\mathbb{E}\left[r_{t+1}+\gamma r_{t+2}+\gamma^2 r_{t+3}+\cdots \mid s_t=s\right] 
+& =\mathbb{E}\left[r_{t+1}+\gamma r_{t+2}+\gamma^2 r_{t+3}+\cdots \mid s_t=s\right]
 \end{aligned}
 \tag{2.6}
 $$
@@ -78,11 +78,11 @@ $$
 * 96页，
 
   * 图3.33(a)、图3.33(b)的第2行：
-    * $s \in S^{+}, a \in A(s)$ → $s \in \mathcal{S}^{+}, a \in \mathcal{A}(s)$  
+    * $s \in S^{+}, a \in A(s)$ → $s \in \mathcal{S}^{+}, a \in \mathcal{A}(s)$
     * 终点 → 终止状态
   * 图3.33(a)、图3.33(b)的第7行：观测 → 得到
 
-  
+
 
 ## 第1版第7次印刷（2023.10）
 
@@ -158,12 +158,12 @@ pip install gym==0.25.2
 ![](res/Markov_chain.png ':size=350')
 
 * 38页，式(2.7)下面一段第1行：$s^{\prime}$ 可以看成未来的所有状态 → $s^{\prime}$ 可以看成未来的某个状态
-* 38页，式(2.7)下面一段第2行：未来某一个状态的价值 → 未来某个状态的价值  
+* 38页，式(2.7)下面一段第2行：未来某一个状态的价值 → 未来某个状态的价值
 * 52页，第二段修改为：
 
 &ensp;&ensp;&ensp;&ensp;举一个例子来说明预测与控制的区别。首先是预测问题。在图 2.16（a）的方格中，智能体可以采取上、下、左、右4个动作。如果采取的动作让智能体走出网格，则其会在原位置不动，并且得到 -1 的奖励。除了将智能体从 $\mathrm{A}$ 和 $\mathrm{B}$ 移走的动作外，其他动作的奖励均为 0。智能体在 $\mathrm{A}$ 采取任意一个动作，都会移动到 $\mathrm{A}^{\prime}$ ，并且得到 +10 的奖励。智能体在 $\mathrm{B}$ 采取任意一个动作，都会移动到 $\mathrm{B}^{\prime}$ ，并且得到 +5 的奖励。如图 2.16（b）所示，现在，我们给定一个策略：在任何状态中，智能体的动作模式都是随机的，也就是上、下、左、右的概率均为 0.25。预测问题要做的就是，求出在这种决策模式下的价值函数。图 2.16 （c）是折扣因子为 $\gamma=0.9$ 时对应的价值函数。
 
-* 55页，第2段的第1行：$p(2 \mid 6, \mathrm{u})=2$ → $p(2 \mid 6, \mathrm{u})=1$ 
+* 55页，第2段的第1行：$p(2 \mid 6, \mathrm{u})=2$ → $p(2 \mid 6, \mathrm{u})=1$
 
 * 96页，删除图3.33上面一段文字：事实上，Q 学习算法被提出的时间更早，Sarsa 算法是 Q 学习算法的改进。
 
@@ -184,13 +184,13 @@ pip install gym==0.25.2
 ![](res/4-11.png ':size=550')
 
 * 116页，图4.11的标题替换为：实际情况下动作概率的变化
-* 121页，图4.14上面一段的第4行：每个动作计算梯度 $\nabla \ln \pi\left(a_{t} \mid s_{t}, \theta\right)$  → 每个动作计算梯度 $\nabla \log \pi\left(a_{t} \mid s_{t}, \theta\right)$ 
-* 121页，图4.14上面一段的倒数第1行：$\nabla \ln \pi\left(a_{t} \mid s_{t}, \theta\right)$ → $\nabla \log \pi\left(a_{t} \mid s_{t}, \theta\right)$ 
+* 121页，图4.14上面一段的第4行：每个动作计算梯度 $\nabla \ln \pi\left(a_{t} \mid s_{t}, \theta\right)$  → 每个动作计算梯度 $\nabla \log \pi\left(a_{t} \mid s_{t}, \theta\right)$
+* 121页，图4.14上面一段的倒数第1行：$\nabla \ln \pi\left(a_{t} \mid s_{t}, \theta\right)$ → $\nabla \log \pi\left(a_{t} \mid s_{t}, \theta\right)$
 * 121页，图4.14替换成下图：
 
 ![](res/4-14.png ':size=550')
 
-* 123页，倒数第2段的第2行：$\ln \pi\left(a_{t} \mid s_{t}, \theta\right)$ → $\log \pi\left(a_{t} \mid s_{t}, \theta\right)$   
+* 123页，倒数第2段的第2行：$\ln \pi\left(a_{t} \mid s_{t}, \theta\right)$ → $\log \pi\left(a_{t} \mid s_{t}, \theta\right)$
 * 124页，图4.19替换成下图：
 
 ![](res/4-19.png ':size=550')
@@ -203,8 +203,8 @@ pip install gym==0.25.2
 * 133页，5.2节第二段的第1行到第3行：注意，由于在 PPO 中 $\theta'$ 是 $\theta_{\text{old}}$，即行为策略也是 $\pi_{\theta}$，因此 PPO 是同策略的算法。如式(5.15) 所示，PPO 实际上做的事情就是这样，在异策略的方法里优化目标函数 $J^{\theta^{\prime}}(\theta)$。→  如式(5.15)所示，PPO 需要优化目标函数 $J^{\theta^{\prime}}(\theta)$。
 * 133页，5.2节第二段的倒数第1行加入以下内容：**注意，虽然 PPO 的优化目标涉及到了重要性采样，但其只用到了上一轮策略 $\theta^{\prime}$ 的数据。PPO 目标函数中加入了 KL 散度的约束，行为策略 $\theta^{\prime}$  和目标策略 $\theta$ 非常接近，PPO 的行为策略和目标策略可认为是同一个策略，因此 PPO 是同策略算法。**
 * 134页，式(5.16)下面一段第2行：最大化式 (5.16) → 最大化式 (5.15)
-* 165页，第一段的第4行到第5行：归一化的向量为 $[3,-1,2]^{\mathrm{T}}$ → 归一化的向量为 $[3,-1,-2]^{\mathrm{T}}$ 
-* 165页，第二段的第1行：向量 $[3,-1,2]^{\mathrm{T}}$ 中的每个元素 → 向量 $[3,-1,-2]^{\mathrm{T}}$ 中的每个元素 
+* 165页，第一段的第4行到第5行：归一化的向量为 $[3,-1,2]^{\mathrm{T}}$ → 归一化的向量为 $[3,-1,-2]^{\mathrm{T}}$
+* 165页，第二段的第1行：向量 $[3,-1,2]^{\mathrm{T}}$ 中的每个元素 → 向量 $[3,-1,-2]^{\mathrm{T}}$ 中的每个元素
 * 189页，图9.4替换成下图：
 
 ![](res/9-4.png ':size=550')
@@ -256,10 +256,10 @@ pip install gym==0.25.2
 * 34页，2.1.2节的第2段的第1行：也称为**马尔可夫链（Markov chain）**。 → 也称为**马尔可夫链（Markov chain）**。马尔可夫链是最简单的马尔可夫过程，其状态是有限的。
 * 35页的图2.2 和 41页的图2.5（a）替换成下图：
 
-![](res/Markov_chain.png ':size=350') 
+![](res/Markov_chain.png ':size=350')
 
 * 47页，2.3.5节的第3行：称为备份图（backup diagram） → 称为备份图（backup diagram）或回溯图
-* 61页，2.3.12节的第1小节的第2段的第1行：$\pi(s|a)$ → $\pi(a|s)$   
+* 61页，2.3.12节的第1小节的第2段的第1行：$\pi(s|a)$ → $\pi(a|s)$
 * 62页，式(2.55) 前第2行：$H$ 是迭代次数 → $H$ 是让 $V(s)$ 收敛所需的迭代次数
 * 62页，式(2.57) 改为
 $$
@@ -386,4 +386,4 @@ $$
 
 * 242页，13.4.3节上面一段的第1行：均方差损失 → 均方误差损失
 
-  
+

@@ -37,7 +37,7 @@
 </div>
 <div align=center>图 1.4 强化学习：玩Breakout</div>
 
-强化学习和监督学习的区别如下。 
+强化学习和监督学习的区别如下。
 
 （1）强化学习输入的样本是序列数据，而不像监督学习里面样本都是独立的。
 
@@ -103,9 +103,9 @@ $$
 
 ### 1.1.3 强化学习的历史
 
-强化学习是有一定的历史的，早期的强化学习，我们称其为标准强化学习。最近业界把强化学习与深度学习结合起来，就形成了深度强化学习（deep reinforcement learning），因此，深度强化学习 = 深度学习 + 强化学习。我们可将标准强化学习和深度强化学习类比于传统的计算机视觉和深度计算机视觉。 
+强化学习是有一定的历史的，早期的强化学习，我们称其为标准强化学习。最近业界把强化学习与深度学习结合起来，就形成了深度强化学习（deep reinforcement learning），因此，深度强化学习 = 深度学习 + 强化学习。我们可将标准强化学习和深度强化学习类比于传统的计算机视觉和深度计算机视觉。
 
-如图 1.9a 所示，传统的计算机视觉由两个过程组成。 
+如图 1.9a 所示，传统的计算机视觉由两个过程组成。
 
 （1）给定一张图片，我们先要提取它的特征，使用一些设计好的特征，比如方向梯度直方图（histogram of oriental gradient，HOG）、可变现的组件模型（deformable part model，DPM）。
 
@@ -174,11 +174,11 @@ $$
 
 ### 1.2.2 奖励
 
-奖励是由环境给的一种标量的反馈信号（scalar feedback signal），这种信号可显示智能体在某一步采取某个策略的表现如何。强化学习的目的就是最大化智能体可以获得的奖励，智能体在环境里面存在的目 的就是最大化它的期望的累积奖励（expected cumulative reward）。不同的环境中，奖励也是不同的。这里给大家举一些奖励的例子。 
+奖励是由环境给的一种标量的反馈信号（scalar feedback signal），这种信号可显示智能体在某一步采取某个策略的表现如何。强化学习的目的就是最大化智能体可以获得的奖励，智能体在环境里面存在的目 的就是最大化它的期望的累积奖励（expected cumulative reward）。不同的环境中，奖励也是不同的。这里给大家举一些奖励的例子。
 
-（1）比如一个象棋选手，他的目的是赢棋，在最后棋局结束的时候，他就会得到一个正奖励（赢）或者负奖励（输）。 
+（1）比如一个象棋选手，他的目的是赢棋，在最后棋局结束的时候，他就会得到一个正奖励（赢）或者负奖励（输）。
 
-（2）在股票管理里面，奖励由股票获取的奖励与损失决定。 
+（2）在股票管理里面，奖励由股票获取的奖励与损失决定。
 
 （3）在玩雅达利游戏的时候，奖励就是增加或减少的游戏的分数，奖励本身的稀疏程度决定了游戏的难度。
 
@@ -230,10 +230,10 @@ A：**状态**是对世界的完整描述，不会隐藏世界的信息。**观�
 ### 1.4.1 策略
 策略是智能体的动作模型，它决定了智能体的动作。它其实是一个函数，用于把输入的状态变成动作。策略可分为两种：随机性策略和确定性策略。
 
-**随机性策略（stochastic policy）**就是 $\pi$ 函数，即$\pi(a | s)=p\left(a_{t}=a | s_{t}=s\right)$。输入一个状态 $s$，输出一个概率。 
+**随机性策略（stochastic policy）**就是 $\pi$ 函数，即$\pi(a | s)=p\left(a_{t}=a | s_{t}=s\right)$。输入一个状态 $s$，输出一个概率。
 这个概率是智能体所有动作的概率，然后对这个概率分布进行采样，可得到智能体将采取的动作。比如可能是有 0.7 的概率往左，0.3 的概率往右，那么通过采样就可以得到智能体将采取的动作。
 
-**确定性策略（deterministic policy）**就是智能体直接采取最有可能的动作，即 $a^{*}=\underset{a}{\arg \max} \pi(a \mid s)$。 
+**确定性策略（deterministic policy）**就是智能体直接采取最有可能的动作，即 $a^{*}=\underset{a}{\arg \max} \pi(a \mid s)$。
 
 
 如图 1.14 所示，从雅达利游戏来看，策略函数的输入就是游戏的一帧，它的输出决定智能体向左移动或者向右移动。
@@ -262,7 +262,7 @@ Q_{\pi}(s, a) \doteq \mathbb{E}_{\pi}\left[G_{t} \mid s_{t}=s, a_{t}=a\right]=\m
 $$
 所以我们未来可以获得奖励的期望取决于当前的状态和当前的动作。Q 函数是强化学习算法里面要学习的一个函数。因为当我们得到 Q 函数后，进入某个状态要采取的最优动作可以通过 Q 函数得到。
 
-###   1.4.3 模型 
+###   1.4.3 模型
 第3个组成部分是模型，模型决定了下一步的状态。下一步的状态取决于当前的状态以及当前采取的动作。它由状态转移概率和奖励函数两个部分组成。状态转移概率即
 $$
 p_{s s^{\prime}}^{a}=p\left(s_{t+1}=s^{\prime} \mid s_{t}=s, a_{t}=a\right)
@@ -447,12 +447,12 @@ $python
 比如我们现在安装了Gym库，就可以直接调入Taxi-v3的环境。初始化这个环境后，我们就可以进行交互了。智能体得到某个观测后，它就会输出一个动作。这个动作会被环境拿去执行某个步骤 ，然后环境就会往前走一步，返回新的观测、奖励以及一个 flag 变量 done，done 决定这个游戏是不是结束了。我们通过几行代码就可实现强化学习的框架：
 
 ```python
-import gym 
-env = gym.make("Taxi-v3") 
-observation = env.reset() 
-agent = load_agent() 
+import gym
+env = gym.make("Taxi-v3")
+observation = env.reset()
+agent = load_agent()
 for step in range(100):
-    action = agent(observation) 
+    action = agent(observation)
     observation, reward, done, info = env.step(action)
 ```
 
@@ -502,22 +502,22 @@ observation 是状态信息，是在游戏中观测到的屏幕像素值或者�
 在每个训练中都要使用的返回值有 observation、reward、done。但 observation 的结构会由于游戏的不同而发生变化。以 CartPole-v0 为例，我们对代码进行修改：
 
 ```python
-import gym  
-env = gym.make('CartPole-v0')  
-env.reset()  
+import gym
+env = gym.make('CartPole-v0')
+env.reset()
 for _ in range(1000):
-    env.render()  
-    action = env.action_space.sample() 
+    env.render()
+    action = env.action_space.sample()
     observation, reward, done, info = env.step(action)
     print(observation)
-env.close()    
+env.close()
 ```
 
 输出：
 ```
 [ 0.01653398 0.19114579 0.02013859 -0.28050058]
 [ 0.0203569 -0.00425755 0.01452858 0.01846535]
-[ 0.02027175 -0.19958481 0.01489789 0.31569658] 
+[ 0.02027175 -0.19958481 0.01489789 0.31569658]
 ......
 ```
 
@@ -555,7 +555,7 @@ print('动作数 = {}'.format(env.action_space.n))
 观测空间 = Box([-1.2  -0.07], [0.6  0.07], (2,), float32)
 动作空间 = Discrete(3)
 观测范围 = [-1.2  -0.07] ~ [0.6  0.07]
-动作数 = 3    
+动作数 = 3
 ```
 
 在 Gym 库中，环境的观测空间用 env.observation\_space 表示，动作空间用 env.action\_space 表示。离散空间 gym.spaces.Discrete 类表示，连续空间用 gym.spaces.Box 类表示。对于离散空间，Discrete (n) 表示可能取值的数量为 n；对于连续空间，Box类实例成员中的 low 和 high 表示每个浮点数的取值范围。MountainCar-v0 中的观测是长度为 2 的 numpy 数组，数组中值的类型为 float。MountainCar-v0 中的动作是整数，取值范围为 {0,1,2}。
@@ -566,7 +566,7 @@ print('动作数 = {}'.format(env.action_space.n))
 class SimpleAgent:
     def __init__(self, env):
         pass
-    
+
     def decide(self, observation): # 决策
         position, velocity = observation
         lb = min(-0.09 * (position + 0.25) ** 2 + 0.03,
@@ -580,7 +580,7 @@ class SimpleAgent:
 
     def learn(self, *args): # 学习
         pass
-    
+
 agent = SimpleAgent(env)
 ```
 
@@ -619,7 +619,7 @@ env.close() # 关闭图形界面
 
 输出：
 ```
-回合奖励 = -105.0    
+回合奖励 = -105.0
 ```
 
 为了评估智能体的性能，需要计算出连续交互 100 回合的平均回合奖励，代码如下。
@@ -656,7 +656,7 @@ SimpleAgent 类对应策略的平均回合奖励在 $-$110 左右，而对于小
 
 * [机器学习](https://book.douban.com/subject/26708119//)
 
-  
+
 
 
 
