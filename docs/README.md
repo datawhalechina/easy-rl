@@ -16,7 +16,7 @@
       <td>
          <a href="https://github.com/qiwang067"><img width="70" height="70" src="https://github.com/qiwang067.png?s=40" alt="pic"></a><br>
          <a href="https://github.com/qiwang067">Qi Wang</a> 
-        <p>教程设计(第1~12章)<br> 上海交通大学博士生<br> 中国科学院大学硕士</p>
+        <p>教程设计(第1~12章)<br> 中科院自动化所助理研究员<br> 上海交通大学博士</p>
       </td>
       <td>
          <a href="https://github.com/yyysjz1997"><img width="70" height="70" src="https://github.com/yyysjz1997.png?s=40" alt="pic"></a><br>
